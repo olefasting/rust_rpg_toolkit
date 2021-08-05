@@ -9,7 +9,7 @@ use macroquad::{
 };
 
 use crate::{
-    util::set_global,
+    set_global,
     render::{
         get_aspect_ratio,
         to_world_space,

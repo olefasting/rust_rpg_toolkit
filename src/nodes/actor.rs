@@ -21,10 +21,8 @@ pub use controller::{
 pub use inventory::ActorInventory;
 
 use crate::{
-    util::{
-        generate_string_id,
-        get_global,
-    },
+    get_global,
+    generate_id,
     render::{
         SpriteAnimationPlayer,
         SpriteParams,
@@ -53,7 +51,7 @@ pub struct ActorData {
 impl Default for ActorData {
     fn default() -> Self {
         ActorData {
-            id: generate_string_id(),
+            id: generate_id(),
             name: "Unnamed Actor".to_string(),
             factions: Vec::new(),
             position: Vec2::ZERO,

@@ -1,8 +1,8 @@
 use macroquad::{
     color,
     experimental::{
-        coroutines::start_coroutine,
         collections::storage,
+        coroutines::start_coroutine,
         scene,
     },
     prelude::*,
@@ -25,22 +25,24 @@ use render::{
     }
 };
 pub use resources::Resources;
-pub use util::{
-    GlobalValue,
+pub use global_value::{
     try_get_global,
     get_global,
     set_global,
-    generate_string_id,
 };
 
 mod resources;
 mod circle;
+mod global_value;
 
 pub mod nodes;
-pub mod util;
 pub mod render;
 pub mod input;
 pub mod physics;
+
+pub fn generate_id() -> String {
+    nanoid::nanoid!()
+}
 
 #[derive(Copy, Clone)]
 pub struct LocalPlayerId(pub u32);

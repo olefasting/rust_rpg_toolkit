@@ -7,8 +7,6 @@ edition = "2018"
 opt-level = 3
 
 [dependencies]
-macros = { path = "./macros" }
-
 nanoid = "0.4.0"
 nanoserde = "0.1.29"
 

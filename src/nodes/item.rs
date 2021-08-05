@@ -9,11 +9,11 @@ use macroquad::{
 };
 
 use crate::{
+    generate_id,
     render::{
         SpriteAnimationPlayer,
         SpriteParams,
     },
-    util::generate_string_id,
 };
 
 #[derive(Clone)]
@@ -28,7 +28,7 @@ pub struct ItemData {
 impl Default for ItemData {
     fn default() -> Self {
         ItemData {
-            id: generate_string_id(),
+            id: generate_id(),
             name: "Unnamed Item".to_string(),
             description: "".to_string(),
             position: Vec2::ZERO,
