@@ -92,14 +92,11 @@ async fn main() {
     }
 
     loop {
+        // Do not remove this scope! It will cause weird bugs with GameState node
         {
             let mut game_state = scene::find_node_by_type::<GameState>().unwrap();
             if game_state.should_quit {
                 break;
-            }
-
-            if is_key_down(KeyCode::Q) || is_key_down(KeyCode::Escape) {
-                game_state.should_quit = true;
             }
         }
 

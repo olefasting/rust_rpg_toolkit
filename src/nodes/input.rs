@@ -35,27 +35,33 @@ impl Node for Input {
                         actor.controller.destination = Some(camera.to_world_space(get_mouse_position()));
                     }
 
-                    let x = if is_key_down(KeyCode::A) {
-                        -1.0
-                    } else if is_key_down(KeyCode::D) {
-                        1.0
-                    } else {
-                        0.0
-                    };
+                    {
+                        let x = if is_key_down(KeyCode::A) {
+                            -1.0
+                        } else if is_key_down(KeyCode::D) {
+                            1.0
+                        } else {
+                            0.0
+                        };
 
-                    let y = if is_key_down(KeyCode::W) {
-                        -1.0
-                    } else if is_key_down(KeyCode::S) {
-                        1.0
-                    } else {
-                        0.0
-                    };
+                        let y = if is_key_down(KeyCode::W) {
+                            -1.0
+                        } else if is_key_down(KeyCode::S) {
+                            1.0
+                        } else {
+                            0.0
+                        };
 
-                    actor.controller.direction = vec2(x, y);
+                        actor.controller.direction = vec2(x, y);
+                    }
                 } else {
                     // TODO: Network input
                 }
             }
+        }
+
+        if is_key_down(KeyCode::Q) || is_key_down(KeyCode::Escape) {
+            game_state.should_quit = true;
         }
 
         let x = if is_key_down(KeyCode::Left) {

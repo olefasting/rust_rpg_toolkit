@@ -125,7 +125,12 @@ impl Node for Actor {
     fn update(_node: RefMut<Self>) {}
 
     fn fixed_update(mut node: RefMut<Self>) {
-        if let Some(destination) = node.controller.destination {
+        if node.controller.direction != Vec2::ZERO {
+            node.body.velocity = node.controller.direction * Self::MOVE_SPEED;
+
+            node.controller.destination = None;
+            node.controller.direction = Vec2::ZERO;
+        } else if let Some(destination) = node.controller.destination {
             if destination.distance(node.body.position) > Self::STOP_AT_DISTANCE {
                 let direction = destination.sub(node.body.position).normalize();
                 node.body.velocity = direction * Self::MOVE_SPEED;
@@ -133,13 +138,8 @@ impl Node for Actor {
                 node.controller.destination = None;
                 node.body.velocity = Vec2::ZERO;
             }
-        }
-
-        if node.controller.direction != Vec2::ZERO {
-            node.body.velocity = node.controller.direction * Self::MOVE_SPEED;
-
-            node.controller.destination = None;
-            node.controller.direction = Vec2::ZERO;
+        } else {
+            node.body.velocity = Vec2::ZERO;
         }
 
         node.body.position.x += node.body.velocity.x;
