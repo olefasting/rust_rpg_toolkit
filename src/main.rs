@@ -32,6 +32,7 @@ use nodes::{
     Actor,
     ActorData,
 };
+
 use graphics::SpriteParams;
 
 fn window_conf() -> Conf {
@@ -68,11 +69,11 @@ async fn main() {
         let camera = CameraControl::new();
         scene::add_node(camera);
 
+        let game_state = GameState::new(0);
+        scene::add_node(game_state);
+
         let input = Input::new();
         scene::add_node(input);
-
-        let game_state = GameState::new();
-        scene::add_node(game_state);
 
         let actor = Actor::new(
             ActorData {

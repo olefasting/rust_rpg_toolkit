@@ -3,8 +3,6 @@ pub use actor::{
     ActorData,
     ActorController,
     ActorInventory,
-    PlayerControlProvider,
-    ComputerControlProvider,
 };
 pub use camera_control::CameraControl;
 pub use game_state::GameState;

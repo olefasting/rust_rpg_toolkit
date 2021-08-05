@@ -12,11 +12,7 @@ use macroquad::{
 
 use macros::*;
 
-pub use actor_controller::{
-    ActorController,
-    PlayerControlProvider,
-    ComputerControlProvider,
-};
+pub use actor_controller::ActorController;
 pub use actor_inventory::ActorInventory;
 pub use physics_body::PhysicsBody;
 
@@ -43,7 +39,7 @@ pub struct ActorData {
     pub position: Vec2,
     pub inventory: Vec<ItemData>,
     pub sprite_params: SpriteParams,
-    pub is_player_controlled: bool,
+    pub player_control_id: Option<u32>,
 }
 
 impl Default for ActorData {
@@ -55,7 +51,7 @@ impl Default for ActorData {
             position: Vec2::ZERO,
             inventory: Vec::new(),
             sprite_params: Default::default(),
-            is_player_controlled: false,
+            player_control_id: None,
         }
     }
 }
@@ -67,10 +63,10 @@ pub struct Actor {
     factions: Vec<String>,
     pub flip_x: bool,
     pub flip_y: bool,
-    inventory: ActorInventory,
-    controller: ActorController,
     body: PhysicsBody,
     sprite: SpriteAnimationPlayer,
+    inventory: ActorInventory,
+    pub controller: ActorController,
 }
 
 impl Actor {
@@ -86,10 +82,10 @@ impl Actor {
             factions: data.factions.to_vec(),
             flip_x: false,
             flip_y: false,
-            inventory: ActorInventory::new(&data.inventory),
-            controller: ActorController::new(data.is_player_controlled),
             body: PhysicsBody::new(data.position, 0.0, data.sprite_params.tile_size, Some(data.sprite_params.offset)),
             sprite: SpriteAnimationPlayer::new(data.sprite_params.clone()),
+            inventory: ActorInventory::new(&data.inventory),
+            controller: ActorController::new(data.player_control_id),
         }
     }
 
@@ -116,25 +112,14 @@ impl Actor {
             position: self.body.position,
             inventory: self.inventory.items.clone(),
             sprite_params: self.sprite.to_sprite_params(),
-            is_player_controlled: self.controller.is_player_controlled,
+            player_control_id: self.controller.player_id,
         }
     }
 }
 
 impl Node for Actor {
-    fn ready(mut node: RefMut<Self>) {
+    fn ready(_node: RefMut<Self>) {
         // Self::apply_map_object_provider(node);
-        if node.controller.is_player_controlled {
-            node.provides::<PlayerControlProvider>((
-                node.handle().untyped(),
-                node.handle().lens(|node| &mut node.controller),
-            ));
-        } else {
-            node.provides::<ComputerControlProvider>((
-                node.handle().untyped(),
-                node.handle().lens(|node| &mut node.controller),
-            ));
-        }
     }
 
     fn update(_node: RefMut<Self>) {}

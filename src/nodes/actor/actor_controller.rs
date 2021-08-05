@@ -1,25 +1,18 @@
 use macroquad::math::Vec2;
 
-use macroquad::experimental::scene::{HandleUntyped, Lens};
-
-pub type PlayerControlProvider = (HandleUntyped, Lens<ActorController>);
-
-pub type ComputerControlProvider = (HandleUntyped, Lens<ActorController>);
-
-
 #[derive(Clone)]
 pub struct ActorController {
     pub destination: Option<Vec2>,
     pub direction: Vec2,
-    pub is_player_controlled: bool,
+    pub player_id: Option<u32>,
 }
 
 impl ActorController {
-    pub fn new(is_player_controlled: bool) -> Self {
+    pub fn new(player_id: Option<u32>) -> Self {
         ActorController {
             destination: None,
             direction: Vec2::ZERO,
-            is_player_controlled,
+            player_id,
         }
     }
 

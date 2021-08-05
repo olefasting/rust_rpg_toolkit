@@ -9,11 +9,12 @@ use macroquad::{
 };
 
 pub struct GameState {
+    pub local_player_id: u32,
     pub should_quit: bool,
 }
 
 impl GameState {
-    pub fn new(/* map: MapData */) -> GameState {
+    pub fn new(local_player_id: u32) -> GameState {
         // for (_, data) in &map.actors {
         //     let actor = Actor::new(data);
         //     scene::add_node(actor);
@@ -25,6 +26,7 @@ impl GameState {
         // }
 
         GameState {
+            local_player_id,
             should_quit: false,
         }
     }
