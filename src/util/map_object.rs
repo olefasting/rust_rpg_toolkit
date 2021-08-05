@@ -12,6 +12,7 @@ pub struct MapObjectCapabilities {
     pub get_position: fn(node: HandleUntyped) -> Vec2,
 }
 
+#[allow(dead_code)]
 pub type MapObjectProvider = (HandleUntyped, MapObjectCapabilities);
 
 pub trait MapObject {

@@ -3,15 +3,9 @@ use macroquad::{
         scene::{
             Node,
             RefMut,
-            HandleUntyped,
         }
     },
     prelude::*
-};
-
-use macros::{
-    GetStringId,
-    MapObject,
 };
 
 use crate::{
@@ -20,13 +14,7 @@ use crate::{
         SpriteAnimationPlayer,
         SpriteParams,
     },
-    nodes::{
-        MapObject,
-        MapObjectCapabilities,
-        MapObjectProvider,
-    },
     generate_string_id,
-    GetStringId,
 };
 
 #[derive(Clone)]
@@ -50,7 +38,7 @@ impl Default for ItemData {
     }
 }
 
-#[derive(Clone, GetStringId, MapObject)]
+#[derive(Clone)]
 pub struct Item {
     pub id: String,
     pub name: String,
@@ -65,6 +53,7 @@ pub struct Item {
 }
 
 impl Item {
+    #[allow(dead_code)]
     pub fn new(
         data: ItemData,
     ) -> Self {
@@ -95,8 +84,7 @@ impl Item {
 }
 
 impl Node for Item {
-    fn ready(node: RefMut<Self>) {
-        Self::apply_map_object_provider(node);
+    fn ready(_node: RefMut<Self>) {
     }
 
     fn update(_node: RefMut<Self>) {

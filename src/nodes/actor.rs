@@ -2,6 +2,7 @@ use std::ops::Sub;
 
 use macroquad::{
     experimental::{
+        collections::storage,
         scene::{
             Node,
             RefMut,
@@ -9,12 +10,7 @@ use macroquad::{
     },
     prelude::*,
 };
-
 use macros::*;
-
-pub use actor_controller::ActorController;
-pub use actor_inventory::ActorInventory;
-pub use physics_body::PhysicsBody;
 
 use crate::{
     generate_string_id,
@@ -26,10 +22,34 @@ use crate::{
     },
     nodes::ItemData,
 };
+use crate::game_options::LocalPlayerId;
+use crate::graphics::Viewport;
+pub use crate::inventory::Inventory;
+use crate::physics::physics_body::PhysicsBody;
+use crate::physics::Collider;
 
-pub mod actor_inventory;
-pub mod actor_controller;
-pub mod physics_body;
+#[derive(Copy, Clone)]
+pub enum ActorController {
+    Player { player_id: u32 },
+    Computer,
+}
+
+#[derive(Clone)]
+pub struct ActorControl {
+    pub controller: ActorController,
+    pub destination: Option<Vec2>,
+    pub direction: Vec2,
+}
+
+impl ActorControl {
+    pub fn new(controller: ActorController) -> Self {
+        ActorControl {
+            controller,
+            destination: None,
+            direction: Vec2::ZERO,
+        }
+    }
+}
 
 #[derive(Clone, GetStringId)]
 pub struct ActorData {
@@ -39,7 +59,7 @@ pub struct ActorData {
     pub position: Vec2,
     pub inventory: Vec<ItemData>,
     pub sprite_params: SpriteParams,
-    pub player_control_id: Option<u32>,
+    pub controller: ActorController,
 }
 
 impl Default for ActorData {
@@ -51,7 +71,7 @@ impl Default for ActorData {
             position: Vec2::ZERO,
             inventory: Vec::new(),
             sprite_params: Default::default(),
-            player_control_id: None,
+            controller: ActorController::Computer,
         }
     }
 }
@@ -65,8 +85,8 @@ pub struct Actor {
     pub flip_y: bool,
     body: PhysicsBody,
     sprite: SpriteAnimationPlayer,
-    inventory: ActorInventory,
-    pub controller: ActorController,
+    inventory: Inventory,
+    pub control: ActorControl,
 }
 
 impl Actor {
@@ -76,16 +96,23 @@ impl Actor {
     pub fn new(
         data: ActorData,
     ) -> Self {
+        let collider = Rect::new(
+            data.sprite_params.offset.x,
+            data.sprite_params.offset.y,
+            data.sprite_params.tile_size.x,
+            data.sprite_params.tile_size.y,
+        );
+
         Actor {
             id: data.id.to_string(),
             name: data.name.to_string(),
             factions: data.factions.to_vec(),
             flip_x: false,
             flip_y: false,
-            body: PhysicsBody::new(data.position, 0.0, data.sprite_params.tile_size, Some(data.sprite_params.offset)),
+            body: PhysicsBody::new(data.position, 0.0, Some(Collider::rect(collider))),
             sprite: SpriteAnimationPlayer::new(data.sprite_params.clone()),
-            inventory: ActorInventory::new(&data.inventory),
-            controller: ActorController::new(data.player_control_id),
+            inventory: Inventory::new(&data.inventory),
+            control: ActorControl::new(data.controller),
         }
     }
 
@@ -112,30 +139,47 @@ impl Actor {
             position: self.body.position,
             inventory: self.inventory.items.clone(),
             sprite_params: self.sprite.to_sprite_params(),
-            player_control_id: self.controller.player_id,
+            controller: self.control.controller,
         }
     }
 }
 
 impl Node for Actor {
     fn ready(_node: RefMut<Self>) {
-        // Self::apply_map_object_provider(node);
     }
 
-    fn update(_node: RefMut<Self>) {}
+    fn update(mut node: RefMut<Self>) {
+        match node.control.controller {
+            ActorController::Player { player_id } => {
+                let local_player_id = storage::get::<LocalPlayerId>().0;
+                if player_id == local_player_id {
+                    let viewport = storage::get::<Viewport>();
+                    let coords = viewport.get_mouse_world_coords();
+                    if is_mouse_button_down(MouseButton::Left) {
+                        node.control.destination = Some(coords);
+                    }
+                    if is_mouse_button_down(MouseButton::Right) {}
+                } else {
+                    // TODO: Remote player
+                }
+            }
+            ActorController::Computer => {
+                // TODO: Computer controlled
+            }
+        }
+    }
 
     fn fixed_update(mut node: RefMut<Self>) {
-        if node.controller.direction != Vec2::ZERO {
-            node.body.velocity = node.controller.direction * Self::MOVE_SPEED;
-
-            node.controller.destination = None;
-            node.controller.direction = Vec2::ZERO;
-        } else if let Some(destination) = node.controller.destination {
+        if node.control.direction != Vec2::ZERO {
+            node.body.velocity = node.control.direction * Self::MOVE_SPEED;
+            node.control.destination = None;
+            node.control.direction = Vec2::ZERO;
+        } else if let Some(destination) = node.control.destination {
             if destination.distance(node.body.position) > Self::STOP_AT_DISTANCE {
                 let direction = destination.sub(node.body.position).normalize();
                 node.body.velocity = direction * Self::MOVE_SPEED;
             } else {
-                node.controller.destination = None;
+                node.control.destination = None;
                 node.body.velocity = Vec2::ZERO;
             }
         } else {

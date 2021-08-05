@@ -1,39 +1,43 @@
 use macroquad::{
+    color,
     experimental::{
         collections::storage,
         coroutines::start_coroutine,
         scene,
     },
-    input::{is_key_down, KeyCode},
     prelude::*,
 };
 
+use game_options::LocalPlayerId;
+use graphics::SpriteParams;
+pub use input::get_mouse_position;
+pub use inventory::Inventory;
+use nodes::{
+    Actor,
+    ActorController,
+    ActorData,
+    Camera,
+    GameState,
+};
 pub use resources::Resources;
 pub use util::{
     Circle,
-    get_mouse_position,
     draw_aligned_text,
-    TextAlignment,
     generate_string_id,
     GetStringId,
     SetStringId,
     StringId,
+    TextAlignment,
 };
 
-mod nodes;
-mod util;
-mod resources;
-mod graphics;
-
-use nodes::{
-    GameState,
-    CameraControl,
-    Input,
-    Actor,
-    ActorData,
-};
-
-use graphics::SpriteParams;
+pub mod nodes;
+pub mod util;
+pub mod resources;
+pub mod graphics;
+pub mod game_options;
+pub mod input;
+pub mod inventory;
+pub mod physics;
 
 fn window_conf() -> Conf {
     Conf {
@@ -54,32 +58,35 @@ async fn main() {
 
     while load_resources.is_done() == false {
         clear_background(BLACK);
-        draw_text(
+        draw_aligned_text(
             &format!("Loading resources"),
-            screen_width() / 2.0 - 160.0,
+            screen_width() / 2.0,
             screen_height() / 2.0,
-            40.,
-            WHITE,
+            TextAlignment::Center,
+            TextParams {
+                font_size: 40,
+                color: color::WHITE,
+                ..Default::default()
+            }
         );
 
         next_frame().await;
     }
 
     {
-        let camera = CameraControl::new();
+        storage::store(LocalPlayerId(0));
+
+        let camera = Camera::new();
         scene::add_node(camera);
 
-        let game_state = GameState::new(0);
+        let game_state = GameState::new();
         scene::add_node(game_state);
-
-        let input = Input::new();
-        scene::add_node(input);
 
         let actor = Actor::new(
             ActorData {
                 name: "Player Actor".to_string(),
                 position: vec2(100.0, 100.0),
-                player_control_id: Some(0),
+                controller: ActorController::Player { player_id: 0 },
                 sprite_params: SpriteParams {
                     tile_size: vec2(64.0, 64.0),
                     offset: vec2(-32.0, -32.0),
@@ -88,13 +95,14 @@ async fn main() {
                 ..Default::default()
             },
         );
+
         scene::add_node(actor);
     }
 
     loop {
         // Do not remove this scope! It will cause weird bugs with GameState node
         {
-            let mut game_state = scene::find_node_by_type::<GameState>().unwrap();
+            let game_state = scene::find_node_by_type::<GameState>().unwrap();
             if game_state.should_quit {
                 break;
             }

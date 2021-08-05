@@ -9,12 +9,11 @@ use macroquad::{
 };
 
 pub struct GameState {
-    pub local_player_id: u32,
     pub should_quit: bool,
 }
 
 impl GameState {
-    pub fn new(local_player_id: u32) -> GameState {
+    pub fn new() -> GameState {
         // for (_, data) in &map.actors {
         //     let actor = Actor::new(data);
         //     scene::add_node(actor);
@@ -26,7 +25,6 @@ impl GameState {
         // }
 
         GameState {
-            local_player_id,
             should_quit: false,
         }
     }
@@ -35,7 +33,9 @@ impl GameState {
 impl Node for GameState {
     fn ready(_node: RefMut<Self>) {}
 
-    fn update(_node: RefMut<Self>) {}
+    fn update(mut node: RefMut<Self>) {
+        node.should_quit = is_key_pressed(KeyCode::Escape) || is_key_pressed(KeyCode::Q);
+    }
 
     fn fixed_update(_node: RefMut<Self>) {}
 }

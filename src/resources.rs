@@ -1,8 +1,7 @@
 use macroquad::prelude::*;
-use std::collections::HashMap;
 
 pub struct Resources {
-    textures: HashMap<String, Texture2D>,
+    white_texture: Texture2D,
 }
 
 impl Resources {
@@ -12,19 +11,15 @@ impl Resources {
         let white_texture = load_texture("assets/white_texture.png").await?;
         white_texture.set_filter(FilterMode::Nearest);
 
-        let mut textures = HashMap::new();
-        textures.insert(Self::WHITE_TEXTURE_ID.to_string(), white_texture);
-
         Ok(Resources {
-            textures,
+            white_texture,
         })
     }
 
-    pub fn get_texture(&self, id: &str) -> Texture2D {
-        self.textures.get(id).cloned().unwrap()
-    }
-
-    pub fn get_texture_ref(&self, id: &str) -> &Texture2D {
-        self.textures.get(id).unwrap()
+    pub fn get_texture_by_id(&self, id: &str) -> Option<Texture2D> {
+        match id {
+            Self::WHITE_TEXTURE_ID => Some(self.white_texture),
+            _ => None,
+        }
     }
 }

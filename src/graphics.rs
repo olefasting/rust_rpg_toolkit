@@ -10,4 +10,5 @@ pub use rendering::{
     to_world_space,
     to_screen_space,
     Drawable,
+    Viewport,
 };

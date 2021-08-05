@@ -5,13 +5,13 @@ use crate::{
 };
 
 #[derive(Clone)]
-pub struct ActorInventory {
+pub struct Inventory {
     pub items: Vec<ItemData>,
 }
 
-impl ActorInventory {
+impl Inventory {
     pub fn new(items: &[ItemData]) -> Self {
-        ActorInventory {
+        Inventory {
             items: items.to_vec(),
         }
     }

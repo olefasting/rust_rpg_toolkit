@@ -12,8 +12,8 @@ use macroquad::{
 
 use crate::{
     Resources,
+    graphics::Drawable,
 };
-use crate::graphics::Drawable;
 
 #[derive(Clone)]
 pub struct SpriteParams {
@@ -103,7 +103,7 @@ impl Drawable for SpriteAnimationPlayer {
         self.sprite.update();
         let resources = storage::get::<Resources>();
         draw_texture_ex(
-            resources.get_texture(&self.texture_id),
+            resources.get_texture_by_id(&self.texture_id).unwrap(),
             position.x + self.offset.x,
             position.y + self.offset.y,
             self.texture_color,
