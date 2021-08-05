@@ -13,6 +13,7 @@ use macroquad::{
 use crate::{
     Resources,
 };
+use crate::graphics::Drawable;
 
 #[derive(Clone)]
 pub struct SpriteParams {
@@ -21,13 +22,13 @@ pub struct SpriteParams {
     pub texture_color: Color,
     pub tile_size: Vec2,
     pub animations: Vec<Animation>,
-    pub playing: bool,
+    pub should_play: bool,
 }
 
 impl Default for SpriteParams {
     fn default() -> Self {
         SpriteParams {
-            offset: Vec2::ZERO,
+            offset: vec2(-32.0, -32.0),
             texture_id: Resources::WHITE_TEXTURE_ID.to_string(),
             texture_color: color::WHITE,
             tile_size: vec2(64.0, 64.0),
@@ -39,7 +40,7 @@ impl Default for SpriteParams {
                     fps: 8
                 },
             ),
-            playing: false,
+            should_play: false,
         }
     }
 }
@@ -53,12 +54,19 @@ pub struct SpriteAnimationPlayer {
     texture_id: String,
     texture_color: Color,
     tile_size: Vec2,
+    animations: Vec<Animation>,
     sprite: AnimatedSprite,
-    params: SpriteParams,
 }
 
 impl SpriteAnimationPlayer {
     pub fn new(params: SpriteParams) -> Self {
+        let sprite = AnimatedSprite::new(
+            params.tile_size.x as u32,
+            params.tile_size.y as u32,
+            &params.animations,
+            params.should_play,
+        );
+
         SpriteAnimationPlayer {
             offset: params.offset,
             rotation: 0.0,
@@ -67,17 +75,31 @@ impl SpriteAnimationPlayer {
             texture_id: params.texture_id.to_string(),
             texture_color: params.texture_color,
             tile_size: params.tile_size,
-            sprite: AnimatedSprite::new(
-                params.tile_size.x as u32,
-                params.tile_size.y as u32,
-                &params.animations,
-                params.playing,
-            ),
-            params: params.clone(),
+            animations: params.animations,
+            sprite,
         }
     }
 
-    pub fn draw(&mut self, position: Vec2, rotation: f32, flip_x: bool, flip_y: bool) {
+    #[allow(dead_code)]
+    pub fn is_playing(&self) -> bool {
+        self.sprite.playing
+    }
+
+    #[allow(dead_code)]
+    pub fn to_sprite_params(&self) -> SpriteParams {
+        SpriteParams {
+            offset: self.offset,
+            texture_id: self.texture_id.to_string(),
+            texture_color: self.texture_color,
+            tile_size: self.tile_size,
+            animations: self.animations.to_vec(),
+            should_play: self.sprite.playing,
+        }
+    }
+}
+
+impl Drawable for SpriteAnimationPlayer {
+    fn draw(&mut self, position: Vec2, rotation: f32, flip_x: bool, flip_y: bool) {
         self.sprite.update();
         let resources = storage::get::<Resources>();
         draw_texture_ex(

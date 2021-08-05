@@ -8,51 +8,31 @@ use macroquad::{
     prelude::*,
 };
 
-pub use nodes::{
-    actor::{
-        Actor,
-        ActorInventory,
-    },
-    CameraControl,
-    GameState,
-    Input,
-    MapObjectCapabilities,
-    MapObjectProvider,
-};
-pub use nodes::item::Item;
-pub use player::PlayerProvider;
 pub use resources::Resources;
 pub use util::{
     Circle,
-    draw_aligned_text,
-    generate_string_id,
     get_mouse_position,
+    draw_aligned_text,
+    TextAlignment,
+    generate_string_id,
     GetStringId,
-    MapObject,
     SetStringId,
     StringId,
-    TextAlignment,
-};
-
-pub use crate::graphics::{
-    get_aspect_ratio,
-    SpriteAnimationPlayer,
-    SpriteParams,
-    to_screen_space,
-    to_world_space,
-};
-
-use crate::{
-    nodes::ActorData,
-    physics_body::PhysicsBody,
 };
 
 mod nodes;
-mod player;
 mod util;
 mod resources;
 mod graphics;
-mod physics_body;
+
+use nodes::{
+    GameState,
+    CameraControl,
+    Input,
+    Actor,
+    ActorData,
+};
+use graphics::SpriteParams;
 
 fn window_conf() -> Conf {
     Conf {
@@ -103,7 +83,6 @@ async fn main() {
                     offset: vec2(-32.0, -32.0),
                     ..Default::default()
                 },
-                is_player: true,
                 ..Default::default()
             },
         );
@@ -111,15 +90,13 @@ async fn main() {
     }
 
     loop {
-        {
-            let mut game_state = scene::find_node_by_type::<GameState>().unwrap();
-            if game_state.should_quit {
-                break;
-            }
+        let mut game_state = scene::find_node_by_type::<GameState>().unwrap();
+        if game_state.should_quit {
+            break;
+        }
 
-            if is_key_down(KeyCode::Q) || is_key_down(KeyCode::Escape) {
-                game_state.should_quit = true;
-            }
+        if is_key_down(KeyCode::Q) || is_key_down(KeyCode::Escape) {
+            game_state.should_quit = true;
         }
 
         next_frame().await;

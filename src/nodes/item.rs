@@ -14,7 +14,20 @@ use macros::{
     MapObject,
 };
 
-use crate::{SpriteAnimationPlayer, GetStringId, MapObject, MapObjectCapabilities, MapObjectProvider, SpriteParams, generate_string_id};
+use crate::{
+    graphics::{
+        Drawable,
+        SpriteAnimationPlayer,
+        SpriteParams,
+    },
+    nodes::{
+        MapObject,
+        MapObjectCapabilities,
+        MapObjectProvider,
+    },
+    generate_string_id,
+    GetStringId,
+};
 
 #[derive(Clone)]
 pub struct ItemData {
@@ -69,6 +82,7 @@ impl Item {
         }
     }
 
+    #[allow(dead_code)]
     pub fn to_item_data(&self) -> ItemData {
         ItemData {
             id: self.id.to_string(),

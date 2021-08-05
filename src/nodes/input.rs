@@ -2,17 +2,17 @@ use macroquad::{
     experimental::scene::{
         Node,
         RefMut,
-        HandleUntyped,
-        Lens,
     },
     prelude::*,
 };
 
-use crate::{get_mouse_position, nodes::{
-    CameraControl,
-    MapObjectProvider,
-}, PlayerProvider, to_world_space};
-use crate::nodes::actor::ActorController;
+use crate::{
+    nodes::{
+        CameraControl,
+        PlayerControlProvider,
+    },
+    get_mouse_position,
+};
 
 pub struct Input {}
 
@@ -26,8 +26,8 @@ impl Node for Input {
     fn fixed_update(_: RefMut<Self>) {
         let mut camera = scene::find_node_by_type::<CameraControl>().unwrap();
 
-        if let Some((_handle, mut controller_lens)) = scene::find_nodes_with::<PlayerProvider>().last() {
-            if let controller = controller_lens.get().unwrap() {
+        if let Some((_handle, mut controller_lens)) = scene::find_nodes_with::<PlayerControlProvider>().last() {
+            if let Some(controller) = controller_lens.get() {
                 if is_mouse_button_pressed(MouseButton::Left) {
                     controller.destination = Some(camera.to_world_space(get_mouse_position()));
                 }

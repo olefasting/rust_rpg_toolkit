@@ -6,7 +6,7 @@ use macroquad::{
     prelude::*,
 };
 
-use crate::{
+use crate::graphics::{
     get_aspect_ratio,
     to_world_space,
     to_screen_space,
@@ -23,6 +23,7 @@ pub struct CameraControl {
 }
 
 impl CameraControl {
+    #[allow(dead_code)]
     const FRUSTUM_PADDING: f32 = 100.0;
 
     const DEFAULT_PAN_SPEED: f32 = 300.0;
@@ -43,6 +44,7 @@ impl CameraControl {
         }
     }
 
+    #[allow(dead_code)]
     pub fn get_aspect_ratio(&self) -> f32 {
         get_aspect_ratio()
     }
@@ -58,6 +60,7 @@ impl CameraControl {
         )
     }
 
+    #[allow(dead_code)]
     pub fn is_in_view(&self, rect: &Rect) -> bool {
         let padding = Self::FRUSTUM_PADDING / self.scale;
         let mut view_rect = self.get_viewport();
@@ -68,10 +71,12 @@ impl CameraControl {
         view_rect.overlaps(rect)
     }
 
+    #[allow(dead_code)]
     pub fn to_screen_space(&self, coords: Vec2) -> Vec2 {
         to_screen_space(coords, self.get_viewport().point(), self.scale)
     }
 
+    #[allow(dead_code)]
     pub fn to_world_space(&self, coords: Vec2) -> Vec2 {
         to_world_space(coords, self.get_viewport().point(), self.scale)
     }
