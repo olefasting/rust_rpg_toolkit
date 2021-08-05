@@ -48,7 +48,6 @@ pub struct Item {
     pub flip_y: bool,
     should_draw: bool,
     sprite: SpriteAnimationPlayer,
-    sprite_params: SpriteParams,
 }
 
 impl Item {
@@ -64,8 +63,7 @@ impl Item {
             flip_x: false,
             flip_y: false,
             should_draw: true,
-            sprite: SpriteAnimationPlayer::new(data.sprite_params.clone()),
-            sprite_params: data.sprite_params,
+            sprite: SpriteAnimationPlayer::new(data.sprite_params),
         }
     }
 
@@ -75,7 +73,7 @@ impl Item {
             name: self.name.to_string(),
             description: self.description.to_string(),
             position: self.position,
-            sprite_params: self.sprite_params.clone(),
+            sprite_params: self.sprite.to_sprite_params(),
         }
     }
 }

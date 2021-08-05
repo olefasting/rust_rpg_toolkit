@@ -4,16 +4,29 @@ use crate::Circle;
 
 #[derive(Clone)]
 pub enum Collider {
-    Rectangle { shape: Rect },
-    Circle { shape: Circle },
+    Rectangle(Rect),
+    Circle(Circle),
 }
 
 impl Collider {
-    pub fn rect(shape: Rect) -> Collider {
-        Collider::Rectangle { shape }
+    pub fn from_rect(rect: Rect) -> Collider {
+        Collider::Rectangle(rect)
     }
 
-    pub fn circle(shape: Circle) -> Collider {
-        Collider::Circle { shape }
+    pub fn from_circle(circle: Circle) -> Collider {
+        Collider::Circle(circle)
+    }
+
+    pub fn overlaps(&self, other: &Collider) -> bool {
+        match self {
+            Collider::Rectangle(rect) => match other {
+                Collider::Rectangle(other_rect) => rect.overlaps(&other_rect),
+                Collider::Circle(circle) => circle.overlaps_rect(&rect),
+            },
+            Collider::Circle(circle) => match other {
+                Collider::Rectangle(rect) => circle.overlaps_rect(&rect),
+                Collider::Circle(other_circle) => circle.overlaps(&other_circle),
+            },
+        }
     }
 }

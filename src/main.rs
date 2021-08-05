@@ -25,7 +25,7 @@ use render::{
     }
 };
 pub use resources::Resources;
-pub use global_value::{
+pub use global_storage::{
     try_get_global,
     get_global,
     set_global,
@@ -33,7 +33,7 @@ pub use global_value::{
 
 mod resources;
 mod circle;
-mod global_value;
+mod global_storage;
 
 pub mod nodes;
 pub mod render;
