@@ -32,6 +32,8 @@ use crate::{
 };
 use crate::nodes::ItemData;
 use crate::physics_body::PhysicsBody;
+use macroquad::ui::Drag::No;
+use std::ops::Sub;
 
 #[derive(Clone, GetStringId)]
 pub struct ActorData {
@@ -74,6 +76,10 @@ pub struct Actor {
 }
 
 impl Actor {
+    const MOVE_SPEED: f32 = 25.0;
+    const VELOCITY_DAMPING_FACTOR: f32 = 0.9;
+    const DESTINATION_REACHED_THRESHOLD: f32 = 25.0;
+
     pub fn new(
         data: ActorData,
     ) -> Self {
@@ -86,7 +92,7 @@ impl Actor {
             should_draw: true,
             inventory: ActorInventory::new(&data.inventory),
             controller: ActorController::new(data.is_player),
-            body: PhysicsBody::new(data.position, 0.0),
+            body: PhysicsBody::new(data.position, 0.0, data.sprite_params.tile_size, Some(data.sprite_params.offset)),
             sprite: SpriteAnimationPlayer::new(data.sprite_params.clone()),
             sprite_params: data.sprite_params,
         }
@@ -131,13 +137,27 @@ impl Node for Actor {
     fn update(_node: RefMut<Self>) {}
 
     fn fixed_update(mut node: RefMut<Self>) {
-        node.body.velocity.x = node.controller.directions.x * 100.0;
-        node.body.velocity.y = node.controller.directions.y * 100.0;
+        if let Some(destination) = node.controller.destination {
+            node.body.velocity *= Self::VELOCITY_DAMPING_FACTOR;
+
+            if destination.distance(node.body.position) > Self::DESTINATION_REACHED_THRESHOLD {
+                let direction = destination.sub(node.body.position).normalize();
+                node.body.velocity = direction * Self::MOVE_SPEED;
+            } else {
+                node.controller.destination = None;
+                node.body.velocity = Vec2::ZERO;
+            }
+        }
+
+        if node.controller.direction != Vec2::ZERO {
+            node.body.velocity = node.controller.direction * Self::MOVE_SPEED;
+
+            node.controller.destination = None;
+            node.controller.direction = Vec2::ZERO;
+        }
 
         node.body.position.x += node.body.velocity.x;
         node.body.position.y += node.body.velocity.y;
-
-        node.controller.clear();
     }
 
     fn draw(mut node: RefMut<Self>) {

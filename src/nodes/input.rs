@@ -8,14 +8,10 @@ use macroquad::{
     prelude::*,
 };
 
-use crate::{
-    get_mouse_position,
-    nodes::{
-        CameraControl,
-        MapObjectProvider,
-    },
-    PlayerProvider,
-};
+use crate::{get_mouse_position, nodes::{
+    CameraControl,
+    MapObjectProvider,
+}, PlayerProvider, to_world_space};
 use crate::nodes::actor::ActorController;
 
 pub struct Input {}
@@ -28,8 +24,14 @@ impl Input {
 
 impl Node for Input {
     fn fixed_update(_: RefMut<Self>) {
-        for (_handle, mut controller_lens) in scene::find_nodes_with::<PlayerProvider>() {
+        let mut camera = scene::find_node_by_type::<CameraControl>().unwrap();
+
+        if let Some((_handle, mut controller_lens)) = scene::find_nodes_with::<PlayerProvider>().last() {
             if let controller = controller_lens.get().unwrap() {
+                if is_mouse_button_pressed(MouseButton::Left) {
+                    controller.destination = Some(camera.to_world_space(get_mouse_position()));
+                }
+
                 let x = if is_key_down(KeyCode::A) {
                     -1.0
                 } else if is_key_down(KeyCode::D) {
@@ -46,12 +48,9 @@ impl Node for Input {
                     0.0
                 };
 
-                controller.set_direction(vec2(x, y));
-                break;
+                controller.direction = vec2(x, y);
             }
         };
-
-        let mut camera = scene::find_node_by_type::<CameraControl>().unwrap();
 
         {
             let x = if is_key_down(KeyCode::Left) {
@@ -87,16 +86,6 @@ impl Node for Input {
                 camera.rotate_ccw()
             } else if is_key_down(KeyCode::T) {
                 camera.rotate_cw()
-            }
-        }
-
-        if is_mouse_button_pressed(MouseButton::Left) {
-            let mouse_coords = camera.to_world_space(get_mouse_position());
-            for (handle, capabilities) in scene::find_nodes_with::<MapObjectProvider>() {
-                let position = (capabilities.get_position)(handle);
-                if Rect::new(position.x, position.y, 24.0, 24.0).contains(mouse_coords) {
-                    println!("clicked a map object");
-                }
             }
         }
     }

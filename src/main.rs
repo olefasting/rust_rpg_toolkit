@@ -98,6 +98,11 @@ async fn main() {
             ActorData {
                 name: "Player Actor".to_string(),
                 position: vec2(100.0, 100.0),
+                sprite_params: SpriteParams {
+                    tile_size: vec2(64.0, 64.0),
+                    offset: vec2(-32.0, -32.0),
+                    ..Default::default()
+                },
                 is_player: true,
                 ..Default::default()
             },

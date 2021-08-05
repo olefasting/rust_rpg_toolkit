@@ -16,6 +16,7 @@ use crate::{
 
 #[derive(Clone)]
 pub struct SpriteParams {
+    pub offset: Vec2,
     pub texture_id: String,
     pub texture_color: Color,
     pub tile_size: Vec2,
@@ -26,6 +27,7 @@ pub struct SpriteParams {
 impl Default for SpriteParams {
     fn default() -> Self {
         SpriteParams {
+            offset: Vec2::ZERO,
             texture_id: Resources::WHITE_TEXTURE_ID.to_string(),
             texture_color: color::WHITE,
             tile_size: vec2(64.0, 64.0),
@@ -58,7 +60,7 @@ pub struct SpriteAnimationPlayer {
 impl SpriteAnimationPlayer {
     pub fn new(params: SpriteParams) -> Self {
         SpriteAnimationPlayer {
-            offset: Vec2::ZERO,
+            offset: params.offset,
             rotation: 0.0,
             flip_x: false,
             flip_y: false,
@@ -80,8 +82,8 @@ impl SpriteAnimationPlayer {
         let resources = storage::get::<Resources>();
         draw_texture_ex(
             resources.get_texture(&self.texture_id),
-            self.tile_size.x + position.x,
-            self.tile_size.y + position.y,
+            position.x + self.offset.x,
+            position.y + self.offset.y,
             self.texture_color,
             DrawTextureParams {
                 source: Some(self.sprite.frame().source_rect),
