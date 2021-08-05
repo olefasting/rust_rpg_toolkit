@@ -1,14 +1,12 @@
 use macroquad::{
     color,
     experimental::{
-        collections::storage,
         coroutines::start_coroutine,
+        collections::storage,
         scene,
     },
     prelude::*,
 };
-
-use macros::GlobalValue;
 
 pub use circle::Circle;
 pub use input::get_mouse_position;
@@ -29,6 +27,9 @@ use render::{
 pub use resources::Resources;
 pub use util::{
     GlobalValue,
+    try_get_global,
+    get_global,
+    set_global,
     generate_string_id,
 };
 
@@ -41,7 +42,7 @@ pub mod render;
 pub mod input;
 pub mod physics;
 
-#[derive(Copy, Clone, GlobalValue)]
+#[derive(Copy, Clone)]
 pub struct LocalPlayerId(pub u32);
 
 fn window_conf() -> Conf {
@@ -79,7 +80,7 @@ async fn main() {
     }
 
     {
-        storage::store(LocalPlayerId(0));
+        set_global(LocalPlayerId(0));
 
         let camera = Camera::new();
         scene::add_node(camera);

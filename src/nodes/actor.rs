@@ -10,8 +10,6 @@ use macroquad::{
     prelude::*,
 };
 
-use macros::*;
-
 mod controller;
 mod inventory;
 
@@ -25,8 +23,7 @@ pub use inventory::ActorInventory;
 use crate::{
     util::{
         generate_string_id,
-        GetStringId,
-        GlobalValue,
+        get_global,
     },
     render::{
         SpriteAnimationPlayer,
@@ -42,7 +39,7 @@ use crate::physics::{
     Collider,
 };
 
-#[derive(Clone, GetStringId)]
+#[derive(Clone)]
 pub struct ActorData {
     pub id: String,
     pub name: String,
@@ -67,7 +64,7 @@ impl Default for ActorData {
     }
 }
 
-#[derive(Clone, GetStringId)]
+#[derive(Clone)]
 pub struct Actor {
     pub id: String,
     pub name: String,
@@ -139,9 +136,9 @@ impl Node for Actor {
     fn update(mut node: RefMut<Self>) {
         match node.controller.kind {
             ActorControllerKind::Player { player_id } => {
-                let local_player_id = LocalPlayerId::get_global().0;
+                let local_player_id = get_global::<LocalPlayerId>().0;
                 if player_id == local_player_id {
-                    let viewport = Viewport::get_global();
+                    let viewport = get_global::<Viewport>();
                     let coords = viewport.get_mouse_world_coords();
                     if is_mouse_button_down(MouseButton::Left) {
                         node.controller.destination = Some(coords);

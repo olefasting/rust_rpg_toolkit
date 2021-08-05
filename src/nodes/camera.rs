@@ -9,7 +9,7 @@ use macroquad::{
 };
 
 use crate::{
-    util::GlobalValue,
+    util::set_global,
     render::{
         get_aspect_ratio,
         to_world_space,
@@ -132,7 +132,7 @@ impl Camera {
 
 impl Node for Camera {
     fn ready(node: RefMut<Self>) {
-        node.get_viewport().set_global();
+        set_global(node.get_viewport());
     }
 
     fn fixed_update(mut node: RefMut<Self>) {
@@ -171,6 +171,6 @@ impl Node for Camera {
             ..Camera2D::default()
         });
 
-        node.get_viewport().set_global();
+        set_global(node.get_viewport());
     }
 }

@@ -1,11 +1,4 @@
-use macroquad::{
-    experimental::{
-        collections::storage,
-    },
-    prelude::*,
-};
-
-use crate::GlobalValue;
+use macroquad::prelude::*;
 
 pub fn get_aspect_ratio() -> f32 {
     screen_width() / screen_height()
@@ -19,7 +12,7 @@ pub fn to_world_space(coords: Vec2, viewport_pos: Vec2, scale: f32) -> Vec2 {
     viewport_pos + (coords / scale)
 }
 
-#[derive(Copy, Clone, GlobalValue)]
+#[derive(Copy, Clone)]
 pub struct Viewport {
     pub x: f32,
     pub y: f32,
