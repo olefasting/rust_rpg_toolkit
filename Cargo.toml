@@ -1,0 +1,21 @@
+[package]
+name = "capstone"
+version = "0.1.0"
+edition = "2018"
+
+[profile.dev.package."*"]
+opt-level = 3
+
+[dependencies]
+macros = { path = "./macros" }
+
+nanoid = "0.4.0"
+nanoserde = "0.1.29"
+
+macroquad = { version = "0.3" }
+macroquad-profiler = "0.1"
+macroquad-particles = {version = "0.1", features = ["nanoserde"] }
+
+[patch.crates-io]
+macroquad = { git = "https://github.com/not-fl3/macroquad.git", rev = "1fdc24c" }
+macroquad-particles = { git = "https://github.com/not-fl3/macroquad.git", rev = "1fdc24c" }

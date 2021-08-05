@@ -1,0 +1,118 @@
+use macroquad::{
+    experimental::{
+        collections::storage,
+        coroutines::start_coroutine,
+        scene,
+    },
+    input::{is_key_down, KeyCode},
+    prelude::*,
+};
+
+pub use nodes::{
+    actor::{
+        Actor,
+        ActorInventory,
+    },
+    CameraControl,
+    GameState,
+    Input,
+    MapObjectCapabilities,
+    MapObjectProvider,
+};
+pub use nodes::item::Item;
+pub use player::Player;
+pub use resources::Resources;
+pub use util::{
+    Circle,
+    draw_aligned_text,
+    generate_string_id,
+    get_mouse_position,
+    GetStringId,
+    MapObject,
+    SetStringId,
+    StringId,
+    TextAlignment,
+};
+
+pub use crate::graphics::{
+    get_aspect_ratio,
+    SpriteAnimationPlayer,
+    SpriteParams,
+    to_screen_space,
+    to_world_space,
+};
+use crate::nodes::ActorData;
+
+mod nodes;
+mod player;
+mod util;
+mod resources;
+mod graphics;
+
+fn window_conf() -> Conf {
+    Conf {
+        window_title: "Armada".to_owned(),
+        high_dpi: true,
+        window_width: 1080,
+        window_height: 720,
+        ..Default::default()
+    }
+}
+
+#[macroquad::main(window_conf)]
+async fn main() {
+    let load_resources = start_coroutine(async move {
+        let resources = Resources::new().await.unwrap();
+        storage::store(resources);
+    });
+
+    while load_resources.is_done() == false {
+        clear_background(BLACK);
+        draw_text(
+            &format!("Loading resources"),
+            screen_width() / 2.0 - 160.0,
+            screen_height() / 2.0,
+            40.,
+            WHITE,
+        );
+
+        next_frame().await;
+    }
+
+    {
+        let camera = CameraControl::new();
+        scene::add_node(camera);
+
+        let input = Input::new();
+        scene::add_node(input);
+
+        let game_state = GameState::new();
+        scene::add_node(game_state);
+
+        let actor = Actor::new(
+            ActorData {
+                name: "Player Actor".to_string(),
+                position: vec2(100.0, 100.0),
+                ..Default::default()
+            },
+        );
+        scene::add_node(actor);
+    }
+
+    loop {
+        {
+            let mut game_state = scene::find_node_by_type::<GameState>().unwrap();
+            if game_state.should_quit {
+                break;
+            }
+
+            if is_key_down(KeyCode::Q) || is_key_down(KeyCode::Escape) {
+                game_state.should_quit = true;
+            }
+        }
+
+        next_frame().await;
+    }
+
+    scene::clear();
+}
