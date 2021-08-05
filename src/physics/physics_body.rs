@@ -1,7 +1,8 @@
-use macroquad::math::{Vec2, Rect};
+use macroquad::prelude::*;
+
 use crate::physics::Collider;
 
-#[derive(Copy, Clone)]
+#[derive(Clone)]
 pub struct PhysicsBody {
     pub position: Vec2,
     pub rotation: f32,

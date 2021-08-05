@@ -8,36 +8,41 @@ use macroquad::{
     prelude::*,
 };
 
-use game_options::LocalPlayerId;
-use graphics::SpriteParams;
+use macros::GlobalValue;
+
+pub use circle::Circle;
 pub use input::get_mouse_position;
-pub use inventory::Inventory;
 use nodes::{
     Actor,
-    ActorController,
+    ActorControllerKind,
     ActorData,
     Camera,
     GameState,
 };
+use render::{
+    SpriteParams,
+    text::{
+        draw_aligned_text,
+        TextAlignment,
+    }
+};
 pub use resources::Resources;
 pub use util::{
-    Circle,
-    draw_aligned_text,
+    GlobalValue,
     generate_string_id,
-    GetStringId,
-    SetStringId,
-    StringId,
-    TextAlignment,
 };
+
+mod resources;
+mod circle;
 
 pub mod nodes;
 pub mod util;
-pub mod resources;
-pub mod graphics;
-pub mod game_options;
+pub mod render;
 pub mod input;
-pub mod inventory;
 pub mod physics;
+
+#[derive(Copy, Clone, GlobalValue)]
+pub struct LocalPlayerId(pub u32);
 
 fn window_conf() -> Conf {
     Conf {
@@ -86,7 +91,7 @@ async fn main() {
             ActorData {
                 name: "Player Actor".to_string(),
                 position: vec2(100.0, 100.0),
-                controller: ActorController::Player { player_id: 0 },
+                controller_kind: ActorControllerKind::Player { player_id: 0 },
                 sprite_params: SpriteParams {
                     tile_size: vec2(64.0, 64.0),
                     offset: vec2(-32.0, -32.0),

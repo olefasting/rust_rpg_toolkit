@@ -10,10 +10,7 @@ use macroquad::{
     prelude::*,
 };
 
-use crate::{
-    Resources,
-    graphics::Drawable,
-};
+use crate::Resources;
 
 #[derive(Clone)]
 pub struct SpriteParams {
@@ -80,12 +77,10 @@ impl SpriteAnimationPlayer {
         }
     }
 
-    #[allow(dead_code)]
     pub fn is_playing(&self) -> bool {
         self.sprite.playing
     }
 
-    #[allow(dead_code)]
     pub fn to_sprite_params(&self) -> SpriteParams {
         SpriteParams {
             offset: self.offset,
@@ -96,10 +91,8 @@ impl SpriteAnimationPlayer {
             should_play: self.sprite.playing,
         }
     }
-}
 
-impl Drawable for SpriteAnimationPlayer {
-    fn draw(&mut self, position: Vec2, rotation: f32, flip_x: bool, flip_y: bool) {
+    pub fn draw(&mut self, position: Vec2, rotation: f32, flip_x: bool, flip_y: bool) {
         self.sprite.update();
         let resources = storage::get::<Resources>();
         draw_texture_ex(

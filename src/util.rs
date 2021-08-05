@@ -1,9 +1,25 @@
-pub use circle::Circle;
-pub use string_id::{assert_unique_string_ids, generate_string_id, GetStringId, has_duplicate_string_ids, SetStringId, StringId};
-pub use text::{draw_aligned_text, TextAlignment};
-pub use map_object::{MapObjectProvider, MapObjectCapabilities, MapObject};
-
-mod text;
 mod string_id;
-mod circle;
-pub mod map_object;
+mod map_object;
+mod global_value;
+
+pub use map_object::{
+    MapObject,
+    MapObjectCapabilities,
+    MapObjectProvider,
+};
+
+pub use string_id::{
+    assert_unique_string_ids,
+    generate_string_id,
+    GetStringId,
+    has_duplicate_string_ids,
+    SetStringId,
+    StringId,
+};
+
+pub use global_value::{
+    GlobalValue,
+    try_get_global,
+    get_global,
+    set_global,
+};

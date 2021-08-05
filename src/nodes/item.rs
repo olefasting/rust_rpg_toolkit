@@ -9,12 +9,11 @@ use macroquad::{
 };
 
 use crate::{
-    graphics::{
-        Drawable,
+    render::{
         SpriteAnimationPlayer,
         SpriteParams,
     },
-    generate_string_id,
+    util::generate_string_id,
 };
 
 #[derive(Clone)]
@@ -53,7 +52,6 @@ pub struct Item {
 }
 
 impl Item {
-    #[allow(dead_code)]
     pub fn new(
         data: ItemData,
     ) -> Self {
@@ -71,7 +69,6 @@ impl Item {
         }
     }
 
-    #[allow(dead_code)]
     pub fn to_item_data(&self) -> ItemData {
         ItemData {
             id: self.id.to_string(),

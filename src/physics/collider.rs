@@ -2,6 +2,7 @@ use macroquad::math::Rect;
 
 use crate::Circle;
 
+#[derive(Clone)]
 pub enum Collider {
     Rectangle { shape: Rect },
     Circle { shape: Circle },

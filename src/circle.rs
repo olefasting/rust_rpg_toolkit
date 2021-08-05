@@ -1,5 +1,6 @@
 use macroquad::math::{Vec2, Rect, vec2};
 
+#[derive(Clone)]
 pub struct Circle {
     x: f32,
     y: f32,

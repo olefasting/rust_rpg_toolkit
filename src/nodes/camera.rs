@@ -4,13 +4,13 @@ use macroquad::{
             Node,
             RefMut,
         },
-        collections::storage,
     },
     prelude::*,
 };
 
 use crate::{
-    graphics::{
+    util::GlobalValue,
+    render::{
         get_aspect_ratio,
         to_world_space,
         to_screen_space,
@@ -23,16 +23,12 @@ pub struct Camera {
     pub position: Vec2,
     pub rotation: f32,
     pub scale: f32,
-
-    #[allow(dead_code)]
     zoom_speed: f32,
     pan_speed: f32,
-    #[allow(dead_code)]
     rotation_speed: f32,
 }
 
 impl Camera {
-    #[allow(dead_code)]
     const FRUSTUM_PADDING: f32 = 100.0;
 
     const DEFAULT_PAN_SPEED: f32 = 75.0;
@@ -53,7 +49,6 @@ impl Camera {
         }
     }
 
-    #[allow(dead_code)]
     pub fn get_aspect_ratio(&self) -> f32 {
         get_aspect_ratio()
     }
@@ -80,7 +75,6 @@ impl Camera {
         }
     }
 
-    #[allow(dead_code)]
     pub fn is_in_view(&self, rect: &Rect) -> bool {
         let padding = Self::FRUSTUM_PADDING / self.scale;
         let mut view_rect = self.get_view_rect();
@@ -91,17 +85,14 @@ impl Camera {
         view_rect.overlaps(rect)
     }
 
-    #[allow(dead_code)]
     pub fn to_screen_space(&self, coords: Vec2) -> Vec2 {
         to_screen_space(coords, self.get_view_rect().point(), self.scale)
     }
 
-    #[allow(dead_code)]
     pub fn to_world_space(&self, coords: Vec2) -> Vec2 {
         to_world_space(coords, self.get_view_rect().point(), self.scale)
     }
 
-    #[allow(dead_code)]
     pub fn get_mouse_world_coords(&self) -> Vec2 {
         self.to_world_space(get_mouse_position())
     }
@@ -111,22 +102,18 @@ impl Camera {
         self.position.y -= direction.y * (self.pan_speed);
     }
 
-    #[allow(dead_code)]
     pub fn rotate(&mut self, rotation: f32) {
         self.rotation += rotation.clamp(-self.rotation_speed, self.rotation_speed);
     }
 
-    #[allow(dead_code)]
     pub fn rotate_cw(&mut self) {
         self.rotation += self.rotation_speed;
     }
 
-    #[allow(dead_code)]
     pub fn rotate_ccw(&mut self) {
         self.rotation -= self.rotation_speed;
     }
 
-    #[allow(dead_code)]
     pub fn zoom(&mut self, zoom: f32) {
         let zoom = self.scale + (zoom * self.zoom_speed).clamp(-self.zoom_speed, self.zoom_speed);
         self.scale = zoom.clamp(Self::ZOOM_MIN, Self::ZOOM_MAX);
@@ -145,8 +132,7 @@ impl Camera {
 
 impl Node for Camera {
     fn ready(node: RefMut<Self>) {
-        let viewport = node.get_viewport();
-        storage::store(viewport);
+        node.get_viewport().set_global();
     }
 
     fn fixed_update(mut node: RefMut<Self>) {
@@ -185,7 +171,6 @@ impl Node for Camera {
             ..Camera2D::default()
         });
 
-        let viewport = node.get_viewport();
-        storage::store(viewport);
+        node.get_viewport().set_global();
     }
 }

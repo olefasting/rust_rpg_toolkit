@@ -2,7 +2,6 @@ use std::ops::Sub;
 
 use macroquad::{
     experimental::{
-        collections::storage,
         scene::{
             Node,
             RefMut,
@@ -10,46 +9,38 @@ use macroquad::{
     },
     prelude::*,
 };
+
 use macros::*;
 
+mod controller;
+mod inventory;
+
+pub use controller::{
+    ActorControllerKind,
+    ActorController,
+};
+
+pub use inventory::ActorInventory;
+
 use crate::{
-    generate_string_id,
-    GetStringId,
-    graphics::{
-        Drawable,
+    util::{
+        generate_string_id,
+        GetStringId,
+        GlobalValue,
+    },
+    render::{
         SpriteAnimationPlayer,
         SpriteParams,
     },
     nodes::ItemData,
 };
-use crate::game_options::LocalPlayerId;
-use crate::graphics::Viewport;
-pub use crate::inventory::Inventory;
-use crate::physics::physics_body::PhysicsBody;
-use crate::physics::Collider;
 
-#[derive(Copy, Clone)]
-pub enum ActorController {
-    Player { player_id: u32 },
-    Computer,
-}
-
-#[derive(Clone)]
-pub struct ActorControl {
-    pub controller: ActorController,
-    pub destination: Option<Vec2>,
-    pub direction: Vec2,
-}
-
-impl ActorControl {
-    pub fn new(controller: ActorController) -> Self {
-        ActorControl {
-            controller,
-            destination: None,
-            direction: Vec2::ZERO,
-        }
-    }
-}
+use crate::LocalPlayerId;
+use crate::render::Viewport;
+use crate::physics::{
+    PhysicsBody,
+    Collider,
+};
 
 #[derive(Clone, GetStringId)]
 pub struct ActorData {
@@ -59,7 +50,7 @@ pub struct ActorData {
     pub position: Vec2,
     pub inventory: Vec<ItemData>,
     pub sprite_params: SpriteParams,
-    pub controller: ActorController,
+    pub controller_kind: ActorControllerKind,
 }
 
 impl Default for ActorData {
@@ -71,7 +62,7 @@ impl Default for ActorData {
             position: Vec2::ZERO,
             inventory: Vec::new(),
             sprite_params: Default::default(),
-            controller: ActorController::Computer,
+            controller_kind: ActorControllerKind::Computer,
         }
     }
 }
@@ -85,8 +76,8 @@ pub struct Actor {
     pub flip_y: bool,
     body: PhysicsBody,
     sprite: SpriteAnimationPlayer,
-    inventory: Inventory,
-    pub control: ActorControl,
+    inventory: ActorInventory,
+    pub controller: ActorController,
 }
 
 impl Actor {
@@ -111,17 +102,15 @@ impl Actor {
             flip_y: false,
             body: PhysicsBody::new(data.position, 0.0, Some(Collider::rect(collider))),
             sprite: SpriteAnimationPlayer::new(data.sprite_params.clone()),
-            inventory: Inventory::new(&data.inventory),
-            control: ActorControl::new(data.controller),
+            inventory: ActorInventory::new(&data.inventory),
+            controller: ActorController::new(data.controller_kind),
         }
     }
 
-    #[allow(dead_code)]
     pub fn add_to_faction(&mut self, faction_id: &str) {
         self.factions.push(faction_id.to_string());
     }
 
-    #[allow(dead_code)]
     pub fn remove_from_faction(&mut self, faction_id: &str) -> bool {
         if let Some(i) = self.factions.iter().position(|id| *id == faction_id.to_string()) {
             self.factions.remove(i);
@@ -130,16 +119,15 @@ impl Actor {
         return false;
     }
 
-    #[allow(dead_code)]
     pub fn to_actor_data(&self) -> ActorData {
         ActorData {
             id: self.id.to_string(),
             name: self.name.to_string(),
             factions: self.factions.clone(),
             position: self.body.position,
-            inventory: self.inventory.items.clone(),
+            inventory: self.inventory.clone_data(),
             sprite_params: self.sprite.to_sprite_params(),
-            controller: self.control.controller,
+            controller_kind: self.controller.kind,
         }
     }
 }
@@ -149,37 +137,37 @@ impl Node for Actor {
     }
 
     fn update(mut node: RefMut<Self>) {
-        match node.control.controller {
-            ActorController::Player { player_id } => {
-                let local_player_id = storage::get::<LocalPlayerId>().0;
+        match node.controller.kind {
+            ActorControllerKind::Player { player_id } => {
+                let local_player_id = LocalPlayerId::get_global().0;
                 if player_id == local_player_id {
-                    let viewport = storage::get::<Viewport>();
+                    let viewport = Viewport::get_global();
                     let coords = viewport.get_mouse_world_coords();
                     if is_mouse_button_down(MouseButton::Left) {
-                        node.control.destination = Some(coords);
+                        node.controller.destination = Some(coords);
                     }
                     if is_mouse_button_down(MouseButton::Right) {}
                 } else {
                     // TODO: Remote player
                 }
             }
-            ActorController::Computer => {
+            ActorControllerKind::Computer => {
                 // TODO: Computer controlled
             }
         }
     }
 
     fn fixed_update(mut node: RefMut<Self>) {
-        if node.control.direction != Vec2::ZERO {
-            node.body.velocity = node.control.direction * Self::MOVE_SPEED;
-            node.control.destination = None;
-            node.control.direction = Vec2::ZERO;
-        } else if let Some(destination) = node.control.destination {
+        if node.controller.direction != Vec2::ZERO {
+            node.body.velocity = node.controller.direction * Self::MOVE_SPEED;
+            node.controller.destination = None;
+            node.controller.direction = Vec2::ZERO;
+        } else if let Some(destination) = node.controller.destination {
             if destination.distance(node.body.position) > Self::STOP_AT_DISTANCE {
                 let direction = destination.sub(node.body.position).normalize();
                 node.body.velocity = direction * Self::MOVE_SPEED;
             } else {
-                node.control.destination = None;
+                node.controller.destination = None;
                 node.body.velocity = Vec2::ZERO;
             }
         } else {

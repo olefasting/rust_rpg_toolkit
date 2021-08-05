@@ -1,14 +1,16 @@
 mod sprites;
-mod rendering;
+mod viewport;
+
+pub mod text;
 
 pub use sprites::{
     SpriteParams,
     SpriteAnimationPlayer,
 };
-pub use rendering::{
+
+pub use viewport::{
+    Viewport,
     get_aspect_ratio,
     to_world_space,
     to_screen_space,
-    Drawable,
-    Viewport,
 };
