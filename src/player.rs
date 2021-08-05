@@ -1,10 +1,5 @@
-#[derive(Clone)]
-pub struct Player {
-}
+use macroquad::experimental::scene::{HandleUntyped, Lens};
 
-impl Player {
-    pub fn new() -> Self {
-        Player {
-        }
-    }
-}
+use crate::nodes::actor::ActorController;
+
+pub type PlayerProvider = (HandleUntyped, Lens<ActorController>);

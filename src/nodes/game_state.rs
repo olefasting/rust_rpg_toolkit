@@ -8,10 +8,7 @@ use macroquad::{
     prelude::*,
 };
 
-use crate::Player;
-
 pub struct GameState {
-    pub players: Vec<Player>,
     pub should_quit: bool,
 }
 
@@ -28,7 +25,6 @@ impl GameState {
         // }
 
         GameState {
-            players: Vec::new(),
             should_quit: false,
         }
     }

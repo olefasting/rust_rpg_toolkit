@@ -20,7 +20,7 @@ pub use nodes::{
     MapObjectProvider,
 };
 pub use nodes::item::Item;
-pub use player::Player;
+pub use player::PlayerProvider;
 pub use resources::Resources;
 pub use util::{
     Circle,
@@ -41,13 +41,18 @@ pub use crate::graphics::{
     to_screen_space,
     to_world_space,
 };
-use crate::nodes::ActorData;
+
+use crate::{
+    nodes::ActorData,
+    physics_body::PhysicsBody,
+};
 
 mod nodes;
 mod player;
 mod util;
 mod resources;
 mod graphics;
+mod physics_body;
 
 fn window_conf() -> Conf {
     Conf {
@@ -93,6 +98,7 @@ async fn main() {
             ActorData {
                 name: "Player Actor".to_string(),
                 position: vec2(100.0, 100.0),
+                is_player: true,
                 ..Default::default()
             },
         );
