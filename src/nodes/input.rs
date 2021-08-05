@@ -9,10 +9,11 @@ use macroquad::{
 use crate::{
     nodes::{
         CameraControl,
+        GameState,
+        Actor,
     },
     get_mouse_position,
 };
-use crate::nodes::{GameState, Actor};
 
 pub struct Input {}
 
@@ -25,34 +26,34 @@ impl Input {
 impl Node for Input {
     fn fixed_update(_: RefMut<Self>) {
         let mut camera = scene::find_node_by_type::<CameraControl>().unwrap();
-        if let Some(mut game_state) = scene::find_node_by_type::<GameState>() {
-            for mut actor in scene::find_nodes_by_type::<Actor>() {
-                if let Some(player_id) = actor.controller.player_id {
-                    if player_id == game_state.local_player_id {
-                        if is_mouse_button_pressed(MouseButton::Left) {
-                            actor.controller.destination = Some(camera.to_world_space(get_mouse_position()));
-                        }
+        let mut game_state = scene::find_node_by_type::<GameState>().unwrap();
 
-                        let x = if is_key_down(KeyCode::A) {
-                            -1.0
-                        } else if is_key_down(KeyCode::D) {
-                            1.0
-                        } else {
-                            0.0
-                        };
-
-                        let y = if is_key_down(KeyCode::W) {
-                            -1.0
-                        } else if is_key_down(KeyCode::S) {
-                            1.0
-                        } else {
-                            0.0
-                        };
-
-                        actor.controller.direction = vec2(x, y);
-                    } else {
-                        // TODO: Network input
+        for mut actor in scene::find_nodes_by_type::<Actor>() {
+            if let Some(player_id) = actor.controller.player_id {
+                if player_id == game_state.local_player_id {
+                    if is_mouse_button_pressed(MouseButton::Left) {
+                        actor.controller.destination = Some(camera.to_world_space(get_mouse_position()));
                     }
+
+                    let x = if is_key_down(KeyCode::A) {
+                        -1.0
+                    } else if is_key_down(KeyCode::D) {
+                        1.0
+                    } else {
+                        0.0
+                    };
+
+                    let y = if is_key_down(KeyCode::W) {
+                        -1.0
+                    } else if is_key_down(KeyCode::S) {
+                        1.0
+                    } else {
+                        0.0
+                    };
+
+                    actor.controller.direction = vec2(x, y);
+                } else {
+                    // TODO: Network input
                 }
             }
         }

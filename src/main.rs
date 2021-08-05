@@ -79,6 +79,7 @@ async fn main() {
             ActorData {
                 name: "Player Actor".to_string(),
                 position: vec2(100.0, 100.0),
+                player_control_id: Some(0),
                 sprite_params: SpriteParams {
                     tile_size: vec2(64.0, 64.0),
                     offset: vec2(-32.0, -32.0),
@@ -91,13 +92,15 @@ async fn main() {
     }
 
     loop {
-        let mut game_state = scene::find_node_by_type::<GameState>().unwrap();
-        if game_state.should_quit {
-            break;
-        }
+        {
+            let mut game_state = scene::find_node_by_type::<GameState>().unwrap();
+            if game_state.should_quit {
+                break;
+            }
 
-        if is_key_down(KeyCode::Q) || is_key_down(KeyCode::Escape) {
-            game_state.should_quit = true;
+            if is_key_down(KeyCode::Q) || is_key_down(KeyCode::Escape) {
+                game_state.should_quit = true;
+            }
         }
 
         next_frame().await;
