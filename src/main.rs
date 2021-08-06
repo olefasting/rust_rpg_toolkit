@@ -110,7 +110,7 @@ async fn main() {
             ActorData {
                 name: "Player Actor".to_string(),
                 position: vec2(300.0, 300.0),
-                collider: Some(Collider::circle(0.0, 0.0, 32.0)),
+                collider: Some(Collider::rect(0.0, 0.0, 64.0, 64.0)),
                 controller_kind: ActorControllerKind::Computer,
                 sprite_params: SpriteParams {
                     tile_size: vec2(64.0, 64.0),

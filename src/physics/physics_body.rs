@@ -24,6 +24,8 @@ pub struct PhysicsBody {
 }
 
 impl PhysicsBody {
+    const COLLISION_CORRECTION_STEP: f32 = 5.0;
+
     pub fn new(position: Vec2, rotation: f32, collider: Option<Collider>) -> Self {
         PhysicsBody {
             position,
@@ -37,7 +39,7 @@ impl PhysicsBody {
         if let Some(collider) = self.offset_collider() {
             match collider {
                 Collider::Rectangle(rect) => draw_rectangle_lines(
-                    rect.x, rect.y, rect.w, rect.h, 4.0, color::RED),
+                    rect.x - (rect.w / 2.0),rect.y - (rect.h / 2.0), rect.w, rect.h, 4.0, color::RED),
                 Collider::Circle(circle) => draw_circle_lines(
                     circle.x, circle.y, circle.r, 4.0, color::RED)
             }
@@ -68,7 +70,7 @@ impl PhysicsBody {
             if let Some(body) = body_lens.get() {
                 if let (Some(collider), Some(other_collider)) = (self.collider, body.offset_collider()) {
                     while collider.offset(new_position).overlaps(&other_collider) {
-                        new_position -= direction * 5.0;
+                        new_position -= direction * Self::COLLISION_CORRECTION_STEP;
                     }
                 }
             }
