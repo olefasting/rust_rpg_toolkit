@@ -25,7 +25,7 @@ impl Collider {
             },
             Collider::Circle(circle) => match other {
                 Collider::Rectangle(other_rect) => circle.offset(offset).overlaps_rect(&other_rect.offset(other_offset)),
-                Collider::Circle(other_circle) => circle.offset(offset).overlaps(&other_circle.offset(other_offset)),
+                Collider::Circle(other_circle) => other_circle.offset(other_offset).overlaps(&circle.offset(offset)),
             },
         }
     }

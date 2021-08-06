@@ -95,7 +95,7 @@ impl Actor {
             factions: data.factions.to_vec(),
             flip_x: false,
             flip_y: false,
-            body: PhysicsBody::new(data.position, 0.0, Some(Collider::rect(collider))),
+            body: PhysicsBody::new(data.position, 0.0, Some(Collider::from_rect(collider))),
             sprite: SpriteAnimationPlayer::new(data.sprite_params.clone()),
             inventory: ActorInventory::new(&data.inventory),
             controller: ActorController::new(data.controller_kind),
