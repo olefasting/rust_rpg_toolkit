@@ -1,4 +1,4 @@
-use macroquad::math::Rect;
+use macroquad::prelude::*;
 
 use crate::Circle;
 
@@ -17,15 +17,15 @@ impl Collider {
         Collider::Circle(circle)
     }
 
-    pub fn overlaps(&self, other: &Collider) -> bool {
+    pub fn overlaps(&self, offset: Vec2, other: &Collider, other_offset: Vec2) -> bool {
         match self {
             Collider::Rectangle(rect) => match other {
-                Collider::Rectangle(other_rect) => rect.overlaps(&other_rect),
-                Collider::Circle(circle) => circle.overlaps_rect(&rect),
+                Collider::Rectangle(other_rect) => rect.offset(offset).overlaps(&other_rect.offset(other_offset)),
+                Collider::Circle(other_circle) => other_circle.offset(other_offset).overlaps_rect(&rect.offset(offset)),
             },
             Collider::Circle(circle) => match other {
-                Collider::Rectangle(rect) => circle.overlaps_rect(&rect),
-                Collider::Circle(other_circle) => circle.overlaps(&other_circle),
+                Collider::Rectangle(other_rect) => circle.offset(offset).overlaps_rect(&other_rect.offset(other_offset)),
+                Collider::Circle(other_circle) => circle.offset(offset).overlaps(&other_circle.offset(other_offset)),
             },
         }
     }
