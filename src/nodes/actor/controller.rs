@@ -4,6 +4,7 @@ use macroquad::prelude::*;
 pub enum ActorControllerKind {
     Player { player_id: u32 },
     Computer,
+    None,
 }
 
 #[derive(Clone)]

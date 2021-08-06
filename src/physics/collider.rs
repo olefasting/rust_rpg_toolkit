@@ -1,31 +1,38 @@
 use macroquad::prelude::*;
 
-use crate::Circle;
+use crate::math::Circle;
 
-#[derive(Clone)]
+#[derive(Copy, Clone)]
 pub enum Collider {
     Rectangle(Rect),
     Circle(Circle),
 }
 
 impl Collider {
-    pub fn from_rect(rect: Rect) -> Collider {
-        Collider::Rectangle(rect)
+    pub fn rect(x: f32, y: f32, w: f32, h: f32) -> Collider {
+        Collider::Rectangle(Rect::new(x, y, w, h))
     }
 
-    pub fn from_circle(circle: Circle) -> Collider {
-        Collider::Circle(circle)
+    pub fn circle(x: f32, y: f32, r: f32) -> Collider {
+        Collider::Circle(Circle::new(x, y, r))
     }
 
-    pub fn overlaps(&self, offset: Vec2, other: &Collider, other_offset: Vec2) -> bool {
+    pub fn offset(self, offset: Vec2) -> Collider {
+        match self {
+            Collider::Rectangle(rect) => Collider::Rectangle(rect.offset(offset)),
+            Collider::Circle(circle) => Collider::Circle(circle.offset(offset)),
+        }
+    }
+
+    pub fn overlaps(&self, other: &Collider) -> bool {
         match self {
             Collider::Rectangle(rect) => match other {
-                Collider::Rectangle(other_rect) => rect.offset(offset).overlaps(&other_rect.offset(other_offset)),
-                Collider::Circle(other_circle) => other_circle.offset(other_offset).overlaps_rect(&rect.offset(offset)),
+                Collider::Rectangle(other_rect) => rect.overlaps(&other_rect),
+                Collider::Circle(other_circle) => other_circle.overlaps_rect(&rect),
             },
             Collider::Circle(circle) => match other {
-                Collider::Rectangle(other_rect) => circle.offset(offset).overlaps_rect(&other_rect.offset(other_offset)),
-                Collider::Circle(other_circle) => other_circle.offset(other_offset).overlaps(&circle.offset(offset)),
+                Collider::Rectangle(other_rect) => circle.overlaps_rect(&other_rect),
+                Collider::Circle(other_circle) => other_circle.overlaps(&circle),
             },
         }
     }

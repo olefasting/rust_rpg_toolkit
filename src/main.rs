@@ -8,13 +8,12 @@ use macroquad::{
     prelude::*,
 };
 
-pub use circle::Circle;
 pub use input::get_mouse_position;
 use nodes::{
+    Camera,
     Actor,
     ActorControllerKind,
     ActorData,
-    Camera,
     GameState,
 };
 use render::{
@@ -30,15 +29,16 @@ pub use global_storage::{
     get_global,
     set_global,
 };
+use crate::physics::Collider;
 
 mod resources;
-mod circle;
 mod global_storage;
 
 pub mod nodes;
 pub mod render;
 pub mod input;
 pub mod physics;
+pub mod math;
 
 pub fn generate_id() -> String {
     nanoid::nanoid!()
@@ -94,6 +94,7 @@ async fn main() {
             ActorData {
                 name: "Player Actor".to_string(),
                 position: vec2(100.0, 100.0),
+                collider: Some(Collider::circle(0.0, 0.0, 32.0)),
                 controller_kind: ActorControllerKind::Player { player_id: 0 },
                 sprite_params: SpriteParams {
                     tile_size: vec2(64.0, 64.0),
@@ -103,12 +104,26 @@ async fn main() {
                 ..Default::default()
             },
         );
-
         scene::add_node(actor);
+
+        let other_actor = Actor::new(
+            ActorData {
+                name: "Player Actor".to_string(),
+                position: vec2(300.0, 300.0),
+                collider: Some(Collider::circle(0.0, 0.0, 32.0)),
+                controller_kind: ActorControllerKind::Computer,
+                sprite_params: SpriteParams {
+                    tile_size: vec2(64.0, 64.0),
+                    offset: vec2(-32.0, -32.0),
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+        );
+        scene::add_node(other_actor);
     }
 
     loop {
-        // Do not remove this scope! It will cause weird bugs with GameState node
         {
             let game_state = scene::find_node_by_type::<GameState>().unwrap();
             if game_state.should_quit {

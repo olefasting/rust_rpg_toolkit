@@ -1,19 +1,18 @@
-mod game_state;
-mod camera;
-
-mod actor;
-mod item;
-
-pub use camera::Camera;
-pub use game_state::GameState;
 pub use actor::{
     Actor,
-    ActorData,
     ActorController,
     ActorControllerKind,
+    ActorData,
     ActorInventory,
 };
+pub use game_state::GameState;
 pub use item::{
     Item,
     ItemData,
 };
+pub use camera::Camera;
+
+mod game_state;
+mod actor;
+mod item;
+mod camera;

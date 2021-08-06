@@ -44,8 +44,6 @@ pub struct Item {
     pub description: String,
     pub position: Vec2,
     pub rotation: f32,
-    pub flip_x: bool,
-    pub flip_y: bool,
     should_draw: bool,
     sprite: SpriteAnimationPlayer,
 }
@@ -60,8 +58,6 @@ impl Item {
             description: data.description,
             position: data.position,
             rotation: 0.0,
-            flip_x: false,
-            flip_y: false,
             should_draw: true,
             sprite: SpriteAnimationPlayer::new(data.sprite_params),
         }
@@ -87,9 +83,9 @@ impl Node for Item {
 
     fn draw(mut node: RefMut<Self>) {
         if node.should_draw {
-            let (position, rotation, flip_x, flip_y)
-                = (node.position, node.rotation, node.flip_x, node.flip_y);
-            node.sprite.draw(position, rotation, flip_x, flip_y);
+            let (position, rotation)
+                = (node.position, node.rotation);
+            node.sprite.draw(position, rotation);
         }
     }
 }

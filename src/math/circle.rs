@@ -2,9 +2,9 @@ use macroquad::math::{Vec2, Rect, vec2};
 
 #[derive(Copy, Clone)]
 pub struct Circle {
-    x: f32,
-    y: f32,
-    r: f32,
+    pub x: f32,
+    pub y: f32,
+    pub r: f32,
 }
 
 impl Circle {

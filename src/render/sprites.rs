@@ -92,7 +92,7 @@ impl SpriteAnimationPlayer {
         }
     }
 
-    pub fn draw(&mut self, position: Vec2, rotation: f32, flip_x: bool, flip_y: bool) {
+    pub fn draw(&mut self, position: Vec2, rotation: f32) {
         self.sprite.update();
         let resources = storage::get::<Resources>();
         draw_texture_ex(
@@ -103,8 +103,8 @@ impl SpriteAnimationPlayer {
             DrawTextureParams {
                 source: Some(self.sprite.frame().source_rect),
                 dest_size: Some(self.sprite.frame().dest_size),
-                flip_x: self.flip_x && !flip_x,
-                flip_y: self.flip_y && !flip_y,
+                flip_x: self.flip_x,
+                flip_y: self.flip_y,
                 rotation: self.rotation + rotation,
                 ..Default::default()
             },
