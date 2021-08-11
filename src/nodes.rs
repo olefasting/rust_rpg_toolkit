@@ -4,12 +4,14 @@ pub use actor::{
     ActorControllerKind,
     ActorParams,
     ActorInventory,
+    ActorAbility,
+    ActorAbilityFunc,
 };
 pub use game_state::GameState;
 pub use camera::Camera;
 pub use projectiles::Projectiles;
 
-mod game_state;
-mod actor;
-mod camera;
-mod projectiles;
+pub mod game_state;
+pub mod actor;
+pub mod camera;
+pub mod projectiles;

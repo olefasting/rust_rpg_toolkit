@@ -1,3 +1,5 @@
+#![feature(fn_traits)]
+
 use macroquad::{
     color,
     experimental::{
@@ -104,6 +106,8 @@ async fn main() {
         let map = Map::new(uvec2(10, 10));
         GameState::add_node(map);
 
+        Projectiles::add_node();
+
         Actor::add_node(
             ActorParams {
                 current_health: 1000.0,
@@ -135,8 +139,6 @@ async fn main() {
                 ..Default::default()
             },
         );
-
-        Projectiles::add_node();
     }
 
     loop {

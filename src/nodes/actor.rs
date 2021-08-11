@@ -16,6 +16,7 @@ use crate::input::apply_local_player_input;
 
 mod controller;
 mod inventory;
+mod ability;
 
 pub use controller::{
     ActorControllerKind,
@@ -23,22 +24,19 @@ pub use controller::{
 };
 
 pub use inventory::ActorInventory;
-
-use crate::{
-    get_global,
-    render::{
-        SpriteAnimationPlayer,
-        SpriteParams,
-    },
-    globals::LocalPlayer,
-    physics::{
-        PhysicsBody,
-        PhysicsObject,
-        Collider,
-    },
-    nodes::Projectiles,
-    Item,
+pub use ability::{
+    ActorAbility,
+    ActorAbilityFunc,
 };
+
+use crate::{get_global, render::{
+    SpriteAnimationPlayer,
+    SpriteParams,
+}, globals::LocalPlayer, physics::{
+    PhysicsBody,
+    PhysicsObject,
+    Collider,
+}, nodes::Projectiles, Item, generate_id};
 
 #[derive(Clone)]
 pub struct ActorParams {
@@ -55,7 +53,7 @@ pub struct ActorParams {
 impl Default for ActorParams {
     fn default() -> Self {
         ActorParams {
-            id: "".to_string(),
+            id: generate_id(),
             current_health: 0.0,
             max_health: 0.0,
             position: Vec2::ZERO,
@@ -75,13 +73,26 @@ pub struct Actor {
     pub body: PhysicsBody,
     sprite: SpriteAnimationPlayer,
     inventory: ActorInventory,
+    primary_ability: Option<ActorAbility>,
+    secondary_ability: Option<ActorAbility>,
     pub controller: ActorController,
+}
+
+fn primary_ability(actor_id: &str, origin: Vec2, target: Vec2) {
+    let mut projectiles = scene::find_node_by_type::<Projectiles>().unwrap();
+    projectiles.spawn(actor_id, 15.0, color::YELLOW, 4.0, origin, target, 25.0, 15.5, 0.0);
+}
+
+fn secondary_ability(actor_id: &str, origin: Vec2, target: Vec2) {
+    let mut projectiles = scene::find_node_by_type::<Projectiles>().unwrap();
+    projectiles.spawn(actor_id, 150.0, color::BLUE, 100.0, origin, target, 2.0, 15.5, 4.0);
 }
 
 impl Actor {
     const MOVE_SPEED: f32 = 10.0;
 
     pub fn new(params: ActorParams) -> Self {
+        let id = params.id.clone();
         Actor {
             id: params.id,
             current_health: params.current_health,
@@ -89,6 +100,8 @@ impl Actor {
             body: PhysicsBody::new(params.position, 0.0, params.collider),
             sprite: SpriteAnimationPlayer::new(params.sprite_params.clone()),
             inventory: ActorInventory::new(&params.inventory),
+            primary_ability: Some(ActorAbility::new(&id.clone(),0.0, primary_ability)),
+            secondary_ability: Some(ActorAbility::new(&id.clone(), 0.75, secondary_ability)),
             controller: ActorController::new(params.controller_kind),
         }
     }
@@ -130,6 +143,15 @@ impl Node for Actor {
             return;
         }
 
+        let dt = get_frame_time();
+        if let Some(mut ability) = node.primary_ability.as_mut() {
+            ability.update(dt);
+        }
+
+        if let Some(mut ability) = node.secondary_ability.as_mut() {
+            ability.update(dt);
+        }
+
         match node.controller.kind {
             ActorControllerKind::Player { player_id } => {
                 let local_player = get_global::<LocalPlayer>();
@@ -151,12 +173,16 @@ impl Node for Actor {
         node.body.integrate();
 
         if let Some(target) = node.controller.primary_target {
-            let mut projectiles = scene::find_node_by_type::<Projectiles>().unwrap();
-            projectiles.spawn(&node.id,15.0, color::YELLOW, 4.0, node.body.position, target, 25.0, 15.5, 0.0);
+            let position = node.body.position;
+            if let Some(ability) = &mut node.primary_ability {
+                ability.activate(position, target);
+            }
         }
         if let Some(target) = node.controller.secondary_target {
-            let mut projectiles = scene::find_node_by_type::<Projectiles>().unwrap();
-            projectiles.spawn(&node.id, 150.0, color::BLUE, 100.0, node.body.position, target, 2.0, 15.5, 4.0);
+            let position = node.body.position;
+            if let Some(ability) = &mut node.secondary_ability {
+                ability.activate(position, target);
+            }
         }
     }
 

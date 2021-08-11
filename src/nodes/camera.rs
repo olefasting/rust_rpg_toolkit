@@ -17,6 +17,14 @@ use crate::{
         to_screen_space,
         Viewport,
     },
+    nodes::{
+        Actor,
+        ActorControllerKind,
+    },
+    globals::{
+        get_global,
+        LocalPlayer,
+    },
     get_mouse_position,
 };
 
@@ -64,7 +72,7 @@ impl Camera {
         let height = screen_height() / self.scale;
         Rect::new(
             self.position.x - (width / 2.0),
-            -self.position.y - (height / 2.0),
+            self.position.y - (height / 2.0),
             width,
             height,
         )
@@ -142,8 +150,16 @@ impl Node for Camera {
     }
 
     fn fixed_update(mut node: RefMut<Self>) {
-        {
-            //node.pan(dir);
+        for actor in scene::find_nodes_by_type::<Actor>() {
+            match actor.controller.kind {
+                ActorControllerKind::Player { player_id } => {
+                    let local_player = get_global::<LocalPlayer>();
+                    if player_id == local_player.id {
+                        node.position = actor.body.position;
+                    }
+                },
+                _ => {}
+            }
         }
         {
             let (_, dir) = mouse_wheel();
@@ -158,7 +174,7 @@ impl Node for Camera {
     fn draw(node: RefMut<Self>) {
         scene::set_camera_1(Camera2D {
             offset: vec2(0.0, 0.0),
-            target: vec2(node.position.x, -node.position.y),
+            target: vec2(node.position.x, node.position.y),
             zoom: vec2(node.scale / screen_width(), -node.scale / screen_height()) * 2.0,
             rotation: node.rotation,
             ..Camera2D::default()

@@ -1,3 +1,5 @@
+use crate::nodes::actor::ActorAbility;
+
 #[derive(Clone)]
 pub enum ItemSlot {
     MainHand,
@@ -5,11 +7,9 @@ pub enum ItemSlot {
     BothHands,
 }
 
-pub type ItemAction = fn ();
-
 #[derive(Clone)]
 pub struct Item {
     name: String,
     slot: ItemSlot,
-    action: Option<ItemAction>,
+    action: Option<ActorAbility>,
 }
