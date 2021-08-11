@@ -69,7 +69,7 @@ impl PhysicsBody {
                 }
             }
             let game_state = scene::find_node_by_type::<GameState>().unwrap();
-            if game_state.map.solid_at(self.position + movement) {
+            if game_state.map.solid_at_collider(collider.offset(movement)) {
                 return;
             }
             self.position += movement;

@@ -93,9 +93,10 @@ impl Node for Projectiles {
             if projectile.lived >= projectile.ttl {
                 return false;
             }
+            let collider = Collider::circle(0.0, 0.0, projectile.size / 2.0).offset(projectile.position);
             for mut actor in scene::find_nodes_by_type::<Actor>() {
-                if let Some(collider) = actor.body.offset_collider() {
-                    if Collider::circle(0.0, 0.0, projectile.size / 2.0).offset(projectile.position).overlaps(&collider) {
+                if let Some(other_collider) = actor.body.offset_collider() {
+                    if collider.overlaps(&other_collider) {
                         if projectile.actor_id != actor.id {
                             actor.take_damage(projectile.damage);
                             return false;
@@ -104,7 +105,7 @@ impl Node for Projectiles {
                 }
             }
             let game_state = scene::find_node_by_type::<GameState>().unwrap();
-            if game_state.map.solid_at(projectile.position) {
+            if game_state.map.solid_at_collider(collider) {
                 return false;
             }
             return true;
