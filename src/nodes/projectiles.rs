@@ -12,7 +12,10 @@ use macroquad::{
 };
 
 use crate::{
-    nodes::Actor,
+    nodes::{
+        Actor,
+        GameState,
+    },
     physics::Collider,
 };
 
@@ -99,6 +102,10 @@ impl Node for Projectiles {
                         }
                     }
                 }
+            }
+            let game_state = scene::find_node_by_type::<GameState>().unwrap();
+            if game_state.map.solid_at(projectile.position) {
+                return false;
             }
             return true;
         });
