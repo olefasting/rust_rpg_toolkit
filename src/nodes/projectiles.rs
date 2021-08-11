@@ -62,10 +62,11 @@ impl Node for Projectiles {
     }
 
     fn fixed_update(mut node: RefMut<Self>) {
-        node.active.retain(|projectile| (projectile.ttl != 0.0 && projectile.lived >= projectile.ttl)
-                || projectile.position.distance(projectile.target) <= projectile.speed);
+        node.active.retain(|projectile| (projectile.ttl == 0.0 || projectile.lived < projectile.ttl)
+                && projectile.position.distance(projectile.target) > projectile.speed);
 
         for projectile in &mut node.active {
+            let direction = projectile.target.sub(projectile.position).normalize_or_zero();
             projectile.position += direction * projectile.speed;
         }
     }
@@ -73,8 +74,8 @@ impl Node for Projectiles {
     fn draw(node: RefMut<Self>) {
         for projectile in &node.active {
             draw_circle(
-                projectile.position.x,
-                projectile.position.y,
+                projectile.position.x - projectile.size,
+                projectile.position.y - projectile.size,
                 projectile.size / 2.0,
                 projectile.color,
             )
