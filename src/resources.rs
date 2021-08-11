@@ -15,16 +15,16 @@ impl Resources {
     pub const GROUND_TILES_TEXTURE_ID: &'static str = "ground_tiles";
 
     pub async fn new() -> Result<Resources, FileError> {
-        let white_texture = load_texture("assets/white_texture.png").await?;
+        let white_texture = load_texture("assets/sprites/white_texture.png").await?;
         white_texture.set_filter(FilterMode::Nearest);
 
-        let characters = load_texture("assets/neo_zero_char_01.png").await?;
+        let characters = load_texture("assets/sprites/neo_zero_char_01.png").await?;
         characters.set_filter(FilterMode::Nearest);
 
-        let props = load_texture("assets/neo_zero_props_and_items_01.png").await?;
+        let props = load_texture("assets/sprites/neo_zero_props_and_items_01.png").await?;
         props.set_filter(FilterMode::Nearest);
 
-        let ground_tiles = load_texture("assets/neo_zero_tiles_and_buildings_01.png").await?;
+        let ground_tiles = load_texture("assets/sprites/neo_zero_tiles_and_buildings_01.png").await?;
         ground_tiles.set_filter(FilterMode::Nearest);
 
         Ok(Resources {
@@ -41,7 +41,10 @@ impl Resources {
             Self::CHARACTERS_TEXTURE_ID => Some(self.characters),
             Self::PROPS_TEXTURE_ID => Some(self.props),
             Self::GROUND_TILES_TEXTURE_ID => Some(self.ground_tiles),
-            _ => None,
+            _ => {
+                assert!(false, "Invalid texture id '{}", id);
+                None
+            },
         }
     }
 }

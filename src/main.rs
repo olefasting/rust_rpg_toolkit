@@ -102,7 +102,7 @@ async fn main() {
             id: 0,
         });
 
-        let map = Map::new(uvec2(300, 300));
+        let map = Map::new(uvec2(300, 300)).await;
         GameState::add_node(map);
 
         Camera::add_node();
