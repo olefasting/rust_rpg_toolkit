@@ -99,8 +99,6 @@ async fn main() {
             id: 0,
         });
 
-        Projectiles::add_node();
-
         Camera::add_node();
 
         let map = Map::new(uvec2(10, 10));
@@ -108,6 +106,8 @@ async fn main() {
 
         Actor::add_node(
             ActorParams {
+                current_health: 1000.0,
+                max_health: 1000.0,
                 position: vec2(100.0, 100.0),
                 collider: Some(Collider::circle(0.0, 0.0, 16.0)),
                 controller_kind: ActorControllerKind::Player { player_id: 0 },
@@ -122,6 +122,8 @@ async fn main() {
 
         Actor::add_node(
             ActorParams {
+                current_health: 1000.0,
+                max_health: 1000.0,
                 position: vec2(300.0, 300.0),
                 collider: Some(Collider::circle(0.0, 0.0, 16.0)),
                 controller_kind: ActorControllerKind::Computer,
@@ -133,6 +135,8 @@ async fn main() {
                 ..Default::default()
             },
         );
+
+        Projectiles::add_node();
     }
 
     loop {
