@@ -104,7 +104,7 @@ async fn main() {
         let map = Map::new(vec2(16.0, 16.0),"assets/maps/map_01.json").await;
         GameState::add_node(map);
 
-        Camera::add_node();
+        Camera::add_node(vec2(100.0, 100.0));
 
         Projectiles::add_node();
 
@@ -113,6 +113,7 @@ async fn main() {
                 current_health: 1000.0,
                 max_health: 1000.0,
                 position: vec2(100.0, 100.0),
+                move_speed: 2.5,
                 collider: Some(Collider::circle(0.0, 0.0, 8.0)),
                 controller_kind: ActorControllerKind::Player { id: 0 },
                 sprite_params: SpriteParams {
@@ -150,6 +151,7 @@ async fn main() {
                 current_health: 1000.0,
                 max_health: 1000.0,
                 position: vec2(300.0, 300.0),
+                move_speed: 2.5,
                 collider: Some(Collider::circle(0.0, 0.0, 8.0)),
                 controller_kind: ActorControllerKind::Computer,
                 sprite_params: SpriteParams {

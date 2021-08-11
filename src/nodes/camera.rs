@@ -27,6 +27,7 @@ use crate::{
     },
     get_mouse_position,
 };
+use std::ops::Sub;
 
 pub struct Camera {
     pub position: Vec2,
@@ -38,6 +39,8 @@ pub struct Camera {
 }
 
 impl Camera {
+    const FOLLOW_THRESHOLD: f32 = 0.35;
+
     const FRUSTUM_PADDING: f32 = 100.0;
 
     const DEFAULT_PAN_SPEED: f32 = 50.0;
@@ -48,9 +51,9 @@ impl Camera {
     const ZOOM_MIN: f32 = 0.25;
     const ZOOM_MAX: f32 = 6.0;
 
-    pub fn new() -> Self {
+    pub fn new(position: Vec2) -> Self {
         Camera {
-            position: Vec2::ZERO,
+            position,
             rotation: 0.0,
             scale: Self::DEFAULT_SCALE,
             zoom_speed: Self::DEFAULT_ZOOM_SPEED,
@@ -59,8 +62,8 @@ impl Camera {
         }
     }
 
-    pub fn add_node() -> Handle<Self> {
-        scene::add_node(Camera::new())
+    pub fn add_node(position: Vec2) -> Handle<Self> {
+        scene::add_node(Camera::new(position))
     }
 
     pub fn get_aspect_ratio(&self) -> f32 {
@@ -152,7 +155,19 @@ impl Node for Camera {
     fn fixed_update(mut node: RefMut<Self>) {
         let local_player = get_global::<LocalPlayer>();
         let actor = Actor::find_player(local_player.id).unwrap();
-        node.position = actor.body.position;
+        let viewport = node.get_viewport();
+        let mod_size = vec2(viewport.w * Self::FOLLOW_THRESHOLD, viewport.h * Self::FOLLOW_THRESHOLD);
+        let bounds = Rect::new(
+            viewport.x + (viewport.w - mod_size.x) / 2.0,
+            viewport.y + (viewport.h - mod_size.y) / 2.0,
+            mod_size.x,
+            mod_size.y,
+        );
+        if !bounds.contains(actor.body.position) {
+            let direction = actor.body.position.sub(node.position).normalize_or_zero();
+            node.position += direction * actor.move_speed;
+        }
+
         {
             let (_, dir) = mouse_wheel();
             if dir > 0.0 {

@@ -44,6 +44,7 @@ pub struct ActorParams {
     pub current_health: f32,
     pub max_health: f32,
     pub position: Vec2,
+    pub move_speed: f32,
     pub collider: Option<Collider>,
     pub inventory: Vec<Item>,
     pub sprite_params: SpriteParams,
@@ -57,6 +58,7 @@ impl Default for ActorParams {
             current_health: 0.0,
             max_health: 0.0,
             position: Vec2::ZERO,
+            move_speed: 0.0,
             collider: None,
             inventory: Vec::new(),
             sprite_params: Default::default(),
@@ -70,6 +72,7 @@ pub struct Actor {
     pub id: String,
     current_health: f32,
     max_health: f32,
+    pub move_speed: f32,
     pub body: PhysicsBody,
     sprite: SpriteAnimationPlayer,
     inventory: ActorInventory,
@@ -89,8 +92,6 @@ fn secondary_test_ability(actor_id: &str, origin: Vec2, target: Vec2) {
 }
 
 impl Actor {
-    const MOVE_SPEED: f32 = 3.0;
-
     const HEALTH_BAR_LENGTH: f32 = 50.0;
     const HEALTH_BAR_HEIGHT: f32 = 10.0;
     const HEALTH_BAR_OFFSET_Y: f32 = 25.0;
@@ -101,6 +102,7 @@ impl Actor {
             id: params.id,
             current_health: params.current_health,
             max_health: params.max_health,
+            move_speed: params.move_speed,
             body: PhysicsBody::new(params.position, 0.0, params.collider),
             sprite: SpriteAnimationPlayer::new(params.sprite_params.clone()),
             inventory: ActorInventory::new(&params.inventory),
@@ -120,6 +122,7 @@ impl Actor {
             current_health: self.current_health,
             max_health: self.max_health,
             position: self.body.position,
+            move_speed: self.move_speed,
             collider: self.body.collider,
             inventory: self.inventory.clone_data(),
             sprite_params: self.sprite.to_sprite_params(),
@@ -232,7 +235,7 @@ impl Node for Actor {
     }
 
     fn fixed_update(mut node: RefMut<Self>) {
-        node.body.velocity = node.controller.direction.normalize_or_zero() * Self::MOVE_SPEED;
+        node.body.velocity = node.controller.direction.normalize_or_zero() * node.move_speed;
         node.body.integrate();
 
         if let Some(target) = node.controller.primary_target {
