@@ -42,7 +42,6 @@ use globals::LocalPlayer;
 
 pub use map::{
     Map,
-    MapTile,
 };
 
 pub use item::Item;
@@ -102,7 +101,7 @@ async fn main() {
             id: 0,
         });
 
-        let map = Map::new(uvec2(300, 300)).await;
+        let map = Map::new(vec2(16.0, 16.0),"assets/maps/map_01.json").await;
         GameState::add_node(map);
 
         Camera::add_node();

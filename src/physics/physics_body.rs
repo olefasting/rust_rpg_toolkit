@@ -9,7 +9,10 @@ use macroquad::{
     prelude::*,
 };
 
-use crate::physics::Collider;
+use crate::{
+    physics::Collider,
+    GameState,
+};
 
 pub type PhysicsObject = (HandleUntyped, Lens<PhysicsBody>);
 
@@ -64,6 +67,10 @@ impl PhysicsBody {
                         }
                     }
                 }
+            }
+            let game_state = scene::find_node_by_type::<GameState>().unwrap();
+            if game_state.map.solid_at(self.position + movement) {
+                return;
             }
             self.position += movement;
         }

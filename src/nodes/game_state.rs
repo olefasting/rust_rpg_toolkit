@@ -12,7 +12,7 @@ use macroquad::{
 use crate::Map;
 
 pub struct GameState {
-    map: Map,
+    pub map: Map,
     pub should_quit: bool,
 }
 
