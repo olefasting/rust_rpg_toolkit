@@ -80,7 +80,7 @@ pub struct Actor {
 
 fn primary_test_ability(actor_id: &str, origin: Vec2, target: Vec2) {
     let mut projectiles = scene::find_node_by_type::<Projectiles>().unwrap();
-    projectiles.spawn(actor_id, 15.0, color::YELLOW, 4.0, origin, target, 25.0, 15.5, 0.0);
+    projectiles.spawn(actor_id, 15.0, color::YELLOW, 4.0, origin, target, 25.0, 15.5, 8.0);
 }
 
 fn secondary_test_ability(actor_id: &str, origin: Vec2, target: Vec2) {

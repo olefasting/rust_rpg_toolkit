@@ -77,7 +77,7 @@ impl Map {
 
         let resources = get_global::<Resources>();
         for (x, y, tile) in self.tiled_map.tiles("ground", None) {
-            let tileset_coords = uvec2(0, 8);
+            let tileset_coords = uvec2(1, 8);
             draw_texture_ex(
                 resources.ground_tiles,
                 (x * self.tile_size.x) as f32,

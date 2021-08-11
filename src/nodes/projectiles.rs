@@ -22,21 +22,21 @@ pub struct Projectile {
     color: Color,
     size: f32,
     position: Vec2,
-    target: Vec2,
+    direction: Vec2,
     speed: f32,
     lived: f32,
     ttl: f32,
 }
 
 impl Projectile {
-    pub fn new(actor_id: &str, damage: f32, color: Color, size: f32, position: Vec2, target: Vec2, speed: f32, ttl: f32) -> Self {
+    pub fn new(actor_id: &str, damage: f32, color: Color, size: f32, position: Vec2, direction: Vec2, speed: f32, ttl: f32) -> Self {
         Projectile {
             actor_id: actor_id.to_string(),
             damage,
             color,
             size,
             position,
-            target,
+            direction,
             speed,
             lived: 0.0,
             ttl,
@@ -63,11 +63,12 @@ impl Projectiles {
     }
 
     pub fn spawn(&mut self, actor_id: &str, damage: f32, color: Color, size: f32, position: Vec2, target: Vec2, speed: f32, spread: f32, ttl: f32) {
+        assert!(ttl > 0.0, "Projectile TTL must be a positive float and not 0.0");
         let spread_target = vec2(
           rand::gen_range(target.x - spread, target.x + spread),
             rand::gen_range(target.y - spread, target.y + spread),
         );
-        self.active.push(Projectile::new(actor_id, damage, color, size, position, spread_target, speed, ttl));
+        self.active.push(Projectile::new(actor_id, damage, color, size, position, spread_target.sub(position).normalize_or_zero(), speed, ttl));
     }
 }
 
@@ -80,15 +81,13 @@ impl Node for Projectiles {
 
     fn fixed_update(mut node: RefMut<Self>) {
         for projectile in &mut node.active {
-            let direction = projectile.target.sub(projectile.position).normalize_or_zero();
             let speed = rand::gen_range(projectile.speed * Self::SPEED_VARIANCE_MIN, projectile.speed * Self::SPEED_VARIANCE_MAX);
-            projectile.position += direction * speed;
+            projectile.position += projectile.direction * speed;
         }
 
         node.active.retain(|projectile| {
             // FIXME: This will allow damage from a projectile that has already hit its ttl in last update
-            if (projectile.ttl != 0.0 && projectile.lived >= projectile.ttl)
-                || projectile.position.distance(projectile.target) <= projectile.speed {
+            if projectile.lived >= projectile.ttl {
                 return false;
             }
             for mut actor in scene::find_nodes_by_type::<Actor>() {
