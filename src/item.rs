@@ -1,4 +1,7 @@
-use crate::nodes::actor::ActorAbility;
+use crate::nodes::actor::{
+    ActorAbility,
+    ActorAbilityFunc,
+};
 
 #[derive(Clone)]
 pub enum ItemSlot {
@@ -11,5 +14,16 @@ pub enum ItemSlot {
 pub struct Item {
     name: String,
     slot: ItemSlot,
-    action: Option<ActorAbility>,
+    cooldown: Option<f32>,
+    action: Option<ActorAbilityFunc>,
+}
+
+impl Item {
+    pub fn to_actor_ability(&self, actor_id: &str) -> Option<ActorAbility> {
+        if let Some(action) = self.action {
+            Some(ActorAbility::new(actor_id, self.cooldown.unwrap_or(0.0), action))
+        } else {
+            None
+        }
+    }
 }

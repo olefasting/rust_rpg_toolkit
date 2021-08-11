@@ -78,12 +78,12 @@ pub struct Actor {
     pub controller: ActorController,
 }
 
-fn primary_ability(actor_id: &str, origin: Vec2, target: Vec2) {
+fn primary_test_ability(actor_id: &str, origin: Vec2, target: Vec2) {
     let mut projectiles = scene::find_node_by_type::<Projectiles>().unwrap();
     projectiles.spawn(actor_id, 15.0, color::YELLOW, 4.0, origin, target, 25.0, 15.5, 0.0);
 }
 
-fn secondary_ability(actor_id: &str, origin: Vec2, target: Vec2) {
+fn secondary_test_ability(actor_id: &str, origin: Vec2, target: Vec2) {
     let mut projectiles = scene::find_node_by_type::<Projectiles>().unwrap();
     projectiles.spawn(actor_id, 150.0, color::BLUE, 100.0, origin, target, 2.0, 15.5, 4.0);
 }
@@ -100,8 +100,8 @@ impl Actor {
             body: PhysicsBody::new(params.position, 0.0, params.collider),
             sprite: SpriteAnimationPlayer::new(params.sprite_params.clone()),
             inventory: ActorInventory::new(&params.inventory),
-            primary_ability: Some(ActorAbility::new(&id.clone(),0.0, primary_ability)),
-            secondary_ability: Some(ActorAbility::new(&id.clone(), 0.75, secondary_ability)),
+            primary_ability: Some(ActorAbility::new(&id,0.005, primary_test_ability)),
+            secondary_ability: Some(ActorAbility::new(&id, 1.25, secondary_test_ability)),
             controller: ActorController::new(params.controller_kind),
         }
     }
