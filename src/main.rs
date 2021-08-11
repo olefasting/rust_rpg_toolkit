@@ -102,10 +102,10 @@ async fn main() {
             id: 0,
         });
 
-        Camera::add_node();
-
         let map = Map::new(uvec2(300, 300));
         GameState::add_node(map);
+
+        Camera::add_node();
 
         Projectiles::add_node();
 
@@ -114,8 +114,8 @@ async fn main() {
                 current_health: 1000.0,
                 max_health: 1000.0,
                 position: vec2(100.0, 100.0),
-                collider: Some(Collider::circle(0.0, 0.0, 16.0)),
-                controller_kind: ActorControllerKind::Player { player_id: 0 },
+                collider: Some(Collider::circle(0.0, 0.0, 8.0)),
+                controller_kind: ActorControllerKind::Player { id: 0 },
                 sprite_params: SpriteParams {
                     texture_id: Resources::CHARACTERS_TEXTURE_ID.to_string(),
                     tile_size: vec2(32.0, 32.0),
@@ -151,7 +151,7 @@ async fn main() {
                 current_health: 1000.0,
                 max_health: 1000.0,
                 position: vec2(300.0, 300.0),
-                collider: Some(Collider::circle(0.0, 0.0, 16.0)),
+                collider: Some(Collider::circle(0.0, 0.0, 8.0)),
                 controller_kind: ActorControllerKind::Computer,
                 sprite_params: SpriteParams {
                     texture_id: Resources::CHARACTERS_TEXTURE_ID.to_string(),

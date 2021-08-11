@@ -150,17 +150,9 @@ impl Node for Camera {
     }
 
     fn fixed_update(mut node: RefMut<Self>) {
-        for actor in scene::find_nodes_by_type::<Actor>() {
-            match actor.controller.kind {
-                ActorControllerKind::Player { player_id } => {
-                    let local_player = get_global::<LocalPlayer>();
-                    if player_id == local_player.id {
-                        node.position = actor.body.position;
-                    }
-                },
-                _ => {}
-            }
-        }
+        let local_player = get_global::<LocalPlayer>();
+        let actor = Actor::find_player(local_player.id).unwrap();
+        node.position = actor.body.position;
         {
             let (_, dir) = mouse_wheel();
             if dir > 0.0 {
@@ -169,6 +161,8 @@ impl Node for Camera {
                 node.zoom_out();
             }
         }
+
+        set_global(node.get_viewport());
     }
 
     fn draw(node: RefMut<Self>) {
@@ -179,7 +173,5 @@ impl Node for Camera {
             rotation: node.rotation,
             ..Camera2D::default()
         });
-
-        set_global(node.get_viewport());
     }
 }

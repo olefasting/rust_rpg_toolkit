@@ -89,7 +89,7 @@ fn secondary_test_ability(actor_id: &str, origin: Vec2, target: Vec2) {
 }
 
 impl Actor {
-    const MOVE_SPEED: f32 = 10.0;
+    const MOVE_SPEED: f32 = 3.0;
 
     pub fn new(params: ActorParams) -> Self {
         let id = params.id.clone();
@@ -127,6 +127,20 @@ impl Actor {
         self.current_health -= damage;
         println!("damage: {}, health: {}/{}", damage, self.current_health, self.max_health);
     }
+
+    pub fn find_player(player_id: u32) -> Option<RefMut<Actor>> {
+        for actor in scene::find_nodes_by_type::<Actor>() {
+            match actor.controller.kind {
+                ActorControllerKind::Player { id } => {
+                    if player_id == id {
+                        return Some(actor);
+                    }
+                },
+                _ => {}
+            }
+        }
+        None
+    }
 }
 
 impl Node for Actor {
@@ -152,9 +166,9 @@ impl Node for Actor {
         }
 
         match node.controller.kind {
-            ActorControllerKind::Player { player_id } => {
+            ActorControllerKind::Player { id } => {
                 let local_player = get_global::<LocalPlayer>();
-                if player_id == local_player.id {
+                if id == local_player.id {
                     apply_local_player_input(&mut node.controller);
                 } else {
                     // TODO: Remote player
