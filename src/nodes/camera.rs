@@ -2,6 +2,7 @@ use macroquad::{
     experimental::{
         scene::{
             Node,
+            Handle,
             RefMut,
         },
     },
@@ -31,9 +32,10 @@ pub struct Camera {
 impl Camera {
     const FRUSTUM_PADDING: f32 = 100.0;
 
-    const DEFAULT_PAN_SPEED: f32 = 75.0;
+    const DEFAULT_PAN_SPEED: f32 = 50.0;
     const DEFAULT_ROTATION_SPEED: f32 = 75.0;
     const DEFAULT_ZOOM_SPEED: f32 = 0.75;
+    const DEFAULT_SCALE: f32 = 2.0;
 
     const ZOOM_MIN: f32 = 0.25;
     const ZOOM_MAX: f32 = 6.0;
@@ -42,11 +44,15 @@ impl Camera {
         Camera {
             position: Vec2::ZERO,
             rotation: 0.0,
-            scale: 1.0,
+            scale: Self::DEFAULT_SCALE,
             zoom_speed: Self::DEFAULT_ZOOM_SPEED,
             pan_speed: Self::DEFAULT_PAN_SPEED,
             rotation_speed: Self::DEFAULT_ROTATION_SPEED,
         }
+    }
+
+    pub fn add_node() -> Handle<Self> {
+        scene::add_node(Camera::new())
     }
 
     pub fn get_aspect_ratio(&self) -> f32 {
@@ -137,20 +143,7 @@ impl Node for Camera {
 
     fn fixed_update(mut node: RefMut<Self>) {
         {
-            let mut dir = Vec2::ZERO;
-            if is_key_down(KeyCode::Up) || is_key_down(KeyCode::W) {
-                dir.y -= 1.0;
-            }
-            if is_key_down(KeyCode::Down) || is_key_down(KeyCode::S) {
-                dir.y += 1.0;
-            }
-            if is_key_down(KeyCode::Left) || is_key_down(KeyCode::A) {
-                dir.x -= 1.0;
-            }
-            if is_key_down(KeyCode::Right) || is_key_down(KeyCode::D) {
-                dir.x += 1.0;
-            }
-            node.pan(dir);
+            //node.pan(dir);
         }
         {
             let (_, dir) = mouse_wheel();

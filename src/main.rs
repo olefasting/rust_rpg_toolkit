@@ -9,13 +9,18 @@ use macroquad::{
 };
 
 pub use input::get_mouse_position;
+
+use physics::Collider;
+
 use nodes::{
     Camera,
     Actor,
     ActorControllerKind,
-    ActorData,
+    ActorParams,
     GameState,
+    Projectiles,
 };
+
 use render::{
     SpriteParams,
     text::{
@@ -23,16 +28,27 @@ use render::{
         TextAlignment,
     }
 };
+
 pub use resources::Resources;
-pub use global_storage::{
+pub use globals::{
     try_get_global,
     get_global,
     set_global,
 };
-use crate::physics::Collider;
+
+use globals::LocalPlayer;
+
+pub use map::{
+    Map,
+    MapTile,
+};
+
+pub use item::Item;
 
 mod resources;
-mod global_storage;
+mod globals;
+mod map;
+mod item;
 
 pub mod nodes;
 pub mod render;
@@ -43,9 +59,6 @@ pub mod math;
 pub fn generate_id() -> String {
     nanoid::nanoid!()
 }
-
-#[derive(Copy, Clone)]
-pub struct LocalPlayerId(pub u32);
 
 fn window_conf() -> Conf {
     Conf {
@@ -61,7 +74,7 @@ fn window_conf() -> Conf {
 async fn main() {
     let load_resources = start_coroutine(async move {
         let resources = Resources::new().await.unwrap();
-        storage::store(resources);
+        set_global(resources);
     });
 
     while load_resources.is_done() == false {
@@ -82,45 +95,44 @@ async fn main() {
     }
 
     {
-        set_global(LocalPlayerId(0));
+        set_global(LocalPlayer {
+            id: 0,
+        });
 
-        let camera = Camera::new();
-        scene::add_node(camera);
+        Projectiles::add_node();
 
-        let game_state = GameState::new();
-        scene::add_node(game_state);
+        Camera::add_node();
 
-        let actor = Actor::new(
-            ActorData {
-                name: "Player Actor".to_string(),
+        let map = Map::new(uvec2(10, 10));
+        GameState::add_node(map);
+
+        Actor::add_node(
+            ActorParams {
                 position: vec2(100.0, 100.0),
-                collider: Some(Collider::circle(0.0, 0.0, 32.0)),
+                collider: Some(Collider::circle(0.0, 0.0, 16.0)),
                 controller_kind: ActorControllerKind::Player { player_id: 0 },
                 sprite_params: SpriteParams {
-                    tile_size: vec2(64.0, 64.0),
-                    offset: vec2(-32.0, -32.0),
+                    tile_size: vec2(32.0, 32.0),
+                    offset: vec2(-16.0, -16.0),
                     ..Default::default()
                 },
                 ..Default::default()
             },
         );
-        scene::add_node(actor);
 
-        let other_actor = Actor::new(
-            ActorData {
-                name: "Player Actor".to_string(),
+        Actor::add_node(
+            ActorParams {
                 position: vec2(300.0, 300.0),
-                collider: Some(Collider::rect(0.0, 0.0, 64.0, 64.0)),
+                collider: Some(Collider::circle(0.0, 0.0, 16.0)),
                 controller_kind: ActorControllerKind::Computer,
                 sprite_params: SpriteParams {
-                    tile_size: vec2(64.0, 64.0),
-                    offset: vec2(-32.0, -32.0),
+                    tile_size: vec2(32.0, 32.0),
+                    offset: vec2(-16.0, -16.0),
                     ..Default::default()
                 },
                 ..Default::default()
             },
         );
-        scene::add_node(other_actor);
     }
 
     loop {

@@ -4,11 +4,15 @@ use macroquad::{
     experimental::{
         scene::{
             Node,
+            Handle,
             RefMut,
         },
     },
+    color,
     prelude::*,
 };
+
+use crate::input::apply_local_player_input;
 
 mod controller;
 mod inventory;
@@ -17,46 +21,37 @@ pub use controller::{
     ActorControllerKind,
     ActorController,
 };
+
 pub use inventory::ActorInventory;
 
 use crate::{
     get_global,
-    generate_id,
     render::{
         SpriteAnimationPlayer,
         SpriteParams,
     },
-    nodes::ItemData,
-};
-
-use crate::{
-    LocalPlayerId,
-    render::Viewport,
+    globals::LocalPlayer,
     physics::{
         PhysicsBody,
         PhysicsObject,
         Collider,
     },
+    nodes::Projectiles,
+    Item,
 };
 
 #[derive(Clone)]
-pub struct ActorData {
-    pub id: String,
-    pub name: String,
-    pub factions: Vec<String>,
+pub struct ActorParams {
     pub position: Vec2,
     pub collider: Option<Collider>,
-    pub inventory: Vec<ItemData>,
+    pub inventory: Vec<Item>,
     pub sprite_params: SpriteParams,
     pub controller_kind: ActorControllerKind,
 }
 
-impl Default for ActorData {
+impl Default for ActorParams {
     fn default() -> Self {
-        ActorData {
-            id: generate_id(),
-            name: "Unnamed Actor".to_string(),
-            factions: Vec::new(),
+        ActorParams {
             position: Vec2::ZERO,
             collider: None,
             inventory: Vec::new(),
@@ -68,9 +63,6 @@ impl Default for ActorData {
 
 #[derive(Clone)]
 pub struct Actor {
-    pub id: String,
-    pub name: String,
-    factions: Vec<String>,
     body: PhysicsBody,
     sprite: SpriteAnimationPlayer,
     inventory: ActorInventory,
@@ -78,40 +70,23 @@ pub struct Actor {
 }
 
 impl Actor {
-    const MOVE_SPEED: f32 = 25.0;
-    const STOP_AT_DISTANCE: f32 = 25.0;
+    const MOVE_SPEED: f32 = 10.0;
 
-    pub fn new(
-        data: ActorData,
-    ) -> Self {
+    pub fn new(params: ActorParams) -> Self {
         Actor {
-            id: data.id.to_string(),
-            name: data.name.to_string(),
-            factions: data.factions.to_vec(),
-            body: PhysicsBody::new(data.position, 0.0, data.collider),
-            sprite: SpriteAnimationPlayer::new(data.sprite_params.clone()),
-            inventory: ActorInventory::new(&data.inventory),
-            controller: ActorController::new(data.controller_kind),
+            body: PhysicsBody::new(params.position, 0.0, params.collider),
+            sprite: SpriteAnimationPlayer::new(params.sprite_params.clone()),
+            inventory: ActorInventory::new(&params.inventory),
+            controller: ActorController::new(params.controller_kind),
         }
     }
 
-    pub fn add_to_faction(&mut self, faction_id: &str) {
-        self.factions.push(faction_id.to_string());
+    pub fn add_node(params: ActorParams) -> Handle<Self> {
+        scene::add_node(Self::new(params))
     }
 
-    pub fn remove_from_faction(&mut self, faction_id: &str) -> bool {
-        if let Some(i) = self.factions.iter().position(|id| *id == faction_id.to_string()) {
-            self.factions.remove(i);
-            return true;
-        };
-        return false;
-    }
-
-    pub fn to_actor_data(&self) -> ActorData {
-        ActorData {
-            id: self.id.to_string(),
-            name: self.name.to_string(),
-            factions: self.factions.clone(),
+    pub fn to_actor_params(&self) -> ActorParams {
+        ActorParams {
             position: self.body.position,
             collider: self.body.collider,
             inventory: self.inventory.clone_data(),
@@ -132,14 +107,9 @@ impl Node for Actor {
     fn update(mut node: RefMut<Self>) {
         match node.controller.kind {
             ActorControllerKind::Player { player_id } => {
-                let local_player_id = get_global::<LocalPlayerId>().0;
-                if player_id == local_player_id {
-                    let viewport = get_global::<Viewport>();
-                    let coords = viewport.get_mouse_world_coords();
-                    if is_mouse_button_down(MouseButton::Left) {
-                        node.controller.destination = Some(coords);
-                    }
-                    if is_mouse_button_down(MouseButton::Right) {}
+                let local_player = get_global::<LocalPlayer>();
+                if player_id == local_player.id {
+                    apply_local_player_input(&mut node.controller);
                 } else {
                     // TODO: Remote player
                 }
@@ -152,28 +122,16 @@ impl Node for Actor {
     }
 
     fn fixed_update(mut node: RefMut<Self>) {
-        if node.controller.direction != Vec2::ZERO {
-            node.body.velocity = node.controller.direction * Self::MOVE_SPEED;
-            node.controller.destination = None;
-            node.controller.direction = Vec2::ZERO;
-        } else if let Some(destination) = node.controller.destination {
-            if destination.distance(node.body.position) <= Self::STOP_AT_DISTANCE {
-                node.controller.destination = None;
-                node.body.velocity = Vec2::ZERO;
-            } else {
-                let direction = destination.sub(node.body.position).normalize();
-                node.body.velocity = direction * Self::MOVE_SPEED;
-            }
-        } else {
-            node.body.velocity = Vec2::ZERO;
-        }
-
+        node.body.velocity = node.controller.direction.normalize_or_zero() * Self::MOVE_SPEED;
         node.body.integrate();
+        if let Some(target) = node.controller.primary_target {
+            let mut projectiles = scene::find_node_by_type::<Projectiles>().unwrap();
+            projectiles.spawn(color::YELLOW, 2.0, node.body.position, target, 25.0, 0.0);
+        }
     }
 
     fn draw(mut node: RefMut<Self>) {
-        let (position, rotation)
-            = (node.body.position, node.body.rotation);
+        let (position, rotation) = (node.body.position, node.body.rotation);
         node.sprite.draw(position, rotation);
         node.body.debug_draw();
     }

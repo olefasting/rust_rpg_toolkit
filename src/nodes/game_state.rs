@@ -2,40 +2,35 @@ use macroquad::{
     experimental::{
         scene::{
             Node,
+            Handle,
             RefMut,
         }
     },
     prelude::*,
 };
 
+use crate::Map;
+
 pub struct GameState {
+    map: Map,
     pub should_quit: bool,
 }
 
 impl GameState {
-    pub fn new() -> GameState {
-        // for (_, data) in &map.actors {
-        //     let actor = Actor::new(data);
-        //     scene::add_node(actor);
-        // }
-        //
-        // for (_, data) in &map.items {
-        //     let item = Actor::new(data);
-        //     scene::add_node(item);
-        // }
-
+    pub fn new(map: Map) -> GameState {
         GameState {
+            map,
             should_quit: false,
         }
+    }
+
+    pub fn add_node(map: Map) -> Handle<Self> {
+        scene::add_node(Self::new(map))
     }
 }
 
 impl Node for GameState {
-    fn ready(_node: RefMut<Self>) {}
-
-    fn update(mut node: RefMut<Self>) {
-        node.should_quit = is_key_pressed(KeyCode::Escape) || is_key_pressed(KeyCode::Q);
+    fn draw(node: RefMut<Self>) {
+        node.map.draw();
     }
-
-    fn fixed_update(_node: RefMut<Self>) {}
 }

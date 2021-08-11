@@ -1,18 +1,18 @@
-use crate::nodes::ItemData;
+use crate::Item;
 
 #[derive(Clone)]
 pub struct ActorInventory {
-    items: Vec<ItemData>,
+    items: Vec<Item>,
 }
 
 impl ActorInventory {
-    pub fn new(items: &[ItemData]) -> Self {
+    pub fn new(items: &[Item]) -> Self {
         ActorInventory {
             items: items.to_vec(),
         }
     }
 
-    pub fn clone_data(&self) -> Vec<ItemData> {
+    pub fn clone_data(&self) -> Vec<Item> {
         self.items.clone()
     }
 }

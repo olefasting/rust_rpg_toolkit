@@ -1,7 +1,8 @@
 use macroquad::prelude::*;
 
 pub struct Resources {
-    white_texture: Texture2D,
+    pub white_texture: Texture2D,
+    pub ground_tiles: Texture2D,
 }
 
 impl Resources {
@@ -11,8 +12,12 @@ impl Resources {
         let white_texture = load_texture("assets/white_texture.png").await?;
         white_texture.set_filter(FilterMode::Nearest);
 
+        let ground_tiles = load_texture("assets/tileset/TX Tileset Grass.png").await?;
+        ground_tiles.set_filter(FilterMode::Nearest);
+
         Ok(Resources {
             white_texture,
+            ground_tiles,
         })
     }
 

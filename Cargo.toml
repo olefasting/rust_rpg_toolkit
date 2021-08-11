@@ -7,13 +7,15 @@ edition = "2018"
 opt-level = 3
 
 [dependencies]
+gamepad-rs = { path = "./gamepad-rs" }
+
 nanoid = "0.4.0"
 nanoserde = "0.1.29"
 
 macroquad = { version = "0.3" }
 macroquad-profiler = "0.1"
-macroquad-particles = {version = "0.1", features = ["nanoserde"] }
+macroquad-particles = { version = "0.1", features = ["nanoserde"] }
 
 [patch.crates-io]
-macroquad = { git = "https://github.com/not-fl3/macroquad.git", rev = "1fdc24c" }
-macroquad-particles = { git = "https://github.com/not-fl3/macroquad.git", rev = "1fdc24c" }
+macroquad = { git = "https://github.com/not-fl3/macroquad.git", rev = "1f4c57eaf42" }
+macroquad-particles = { git = "https://github.com/not-fl3/macroquad.git", rev = "1f4c57eaf42" }

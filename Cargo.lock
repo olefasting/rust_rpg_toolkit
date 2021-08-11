@@ -3,6 +3,26 @@
 version = 3
 
 [[package]]
+name = "CoreFoundation-sys"
+version = "0.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d0e9889e6db118d49d88d84728d0e964d973a5680befb5f85f55141beea5c20b"
+dependencies = [
+ "libc",
+ "mach",
+]
+
+[[package]]
+name = "IOKit-sys"
+version = "0.1.5"
+source = "git+https://github.com/edwin0cheng/iokit-sys.git#7fb16103d57c7322c9293df63c406dcd80c825e2"
+dependencies = [
+ "CoreFoundation-sys",
+ "libc",
+ "mach",
+]
+
+[[package]]
 name = "adler32"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -66,6 +86,7 @@ checksum = "14c189c53d098945499cdfa7ecc63567cf3886b3332b312a5b4585d8d3a6a610"
 name = "capstone"
 version = "0.1.0"
 dependencies = [
+ "gamepad-rs",
  "macroquad",
  "macroquad-particles",
  "macroquad-profiler",
@@ -90,6 +111,25 @@ name = "color_quant"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3d7b894f5411737b7867f4827955924d7c254fc9f4d91a6aad6b097804b1018b"
+
+[[package]]
+name = "core-foundation"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "286e0b41c3a20da26536c6000a280585d519fd07b3956b43aed8a79e9edce980"
+dependencies = [
+ "core-foundation-sys",
+ "libc",
+]
+
+[[package]]
+name = "core-foundation-sys"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "716c271e8613ace48344f723b60b900a93150271e5be206212d052bbc0883efa"
+dependencies = [
+ "libc",
+]
 
 [[package]]
 name = "crc32fast"
@@ -133,6 +173,17 @@ checksum = "c75712fff1702bac51b7eaa5a5ca9f9853b8055ef5906088a32f4fe196595a1d"
 dependencies = [
  "hashbrown",
  "ttf-parser",
+]
+
+[[package]]
+name = "gamepad-rs"
+version = "0.1.0"
+dependencies = [
+ "IOKit-sys",
+ "core-foundation",
+ "lazy_static",
+ "libc",
+ "winapi",
 ]
 
 [[package]]
@@ -183,6 +234,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "lazy_static"
+version = "1.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
+
+[[package]]
 name = "lewton"
 version = "0.9.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -200,9 +257,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "320cfe77175da3a483efed4bc0adc1968ca050b098ce4f2f1c13a56626128790"
 
 [[package]]
+name = "mach"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2fd13ee2dd61cc82833ba05ade5a30bb3d63f7ced605ef827063c63078302de9"
+dependencies = [
+ "libc",
+]
+
+[[package]]
 name = "macroquad"
-version = "0.3.7"
-source = "git+https://github.com/not-fl3/macroquad.git?rev=1fdc24c#1fdc24cf9340846f1147f1f38757f3aa80aa6e87"
+version = "0.3.8"
+source = "git+https://github.com/not-fl3/macroquad.git?rev=1f4c57eaf42#1f4c57eaf42300c037c927fd0327645a899faec8"
 dependencies = [
  "bumpalo",
  "fontdue",
@@ -217,7 +283,7 @@ dependencies = [
 [[package]]
 name = "macroquad-particles"
 version = "0.1.1"
-source = "git+https://github.com/not-fl3/macroquad.git?rev=1fdc24c#1fdc24cf9340846f1147f1f38757f3aa80aa6e87"
+source = "git+https://github.com/not-fl3/macroquad.git?rev=1f4c57eaf42#1f4c57eaf42300c037c927fd0327645a899faec8"
 dependencies = [
  "macroquad",
  "nanoserde",
@@ -235,7 +301,7 @@ dependencies = [
 [[package]]
 name = "macroquad_macro"
 version = "0.1.5"
-source = "git+https://github.com/not-fl3/macroquad.git?rev=1fdc24c#1fdc24cf9340846f1147f1f38757f3aa80aa6e87"
+source = "git+https://github.com/not-fl3/macroquad.git?rev=1f4c57eaf42#1f4c57eaf42300c037c927fd0327645a899faec8"
 
 [[package]]
 name = "maybe-uninit"

@@ -1,5 +1,3 @@
-use std::ops::Sub;
-
 use macroquad::{
     experimental::{
         scene::{
@@ -24,7 +22,7 @@ pub struct PhysicsBody {
 }
 
 impl PhysicsBody {
-    const COLLISION_CORRECTION_STEP: f32 = 5.0;
+    const COLLISION_CORRECTION_RESOLUTION: f32 = 5.0;
 
     pub fn new(position: Vec2, rotation: f32, collider: Option<Collider>) -> Self {
         PhysicsBody {
@@ -54,28 +52,20 @@ impl PhysicsBody {
         }
     }
 
-    pub fn is_colliding(&self, other: &PhysicsBody) -> bool {
-        if let (Some(collider), Some(other_collider)) = (self.offset_collider(), other.offset_collider()) {
-            collider.overlaps(&other_collider)
-        } else {
-            false
-        }
-    }
-
     pub fn integrate(&mut self) {
-        let mut new_position = vec2(self.position.x + self.velocity.x, self.position.y + self.velocity.y);
-        let direction = new_position.sub(self.position).normalize();
-
-        for (_, mut body_lens) in scene::find_nodes_with::<PhysicsObject>() {
-            if let Some(body) = body_lens.get() {
-                if let (Some(collider), Some(other_collider)) = (self.collider, body.offset_collider()) {
-                    while collider.offset(new_position).overlaps(&other_collider) {
-                        new_position -= direction * Self::COLLISION_CORRECTION_STEP;
+        if let Some(collider) = self.offset_collider() {
+            let mut movement = self.velocity;
+            let correction_step = movement.normalize() * Self::COLLISION_CORRECTION_RESOLUTION;
+            for (_, mut body_lens) in scene::find_nodes_with::<PhysicsObject>() {
+                if let Some(body) = body_lens.get() {
+                    if let Some(other_collider) = body.offset_collider() {
+                        while collider.offset(movement).overlaps(&other_collider) {
+                            movement -= correction_step;
+                        }
                     }
                 }
             }
+            self.position += movement;
         }
-
-        self.position = new_position;
     }
 }

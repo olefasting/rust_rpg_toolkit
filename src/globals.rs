@@ -1,7 +1,14 @@
-use std::any::Any;
+use std::{
+    any::Any,
+    ops::Deref,
+};
 
 use macroquad::experimental::collections::storage;
-use std::ops::Deref;
+
+#[derive(Copy, Clone)]
+pub struct LocalPlayer {
+    pub id: u32,
+}
 
 pub fn try_get_global<T: Any>() -> Option<impl Deref<Target = T>> {
     storage::try_get::<T>()
