@@ -80,16 +80,20 @@ pub struct Actor {
 
 fn primary_test_ability(actor_id: &str, origin: Vec2, target: Vec2) {
     let mut projectiles = scene::find_node_by_type::<Projectiles>().unwrap();
-    projectiles.spawn(actor_id, 15.0, color::YELLOW, 4.0, origin, target, 25.0, 15.5, 8.0);
+    projectiles.spawn(actor_id, 15.0, color::YELLOW, 4.0, origin, target, 15.0, 10.0, 1.0);
 }
 
 fn secondary_test_ability(actor_id: &str, origin: Vec2, target: Vec2) {
     let mut projectiles = scene::find_node_by_type::<Projectiles>().unwrap();
-    projectiles.spawn(actor_id, 150.0, color::BLUE, 100.0, origin, target, 2.0, 15.5, 4.0);
+    projectiles.spawn(actor_id, 150.0, color::BLUE, 100.0, origin, target, 2.0, 0.0, 2.0);
 }
 
 impl Actor {
     const MOVE_SPEED: f32 = 3.0;
+
+    const HEALTH_BAR_LENGTH: f32 = 50.0;
+    const HEALTH_BAR_HEIGHT: f32 = 10.0;
+    const HEALTH_BAR_OFFSET_Y: f32 = 25.0;
 
     pub fn new(params: ActorParams) -> Self {
         let id = params.id.clone();
@@ -249,5 +253,25 @@ impl Node for Actor {
         let (position, rotation) = (node.body.position, node.body.rotation);
         node.sprite.draw(position, rotation);
         // node.body.debug_draw();
+
+        if node.current_health < node.max_health {
+            draw_line(
+                node.body.position.x - Self::HEALTH_BAR_LENGTH / 2.0,
+                node.body.position.y + Self::HEALTH_BAR_OFFSET_Y,
+                node.body.position.x + Self::HEALTH_BAR_LENGTH / 2.0,
+                node.body.position.y + Self::HEALTH_BAR_OFFSET_Y,
+                Self::HEALTH_BAR_HEIGHT,
+                color::GRAY,
+            );
+            let end_x = (node.current_health / node.max_health) * (Self::HEALTH_BAR_LENGTH - 1.0);
+            draw_line(
+                node.body.position.x + 1.0 - Self::HEALTH_BAR_LENGTH / 2.0,
+                node.body.position.y + 1.0 + Self::HEALTH_BAR_OFFSET_Y,
+                node.body.position.x + end_x - Self::HEALTH_BAR_LENGTH / 2.0,
+                node.body.position.y + 1.0 + Self::HEALTH_BAR_OFFSET_Y,
+                Self::HEALTH_BAR_HEIGHT - 2.0,
+                color::RED,
+            );
+        }
     }
 }
