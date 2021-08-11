@@ -46,6 +46,7 @@ pub use map::{
 };
 
 pub use item::Item;
+use macroquad::prelude::animation::Animation;
 
 mod resources;
 mod globals;
@@ -64,7 +65,7 @@ pub fn generate_id() -> String {
 
 fn window_conf() -> Conf {
     Conf {
-        window_title: "Armada".to_owned(),
+        window_title: "Capstone".to_owned(),
         high_dpi: true,
         window_width: 1080,
         window_height: 720,
@@ -103,7 +104,7 @@ async fn main() {
 
         Camera::add_node();
 
-        let map = Map::new(uvec2(10, 10));
+        let map = Map::new(uvec2(300, 300));
         GameState::add_node(map);
 
         Projectiles::add_node();
@@ -116,8 +117,29 @@ async fn main() {
                 collider: Some(Collider::circle(0.0, 0.0, 16.0)),
                 controller_kind: ActorControllerKind::Player { player_id: 0 },
                 sprite_params: SpriteParams {
+                    texture_id: Resources::CHARACTERS_TEXTURE_ID.to_string(),
                     tile_size: vec2(32.0, 32.0),
                     offset: vec2(-16.0, -16.0),
+                    animations: vec!(
+                        Animation {
+                            name: "down".to_string(),
+                            row: 0,
+                            frames: 3,
+                            fps: 8,
+                        },
+                        Animation {
+                            name: "up".to_string(),
+                            row: 1,
+                            frames: 3,
+                            fps: 8,
+                        },
+                        Animation {
+                            name: "right".to_string(),
+                            row: 2,
+                            frames: 3,
+                            fps: 8,
+                        }
+                    ),
                     ..Default::default()
                 },
                 ..Default::default()
@@ -132,8 +154,29 @@ async fn main() {
                 collider: Some(Collider::circle(0.0, 0.0, 16.0)),
                 controller_kind: ActorControllerKind::Computer,
                 sprite_params: SpriteParams {
+                    texture_id: Resources::CHARACTERS_TEXTURE_ID.to_string(),
                     tile_size: vec2(32.0, 32.0),
                     offset: vec2(-16.0, -16.0),
+                    animations: vec!(
+                        Animation {
+                            name: "down".to_string(),
+                            row: 3,
+                            frames: 3,
+                            fps: 8,
+                        },
+                        Animation {
+                            name: "up".to_string(),
+                            row: 4,
+                            frames: 3,
+                            fps: 8,
+                        },
+                        Animation {
+                            name: "right".to_string(),
+                            row: 4,
+                            frames: 3,
+                            fps: 8,
+                        }
+                    ),
                     ..Default::default()
                 },
                 ..Default::default()

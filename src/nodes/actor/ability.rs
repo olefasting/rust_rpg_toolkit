@@ -1,4 +1,9 @@
-use macroquad::prelude::*;
+use macroquad::{
+    experimental::scene::RefMut,
+    prelude::*
+};
+
+use crate::Actor;
 
 pub type ActorAbilityFunc = fn (actor_id: &str, origin: Vec2, target: Vec2);
 
@@ -27,7 +32,7 @@ impl ActorAbility {
         }
     }
 
-    pub fn update(&mut self, dt: f32) {
-        self.cooldown_timer += dt;
+    pub fn update(&mut self) {
+        self.cooldown_timer += get_frame_time();
     }
 }

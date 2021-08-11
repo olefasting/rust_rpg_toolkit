@@ -21,13 +21,13 @@ impl Map {
         let mut ground_layer = Vec::with_capacity(tile_cnt);
         for _ in 0..tile_cnt {
             ground_layer.push(MapTile{
-                tileset_coords: uvec2(0, 0),
+                tileset_coords: uvec2(1, 8),
             });
         }
 
         Map {
             size,
-            tile_size: uvec2(32, 32),
+            tile_size: uvec2(16, 16),
             ground_layer,
         }
     }
@@ -36,6 +36,7 @@ impl Map {
         let resources = get_global::<Resources>();
         let tile_cnt = self.size.x * self.size.y;
         for i in 0..tile_cnt {
+            let tile = &self.ground_layer[i as usize];
             let x = i % self.size.x;
             let y = i / self.size.x;
             draw_texture_ex(
@@ -44,8 +45,16 @@ impl Map {
                 (y * self.tile_size.y) as f32,
                 color::WHITE,
                 DrawTextureParams {
-                    dest_size: Some(vec2(32.0, 32.0)),
-                    source: Some(Rect::new(0.0, 0.0, 32.0, 32.0)),
+                    dest_size: Some(vec2(
+                        self.tile_size.x as f32,
+                        self.tile_size.y as f32,
+                    )),
+                    source: Some(Rect::new(
+                        (tile.tileset_coords.x * self.tile_size.x) as f32,
+                        (tile.tileset_coords.y * self.tile_size.y) as f32,
+                        self.tile_size.x as f32,
+                        self.tile_size.y as f32,
+                    )),
                     ..Default::default()
                 },
             );

@@ -81,6 +81,23 @@ impl SpriteAnimationPlayer {
         self.sprite.playing
     }
 
+    pub fn set_animation(&mut self, id: usize) {
+        self.sprite.set_animation(id);
+    }
+
+    pub fn start_animation(&mut self, id: usize) {
+        self.set_animation(id);
+        self.play();
+    }
+
+    pub fn play(&mut self) {
+        self.sprite.playing = true;
+    }
+
+    pub fn stop(&mut self) {
+        self.sprite.playing = false;
+    }
+
     pub fn to_sprite_params(&self) -> SpriteParams {
         SpriteParams {
             offset: self.offset,
