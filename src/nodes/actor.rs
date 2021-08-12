@@ -49,7 +49,7 @@ use crate::{
         Collider,
     },
     nodes::Projectiles,
-    Item,
+    ItemParams,
     generate_id,
 };
 
@@ -61,7 +61,7 @@ pub struct ActorParams {
     pub factions: Vec<String>,
     pub position: Vec2,
     pub collider: Option<Collider>,
-    pub inventory: Vec<Item>,
+    pub inventory: Vec<ItemParams>,
     pub sprite_params: SpriteParams,
 
     pub controller_kind: ActorControllerKind,
@@ -91,18 +91,18 @@ pub struct Actor {
     pub factions: Vec<String>,
     pub body: PhysicsBody,
     sprite: SpriteAnimationPlayer,
-    inventory: ActorInventory,
+    pub inventory: ActorInventory,
     primary_ability: Option<ActorAbility>,
     secondary_ability: Option<ActorAbility>,
     pub controller: ActorController,
 }
 
-fn primary_test_ability(actor_id: &str, origin: Vec2, target: Vec2) {
+pub fn primary_test_ability(actor_id: &str, origin: Vec2, target: Vec2) {
     let mut projectiles = scene::find_node_by_type::<Projectiles>().unwrap();
     projectiles.spawn(actor_id, 15.0, color::YELLOW, 2.0, origin, target, 15.0, 10.0, 1.0);
 }
 
-fn secondary_test_ability(actor_id: &str, origin: Vec2, target: Vec2) {
+pub fn secondary_test_ability(actor_id: &str, origin: Vec2, target: Vec2) {
     let mut projectiles = scene::find_node_by_type::<Projectiles>().unwrap();
     projectiles.spawn(actor_id, 150.0, color::BLUE, 100.0, origin, target, 2.0, 0.0, 2.0);
 }

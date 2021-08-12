@@ -7,7 +7,10 @@ use macroquad::{
     prelude::*,
 };
 
-use crate::nodes::{GameState, Actor};
+use crate::{
+    nodes::{GameState, Actor},
+    Item,
+};
 
 pub fn draw_gui() {
     let game_state = scene::find_node_by_type::<GameState>().unwrap();
@@ -26,7 +29,7 @@ pub fn draw_gui() {
 
                 ui.separator();
 
-                ui.tree_node(hash!(), "Regen", |ui| {
+                ui.tree_node(hash!(), "Regeneration", |ui| {
                     ui.label(None, &format!("Health:  {}", player.stats.health_regen));
                     ui.label(None, &format!("Stamina: {}", player.stats.stamina_regen));
                     ui.label(None, &format!("Energy:  {}", player.stats.energy_regen));
@@ -37,6 +40,19 @@ pub fn draw_gui() {
         widgets::Window::new(hash!(), vec2(50.0, 375.0), vec2(300.0, 300.0))
             .label("Inventory")
             .ui(&mut *root_ui(), |ui| {
+                ui.tree_node(hash!(), "Weapons", |ui| {
+                    for item in &player.inventory.get_all_of_kinds(&[
+                        Item::ONE_HANDED_WEAPON_KIND,
+                        Item::TWO_HANDED_WEAPON_KIND,
+                    ]) {
+                        ui.label(None, &item.name);
+                    }
+                });
+                ui.tree_node(hash!(), "Trinkets", |ui| {
+                    for item in &player.inventory.get_all_of_kind(Item::TRINKET_KIND) {
+                        ui.label(None, &item.name);
+                    }
+                });
             });
     }
 }

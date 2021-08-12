@@ -45,9 +45,13 @@ pub use map::{
     MapKind,
 };
 
-pub use item::Item;
 use macroquad::prelude::animation::Animation;
-use crate::nodes::actor::{ActorDrawQueue, ActorStats};
+use crate::nodes::actor::{ActorDrawQueue, ActorStats, primary_test_ability, secondary_test_ability};
+use crate::nodes::ActorInventory;
+pub use crate::item::{
+    Item,
+    ItemParams,
+};
 
 mod resources;
 mod globals;
@@ -125,6 +129,40 @@ async fn main() {
                     8,
                     8,
                     8,
+                ),
+                inventory: vec!(
+                    ItemParams {
+                        kind: Item::ONE_HANDED_WEAPON_KIND.to_string(),
+                        name: "Test Ranged Weapon".to_string(),
+                        description: "Test Ranged Weapon description".to_string(),
+                        weight: 10.0,
+                        action: Some(primary_test_ability),
+                        ..Default::default()
+                    },
+                    ItemParams {
+                        kind: Item::ONE_HANDED_WEAPON_KIND.to_string(),
+                        name: "Test Ranged Weapon".to_string(),
+                        description: "Test Ranged Weapon description".to_string(),
+                        weight: 10.0,
+                        action: Some(primary_test_ability),
+                        ..Default::default()
+                    },
+                    ItemParams {
+                        kind: Item::ONE_HANDED_WEAPON_KIND.to_string(),
+                        name: "Test Ranged Weapon".to_string(),
+                        description: "Test Ranged Weapon description".to_string(),
+                        weight: 10.0,
+                        action: Some(primary_test_ability),
+                        ..Default::default()
+                    },
+                    ItemParams {
+                        kind: Item::TRINKET_KIND.to_string(),
+                        name: "Test Trinket".to_string(),
+                        description: "Test Trinket description".to_string(),
+                        weight: 1.0,
+                        action: Some(primary_test_ability),
+                        ..Default::default()
+                    }
                 ),
                 collider: Some(Collider::circle(0.0, 8.0, 8.0)),
                 controller_kind: ActorControllerKind::Player { id: 0 },
