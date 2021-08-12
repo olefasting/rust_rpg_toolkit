@@ -13,7 +13,8 @@ pub struct ActorController {
     pub primary_target: Option<Vec2>,
     pub secondary_target: Option<Vec2>,
     pub direction: Vec2,
-    pub pick_up_items: bool,
+    pub is_interacting: bool,
+    pub is_picking_up_items: bool,
     pub is_sprinting: bool,
 }
 
@@ -24,7 +25,8 @@ impl ActorController {
             primary_target: None,
             secondary_target: None,
             direction: Vec2::ZERO,
-            pick_up_items: false,
+            is_interacting: false,
+            is_picking_up_items: false,
             is_sprinting: false,
         }
     }

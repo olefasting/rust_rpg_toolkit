@@ -190,7 +190,87 @@ async fn main() {
 
         Actor::add_node(
             ActorParams {
+                name: "Enemy Actor".to_string(),
                 position: vec2(300.0, 300.0),
+                stats: ActorStats::new(
+                    8,
+                    8,
+                    8,
+                    8,
+                    8,
+                    8,
+                    8,
+                ),
+                inventory: vec!(
+                    ItemParams {
+                        kind: Item::ONE_HANDED_WEAPON_KIND.to_string(),
+                        name: "Test Ranged Weapon".to_string(),
+                        description: "Test Ranged Weapon description".to_string(),
+                        weight: 10.0,
+                        action: Some(primary_test_ability),
+                        ..Default::default()
+                    },
+                    ItemParams {
+                        kind: Item::ONE_HANDED_WEAPON_KIND.to_string(),
+                        name: "Test Ranged Weapon".to_string(),
+                        description: "Test Ranged Weapon description".to_string(),
+                        weight: 10.0,
+                        action: Some(primary_test_ability),
+                        ..Default::default()
+                    },
+                    ItemParams {
+                        kind: Item::ONE_HANDED_WEAPON_KIND.to_string(),
+                        name: "Test Ranged Weapon".to_string(),
+                        description: "Test Ranged Weapon description".to_string(),
+                        weight: 10.0,
+                        action: Some(primary_test_ability),
+                        ..Default::default()
+                    },
+                    ItemParams {
+                        kind: Item::MISC_KIND.to_string(),
+                        name: "Test Trinket".to_string(),
+                        description: "Test Trinket description".to_string(),
+                        weight: 1.0,
+                        ..Default::default()
+                    }
+                ),
+                collider: Some(Collider::circle(0.0, 8.0, 8.0)),
+                controller_kind: ActorControllerKind::Computer,
+                sprite_params: SpriteParams {
+                    texture_id: Resources::CHARACTERS_TEXTURE_ID.to_string(),
+                    tile_size: vec2(32.0, 32.0),
+                    offset: vec2(-16.0, -16.0),
+                    animations: vec!(
+                        Animation {
+                            name: "down".to_string(),
+                            row: 3,
+                            frames: 3,
+                            fps: 8,
+                        },
+                        Animation {
+                            name: "up".to_string(),
+                            row: 4,
+                            frames: 3,
+                            fps: 8,
+                        },
+                        Animation {
+                            name: "right".to_string(),
+                            row: 4,
+                            frames: 3,
+                            fps: 8,
+                        }
+                    ),
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+        );
+
+        Actor::add_node(
+            ActorParams {
+                name: "Friendly Actor".to_string(),
+                factions: vec!("player_faction".to_string()),
+                position: vec2(100.0, 250.0),
                 stats: ActorStats::new(
                     8,
                     8,

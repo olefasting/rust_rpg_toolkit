@@ -37,7 +37,7 @@ impl PhysicsBody {
     }
 
     pub fn debug_draw(&self) {
-        if let Some(collider) = self.offset_collider() {
+        if let Some(collider) = self.get_offset_collider() {
             match collider {
                 Collider::Rectangle(rect) => draw_rectangle_lines(
                     rect.x - (rect.w / 2.0),rect.y - (rect.h / 2.0), rect.w, rect.h, 4.0, color::RED),
@@ -47,7 +47,7 @@ impl PhysicsBody {
         }
     }
 
-    pub fn offset_collider(&self) -> Option<Collider> {
+    pub fn get_offset_collider(&self) -> Option<Collider> {
         if let Some(collider) = self.collider {
             Some(collider.offset(self.position))
         } else {
@@ -56,7 +56,7 @@ impl PhysicsBody {
     }
 
     pub fn integrate(&mut self) {
-        if let Some(collider) = self.offset_collider() {
+        if let Some(collider) = self.get_offset_collider() {
             let mut movement = self.velocity;
             let game_state = scene::find_node_by_type::<GameState>().unwrap();
             let correction_step = movement.normalize() * Self::COLLISION_CORRECTION_RESOLUTION;
@@ -65,7 +65,7 @@ impl PhysicsBody {
             }
             for (_, mut body_lens) in scene::find_nodes_with::<PhysicsObject>() {
                 if let Some(body) = body_lens.get() {
-                    if let Some(other_collider) = body.offset_collider() {
+                    if let Some(other_collider) = body.get_offset_collider() {
                         while collider.offset(movement).overlaps(&other_collider) {
                             movement -= correction_step;
                         }

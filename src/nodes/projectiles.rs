@@ -98,7 +98,7 @@ impl Node for Projectiles {
                 None
             };
             'outer: for mut other_actor in scene::find_nodes_by_type::<Actor>() {
-                if let Some(other_collider) = other_actor.body.offset_collider() {
+                if let Some(other_collider) = other_actor.body.get_offset_collider() {
                     if collider.overlaps(&other_collider) {
                         if projectile.actor_id != other_actor.id {
                             if let Some(handle) = handle {

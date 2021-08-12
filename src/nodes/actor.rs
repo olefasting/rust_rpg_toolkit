@@ -117,6 +117,7 @@ impl Actor {
     const SPRINT_STAMINA_COST: f32 = 10.0;
 
     const PICK_UP_RADIUS: f32 = 36.0;
+    const INTERACT_RADIUS: f32 = 36.0;
 
     pub fn new(params: ActorParams) -> Self {
         let id = params.id.clone();
@@ -268,6 +269,10 @@ impl Actor {
             false
         }
     }
+
+    pub fn interact(&self, other: &mut Actor) {
+        println!("INTERACTION between '{}' and '{}'", self.name, other.name);
+    }
 }
 
 impl Node for Actor {
@@ -353,11 +358,28 @@ impl Node for Actor {
         };
         node.body.integrate();
 
-        if node.controller.pick_up_items {
+        if node.controller.is_picking_up_items {
             let collider = Collider::circle(0.0, 0.0, Self::PICK_UP_RADIUS).offset(node.body.position);
-            for item in scene::find_node_by_type::<Item>() {
+            for item in scene::find_nodes_by_type::<Item>() {
                 if collider.contains(item.position) {
                     node.inventory.pick_up_item(item);
+                }
+            }
+        }
+
+        if node.controller.is_interacting {
+            let collider = Collider::circle(0.0, 0.0, Self::INTERACT_RADIUS).offset(node.body.position);
+            for actor in scene::find_nodes_by_type::<Actor>() {
+                if let Some(other_collider) = actor.body.get_offset_collider() {
+                    if collider.overlaps(&other_collider) {
+                        for faction in &node.factions {
+                            if actor.factions.contains(faction) {
+                                actor.interact(&mut *node);
+                                node.controller.is_interacting = false; // stop this form firing twice
+                                break;
+                            }
+                        }
+                    }
                 }
             }
         }
