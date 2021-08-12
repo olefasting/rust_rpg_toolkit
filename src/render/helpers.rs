@@ -87,7 +87,7 @@ pub fn draw_progress_bar(
     {
         if show_numeric_values {
             draw_aligned_text(
-                &format!("{}/{}", current_value, max_value),
+                &format!("{}/{}", current_value.round(), max_value.round()),
                 position.x,
                 position.y + border * 2.0,
                 HorizontalAlignment::Center,

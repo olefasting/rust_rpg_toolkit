@@ -15,6 +15,9 @@ pub struct ActorStats {
     pub max_stamina: f32,
     pub current_energy: f32,
     pub max_energy: f32,
+    pub health_regen: f32,
+    pub stamina_regen: f32,
+    pub energy_regen: f32,
     pub carry_capacity: f32,
     pub move_speed: f32,
     pub is_static: bool,
@@ -81,8 +84,30 @@ impl ActorStats {
                 self.current_stamina = self.max_stamina;
                 self.current_energy = self.max_energy;
             }
-            self.carry_capacity = (self.strength + self.constitution / 4 + self.willpower / 4) as f32 * 100.0;
+            self.health_regen = (self.constitution + self.strength / 4 + self.willpower / 4) as f32 * 0.1;
+            self.stamina_regen = (self.constitution + self.dexterity / 4 + self.willpower / 4) as f32 * 4.0;
+            self.energy_regen = (self.willpower + self.constitution / 2) as f32 * 0.1;
             self.move_speed = (self.dexterity + self.strength / 4 + self.willpower / 4) as f32 * 0.1;
+            self.carry_capacity = (self.strength + self.constitution / 4 + self.willpower / 4) as f32 * 100.0;
+        }
+        let dt = get_frame_time();
+        if self.current_health < self.max_health {
+            self.current_health += self.health_regen * dt;
+            if self.current_health > self.max_health {
+                self.current_health = self.max_health;
+            }
+        }
+        if self.current_stamina < self.max_stamina {
+            self.current_stamina += self.stamina_regen * dt;
+            if self.current_stamina > self.max_stamina {
+                self.current_stamina = self.max_stamina;
+            }
+        }
+        if self.current_energy < self.max_energy {
+            self.current_energy += self.energy_regen * dt;
+            if self.current_energy > self.max_energy {
+                self.current_energy = self.max_energy;
+            }
         }
         if !Self::VITALS_CAN_OVERFLOW {
             if self.current_health > self.max_health {
@@ -114,6 +139,9 @@ impl Default for ActorStats {
             max_stamina: 0.0,
             current_energy: 0.0,
             max_energy: 0.0,
+            health_regen: 0.0,
+            stamina_regen: 0.0,
+            energy_regen: 0.0,
             carry_capacity: 0.0,
             move_speed: 0.0,
             is_static: true,
