@@ -8,6 +8,8 @@ use macroquad::{
 };
 
 use crate::nodes::Actor;
+use crate::get_global;
+use crate::render::Viewport;
 
 pub struct ActorDrawQueue {
     queue: Vec<Handle<Actor>>,
@@ -31,6 +33,11 @@ impl ActorDrawQueue {
 
 impl Node for ActorDrawQueue {
     fn draw(mut node: RefMut<Self>) {
+        node.queue.retain(|handle| {
+            let viewport = get_global::<Viewport>();
+            let actor = scene::get_node(*handle);
+            viewport.contains(actor.body.position)
+        });
         node.queue.sort_by(|a, b| {
             let actor_a = scene::get_node(*a);
             let actor_b = scene::get_node(*b);

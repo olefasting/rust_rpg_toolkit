@@ -11,13 +11,11 @@ use macroquad::{
     prelude::*,
 };
 
-use crate::{
-    nodes::{
-        Actor,
-        GameState,
-    },
-    physics::Collider,
-};
+use crate::{nodes::{
+    Actor,
+    GameState,
+}, physics::Collider, get_global};
+use crate::render::Viewport;
 
 pub struct Projectile {
     actor_id: String,
@@ -126,13 +124,16 @@ impl Node for Projectiles {
     }
 
     fn draw(node: RefMut<Self>) {
+        let viewport = get_global::<Viewport>();
         for projectile in &node.active {
-            draw_circle(
-                projectile.position.x,
-                projectile.position.y,
-                projectile.size / 2.0,
-                projectile.color,
-            )
+            if viewport.contains(projectile.position) {
+                draw_circle(
+                    projectile.position.x,
+                    projectile.position.y,
+                    projectile.size / 2.0,
+                    projectile.color,
+                )
+            }
         }
     }
 }

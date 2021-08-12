@@ -41,14 +41,14 @@ pub struct Camera {
 impl Camera {
     const FOLLOW_THRESHOLD: f32 = 0.35;
 
-    const FRUSTUM_PADDING: f32 = 100.0;
+    pub const FRUSTUM_PADDING: f32 = 100.0;
 
     const DEFAULT_PAN_SPEED: f32 = 50.0;
     const DEFAULT_ROTATION_SPEED: f32 = 75.0;
     const DEFAULT_ZOOM_SPEED: f32 = 0.75;
-    const DEFAULT_SCALE: f32 = 2.0;
+    const DEFAULT_SCALE: f32 = 3.0;
 
-    const ZOOM_MIN: f32 = 0.25;
+    const ZOOM_MIN: f32 = 1.0;
     const ZOOM_MAX: f32 = 6.0;
 
     pub fn new(position: Vec2) -> Self {
@@ -90,16 +90,6 @@ impl Camera {
             h: view_rect.h,
             s: self.scale,
         }
-    }
-
-    pub fn is_in_view(&self, rect: &Rect) -> bool {
-        let padding = Self::FRUSTUM_PADDING / self.scale;
-        let mut view_rect = self.get_view_rect();
-        view_rect.x -= padding;
-        view_rect.y -= padding;
-        view_rect.w += padding * 2.0;
-        view_rect.h += padding * 2.0;
-        view_rect.overlaps(rect)
     }
 
     pub fn to_screen_space(&self, coords: Vec2) -> Vec2 {
