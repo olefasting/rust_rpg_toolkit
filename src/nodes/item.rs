@@ -1,4 +1,4 @@
-mod draw_queue;
+mod draw_buffer;
 
 use macroquad::{
     experimental::{
@@ -16,7 +16,7 @@ use crate::{generate_id, nodes::{
     ActorAbility,
     ActorAbilityFunc,
 }, get_global, Resources};
-pub use draw_queue::ItemDrawQueue;
+pub use draw_buffer::ItemDrawBuffer;
 
 #[derive(Clone)]
 pub struct ItemParams {
@@ -28,7 +28,6 @@ pub struct ItemParams {
     pub weight: f32,
     pub cooldown: f32,
     pub action: Option<ActorAbilityFunc>,
-    pub is_on_ground: bool,
 }
 
 impl Default for ItemParams {
@@ -42,7 +41,6 @@ impl Default for ItemParams {
             weight: 0.1,
             cooldown: 0.0,
             action: None,
-            is_on_ground: false,
         }
     }
 }
@@ -53,11 +51,10 @@ pub struct Item {
     pub kind: String,
     pub name: String,
     pub description: String,
-    position: Vec2,
+    pub position: Vec2,
     pub weight: f32,
     cooldown: f32,
     action: Option<ActorAbilityFunc>,
-    is_on_ground: bool,
 }
 
 impl Item {
@@ -89,7 +86,6 @@ impl Item {
             weight: params.weight,
             cooldown: params.cooldown,
             action: params.action,
-            is_on_ground: params.is_on_ground,
         }
     }
 
@@ -107,7 +103,6 @@ impl Item {
             weight: self.weight,
             cooldown: self.cooldown,
             action: self.action,
-            is_on_ground: self.is_on_ground,
         }
     }
 
@@ -120,26 +115,23 @@ impl Item {
     }
 
     pub fn draw_item(&self) {
-        if self.is_on_ground {
-            let resources = get_global::<Resources>();
-            draw_texture_ex(
-                resources.white_texture,
-                self.position.x,
-                self.position.y,
-                color::WHITE,
-                DrawTextureParams {
-                    ..Default::default()
-                }
-            );
-        }
+        let resources = get_global::<Resources>();
+        draw_texture_ex(
+            resources.white_texture,
+            self.position.x,
+            self.position.y,
+            color::WHITE,
+            DrawTextureParams {
+                dest_size: Some(vec2(16.0, 16.0)),
+                ..Default::default()
+            }
+        );
     }
 }
 
 impl Node for Item {
     fn draw(node: RefMut<Self>) {
-        if node.is_on_ground {
-            let mut draw_queue = scene::find_node_by_type::<ItemDrawQueue>().unwrap();
-            draw_queue.add_to_queue(node.handle());
-        }
+        let mut draw_queue = scene::find_node_by_type::<ItemDrawBuffer>().unwrap();
+        draw_queue.add_to_buffer(node.handle());
     }
 }

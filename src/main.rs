@@ -40,9 +40,9 @@ use render::{
 };
 pub use resources::Resources;
 
-use crate::nodes::actor::{ActorDrawQueue, ActorStats, primary_test_ability, secondary_test_ability};
+use crate::nodes::actor::{ActorDrawBuffer, ActorStats, primary_test_ability, secondary_test_ability};
 use crate::nodes::ActorInventory;
-use crate::nodes::item::ItemDrawQueue;
+use crate::nodes::item::ItemDrawBuffer;
 
 mod resources;
 mod globals;
@@ -104,7 +104,7 @@ async fn main() {
 
         Camera::add_node(vec2(100.0, 100.0));
 
-        ItemDrawQueue::add_node();
+        ItemDrawBuffer::add_node();
 
         Projectiles::add_node();
 
@@ -239,7 +239,7 @@ async fn main() {
         //     ..Default::default()
         // });
 
-        ActorDrawQueue::add_node();
+        ActorDrawBuffer::add_node();
     }
 
     loop {

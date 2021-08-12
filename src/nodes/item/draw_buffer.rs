@@ -11,14 +11,14 @@ use crate::nodes::Item;
 use crate::get_global;
 use crate::render::Viewport;
 
-pub struct ItemDrawQueue {
-    queue: Vec<Handle<Item>>,
+pub struct ItemDrawBuffer {
+    buffer: Vec<Handle<Item>>,
 }
 
-impl ItemDrawQueue {
+impl ItemDrawBuffer {
     pub fn new() -> Self {
-        ItemDrawQueue {
-            queue: Vec::new(),
+        ItemDrawBuffer {
+            buffer: Vec::new(),
         }
     }
 
@@ -26,27 +26,30 @@ impl ItemDrawQueue {
         scene::add_node(Self::new())
     }
 
-    pub fn add_to_queue(&mut self, handle: Handle<Item>) {
-        self.queue.push(handle);
+    pub fn add_to_buffer(&mut self, handle: Handle<Item>) {
+        self.buffer.push(handle);
     }
 }
 
-impl Node for ItemDrawQueue {
+impl Node for ItemDrawBuffer {
     fn draw(mut node: RefMut<Self>) {
-        node.queue.retain(|handle| {
+        node.buffer.retain(|handle| {
             let viewport = get_global::<Viewport>();
-            let item = scene::get_node(*handle);
-            viewport.contains(item.position)
+            if let Some(item) = scene::try_get_node(*handle) {
+                viewport.contains(item.position)
+            } else {
+                false
+            }
         });
-        node.queue.sort_by(|a, b| {
+        node.buffer.sort_by(|a, b| {
             let item_a = scene::get_node(*a);
             let item_b = scene::get_node(*b);
             item_a.position.y.partial_cmp(&item_b.position.y).unwrap()
         });
-        for handle in &node.queue {
+        for handle in &node.buffer {
             let mut item = scene::get_node(*handle);
             item.draw_item();
         }
-        node.queue = Vec::new();
+        node.buffer = Vec::new();
     }
 }

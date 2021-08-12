@@ -17,7 +17,7 @@ use crate::input::apply_local_player_input;
 mod controller;
 mod inventory;
 mod ability;
-mod draw_queue;
+mod draw_buffer;
 mod stats;
 
 pub use stats::ActorStats;
@@ -32,7 +32,7 @@ pub use ability::{
     ActorAbilityFunc,
 };
 
-pub use draw_queue::ActorDrawQueue;
+pub use draw_buffer::ActorDrawBuffer;
 
 use crate::{
     get_global,
@@ -52,6 +52,7 @@ use crate::{
     ItemParams,
     generate_id,
 };
+use crate::nodes::Item;
 
 #[derive(Clone)]
 pub struct ActorParams {
@@ -114,6 +115,8 @@ impl Actor {
 
     const SPRINT_SPEED_FACTOR: f32 = 2.0;
     const SPRINT_STAMINA_COST: f32 = 10.0;
+
+    const PICK_UP_RADIUS: f32 = 36.0;
 
     pub fn new(params: ActorParams) -> Self {
         let id = params.id.clone();
@@ -329,6 +332,16 @@ impl Node for Actor {
             node.stats.move_speed
         };
         node.body.integrate();
+
+        if node.controller.pick_up_items {
+            let collider = Collider::circle(0.0, 0.0, Self::PICK_UP_RADIUS).offset(node.body.position);
+            for item in scene::find_node_by_type::<Item>() {
+                if collider.contains(item.position) {
+                    node.inventory.pick_up_item(item);
+                }
+            }
+        }
+
         let controller = node.controller.clone();
         if let Some(target) = controller.primary_target {
             let mut primary_ability = node.primary_ability.clone();
@@ -348,7 +361,7 @@ impl Node for Actor {
     }
 
     fn draw(node: RefMut<Self>) {
-        let mut draw_queue = scene::find_node_by_type::<ActorDrawQueue>().unwrap();
-        draw_queue.add_to_queue(node.handle());
+        let mut draw_queue = scene::find_node_by_type::<ActorDrawBuffer>().unwrap();
+        draw_queue.add_to_buffer(node.handle());
     }
 }

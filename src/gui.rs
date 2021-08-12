@@ -14,7 +14,7 @@ use crate::{
 
 pub fn draw_gui() {
     let game_state = scene::find_node_by_type::<GameState>().unwrap();
-    let player = Actor::find_local_player().unwrap();
+    let mut player = Actor::find_local_player().unwrap();
     if game_state.show_character_window {
         widgets::Window::new(hash!(), vec2(50.0, 50.0), vec2(300.0, 300.0))
             .label(&player.name)
@@ -44,11 +44,19 @@ pub fn draw_gui() {
                 ui.tree_node(hash!(), "Weapons", |ui| {
                     for item in &player.inventory.get_all_of_kind(Item::WEAPON_KINDS) {
                         ui.label(None, &item.name);
+                        if ui.button(None, "Drop") {
+                            let position = player.body.position;
+                            player.inventory.drop_item(&item.id, position);
+                        }
                     }
                 });
                 ui.tree_node(hash!(), "Trinkets", |ui| {
                     for item in &player.inventory.get_all_of_kind(&[Item::MISC_KIND]) {
                         ui.label(None, &item.name);
+                        if ui.button(None, "Drop") {
+                            let position = player.body.position;
+                            player.inventory.drop_item(&item.id, position);
+                        }
                     }
                 });
             });
