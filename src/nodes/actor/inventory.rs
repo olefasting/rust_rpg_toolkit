@@ -16,6 +16,8 @@ pub struct ActorInventory {
 }
 
 impl ActorInventory {
+    const DROP_ALL_POSITION_VARIANCE: f32 = 15.0;
+
     pub fn new(items: &[ItemParams]) -> Self {
         ActorInventory {
             items: items.to_vec(),
@@ -43,7 +45,7 @@ impl ActorInventory {
         self.items.retain(|params| {
            if params.id == item_id {
                item = Some(Item::add_node(ItemParams {
-                   position,
+                   position: Self::randomize_drop_position(position),
                    ..params.clone()
                }));
                false
@@ -52,6 +54,16 @@ impl ActorInventory {
            }
         });
         item
+    }
+
+    pub fn drop_all(&mut self, position: Vec2) {
+        self.items.retain(|params| {
+            Item::add_node(ItemParams {
+                position: Self::randomize_drop_position(position),
+                ..params.clone()
+            });
+           false
+        });
     }
 
     pub fn get_total_weight(&self) -> f32 {
@@ -64,5 +76,12 @@ impl ActorInventory {
 
     pub fn clone_data(&self) -> Vec<ItemParams> {
         self.items.clone()
+    }
+
+    fn randomize_drop_position(position: Vec2) -> Vec2 {
+        vec2(
+            rand::gen_range(position.x - Self::DROP_ALL_POSITION_VARIANCE, position.x + Self::DROP_ALL_POSITION_VARIANCE),
+            rand::gen_range(position.y - Self::DROP_ALL_POSITION_VARIANCE, position.y + Self::DROP_ALL_POSITION_VARIANCE),
+        )
     }
 }

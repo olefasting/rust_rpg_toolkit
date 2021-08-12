@@ -282,6 +282,8 @@ impl Node for Actor {
         node.stats.update_derived(false);
 
         if node.stats.current_health <= 0.0 {
+            let position = node.body.position;
+            node.inventory.drop_all(position);
             node.delete();
             return;
         }
@@ -319,6 +321,24 @@ impl Node for Actor {
         } else {
             node.set_animation(controller_direction, false);
         }
+
+        let controller = node.controller.clone();
+        if let Some(target) = controller.primary_target {
+            let mut primary_ability = node.primary_ability.clone();
+            let position = node.body.position.clone();
+            if let Some(ability) = &mut primary_ability {
+                ability.activate(&mut *node, position, target);
+            }
+            node.primary_ability = primary_ability;
+        }
+        if let Some(target) = controller.secondary_target {
+            let mut secondary_ability = node.secondary_ability.clone();
+            let position = node.body.position.clone();
+            if let Some(ability) = &mut secondary_ability {
+                ability.activate(&mut *node, position, target);
+            }
+            node.secondary_ability = secondary_ability;
+        }
     }
 
     fn fixed_update(mut node: RefMut<Self>) {
@@ -340,23 +360,6 @@ impl Node for Actor {
                     node.inventory.pick_up_item(item);
                 }
             }
-        }
-
-        let controller = node.controller.clone();
-        if let Some(target) = controller.primary_target {
-            let mut primary_ability = node.primary_ability.clone();
-            let position = node.body.position.clone();
-            if let Some(ability) = &mut primary_ability {
-                ability.activate(&mut *node, position, target);
-            }
-            node.primary_ability = primary_ability;
-        } else if let Some(target) = controller.secondary_target {
-            let mut secondary_ability = node.secondary_ability.clone();
-            let position = node.body.position.clone();
-            if let Some(ability) = &mut secondary_ability {
-                ability.activate(&mut *node, position, target);
-            }
-            node.secondary_ability = secondary_ability;
         }
     }
 
