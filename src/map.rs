@@ -8,13 +8,18 @@ use macroquad_tiled as tiled;
 use crate::{get_global, Resources};
 use crate::physics::Collider;
 
+pub enum MapKind {
+    TopDown,
+}
+
 pub struct Map {
+    kind: MapKind,
     tile_size: Vec2,
     tiled_map: tiled::Map,
 }
 
 impl Map {
-    pub async fn new(tile_size: Vec2, path: &str) -> Self {
+    pub async fn new(kind: MapKind, tile_size: Vec2, path: &str) -> Self {
         let resources = get_global::<Resources>();
         let tiled_map_json = load_string(path).await.unwrap();
         let tiled_map = tiled::load_map(
@@ -27,6 +32,7 @@ impl Map {
         ).unwrap();
 
         Map {
+            kind,
             tile_size,
             tiled_map,
         }

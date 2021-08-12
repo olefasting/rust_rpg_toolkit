@@ -185,21 +185,23 @@ impl Actor {
         None
     }
 
-    pub fn face_direction(&mut self, direction: Vec2, is_stationary: bool) {
+    pub fn set_animation(&mut self, direction: Vec2, is_stationary: bool) {
         if direction.y > 0.0 && direction.y.abs() > direction.x.abs() {
             self.sprite.start_animation(0);
-        } else if direction.y < 0.0 && direction.y.abs() > direction.x.abs() {
+        } else if direction.y < 0.0 {
             self.sprite.start_animation(1);
-        } else if direction.x > 0.0 && direction.x.abs() > direction.y.abs() {
+        } else if direction.x > 0.0 {
             self.sprite.start_animation(2);
             self.sprite.flip_x = false;
-        } else if direction.x < 0.0 && direction.x.abs() > direction.y.abs() {
+        } else if direction.x < 0.0 {
             self.sprite.start_animation(2);
             self.sprite.flip_x = true;
         } else {
+            self.sprite.set_frame(1);
             self.sprite.stop();
         }
         if is_stationary {
+            self.sprite.set_frame(1);
             self.sprite.stop();
         }
     }
@@ -307,12 +309,12 @@ impl Node for Actor {
         let controller_direction = node.controller.direction;
         if let Some(target) = node.controller.primary_target {
             let direction = target.sub(node.body.position).normalize_or_zero();
-            node.face_direction(direction, controller_direction == Vec2::ZERO);
+            node.set_animation(direction, controller_direction == Vec2::ZERO);
         } else if let Some(target) = node.controller.secondary_target {
             let direction = target.sub(node.body.position).normalize_or_zero();
-            node.face_direction(direction, controller_direction == Vec2::ZERO);
+            node.set_animation(direction, controller_direction == Vec2::ZERO);
         } else {
-            node.face_direction(controller_direction, false);
+            node.set_animation(controller_direction, false);
         }
     }
 

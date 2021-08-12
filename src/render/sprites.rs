@@ -90,6 +90,14 @@ impl SpriteAnimationPlayer {
         self.play();
     }
 
+    pub fn restart_animation(&mut self) {
+        self.sprite.set_frame(0);
+    }
+
+    pub fn set_frame(&mut self, frame: u32) {
+        self.sprite.set_frame(frame);
+    }
+
     pub fn play(&mut self) {
         self.sprite.playing = true;
     }
