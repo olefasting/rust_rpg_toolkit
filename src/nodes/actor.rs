@@ -21,7 +21,6 @@ mod draw_queue;
 mod stats;
 
 pub use stats::ActorStats;
-
 pub use controller::{
     ActorControllerKind,
     ActorController,
@@ -201,6 +200,8 @@ impl Actor {
                 color::GRAY,
                 1.0,
                 HorizontalAlignment::Center,
+                true,
+                None,
             );
         }
     }

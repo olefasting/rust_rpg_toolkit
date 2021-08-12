@@ -2,6 +2,7 @@ use macroquad::{
     color,
     prelude::*,
 };
+use crate::render::text::draw_aligned_text;
 
 pub enum HorizontalAlignment {
     Left,
@@ -10,7 +11,7 @@ pub enum HorizontalAlignment {
 }
 
 pub fn draw_progress_bar(
-    value: f32,
+    current_value: f32,
     max_value: f32,
     position: Vec2,
     length:f32,
@@ -19,6 +20,8 @@ pub fn draw_progress_bar(
     bg_color: Color,
     border: f32,
     alignment: HorizontalAlignment,
+    show_numeric_values: bool,
+    text_params: Option<TextParams>,
 ) {
     assert!(border * 2.0 < height && border * 2.0 < length, "Progress bar length and height must be greater than border * 2");
     {
@@ -56,19 +59,19 @@ pub fn draw_progress_bar(
             HorizontalAlignment::Left => (
                 position.x + border,
                 position.y,
-                position.x + (value / max_value) * length - border,
+                position.x + (current_value / max_value) * length - border,
                 position.y,
             ),
             HorizontalAlignment::Center => (
                 position.x + border - length / 2.0,
                 position.y,
-                position.x + (value / max_value) * (length - border) - length / 2.0,
+                position.x + (current_value / max_value) * (length - border) - length / 2.0,
                 position.y,
             ),
             HorizontalAlignment::Right => (
                 position.x + border + length,
                 position.y,
-                position.x + (value / max_value) * (length - border) + length * 2.0,
+                position.x + (current_value / max_value) * (length - border) + length * 2.0,
                 position.y,
             ),
         };
@@ -80,5 +83,19 @@ pub fn draw_progress_bar(
             height - border * 2.0,
             color,
         );
+    }
+    {
+        if show_numeric_values {
+            draw_aligned_text(
+                &format!("{}/{}", current_value, max_value),
+                position.x,
+                position.y + border * 2.0,
+                alignment,
+                text_params.unwrap_or(TextParams {
+                    font_size: height as u16,
+                    ..Default::default()
+                }),
+            );
+        }
     }
 }
