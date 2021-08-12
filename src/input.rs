@@ -1,18 +1,11 @@
 use macroquad::{
-    experimental::{
-        scene::{
-            RefMut,
-        },
-    },
     prelude::*,
 };
 
 use crate::{
-    globals::LocalPlayer,
     get_global,
     render::Viewport,
     nodes::{
-        Actor,
         GameState,
     },
 };

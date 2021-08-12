@@ -1,11 +1,7 @@
 use macroquad::{
     ui::{
         hash, root_ui,
-        widgets::{self, Group},
-        Drag, Ui,
-    },
-    experimental::{
-        scene::Handle,
+        widgets::{self},
     },
     prelude::*,
 };
@@ -13,7 +9,6 @@ use macroquad::{
 use crate::{
     nodes::{GameState, Actor},
     Item,
-    ItemParams,
 };
 
 pub fn draw_gui() {

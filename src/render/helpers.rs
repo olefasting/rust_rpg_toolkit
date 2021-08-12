@@ -1,5 +1,4 @@
 use macroquad::{
-    color,
     prelude::*,
 };
 use crate::render::text::draw_aligned_text;

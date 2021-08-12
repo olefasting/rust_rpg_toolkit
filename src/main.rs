@@ -3,7 +3,6 @@
 use macroquad::{
     color,
     experimental::{
-        collections::storage,
         coroutines::start_coroutine,
         scene,
     },
@@ -20,7 +19,6 @@ use globals::LocalPlayer;
 pub use input::get_mouse_position;
 pub use map::{
     Map,
-    MapKind,
 };
 use nodes::{
     Actor,
@@ -40,8 +38,7 @@ use render::{
 };
 pub use resources::Resources;
 
-use crate::nodes::actor::{ActorDrawBuffer, ActorStats, primary_test_ability, secondary_test_ability};
-use crate::nodes::ActorInventory;
+use crate::nodes::actor::{ActorDrawBuffer, ActorStats, primary_test_ability};
 use crate::nodes::item::ItemDrawBuffer;
 
 mod resources;
@@ -99,7 +96,7 @@ async fn main() {
             id: 0,
         });
 
-        let map = Map::new(MapKind::TopDown, vec2(16.0, 16.0),"assets/maps/map_01.json").await;
+        let map = Map::new(vec2(16.0, 16.0),"assets/maps/map_01.json").await;
         GameState::add_node(map);
 
         Camera::add_node(vec2(100.0, 100.0));

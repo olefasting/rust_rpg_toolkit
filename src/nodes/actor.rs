@@ -122,7 +122,6 @@ impl Actor {
     const INTERACT_RADIUS: f32 = 36.0;
 
     pub fn new(params: ActorParams) -> Self {
-        let id = params.id.clone();
         Actor {
             id: params.id,
             name: params.name,

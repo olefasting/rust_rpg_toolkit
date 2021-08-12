@@ -19,11 +19,6 @@ use crate::{
     },
     nodes::{
         Actor,
-        ActorControllerKind,
-    },
-    globals::{
-        get_global,
-        LocalPlayer,
     },
     get_mouse_position,
 };
