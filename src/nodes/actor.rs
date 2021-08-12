@@ -41,6 +41,7 @@ use crate::{get_global, render::{
 #[derive(Clone)]
 pub struct ActorParams {
     pub id: String,
+    pub factions: Vec<String>,
     pub current_health: f32,
     pub max_health: f32,
     pub position: Vec2,
@@ -55,6 +56,7 @@ impl Default for ActorParams {
     fn default() -> Self {
         ActorParams {
             id: generate_id(),
+            factions: Vec::new(),
             current_health: 0.0,
             max_health: 0.0,
             position: Vec2::ZERO,
@@ -70,6 +72,7 @@ impl Default for ActorParams {
 #[derive(Clone)]
 pub struct Actor {
     pub id: String,
+    pub factions: Vec<String>,
     current_health: f32,
     max_health: f32,
     pub move_speed: f32,
@@ -100,6 +103,7 @@ impl Actor {
         let id = params.id.clone();
         Actor {
             id: params.id,
+            factions: params.factions,
             current_health: params.current_health,
             max_health: params.max_health,
             move_speed: params.move_speed,
@@ -119,6 +123,7 @@ impl Actor {
     pub fn to_actor_params(&self) -> ActorParams {
         ActorParams {
             id: self.id.clone(),
+            factions: self.factions.clone(),
             current_health: self.current_health,
             max_health: self.max_health,
             position: self.body.position,
@@ -146,6 +151,31 @@ impl Actor {
             }
         }
         None
+    }
+
+    pub fn find_with_id(id: &str) -> Option<RefMut<Actor>> {
+        for actor in scene::find_nodes_by_type::<Actor>() {
+            if actor.id == id.to_string() {
+                return Some(actor);
+            }
+        }
+        None
+    }
+
+    pub fn face_direction(&mut self, direction: Vec2) {
+        if direction.y > 0.0 && direction.y.abs() > direction.x.abs() {
+            self.sprite.start_animation(0);
+        } else if direction.y < 0.0 && direction.y.abs() > direction.x.abs() {
+            self.sprite.start_animation(1);
+        } else if direction.x > 0.0 && direction.x.abs() > direction.y.abs() {
+            self.sprite.start_animation(2);
+            self.sprite.flip_x = false;
+        } else if direction.x < 0.0 && direction.x.abs() > direction.y.abs() {
+            self.sprite.start_animation(2);
+            self.sprite.flip_x = true;
+        } else {
+            self.sprite.stop();
+        }
     }
 }
 
@@ -188,51 +218,13 @@ impl Node for Actor {
 
         if let Some(target) = node.controller.primary_target {
             let direction = target.sub(node.body.position).normalize_or_zero();
-            if direction.y > 0.0 && direction.y.abs() > direction.x.abs() {
-                node.sprite.set_animation(0);
-            } else if direction.y < 0.0 && direction.y.abs() > direction.x.abs() {
-                node.sprite.set_animation(1);
-            } else if direction.x > 0.0 && direction.x.abs() > direction.y.abs() {
-                node.sprite.set_animation(2);
-                node.sprite.flip_x = false;
-            } else if direction.x < 0.0 && direction.x.abs() > direction.y.abs() {
-                node.sprite.set_animation(2);
-                node.sprite.flip_x = true;
-            }
-            if node.body.velocity != Vec2::ZERO {
-                node.sprite.play();
-            }
+            node.face_direction(direction);
         } else if let Some(target) = node.controller.secondary_target {
             let direction = target.sub(node.body.position).normalize_or_zero();
-            if direction.y > 0.0 && direction.y.abs() > direction.x.abs() {
-                node.sprite.set_animation(0);
-            } else if direction.y < 0.0 && direction.y.abs() > direction.x.abs() {
-                node.sprite.set_animation(1);
-            } else if direction.x > 0.0 && direction.x.abs() > direction.y.abs() {
-                node.sprite.set_animation(2);
-                node.sprite.flip_x = false;
-            } else if direction.x < 0.0 && direction.x.abs() > direction.y.abs() {
-                node.sprite.set_animation(2);
-                node.sprite.flip_x = true;
-            }
-            if node.body.velocity != Vec2::ZERO {
-                node.sprite.play();
-            }
+            node.face_direction(direction);
         } else {
             let direction = node.controller.direction;
-            if direction.y > 0.0 && direction.y.abs() > direction.x.abs() {
-                node.sprite.start_animation(0);
-            } else if direction.y < 0.0 && direction.y.abs() > direction.x.abs() {
-                node.sprite.start_animation(1);
-            } else if direction.x > 0.0 && direction.x.abs() > direction.y.abs() {
-                node.sprite.start_animation(2);
-                node.sprite.flip_x = false;
-            } else if direction.x < 0.0 && direction.x.abs() > direction.y.abs() {
-                node.sprite.start_animation(2);
-                node.sprite.flip_x = true;
-            } else {
-                node.sprite.stop();
-            }
+            node.face_direction(direction);
         }
     }
 

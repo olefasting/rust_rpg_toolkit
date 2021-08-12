@@ -94,11 +94,24 @@ impl Node for Projectiles {
                 return false;
             }
             let collider = Collider::circle(0.0, 0.0, projectile.size / 2.0).offset(projectile.position);
-            for mut actor in scene::find_nodes_by_type::<Actor>() {
-                if let Some(other_collider) = actor.body.offset_collider() {
+            let handle = if let Some(actor) = Actor::find_with_id(&projectile.actor_id) {
+                Some(actor.handle())
+            } else {
+                None
+            };
+            'outer: for mut other_actor in scene::find_nodes_by_type::<Actor>() {
+                if let Some(other_collider) = other_actor.body.offset_collider() {
                     if collider.overlaps(&other_collider) {
-                        if projectile.actor_id != actor.id {
-                            actor.take_damage(projectile.damage);
+                        if projectile.actor_id != other_actor.id {
+                            if let Some(handle) = handle {
+                                let actor = scene::get_node(handle);
+                                for faction in &actor.factions {
+                                    if other_actor.factions.contains(&faction) {
+                                        continue 'outer;
+                                    }
+                                }
+                            }
+                            other_actor.take_damage(projectile.damage);
                             return false;
                         }
                     }

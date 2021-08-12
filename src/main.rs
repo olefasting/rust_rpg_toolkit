@@ -110,6 +110,7 @@ async fn main() {
 
         Actor::add_node(
             ActorParams {
+                factions: vec!("player_faction".to_string()),
                 current_health: 1000.0,
                 max_health: 1000.0,
                 position: vec2(100.0, 100.0),
