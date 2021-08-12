@@ -51,6 +51,8 @@ pub fn apply_local_player_input(controller: &mut ActorController) {
     }
     controller.direction = direction;
 
+    controller.is_sprinting = is_key_down(KeyCode::LeftShift);
+
     let mut game_state = scene::find_node_by_type::<GameState>().unwrap();
     if is_key_released(KeyCode::C) {
         game_state.show_character_window = !game_state.show_character_window;

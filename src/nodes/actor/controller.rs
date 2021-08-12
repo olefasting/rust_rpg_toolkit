@@ -13,6 +13,7 @@ pub struct ActorController {
     pub primary_target: Option<Vec2>,
     pub secondary_target: Option<Vec2>,
     pub direction: Vec2,
+    pub is_sprinting: bool,
 }
 
 impl ActorController {
@@ -22,6 +23,7 @@ impl ActorController {
             primary_target: None,
             secondary_target: None,
             direction: Vec2::ZERO,
+            is_sprinting: false,
         }
     }
 }

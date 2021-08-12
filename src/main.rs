@@ -113,7 +113,7 @@ async fn main() {
 
         Actor::add_node(
             ActorParams {
-                name: "Player Actor".to_string(),
+                name: "Abraxas".to_string(),
                 factions: vec!("player_faction".to_string()),
                 position: vec2(100.0, 100.0),
                 stats: ActorStats::new(

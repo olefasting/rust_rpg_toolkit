@@ -112,6 +112,9 @@ impl Actor {
     const HEALTH_BAR_HEIGHT: f32 = 10.0;
     const HEALTH_BAR_OFFSET_Y: f32 = 25.0;
 
+    const SPRINT_SPEED_FACTOR: f32 = 2.0;
+    const SPRINT_STAMINA_COST: f32 = 10.0;
+
     pub fn new(params: ActorParams) -> Self {
         let id = params.id.clone();
         Actor {
@@ -218,7 +221,7 @@ impl Actor {
                 color::GRAY,
                 1.0,
                 HorizontalAlignment::Center,
-                false,
+                None, // Some(&format!("{}/{}", self.stats.current_health.round(), self.stats.max_health.round())),
                 None,
             );
         }
@@ -233,7 +236,7 @@ impl Actor {
                 color::GRAY,
                 1.0,
                 HorizontalAlignment::Center,
-                false,
+                None, // Some(&format!("{}/{}", self.stats.current_stamina.round(), self.stats.max_stamina.round())),
                 None,
             );
             draw_progress_bar(
@@ -246,7 +249,7 @@ impl Actor {
                 color::GRAY,
                 1.0,
                 HorizontalAlignment::Center,
-                false,
+                None, // Some(&format!("{}/{}", self.stats.current_energy.round(), self.stats.max_energy.round())),
                 None,
             );
         }
@@ -314,7 +317,15 @@ impl Node for Actor {
     }
 
     fn fixed_update(mut node: RefMut<Self>) {
-        node.body.velocity = node.controller.direction.normalize_or_zero() * node.stats.move_speed;
+        let direction = node.controller.direction.normalize_or_zero();
+        node.body.velocity = direction * if node.controller.is_sprinting && node.stats.current_stamina >= Self::SPRINT_STAMINA_COST {
+            if direction != Vec2::ZERO {
+                node.stats.current_stamina -= Self::SPRINT_STAMINA_COST;
+            }
+            node.stats.move_speed * Self::SPRINT_SPEED_FACTOR
+        } else {
+            node.stats.move_speed
+        };
         node.body.integrate();
         let controller = node.controller.clone();
         if let Some(target) = controller.primary_target {

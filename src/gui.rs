@@ -25,6 +25,12 @@ pub fn draw_gui() {
                 ui.label(None, &format!("CHA: {}", player.stats.charisma));
 
                 ui.separator();
+
+                ui.tree_node(hash!(), "Regen", |ui| {
+                    ui.label(None, &format!("Health:  {}", player.stats.health_regen));
+                    ui.label(None, &format!("Stamina: {}", player.stats.stamina_regen));
+                    ui.label(None, &format!("Energy:  {}", player.stats.energy_regen));
+                });
             });
     }
     if game_state.show_inventory_window {

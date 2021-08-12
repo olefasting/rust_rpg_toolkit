@@ -20,7 +20,7 @@ pub fn draw_progress_bar(
     bg_color: Color,
     border: f32,
     alignment: HorizontalAlignment,
-    show_numeric_values: bool,
+    text: Option<&str>,
     text_params: Option<TextParams>,
 ) {
     assert!(border * 2.0 < height && border * 2.0 < length, "Progress bar length and height must be greater than border * 2");
@@ -85,9 +85,9 @@ pub fn draw_progress_bar(
         );
     }
     {
-        if show_numeric_values {
+        if let Some(text) = text {
             draw_aligned_text(
-                &format!("{}/{}", current_value.round(), max_value.round()),
+                text,
                 position.x,
                 position.y + border * 2.0,
                 HorizontalAlignment::Center,
