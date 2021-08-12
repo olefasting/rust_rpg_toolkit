@@ -113,7 +113,15 @@ async fn main() {
             ActorParams {
                 factions: vec!("player_faction".to_string()),
                 position: vec2(100.0, 100.0),
-                stats: ActorStats::new(8, 8, 8),
+                stats: ActorStats::new(
+                    8,
+                    8,
+                    8,
+                    8,
+                    8,
+                    8,
+                    8,
+                ),
                 collider: Some(Collider::circle(0.0, 8.0, 8.0)),
                 controller_kind: ActorControllerKind::Player { id: 0 },
                 sprite_params: SpriteParams {
@@ -149,7 +157,15 @@ async fn main() {
         Actor::add_node(
             ActorParams {
                 position: vec2(300.0, 300.0),
-                stats: ActorStats::new(8, 8, 8),
+                stats: ActorStats::new(
+                    8,
+                    8,
+                    8,
+                    8,
+                    8,
+                    8,
+                    8,
+                ),
                 collider: Some(Collider::circle(0.0, 8.0, 8.0)),
                 controller_kind: ActorControllerKind::Computer,
                 sprite_params: SpriteParams {

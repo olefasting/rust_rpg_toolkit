@@ -96,7 +96,7 @@ pub struct Actor {
 
 fn primary_test_ability(actor_id: &str, origin: Vec2, target: Vec2) {
     let mut projectiles = scene::find_node_by_type::<Projectiles>().unwrap();
-    projectiles.spawn(actor_id, 15.0, color::YELLOW, 4.0, origin, target, 15.0, 10.0, 1.0);
+    projectiles.spawn(actor_id, 15.0, color::YELLOW, 2.0, origin, target, 15.0, 10.0, 1.0);
 }
 
 fn secondary_test_ability(actor_id: &str, origin: Vec2, target: Vec2) {
@@ -118,7 +118,7 @@ impl Actor {
             body: PhysicsBody::new(params.position, 0.0, params.collider),
             sprite: SpriteAnimationPlayer::new(params.sprite_params.clone()),
             inventory: ActorInventory::new(&params.inventory),
-            primary_ability: Some(ActorAbility::new(&id, 0.005, primary_test_ability)),
+            primary_ability: Some(ActorAbility::new(&id, 0.0025, primary_test_ability)),
             secondary_ability: Some(ActorAbility::new(&id, 1.25, secondary_test_ability)),
             controller: ActorController::new(params.controller_kind),
         }
@@ -168,7 +168,7 @@ impl Actor {
         None
     }
 
-    pub fn face_direction(&mut self, direction: Vec2) {
+    pub fn face_direction(&mut self, direction: Vec2, is_stationary: bool) {
         if direction.y > 0.0 && direction.y.abs() > direction.x.abs() {
             self.sprite.start_animation(0);
         } else if direction.y < 0.0 && direction.y.abs() > direction.x.abs() {
@@ -182,6 +182,9 @@ impl Actor {
         } else {
             self.sprite.stop();
         }
+        if is_stationary {
+            self.sprite.stop();
+        }
     }
 
     pub fn draw_actor(&mut self) {
@@ -189,7 +192,8 @@ impl Actor {
         self.sprite.draw(position, rotation);
         // self.body.debug_draw();
 
-        if self.stats.current_health < self.stats.max_health {
+        let is_local_player = self.is_local_player();
+        if is_local_player || self.stats.current_health < self.stats.max_health {
             draw_progress_bar(
                 self.stats.current_health,
                 self.stats.max_health,
@@ -200,9 +204,46 @@ impl Actor {
                 color::GRAY,
                 1.0,
                 HorizontalAlignment::Center,
-                true,
+                false,
                 None,
             );
+        }
+        if is_local_player {
+            draw_progress_bar(
+                self.stats.current_stamina,
+                self.stats.max_stamina,
+                self.body.position + vec2(0.0, Self::HEALTH_BAR_OFFSET_Y + Self::HEALTH_BAR_HEIGHT),
+                Self::HEALTH_BAR_LENGTH,
+                Self::HEALTH_BAR_HEIGHT,
+                color::YELLOW,
+                color::GRAY,
+                1.0,
+                HorizontalAlignment::Center,
+                false,
+                None,
+            );
+            draw_progress_bar(
+                self.stats.current_energy,
+                self.stats.max_energy,
+                self.body.position + vec2(0.0, Self::HEALTH_BAR_OFFSET_Y + Self::HEALTH_BAR_HEIGHT * 2.0),
+                Self::HEALTH_BAR_LENGTH,
+                Self::HEALTH_BAR_HEIGHT,
+                color::BLUE,
+                color::GRAY,
+                1.0,
+                HorizontalAlignment::Center,
+                false,
+                None,
+            );
+        }
+    }
+
+    pub fn is_local_player(&self) -> bool {
+        if let ActorControllerKind::Player { id } = self.controller.kind {
+            let local_player = get_global::<LocalPlayer>();
+            id == local_player.id
+        } else {
+            false
         }
     }
 }
@@ -216,7 +257,7 @@ impl Node for Actor {
     }
 
     fn update(mut node: RefMut<Self>) {
-        node.stats.update(false);
+        node.stats.update_derived(false);
 
         if node.stats.current_health <= 0.0 {
             node.delete();
@@ -246,15 +287,15 @@ impl Node for Actor {
             ActorControllerKind::None => {}
         }
 
+        let controller_direction = node.controller.direction;
         if let Some(target) = node.controller.primary_target {
             let direction = target.sub(node.body.position).normalize_or_zero();
-            node.face_direction(direction);
+            node.face_direction(direction, controller_direction == Vec2::ZERO);
         } else if let Some(target) = node.controller.secondary_target {
             let direction = target.sub(node.body.position).normalize_or_zero();
-            node.face_direction(direction);
+            node.face_direction(direction, controller_direction == Vec2::ZERO);
         } else {
-            let direction = node.controller.direction;
-            node.face_direction(direction);
+            node.face_direction(controller_direction, false);
         }
     }
 

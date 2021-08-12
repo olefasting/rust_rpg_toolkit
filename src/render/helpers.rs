@@ -90,7 +90,7 @@ pub fn draw_progress_bar(
                 &format!("{}/{}", current_value, max_value),
                 position.x,
                 position.y + border * 2.0,
-                alignment,
+                HorizontalAlignment::Center,
                 text_params.unwrap_or(TextParams {
                     font_size: height as u16,
                     ..Default::default()
