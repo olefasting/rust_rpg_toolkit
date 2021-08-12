@@ -116,7 +116,7 @@ async fn main() {
                 max_health: 1000.0,
                 position: vec2(100.0, 100.0),
                 move_speed: 2.5,
-                collider: Some(Collider::circle(0.0, 0.0, 8.0)),
+                collider: Some(Collider::circle(0.0, 8.0, 8.0)),
                 controller_kind: ActorControllerKind::Player { id: 0 },
                 sprite_params: SpriteParams {
                     texture_id: Resources::CHARACTERS_TEXTURE_ID.to_string(),
@@ -154,7 +154,7 @@ async fn main() {
                 max_health: 1000.0,
                 position: vec2(300.0, 300.0),
                 move_speed: 2.5,
-                collider: Some(Collider::circle(0.0, 0.0, 8.0)),
+                collider: Some(Collider::circle(0.0, 8.0, 8.0)),
                 controller_kind: ActorControllerKind::Computer,
                 sprite_params: SpriteParams {
                     texture_id: Resources::CHARACTERS_TEXTURE_ID.to_string(),

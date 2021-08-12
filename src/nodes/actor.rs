@@ -184,7 +184,7 @@ impl Actor {
     pub fn draw_actor(&mut self) {
         let (position, rotation) = (self.body.position, self.body.rotation);
         self.sprite.draw(position, rotation);
-        // node.body.debug_draw();
+        // self.body.debug_draw();
 
         if self.current_health < self.max_health {
             draw_line(
