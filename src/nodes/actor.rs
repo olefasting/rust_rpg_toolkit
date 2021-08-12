@@ -56,6 +56,7 @@ use crate::{
 #[derive(Clone)]
 pub struct ActorParams {
     pub id: String,
+    pub name: String,
     pub stats: ActorStats,
     pub factions: Vec<String>,
     pub position: Vec2,
@@ -70,6 +71,7 @@ impl Default for ActorParams {
     fn default() -> Self {
         ActorParams {
             id: generate_id(),
+            name: "Unnamed Actor".to_string(),
             stats: Default::default(),
             factions: Vec::new(),
             position: Vec2::ZERO,
@@ -84,6 +86,7 @@ impl Default for ActorParams {
 #[derive(Clone)]
 pub struct Actor {
     pub id: String,
+    pub name: String,
     pub stats: ActorStats,
     pub factions: Vec<String>,
     pub body: PhysicsBody,
@@ -113,13 +116,14 @@ impl Actor {
         let id = params.id.clone();
         Actor {
             id: params.id,
+            name: params.name,
             stats: params.stats,
             factions: params.factions,
             body: PhysicsBody::new(params.position, 0.0, params.collider),
             sprite: SpriteAnimationPlayer::new(params.sprite_params.clone()),
             inventory: ActorInventory::new(&params.inventory),
-            primary_ability: Some(ActorAbility::new(&id, 0.0025, primary_test_ability)),
-            secondary_ability: Some(ActorAbility::new(&id, 1.25, secondary_test_ability)),
+            primary_ability: Some(ActorAbility::new(0.0, 4.0, 0.0, 0.0025, primary_test_ability)),
+            secondary_ability: Some(ActorAbility::new(0.0, 4.0, 50.0, 1.25, secondary_test_ability)),
             controller: ActorController::new(params.controller_kind),
         }
     }
@@ -131,6 +135,7 @@ impl Actor {
     pub fn to_actor_params(&self) -> ActorParams {
         ActorParams {
             id: self.id.clone(),
+            name: self.name.clone(),
             stats: self.stats.clone(),
             factions: self.factions.clone(),
             position: self.body.position,
@@ -145,8 +150,8 @@ impl Actor {
         self.stats.current_health -= damage;
     }
 
-    pub fn find_player(player_id: u32) -> Option<RefMut<Actor>> {
-        for actor in scene::find_nodes_by_type::<Actor>() {
+    pub fn find_player(player_id: u32) -> Option<RefMut<Self>> {
+        for actor in scene::find_nodes_by_type::<Self>() {
             match actor.controller.kind {
                 ActorControllerKind::Player { id } => {
                     if player_id == id {
@@ -157,6 +162,15 @@ impl Actor {
             }
         }
         None
+    }
+
+    pub fn find_local_player() -> Option<RefMut<Self>> {
+        let local_player = get_global::<LocalPlayer>();
+        if let Some(actor) = Self::find_player(local_player.id) {
+            Some(actor)
+        } else {
+            None
+        }
     }
 
     pub fn find_with_id(id: &str) -> Option<RefMut<Actor>> {
@@ -302,18 +316,21 @@ impl Node for Actor {
     fn fixed_update(mut node: RefMut<Self>) {
         node.body.velocity = node.controller.direction.normalize_or_zero() * node.stats.move_speed;
         node.body.integrate();
-
-        if let Some(target) = node.controller.primary_target {
-            let position = node.body.position;
-            if let Some(ability) = &mut node.primary_ability {
-                ability.activate(position, target);
+        let controller = node.controller.clone();
+        if let Some(target) = controller.primary_target {
+            let mut primary_ability = node.primary_ability.clone();
+            let position = node.body.position.clone();
+            if let Some(ability) = &mut primary_ability {
+                ability.activate(&mut *node, position, target);
             }
-        }
-        if let Some(target) = node.controller.secondary_target {
-            let position = node.body.position;
-            if let Some(ability) = &mut node.secondary_ability {
-                ability.activate(position, target);
+            node.primary_ability = primary_ability;
+        } else if let Some(target) = controller.secondary_target {
+            let mut secondary_ability = node.secondary_ability.clone();
+            let position = node.body.position.clone();
+            if let Some(ability) = &mut secondary_ability {
+                ability.activate(&mut *node, position, target);
             }
+            node.secondary_ability = secondary_ability;
         }
     }
 

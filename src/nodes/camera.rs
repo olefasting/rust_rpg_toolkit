@@ -143,8 +143,7 @@ impl Node for Camera {
     }
 
     fn fixed_update(mut node: RefMut<Self>) {
-        let local_player = get_global::<LocalPlayer>();
-        let actor = Actor::find_player(local_player.id).unwrap();
+        let actor = Actor::find_local_player().unwrap();
         let viewport = node.get_viewport();
         let mod_size = vec2(viewport.w * Self::FOLLOW_THRESHOLD, viewport.h * Self::FOLLOW_THRESHOLD);
         let bounds = Rect::new(

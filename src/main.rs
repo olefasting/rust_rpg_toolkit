@@ -58,6 +58,7 @@ pub mod render;
 pub mod input;
 pub mod physics;
 pub mod math;
+pub mod gui;
 
 pub fn generate_id() -> String {
     nanoid::nanoid!()
@@ -66,9 +67,10 @@ pub fn generate_id() -> String {
 fn window_conf() -> Conf {
     Conf {
         window_title: "Capstone".to_owned(),
-        high_dpi: true,
-        window_width: 1080,
-        window_height: 720,
+        high_dpi: false,
+        window_width: 1920,
+        window_height: 180,
+        fullscreen: true,
         ..Default::default()
     }
 }
@@ -111,6 +113,7 @@ async fn main() {
 
         Actor::add_node(
             ActorParams {
+                name: "Player Actor".to_string(),
                 factions: vec!("player_faction".to_string()),
                 position: vec2(100.0, 100.0),
                 stats: ActorStats::new(
@@ -208,6 +211,8 @@ async fn main() {
                 break;
             }
         }
+
+        gui::draw_gui();
 
         next_frame().await;
     }

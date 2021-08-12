@@ -13,6 +13,8 @@ use crate::Map;
 
 pub struct GameState {
     pub map: Map,
+    pub show_character_window: bool,
+    pub show_inventory_window: bool,
     pub should_quit: bool,
 }
 
@@ -20,6 +22,8 @@ impl GameState {
     pub fn new(map: Map) -> GameState {
         GameState {
             map,
+            show_character_window: false,
+            show_inventory_window: false,
             should_quit: false,
         }
     }

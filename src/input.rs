@@ -52,5 +52,11 @@ pub fn apply_local_player_input(controller: &mut ActorController) {
     controller.direction = direction;
 
     let mut game_state = scene::find_node_by_type::<GameState>().unwrap();
-    game_state.should_quit = is_key_pressed(KeyCode::Escape) || is_key_pressed(KeyCode::Q);
+    if is_key_released(KeyCode::C) {
+        game_state.show_character_window = !game_state.show_character_window;
+    }
+    if is_key_released(KeyCode::I) {
+        game_state.show_inventory_window = !game_state.show_inventory_window;
+    }
+    game_state.should_quit = is_key_released(KeyCode::Escape) || is_key_pressed(KeyCode::Q);
 }
