@@ -1,6 +1,5 @@
 mod physics_body;
 mod collider;
-mod ray_cast;
 
 pub use physics_body::{
     PhysicsBody,
@@ -8,8 +7,3 @@ pub use physics_body::{
 };
 
 pub use collider::Collider;
-
-pub use ray_cast:: {
-    RAY_CAST_RESOLUTION,
-    ray_cast,
-};

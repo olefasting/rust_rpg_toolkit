@@ -155,7 +155,7 @@ impl Node for Camera {
         );
         if !bounds.contains(actor.body.position) {
             let direction = actor.body.position.sub(node.position).normalize_or_zero();
-            node.position += direction * actor.move_speed;
+            node.position += direction * actor.stats.move_speed;
         }
 
         {

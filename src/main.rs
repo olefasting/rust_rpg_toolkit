@@ -25,9 +25,9 @@ use nodes::{
 
 use render::{
     SpriteParams,
+    HorizontalAlignment,
     text::{
         draw_aligned_text,
-        TextAlignment,
     }
 };
 
@@ -46,7 +46,7 @@ pub use map::{
 
 pub use item::Item;
 use macroquad::prelude::animation::Animation;
-use crate::nodes::actor::ActorDrawQueue;
+use crate::nodes::actor::{ActorDrawQueue, ActorStats};
 
 mod resources;
 mod globals;
@@ -86,7 +86,7 @@ async fn main() {
             &format!("Loading resources"),
             screen_width() / 2.0,
             screen_height() / 2.0,
-            TextAlignment::Center,
+            HorizontalAlignment::Center,
             TextParams {
                 font_size: 40,
                 color: color::WHITE,
@@ -112,10 +112,8 @@ async fn main() {
         Actor::add_node(
             ActorParams {
                 factions: vec!("player_faction".to_string()),
-                current_health: 1000.0,
-                max_health: 1000.0,
                 position: vec2(100.0, 100.0),
-                move_speed: 2.5,
+                stats: ActorStats::new(8, 10, 8),
                 collider: Some(Collider::circle(0.0, 8.0, 8.0)),
                 controller_kind: ActorControllerKind::Player { id: 0 },
                 sprite_params: SpriteParams {
@@ -150,10 +148,8 @@ async fn main() {
 
         Actor::add_node(
             ActorParams {
-                current_health: 1000.0,
-                max_health: 1000.0,
                 position: vec2(300.0, 300.0),
-                move_speed: 2.5,
+                stats: ActorStats::new(8, 8, 8),
                 collider: Some(Collider::circle(0.0, 8.0, 8.0)),
                 controller_kind: ActorControllerKind::Computer,
                 sprite_params: SpriteParams {

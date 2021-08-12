@@ -8,7 +8,7 @@ opt-level = 3
 
 [dependencies]
 gamepad-rs = { path = "./gamepad-rs" }
-
+#num-traits = "0.2.14"
 nanoid = "0.4.0"
 nanoserde = "0.1.29"
 

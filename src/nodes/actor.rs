@@ -18,6 +18,9 @@ mod controller;
 mod inventory;
 mod ability;
 mod draw_queue;
+mod stats;
+
+pub use stats::ActorStats;
 
 pub use controller::{
     ActorControllerKind,
@@ -32,26 +35,35 @@ pub use ability::{
 
 pub use draw_queue::ActorDrawQueue;
 
-use crate::{get_global, render::{
-    SpriteAnimationPlayer,
-    SpriteParams,
-}, globals::LocalPlayer, physics::{
-    PhysicsBody,
-    PhysicsObject,
-    Collider,
-}, nodes::Projectiles, Item, generate_id};
+use crate::{
+    get_global,
+    render::{
+        SpriteAnimationPlayer,
+        SpriteParams,
+        draw_progress_bar,
+        HorizontalAlignment,
+    },
+    globals::LocalPlayer,
+    physics::{
+        PhysicsBody,
+        PhysicsObject,
+        Collider,
+    },
+    nodes::Projectiles,
+    Item,
+    generate_id,
+};
 
 #[derive(Clone)]
 pub struct ActorParams {
     pub id: String,
+    pub stats: ActorStats,
     pub factions: Vec<String>,
-    pub current_health: f32,
-    pub max_health: f32,
     pub position: Vec2,
-    pub move_speed: f32,
     pub collider: Option<Collider>,
     pub inventory: Vec<Item>,
     pub sprite_params: SpriteParams,
+
     pub controller_kind: ActorControllerKind,
 }
 
@@ -59,11 +71,9 @@ impl Default for ActorParams {
     fn default() -> Self {
         ActorParams {
             id: generate_id(),
+            stats: Default::default(),
             factions: Vec::new(),
-            current_health: 0.0,
-            max_health: 0.0,
             position: Vec2::ZERO,
-            move_speed: 0.0,
             collider: None,
             inventory: Vec::new(),
             sprite_params: Default::default(),
@@ -75,10 +85,8 @@ impl Default for ActorParams {
 #[derive(Clone)]
 pub struct Actor {
     pub id: String,
+    pub stats: ActorStats,
     pub factions: Vec<String>,
-    current_health: f32,
-    max_health: f32,
-    pub move_speed: f32,
     pub body: PhysicsBody,
     sprite: SpriteAnimationPlayer,
     inventory: ActorInventory,
@@ -106,14 +114,12 @@ impl Actor {
         let id = params.id.clone();
         Actor {
             id: params.id,
+            stats: params.stats,
             factions: params.factions,
-            current_health: params.current_health,
-            max_health: params.max_health,
-            move_speed: params.move_speed,
             body: PhysicsBody::new(params.position, 0.0, params.collider),
             sprite: SpriteAnimationPlayer::new(params.sprite_params.clone()),
             inventory: ActorInventory::new(&params.inventory),
-            primary_ability: Some(ActorAbility::new(&id,0.005, primary_test_ability)),
+            primary_ability: Some(ActorAbility::new(&id, 0.005, primary_test_ability)),
             secondary_ability: Some(ActorAbility::new(&id, 1.25, secondary_test_ability)),
             controller: ActorController::new(params.controller_kind),
         }
@@ -126,11 +132,9 @@ impl Actor {
     pub fn to_actor_params(&self) -> ActorParams {
         ActorParams {
             id: self.id.clone(),
+            stats: self.stats.clone(),
             factions: self.factions.clone(),
-            current_health: self.current_health,
-            max_health: self.max_health,
             position: self.body.position,
-            move_speed: self.move_speed,
             collider: self.body.collider,
             inventory: self.inventory.clone_data(),
             sprite_params: self.sprite.to_sprite_params(),
@@ -139,7 +143,7 @@ impl Actor {
     }
 
     pub fn take_damage(&mut self, damage: f32) {
-        self.current_health -= damage;
+        self.stats.current_health -= damage;
     }
 
     pub fn find_player(player_id: u32) -> Option<RefMut<Actor>> {
@@ -149,7 +153,7 @@ impl Actor {
                     if player_id == id {
                         return Some(actor);
                     }
-                },
+                }
                 _ => {}
             }
         }
@@ -186,23 +190,17 @@ impl Actor {
         self.sprite.draw(position, rotation);
         // self.body.debug_draw();
 
-        if self.current_health < self.max_health {
-            draw_line(
-                self.body.position.x - Self::HEALTH_BAR_LENGTH / 2.0,
-                self.body.position.y + Self::HEALTH_BAR_OFFSET_Y,
-                self.body.position.x + Self::HEALTH_BAR_LENGTH / 2.0,
-                self.body.position.y + Self::HEALTH_BAR_OFFSET_Y,
+        if self.stats.current_health < self.stats.max_health {
+            draw_progress_bar(
+                self.stats.current_health,
+                self.stats.max_health,
+                self.body.position + vec2(0.0, Self::HEALTH_BAR_OFFSET_Y),
+                Self::HEALTH_BAR_LENGTH,
                 Self::HEALTH_BAR_HEIGHT,
-                color::GRAY,
-            );
-            let end_x = (self.current_health / self.max_health) * (Self::HEALTH_BAR_LENGTH - 1.0);
-            draw_line(
-                self.body.position.x + 1.0 - Self::HEALTH_BAR_LENGTH / 2.0,
-                self.body.position.y + Self::HEALTH_BAR_OFFSET_Y,
-                self.body.position.x + end_x - Self::HEALTH_BAR_LENGTH / 2.0,
-                self.body.position.y + Self::HEALTH_BAR_OFFSET_Y,
-                Self::HEALTH_BAR_HEIGHT - 2.0,
                 color::RED,
+                color::GRAY,
+                1.0,
+                HorizontalAlignment::Center,
             );
         }
     }
@@ -217,16 +215,18 @@ impl Node for Actor {
     }
 
     fn update(mut node: RefMut<Self>) {
-        if node.current_health <= 0.0 {
+        node.stats.update(false);
+
+        if node.stats.current_health <= 0.0 {
             node.delete();
             return;
         }
 
-        if let Some(mut ability) = node.primary_ability.as_mut() {
+        if let Some(ability) = node.primary_ability.as_mut() {
             ability.update();
         }
 
-        if let Some(mut ability) = node.secondary_ability.as_mut() {
+        if let Some(ability) = node.secondary_ability.as_mut() {
             ability.update();
         }
 
@@ -236,13 +236,13 @@ impl Node for Actor {
                 if id == local_player.id {
                     apply_local_player_input(&mut node.controller);
                 } else {
-                    // TODO: Remote player
+                    // TODO: Remote player (?)
                 }
-            },
+            }
             ActorControllerKind::Computer => {
                 // TODO: Computer controlled
-            },
-            ActorControllerKind::None => {},
+            }
+            ActorControllerKind::None => {}
         }
 
         if let Some(target) = node.controller.primary_target {
@@ -258,7 +258,7 @@ impl Node for Actor {
     }
 
     fn fixed_update(mut node: RefMut<Self>) {
-        node.body.velocity = node.controller.direction.normalize_or_zero() * node.move_speed;
+        node.body.velocity = node.controller.direction.normalize_or_zero() * node.stats.move_speed;
         node.body.integrate();
 
         if let Some(target) = node.controller.primary_target {
@@ -275,7 +275,7 @@ impl Node for Actor {
         }
     }
 
-    fn draw(mut node: RefMut<Self>) {
+    fn draw(node: RefMut<Self>) {
         let mut draw_queue = scene::find_node_by_type::<ActorDrawQueue>().unwrap();
         draw_queue.add_to_queue(node.handle());
     }

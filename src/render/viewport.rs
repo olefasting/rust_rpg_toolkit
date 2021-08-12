@@ -24,8 +24,6 @@ pub struct Viewport {
 }
 
 impl Viewport {
-    const PADDING: f32 = 100.0;
-
     pub fn to_screen_space(&self, coords: Vec2) -> Vec2 {
         to_screen_space(coords,vec2(self.x, self.y), self.s)
     }
