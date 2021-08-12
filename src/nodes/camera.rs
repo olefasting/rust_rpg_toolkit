@@ -157,15 +157,6 @@ impl Node for Camera {
             node.position += direction * actor.stats.move_speed;
         }
 
-        {
-            let (_, dir) = mouse_wheel();
-            if dir > 0.0 {
-                node.zoom_in();
-            } else if dir < 0.0 {
-                node.zoom_out();
-            }
-        }
-
         set_global(node.get_viewport());
     }
 

@@ -25,10 +25,10 @@ pub struct SpriteParams {
 impl Default for SpriteParams {
     fn default() -> Self {
         SpriteParams {
-            offset: vec2(-32.0, -32.0),
+            offset: vec2(-8.0, -8.0),
             texture_id: Resources::WHITE_TEXTURE_ID.to_string(),
             texture_color: color::WHITE,
-            tile_size: vec2(64.0, 64.0),
+            tile_size: vec2(16.0, 16.0),
             animations: vec!(
                 Animation {
                     name: "idle".to_string(),

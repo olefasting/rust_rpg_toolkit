@@ -88,7 +88,7 @@ impl ActorStats {
             self.stamina_regen = (self.constitution + self.dexterity / 4 + self.willpower / 4) as f32 * 4.0;
             self.energy_regen = (self.willpower + self.constitution / 2) as f32 * 0.5;
             self.move_speed = (self.dexterity + self.strength / 4 + self.willpower / 4) as f32 * 0.1;
-            self.carry_capacity = (self.strength + self.constitution / 4 + self.willpower / 4) as f32 * 100.0;
+            self.carry_capacity = (self.strength + self.constitution / 4 + self.willpower / 4) as f32 * 50.0;
         }
         let dt = get_frame_time();
         if self.current_health < self.max_health {

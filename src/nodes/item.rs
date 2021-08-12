@@ -17,6 +17,7 @@ use crate::{generate_id, nodes::{
     ActorAbilityFunc,
 }, get_global, Resources};
 pub use draw_buffer::ItemDrawBuffer;
+use crate::render::{SpriteAnimationPlayer, SpriteParams};
 
 #[derive(Clone)]
 pub struct ItemParams {
@@ -28,6 +29,7 @@ pub struct ItemParams {
     pub weight: f32,
     pub cooldown: f32,
     pub action: Option<ActorAbilityFunc>,
+    pub sprite_params: SpriteParams,
 }
 
 impl Default for ItemParams {
@@ -41,6 +43,7 @@ impl Default for ItemParams {
             weight: 0.1,
             cooldown: 0.0,
             action: None,
+            sprite_params: Default::default(),
         }
     }
 }
@@ -55,6 +58,7 @@ pub struct Item {
     pub weight: f32,
     cooldown: f32,
     action: Option<ActorAbilityFunc>,
+    sprite: SpriteAnimationPlayer,
 }
 
 impl Item {
@@ -86,6 +90,7 @@ impl Item {
             weight: params.weight,
             cooldown: params.cooldown,
             action: params.action,
+            sprite: SpriteAnimationPlayer::new(params.sprite_params),
         }
     }
 
@@ -103,6 +108,7 @@ impl Item {
             weight: self.weight,
             cooldown: self.cooldown,
             action: self.action,
+            sprite_params: self.sprite.to_sprite_params(),
         }
     }
 
@@ -114,18 +120,8 @@ impl Item {
         }
     }
 
-    pub fn draw_item(&self) {
-        let resources = get_global::<Resources>();
-        draw_texture_ex(
-            resources.white_texture,
-            self.position.x,
-            self.position.y,
-            color::WHITE,
-            DrawTextureParams {
-                dest_size: Some(vec2(16.0, 16.0)),
-                ..Default::default()
-            }
-        );
+    pub fn draw_item(&mut self) {
+        self.sprite.draw(self.position, 0.0);
     }
 }
 

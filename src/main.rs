@@ -230,7 +230,6 @@ async fn main() {
                         name: "Test Trinket".to_string(),
                         description: "Test Trinket description".to_string(),
                         weight: 1.0,
-                        action: Some(primary_test_ability),
                         ..Default::default()
                     }
                 ),
