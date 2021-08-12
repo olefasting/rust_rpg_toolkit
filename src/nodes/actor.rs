@@ -17,6 +17,7 @@ use crate::input::apply_local_player_input;
 mod controller;
 mod inventory;
 mod ability;
+mod draw_queue;
 
 pub use controller::{
     ActorControllerKind,
@@ -28,6 +29,8 @@ pub use ability::{
     ActorAbility,
     ActorAbilityFunc,
 };
+
+pub use draw_queue::ActorDrawQueue;
 
 use crate::{get_global, render::{
     SpriteAnimationPlayer,
@@ -177,6 +180,32 @@ impl Actor {
             self.sprite.stop();
         }
     }
+
+    pub fn draw_actor(&mut self) {
+        let (position, rotation) = (self.body.position, self.body.rotation);
+        self.sprite.draw(position, rotation);
+        // node.body.debug_draw();
+
+        if self.current_health < self.max_health {
+            draw_line(
+                self.body.position.x - Self::HEALTH_BAR_LENGTH / 2.0,
+                self.body.position.y + Self::HEALTH_BAR_OFFSET_Y,
+                self.body.position.x + Self::HEALTH_BAR_LENGTH / 2.0,
+                self.body.position.y + Self::HEALTH_BAR_OFFSET_Y,
+                Self::HEALTH_BAR_HEIGHT,
+                color::GRAY,
+            );
+            let end_x = (self.current_health / self.max_health) * (Self::HEALTH_BAR_LENGTH - 1.0);
+            draw_line(
+                self.body.position.x + 1.0 - Self::HEALTH_BAR_LENGTH / 2.0,
+                self.body.position.y + 1.0 + Self::HEALTH_BAR_OFFSET_Y,
+                self.body.position.x + end_x - Self::HEALTH_BAR_LENGTH / 2.0,
+                self.body.position.y + 1.0 + Self::HEALTH_BAR_OFFSET_Y,
+                Self::HEALTH_BAR_HEIGHT - 2.0,
+                color::RED,
+            );
+        }
+    }
 }
 
 impl Node for Actor {
@@ -247,28 +276,7 @@ impl Node for Actor {
     }
 
     fn draw(mut node: RefMut<Self>) {
-        let (position, rotation) = (node.body.position, node.body.rotation);
-        node.sprite.draw(position, rotation);
-        // node.body.debug_draw();
-
-        if node.current_health < node.max_health {
-            draw_line(
-                node.body.position.x - Self::HEALTH_BAR_LENGTH / 2.0,
-                node.body.position.y + Self::HEALTH_BAR_OFFSET_Y,
-                node.body.position.x + Self::HEALTH_BAR_LENGTH / 2.0,
-                node.body.position.y + Self::HEALTH_BAR_OFFSET_Y,
-                Self::HEALTH_BAR_HEIGHT,
-                color::GRAY,
-            );
-            let end_x = (node.current_health / node.max_health) * (Self::HEALTH_BAR_LENGTH - 1.0);
-            draw_line(
-                node.body.position.x + 1.0 - Self::HEALTH_BAR_LENGTH / 2.0,
-                node.body.position.y + 1.0 + Self::HEALTH_BAR_OFFSET_Y,
-                node.body.position.x + end_x - Self::HEALTH_BAR_LENGTH / 2.0,
-                node.body.position.y + 1.0 + Self::HEALTH_BAR_OFFSET_Y,
-                Self::HEALTH_BAR_HEIGHT - 2.0,
-                color::RED,
-            );
-        }
+        let mut draw_queue = scene::find_node_by_type::<ActorDrawQueue>().unwrap();
+        draw_queue.add_to_queue(node.handle());
     }
 }

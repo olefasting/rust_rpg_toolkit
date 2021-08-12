@@ -46,6 +46,7 @@ pub use map::{
 
 pub use item::Item;
 use macroquad::prelude::animation::Animation;
+use crate::nodes::actor::ActorDrawQueue;
 
 mod resources;
 mod globals;
@@ -184,6 +185,8 @@ async fn main() {
                 ..Default::default()
             },
         );
+
+        ActorDrawQueue::add_node();
     }
 
     loop {
