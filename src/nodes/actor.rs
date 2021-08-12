@@ -198,9 +198,9 @@ impl Actor {
             let end_x = (self.current_health / self.max_health) * (Self::HEALTH_BAR_LENGTH - 1.0);
             draw_line(
                 self.body.position.x + 1.0 - Self::HEALTH_BAR_LENGTH / 2.0,
-                self.body.position.y + 1.0 + Self::HEALTH_BAR_OFFSET_Y,
+                self.body.position.y + Self::HEALTH_BAR_OFFSET_Y,
                 self.body.position.x + end_x - Self::HEALTH_BAR_LENGTH / 2.0,
-                self.body.position.y + 1.0 + Self::HEALTH_BAR_OFFSET_Y,
+                self.body.position.y + Self::HEALTH_BAR_OFFSET_Y,
                 Self::HEALTH_BAR_HEIGHT - 2.0,
                 color::RED,
             );
