@@ -9,54 +9,44 @@ use macroquad::{
     },
     prelude::*,
 };
+use macroquad::prelude::animation::Animation;
 
-pub use input::get_mouse_position;
-
-use physics::Collider;
-
-use nodes::{
-    Camera,
-    Actor,
-    ActorControllerKind,
-    ActorParams,
-    GameState,
-    Projectiles,
-};
-
-use render::{
-    SpriteParams,
-    HorizontalAlignment,
-    text::{
-        draw_aligned_text,
-    }
-};
-
-pub use resources::Resources;
 pub use globals::{
-    try_get_global,
     get_global,
     set_global,
+    try_get_global,
 };
-
 use globals::LocalPlayer;
-
+pub use input::get_mouse_position;
 pub use map::{
     Map,
     MapKind,
 };
-
-use macroquad::prelude::animation::Animation;
-use crate::nodes::actor::{ActorDrawQueue, ActorStats, primary_test_ability, secondary_test_ability};
-use crate::nodes::ActorInventory;
-pub use crate::item::{
+use nodes::{
+    Actor,
+    ActorControllerKind,
+    ActorParams,
+    Camera,
+    GameState,
+    Projectiles,
     Item,
     ItemParams,
 };
+use physics::Collider;
+use render::{
+    HorizontalAlignment,
+    SpriteParams,
+    text::draw_aligned_text
+};
+pub use resources::Resources;
+
+use crate::nodes::actor::{ActorDrawQueue, ActorStats, primary_test_ability, secondary_test_ability};
+use crate::nodes::ActorInventory;
+use crate::nodes::item::ItemDrawQueue;
 
 mod resources;
 mod globals;
 mod map;
-mod item;
 
 pub mod nodes;
 pub mod render;
@@ -114,6 +104,8 @@ async fn main() {
 
         Camera::add_node(vec2(100.0, 100.0));
 
+        ItemDrawQueue::add_node();
+
         Projectiles::add_node();
 
         Actor::add_node(
@@ -156,7 +148,7 @@ async fn main() {
                         ..Default::default()
                     },
                     ItemParams {
-                        kind: Item::TRINKET_KIND.to_string(),
+                        kind: Item::MISC_KIND.to_string(),
                         name: "Test Trinket".to_string(),
                         description: "Test Trinket description".to_string(),
                         weight: 1.0,
@@ -239,6 +231,13 @@ async fn main() {
                 ..Default::default()
             },
         );
+
+        // Item::add_node(ItemParams {
+        //     name: "Test Item On Ground".to_string(),
+        //     position: vec2(100.0, 100.0),
+        //     is_on_ground: true,
+        //     ..Default::default()
+        // });
 
         ActorDrawQueue::add_node();
     }

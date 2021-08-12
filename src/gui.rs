@@ -40,16 +40,14 @@ pub fn draw_gui() {
         widgets::Window::new(hash!(), vec2(50.0, 375.0), vec2(300.0, 300.0))
             .label("Inventory")
             .ui(&mut *root_ui(), |ui| {
+                ui.label(None, &format!("weight: {}/{}", player.inventory.get_total_weight(), player.stats.carry_capacity));
                 ui.tree_node(hash!(), "Weapons", |ui| {
-                    for item in &player.inventory.get_all_of_kinds(&[
-                        Item::ONE_HANDED_WEAPON_KIND,
-                        Item::TWO_HANDED_WEAPON_KIND,
-                    ]) {
+                    for item in &player.inventory.get_all_of_kind(Item::WEAPON_KINDS) {
                         ui.label(None, &item.name);
                     }
                 });
                 ui.tree_node(hash!(), "Trinkets", |ui| {
-                    for item in &player.inventory.get_all_of_kind(Item::TRINKET_KIND) {
+                    for item in &player.inventory.get_all_of_kind(&[Item::MISC_KIND]) {
                         ui.label(None, &item.name);
                     }
                 });
