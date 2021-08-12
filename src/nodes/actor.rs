@@ -113,6 +113,8 @@ impl Actor {
     const HEALTH_BAR_HEIGHT: f32 = 10.0;
     const HEALTH_BAR_OFFSET_Y: f32 = 25.0;
 
+    const ENCUMBERED_SPEED_FACTOR: f32 = 0.1;
+
     const SPRINT_SPEED_FACTOR: f32 = 2.0;
     const SPRINT_STAMINA_COST: f32 = 10.0;
 
@@ -348,7 +350,9 @@ impl Node for Actor {
 
     fn fixed_update(mut node: RefMut<Self>) {
         let direction = node.controller.direction.normalize_or_zero();
-        node.body.velocity = direction * if node.controller.is_sprinting && node.stats.current_stamina >= Self::SPRINT_STAMINA_COST {
+        node.body.velocity = direction * if node.inventory.get_total_weight() >= node.stats.carry_capacity {
+            node.stats.move_speed * Self::ENCUMBERED_SPEED_FACTOR
+        } else if node.controller.is_sprinting && node.stats.current_stamina >= Self::SPRINT_STAMINA_COST {
             if direction != Vec2::ZERO {
                 node.stats.current_stamina -= Self::SPRINT_STAMINA_COST;
             }
@@ -356,6 +360,7 @@ impl Node for Actor {
         } else {
             node.stats.move_speed
         };
+
         node.body.integrate();
 
         if node.controller.is_picking_up_items {

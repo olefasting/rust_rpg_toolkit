@@ -45,24 +45,44 @@ pub fn draw_gui() {
             .label("Inventory")
             .ui(&mut *root_ui(), |ui| {
                 ui.label(None, &format!("weight: {}/{}", player.inventory.get_total_weight(), player.stats.carry_capacity));
-                ui.tree_node(hash!(), "Weapons", |ui| {
-                    for item in &player.inventory.get_all_of_kind(Item::WEAPON_KINDS) {
-                        ui.label(None, &item.name);
-                        if ui.button(None, "Drop") {
-                            let position = player.body.position;
-                            player.inventory.drop_item(&item.id, position);
-                        }
+                {
+                    let items = player.inventory.get_all_of_kind(Item::WEAPON_KINDS);
+                    if items.len() > 0 {
+                        ui.tree_node(hash!(), "Weapons", |ui| {
+                            for item in &items {
+                                ui.label(None, &item.name);
+                                if ui.button(None, "Drop") {
+                                    let position = player.body.position;
+                                    player.inventory.drop_item(&item.id, position);
+                                }
+                            }
+                        });
                     }
-                });
-                ui.tree_node(hash!(), "Trinkets", |ui| {
-                    for item in &player.inventory.get_all_of_kind(&[Item::MISC_KIND]) {
-                        ui.label(None, &item.name);
-                        if ui.button(None, "Drop") {
-                            let position = player.body.position;
-                            player.inventory.drop_item(&item.id, position);
-                        }
+                }
+                {
+                    let items = player.inventory.get_all_of_kind(&[Item::MISC_KIND]);
+                    if items.len() > 0 {
+                        ui.tree_node(hash!(), "Miscellaneous", |ui| {
+                            for item in &items {
+                                ui.label(None, &item.name);
+                                if ui.button(None, "Drop") {
+                                    let position = player.body.position;
+                                    player.inventory.drop_item(&item.id, position);
+                                }
+                            }
+                        });
                     }
-                });
+                }
+                {
+                    let items = player.inventory.get_all_of_kind(&[Item::QUEST_KIND]);
+                    if items.len() > 0 {
+                        ui.tree_node(hash!(), "Quest Items", |ui| {
+                            for item in &items {
+                                ui.label(None, &item.name);
+                            }
+                        });
+                    }
+                }
             });
     }
 }

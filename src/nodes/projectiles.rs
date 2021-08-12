@@ -53,6 +53,8 @@ impl Projectiles {
     const SPEED_VARIANCE_MIN: f32 = 0.9;
     const SPEED_VARIANCE_MAX: f32 = 1.1;
 
+    const SPREAD_CALCULATION_DISTANCE: f32 = 100.0;
+
     pub fn new() -> Self {
         Projectiles {
             active: Vec::new(),
@@ -65,11 +67,13 @@ impl Projectiles {
 
     pub fn spawn(&mut self, actor_id: &str, damage: f32, color: Color, size: f32, position: Vec2, target: Vec2, speed: f32, spread: f32, ttl: f32) {
         assert!(ttl > 0.0, "Projectile TTL must be a positive float and not 0.0");
-        let spread_target = vec2(
-          rand::gen_range(target.x - spread, target.x + spread),
-            rand::gen_range(target.y - spread, target.y + spread),
-        );
-        self.active.push(Projectile::new(actor_id, damage, color, size, position, spread_target.sub(position).normalize_or_zero(), speed, ttl));
+
+        let spread_target = target.sub(position).normalize_or_zero() * Self::SPREAD_CALCULATION_DISTANCE;
+        let direction = vec2(
+          rand::gen_range(spread_target.x - spread, spread_target.x + spread),
+            rand::gen_range(spread_target.y - spread, spread_target.y + spread),
+        ).normalize_or_zero();
+        self.active.push(Projectile::new(actor_id, damage, color, size, position, direction, speed, ttl));
     }
 }
 

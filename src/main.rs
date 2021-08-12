@@ -219,14 +219,6 @@ async fn main() {
                         ..Default::default()
                     },
                     ItemParams {
-                        kind: Item::ONE_HANDED_WEAPON_KIND.to_string(),
-                        name: "Test Ranged Weapon".to_string(),
-                        description: "Test Ranged Weapon description".to_string(),
-                        weight: 10.0,
-                        action: Some(primary_test_ability),
-                        ..Default::default()
-                    },
-                    ItemParams {
                         kind: Item::MISC_KIND.to_string(),
                         name: "Test Trinket".to_string(),
                         description: "Test Trinket description".to_string(),
@@ -255,7 +247,7 @@ async fn main() {
                         },
                         Animation {
                             name: "right".to_string(),
-                            row: 4,
+                            row: 5,
                             frames: 3,
                             fps: 8,
                         }
@@ -322,19 +314,19 @@ async fn main() {
                     animations: vec!(
                         Animation {
                             name: "down".to_string(),
-                            row: 3,
+                            row: 6,
                             frames: 3,
                             fps: 8,
                         },
                         Animation {
                             name: "up".to_string(),
-                            row: 4,
+                            row: 7,
                             frames: 3,
                             fps: 8,
                         },
                         Animation {
                             name: "right".to_string(),
-                            row: 4,
+                            row: 8,
                             frames: 3,
                             fps: 8,
                         }
@@ -344,13 +336,6 @@ async fn main() {
                 ..Default::default()
             },
         );
-
-        // Item::add_node(ItemParams {
-        //     name: "Test Item On Ground".to_string(),
-        //     position: vec2(100.0, 100.0),
-        //     is_on_ground: true,
-        //     ..Default::default()
-        // });
 
         ActorDrawBuffer::add_node();
     }

@@ -79,6 +79,7 @@ impl Item {
     ];
 
     pub const MISC_KIND: &'static str = "misc";
+    pub const QUEST_KIND: &'static str = "quest";
 
     pub fn new(params: ItemParams) -> Self {
         Item {
