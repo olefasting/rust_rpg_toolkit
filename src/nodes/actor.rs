@@ -193,16 +193,16 @@ impl Actor {
     }
 
     pub fn set_animation(&mut self, direction: Vec2, is_stationary: bool) {
-        if direction.y > 0.0 && direction.y.abs() > direction.x.abs() {
-            self.sprite_animation.start_animation(0);
-        } else if direction.y < 0.0 {
-            self.sprite_animation.start_animation(1);
-        } else if direction.x > 0.0 {
+        if direction.x > 0.0 && direction.x.abs() > direction.y.abs() {
             self.sprite_animation.start_animation(2);
             self.sprite_animation.flip_x = false;
         } else if direction.x < 0.0 {
             self.sprite_animation.start_animation(2);
             self.sprite_animation.flip_x = true;
+        }else if direction.y > 0.0 && direction.y.abs() > direction.x.abs() {
+            self.sprite_animation.start_animation(0);
+        } else if direction.y < 0.0 {
+            self.sprite_animation.start_animation(1);
         } else {
             self.sprite_animation.set_frame(1);
             self.sprite_animation.stop();
