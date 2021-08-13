@@ -17,9 +17,13 @@ use crate::{
         ActorAbility,
         ActorAbilityFunc,
     },
+    render::{
+        Sprite,
+        SpriteParams,
+    }
 };
+
 pub use draw_buffer::ItemDrawBuffer;
-use crate::render::{SpriteAnimationPlayer, SpriteParams};
 
 #[derive(Clone)]
 pub struct ItemParams {
@@ -53,7 +57,7 @@ impl Default for ItemParams {
 #[derive(Clone)]
 pub struct Item {
     pub params: ItemParams,
-    sprite: SpriteAnimationPlayer,
+    sprite: Sprite,
 }
 
 impl Item {
@@ -77,7 +81,7 @@ impl Item {
     pub const QUEST_KIND: &'static str = "quest";
 
     pub fn new(params: ItemParams) -> Self {
-        let sprite = SpriteAnimationPlayer::new(params.sprite_params.clone());
+        let sprite = Sprite::new(params.sprite_params.clone());
         Item {
             params,
             sprite,

@@ -9,17 +9,17 @@ use macroquad::{
 };
 
 use crate::{ItemParams, Item};
-use crate::render::SpriteAnimationPlayer;
+use crate::render::Sprite;
 
 #[derive(Clone)]
 pub struct ActorInventoryEntry {
     pub params: ItemParams,
-    pub sprite: SpriteAnimationPlayer,
+    pub sprite: Sprite,
 }
 
 impl ActorInventoryEntry {
     pub fn new(params: ItemParams) -> Self {
-        let sprite = SpriteAnimationPlayer::new(params.sprite_params.clone());
+        let sprite = Sprite::new(params.sprite_params.clone());
         ActorInventoryEntry {
             params,
             sprite,
@@ -69,12 +69,12 @@ impl ActorInventory {
     }
 
     pub fn drop_all(&mut self, position: Vec2) {
-        self.items.retain(|entry| {
+        self.items.drain_filter(|entry| {
             Item::add_node(ItemParams {
                 position: Self::randomize_drop_position(position),
                 ..entry.params.clone()
             });
-           false
+           true
         });
     }
 

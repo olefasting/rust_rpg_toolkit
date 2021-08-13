@@ -38,7 +38,7 @@ use crate::{
     get_global,
     render::{
         SpriteAnimationPlayer,
-        SpriteParams,
+        SpriteAnimationParams,
         draw_progress_bar,
         HorizontalAlignment,
     },
@@ -63,7 +63,7 @@ pub struct ActorParams {
     pub position: Vec2,
     pub collider: Option<Collider>,
     pub inventory: Vec<ItemParams>,
-    pub sprite_params: SpriteParams,
+    pub sprite_animation_params: SpriteAnimationParams,
 
     pub controller_kind: ActorControllerKind,
 }
@@ -78,7 +78,7 @@ impl Default for ActorParams {
             position: Vec2::ZERO,
             collider: None,
             inventory: Vec::new(),
-            sprite_params: Default::default(),
+            sprite_animation_params: Default::default(),
             controller_kind: ActorControllerKind::Computer,
         }
     }
@@ -91,7 +91,7 @@ pub struct Actor {
     pub stats: ActorStats,
     pub factions: Vec<String>,
     pub body: PhysicsBody,
-    sprite: SpriteAnimationPlayer,
+    sprite_animation: SpriteAnimationPlayer,
     pub inventory: ActorInventory,
     primary_ability: Option<ActorAbility>,
     secondary_ability: Option<ActorAbility>,
@@ -128,7 +128,7 @@ impl Actor {
             stats: params.stats,
             factions: params.factions,
             body: PhysicsBody::new(params.position, 0.0, params.collider),
-            sprite: SpriteAnimationPlayer::new(params.sprite_params.clone()),
+            sprite_animation: SpriteAnimationPlayer::new(params.sprite_animation_params.clone()),
             inventory: ActorInventory::new(&params.inventory),
             primary_ability: Some(ActorAbility::new(0.0, 4.0, 0.0, 0.0025, primary_test_ability)),
             secondary_ability: Some(ActorAbility::new(0.0, 4.0, 50.0, 1.25, secondary_test_ability)),
@@ -149,7 +149,7 @@ impl Actor {
             position: self.body.position,
             collider: self.body.collider,
             inventory: self.inventory.clone_data(),
-            sprite_params: self.sprite.to_sprite_params(),
+            sprite_animation_params: self.sprite_animation.to_sprite_params(),
             controller_kind: self.controller.kind,
         }
     }
@@ -192,28 +192,28 @@ impl Actor {
 
     pub fn set_animation(&mut self, direction: Vec2, is_stationary: bool) {
         if direction.y > 0.0 && direction.y.abs() > direction.x.abs() {
-            self.sprite.start_animation(0);
+            self.sprite_animation.start_animation(0);
         } else if direction.y < 0.0 {
-            self.sprite.start_animation(1);
+            self.sprite_animation.start_animation(1);
         } else if direction.x > 0.0 {
-            self.sprite.start_animation(2);
-            self.sprite.flip_x = false;
+            self.sprite_animation.start_animation(2);
+            self.sprite_animation.flip_x = false;
         } else if direction.x < 0.0 {
-            self.sprite.start_animation(2);
-            self.sprite.flip_x = true;
+            self.sprite_animation.start_animation(2);
+            self.sprite_animation.flip_x = true;
         } else {
-            self.sprite.set_frame(1);
-            self.sprite.stop();
+            self.sprite_animation.set_frame(1);
+            self.sprite_animation.stop();
         }
         if is_stationary {
-            self.sprite.set_frame(1);
-            self.sprite.stop();
+            self.sprite_animation.set_frame(1);
+            self.sprite_animation.stop();
         }
     }
 
     pub fn draw_actor(&mut self) {
         let (position, rotation) = (self.body.position, self.body.rotation);
-        self.sprite.draw(position, rotation);
+        self.sprite_animation.draw(position, rotation);
         // self.body.debug_draw();
 
         let is_local_player = self.is_local_player();

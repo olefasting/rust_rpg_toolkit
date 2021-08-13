@@ -34,6 +34,7 @@ use nodes::{
 use physics::Collider;
 use render::{
     HorizontalAlignment,
+    SpriteAnimationParams,
     SpriteParams,
 };
 pub use render::text::draw_aligned_text;
@@ -127,6 +128,13 @@ async fn main() {
                         description: "Test Ranged Weapon description".to_string(),
                         weight: 10.0,
                         action: Some(primary_test_ability),
+                        sprite_params: SpriteParams {
+                            texture_id: Resources::ITEMS_TEXTURE_ID.to_string(),
+                            texture_coords: uvec2(0, 3),
+                            tile_size: vec2(16.0, 16.0),
+                            offset: vec2(-8.0, -8.0),
+                            ..Default::default()
+                        },
                         ..Default::default()
                     },
                     ItemParams {
@@ -135,6 +143,13 @@ async fn main() {
                         description: "Test Ranged Weapon description".to_string(),
                         weight: 10.0,
                         action: Some(primary_test_ability),
+                        sprite_params: SpriteParams {
+                            texture_id: Resources::ITEMS_TEXTURE_ID.to_string(),
+                            texture_coords: uvec2(0, 3),
+                            tile_size: vec2(16.0, 16.0),
+                            offset: vec2(-8.0, -8.0),
+                            ..Default::default()
+                        },
                         ..Default::default()
                     },
                     ItemParams {
@@ -143,6 +158,13 @@ async fn main() {
                         description: "Test Ranged Weapon description".to_string(),
                         weight: 10.0,
                         action: Some(primary_test_ability),
+                        sprite_params: SpriteParams {
+                            texture_id: Resources::ITEMS_TEXTURE_ID.to_string(),
+                            texture_coords: uvec2(0, 3),
+                            tile_size: vec2(16.0, 16.0),
+                            offset: vec2(-8.0, -8.0),
+                            ..Default::default()
+                        },
                         ..Default::default()
                     },
                     ItemParams {
@@ -151,12 +173,19 @@ async fn main() {
                         description: "Test Trinket description".to_string(),
                         weight: 1.0,
                         action: Some(primary_test_ability),
+                        sprite_params: SpriteParams {
+                            texture_id: Resources::ITEMS_TEXTURE_ID.to_string(),
+                            texture_coords: uvec2(3, 3),
+                            tile_size: vec2(16.0, 16.0),
+                            offset: vec2(-8.0, -8.0),
+                            ..Default::default()
+                        },
                         ..Default::default()
                     }
                 ),
                 collider: Some(Collider::circle(0.0, 8.0, 8.0)),
                 controller_kind: ActorControllerKind::Player { id: 0 },
-                sprite_params: SpriteParams {
+                sprite_animation_params: SpriteAnimationParams {
                     texture_id: Resources::CHARACTERS_TEXTURE_ID.to_string(),
                     tile_size: vec2(32.0, 32.0),
                     offset: vec2(-16.0, -16.0),
@@ -206,6 +235,13 @@ async fn main() {
                         description: "Test Ranged Weapon description".to_string(),
                         weight: 10.0,
                         action: Some(primary_test_ability),
+                        sprite_params: SpriteParams {
+                            texture_id: Resources::ITEMS_TEXTURE_ID.to_string(),
+                            texture_coords: uvec2(0, 3),
+                            tile_size: vec2(16.0, 16.0),
+                            offset: vec2(-8.0, -8.0),
+                            ..Default::default()
+                        },
                         ..Default::default()
                     },
                     ItemParams {
@@ -214,6 +250,13 @@ async fn main() {
                         description: "Test Ranged Weapon description".to_string(),
                         weight: 10.0,
                         action: Some(primary_test_ability),
+                        sprite_params: SpriteParams {
+                            texture_id: Resources::ITEMS_TEXTURE_ID.to_string(),
+                            texture_coords: uvec2(0, 3),
+                            tile_size: vec2(16.0, 16.0),
+                            offset: vec2(-8.0, -8.0),
+                            ..Default::default()
+                        },
                         ..Default::default()
                     },
                     ItemParams {
@@ -221,12 +264,19 @@ async fn main() {
                         name: "Test Trinket".to_string(),
                         description: "Test Trinket description".to_string(),
                         weight: 1.0,
+                        sprite_params: SpriteParams {
+                            texture_id: Resources::ITEMS_TEXTURE_ID.to_string(),
+                            texture_coords: uvec2(3, 3),
+                            tile_size: vec2(16.0, 16.0),
+                            offset: vec2(-8.0, -8.0),
+                            ..Default::default()
+                        },
                         ..Default::default()
                     }
                 ),
                 collider: Some(Collider::circle(0.0, 8.0, 8.0)),
                 controller_kind: ActorControllerKind::Computer,
-                sprite_params: SpriteParams {
+                sprite_animation_params: SpriteAnimationParams {
                     texture_id: Resources::CHARACTERS_TEXTURE_ID.to_string(),
                     tile_size: vec2(32.0, 32.0),
                     offset: vec2(-16.0, -16.0),
@@ -305,7 +355,7 @@ async fn main() {
                 ),
                 collider: Some(Collider::circle(0.0, 8.0, 8.0)),
                 controller_kind: ActorControllerKind::Computer,
-                sprite_params: SpriteParams {
+                sprite_animation_params: SpriteAnimationParams {
                     texture_id: Resources::CHARACTERS_TEXTURE_ID.to_string(),
                     tile_size: vec2(32.0, 32.0),
                     offset: vec2(-16.0, -16.0),

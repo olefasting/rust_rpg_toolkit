@@ -1,6 +1,10 @@
-pub use sprites::{
-    SpriteAnimationPlayer,
+pub use sprite::{
     SpriteParams,
+    Sprite,
+};
+pub use sprite_animation::{
+    SpriteAnimationPlayer,
+    SpriteAnimationParams,
 };
 pub use viewport::{
     get_aspect_ratio,
@@ -13,7 +17,8 @@ pub use helpers::{
     draw_progress_bar,
 };
 
-mod sprites;
+mod sprite;
+mod sprite_animation;
 mod viewport;
 
 pub mod text;

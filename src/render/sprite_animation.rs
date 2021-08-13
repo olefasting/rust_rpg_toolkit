@@ -4,16 +4,15 @@ use macroquad::{
             AnimatedSprite,
             Animation,
         },
-        collections::storage,
     },
     color,
     prelude::*,
 };
 
-use crate::Resources;
+use crate::{Resources, get_global};
 
 #[derive(Clone)]
-pub struct SpriteParams {
+pub struct SpriteAnimationParams {
     pub offset: Vec2,
     pub texture_id: String,
     pub texture_color: Color,
@@ -22,9 +21,9 @@ pub struct SpriteParams {
     pub should_play: bool,
 }
 
-impl Default for SpriteParams {
+impl Default for SpriteAnimationParams {
     fn default() -> Self {
-        SpriteParams {
+        SpriteAnimationParams {
             offset: vec2(-8.0, -8.0),
             texture_id: Resources::WHITE_TEXTURE_ID.to_string(),
             texture_color: color::WHITE,
@@ -52,11 +51,11 @@ pub struct SpriteAnimationPlayer {
     texture_color: Color,
     tile_size: Vec2,
     animations: Vec<Animation>,
-    sprite: AnimatedSprite,
+    animated_sprite: AnimatedSprite,
 }
 
 impl SpriteAnimationPlayer {
-    pub fn new(params: SpriteParams) -> Self {
+    pub fn new(params: SpriteAnimationParams) -> Self {
         let sprite = AnimatedSprite::new(
             params.tile_size.x as u32,
             params.tile_size.y as u32,
@@ -73,16 +72,16 @@ impl SpriteAnimationPlayer {
             texture_color: params.texture_color,
             tile_size: params.tile_size,
             animations: params.animations,
-            sprite,
+            animated_sprite: sprite,
         }
     }
 
     pub fn is_playing(&self) -> bool {
-        self.sprite.playing
+        self.animated_sprite.playing
     }
 
     pub fn set_animation(&mut self, id: usize) {
-        self.sprite.set_animation(id);
+        self.animated_sprite.set_animation(id);
     }
 
     pub fn start_animation(&mut self, id: usize) {
@@ -91,43 +90,43 @@ impl SpriteAnimationPlayer {
     }
 
     pub fn restart_animation(&mut self) {
-        self.sprite.set_frame(0);
+        self.animated_sprite.set_frame(0);
     }
 
     pub fn set_frame(&mut self, frame: u32) {
-        self.sprite.set_frame(frame);
+        self.animated_sprite.set_frame(frame);
     }
 
     pub fn play(&mut self) {
-        self.sprite.playing = true;
+        self.animated_sprite.playing = true;
     }
 
     pub fn stop(&mut self) {
-        self.sprite.playing = false;
+        self.animated_sprite.playing = false;
     }
 
-    pub fn to_sprite_params(&self) -> SpriteParams {
-        SpriteParams {
+    pub fn to_sprite_params(&self) -> SpriteAnimationParams {
+        SpriteAnimationParams {
             offset: self.offset,
             texture_id: self.texture_id.to_string(),
             texture_color: self.texture_color,
             tile_size: self.tile_size,
             animations: self.animations.to_vec(),
-            should_play: self.sprite.playing,
+            should_play: self.animated_sprite.playing,
         }
     }
 
     pub fn draw(&mut self, position: Vec2, rotation: f32) {
-        self.sprite.update();
-        let resources = storage::get::<Resources>();
+        self.animated_sprite.update();
+        let resources = get_global::<Resources>();
         draw_texture_ex(
-            resources.get_texture_by_id(&self.texture_id).unwrap(),
+            resources.get_texture(&self.texture_id).clone(),
             position.x + self.offset.x,
             position.y + self.offset.y,
             self.texture_color,
             DrawTextureParams {
-                source: Some(self.sprite.frame().source_rect),
-                dest_size: Some(self.sprite.frame().dest_size),
+                source: Some(self.animated_sprite.frame().source_rect),
+                dest_size: Some(self.animated_sprite.frame().dest_size),
                 flip_x: self.flip_x,
                 flip_y: self.flip_y,
                 rotation: self.rotation + rotation,
