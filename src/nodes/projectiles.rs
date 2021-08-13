@@ -19,6 +19,7 @@ use crate::render::Viewport;
 
 pub struct Projectile {
     actor_id: String,
+    factions: Vec<String>,
     damage: f32,
     color: Color,
     size: f32,
@@ -30,9 +31,10 @@ pub struct Projectile {
 }
 
 impl Projectile {
-    pub fn new(actor_id: &str, damage: f32, color: Color, size: f32, position: Vec2, direction: Vec2, speed: f32, ttl: f32) -> Self {
+    pub fn new(actor_id: &str, factions: &[String], damage: f32, color: Color, size: f32, position: Vec2, direction: Vec2, speed: f32, ttl: f32) -> Self {
         Projectile {
             actor_id: actor_id.to_string(),
+            factions: factions.to_vec(),
             damage,
             color,
             size,
@@ -65,7 +67,7 @@ impl Projectiles {
         scene::add_node(Self::new())
     }
 
-    pub fn spawn(&mut self, actor_id: &str, damage: f32, color: Color, size: f32, position: Vec2, target: Vec2, speed: f32, spread: f32, ttl: f32) {
+    pub fn spawn(&mut self, actor_id: &str, factions: &[String], damage: f32, color: Color, size: f32, position: Vec2, target: Vec2, speed: f32, spread: f32, ttl: f32) {
         assert!(ttl > 0.0, "Projectile TTL must be a positive float and not 0.0");
 
         let spread_target = target.sub(position).normalize_or_zero() * Self::SPREAD_CALCULATION_DISTANCE;
@@ -73,7 +75,7 @@ impl Projectiles {
           rand::gen_range(spread_target.x - spread, spread_target.x + spread),
             rand::gen_range(spread_target.y - spread, spread_target.y + spread),
         ).normalize_or_zero();
-        self.active.push(Projectile::new(actor_id, damage, color, size, position, direction, speed, ttl));
+        self.active.push(Projectile::new(actor_id, factions, damage, color, size, position, direction, speed, ttl));
     }
 }
 
@@ -96,24 +98,16 @@ impl Node for Projectiles {
                 return false;
             }
             let collider = Collider::circle(0.0, 0.0, projectile.size / 2.0).offset(projectile.position);
-            let handle = if let Some(actor) = Actor::find_with_id(&projectile.actor_id) {
-                Some(actor.handle())
-            } else {
-                None
-            };
             'outer: for mut other_actor in scene::find_nodes_by_type::<Actor>() {
                 if let Some(other_collider) = other_actor.body.get_offset_collider() {
                     if collider.overlaps(&other_collider) {
                         if projectile.actor_id != other_actor.id {
-                            if let Some(handle) = handle {
-                                let actor = scene::get_node(handle);
-                                for faction in &actor.factions {
-                                    if other_actor.factions.contains(&faction) {
-                                        continue 'outer;
-                                    }
+                            for faction in &projectile.factions {
+                                if other_actor.factions.contains(&faction) {
+                                    continue 'outer;
                                 }
                             }
-                            other_actor.take_damage(projectile.damage);
+                            other_actor.take_damage(&projectile.actor_id, projectile.damage);
                             return false;
                         }
                     }

@@ -13,10 +13,8 @@
       "charisma": 8
     },
     "inventory": [
-      "test_weapon",
-      "test_weapon",
-      "test_weapon",
-      "test_weapon",
+      "test_beam_weapon",
+      "test_projectile_weapon",
       "test_trinket",
       "test_trinket"
     ],
@@ -75,10 +73,8 @@
       "charisma": 8
     },
     "inventory": [
-      "test_weapon",
-      "test_weapon",
-      "test_weapon",
-      "test_weapon",
+      "test_beam_weapon",
+      "test_projectile_weapon",
       "test_trinket",
       "test_trinket"
     ],
@@ -137,10 +133,8 @@
       "charisma": 8
     },
     "inventory": [
-      "test_weapon",
-      "test_weapon",
-      "test_weapon",
-      "test_weapon",
+      "test_beam_weapon",
+      "test_projectile_weapon",
       "test_trinket",
       "test_trinket"
     ],

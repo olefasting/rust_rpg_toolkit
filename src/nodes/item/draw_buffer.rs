@@ -42,13 +42,17 @@ impl Node for ItemDrawBuffer {
             }
         });
         node.buffer.sort_by(|a, b| {
-            let item_a = scene::get_node(*a);
-            let item_b = scene::get_node(*b);
-            item_a.position.y.partial_cmp(&item_b.position.y).unwrap()
+            if let Some(item_a) = scene::try_get_node(*a) {
+                if let Some(item_b) = scene::try_get_node(*b) {
+                    return item_a.position.y.partial_cmp(&item_b.position.y).unwrap();
+                }
+            }
+            0.0.partial_cmp(&0.0).unwrap()
         });
         for handle in &node.buffer {
-            let mut item = scene::get_node(*handle);
-            item.draw_item();
+            if let Some(mut item) = scene::try_get_node(*handle) {
+                item.draw_item();
+            }
         }
         node.buffer = Vec::new();
     }

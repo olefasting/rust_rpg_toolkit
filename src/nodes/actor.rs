@@ -156,7 +156,7 @@ impl Actor {
         }
     }
 
-    pub fn take_damage(&mut self, damage: f32) {
+    pub fn take_damage(&mut self, _actor_id: &str, damage: f32) {
         self.stats.current_health -= damage;
     }
 
