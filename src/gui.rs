@@ -16,7 +16,7 @@ pub fn draw_gui() {
     let game_state = scene::find_node_by_type::<GameState>().unwrap();
     let mut player = Actor::find_local_player().unwrap();
     if game_state.show_character_window {
-        widgets::Window::new(hash!(), vec2(50.0, 50.0), vec2(300.0, 300.0))
+        widgets::Window::new(hash!(), vec2(50.0, 150.0), vec2(300.0, 300.0))
             .label(&player.name)
             .ui(&mut *root_ui(), |ui| {
                 ui.label(None, &format!("STR: {}", player.stats.strength));
@@ -37,7 +37,7 @@ pub fn draw_gui() {
             });
     }
     if game_state.show_inventory_window {
-        widgets::Window::new(hash!(), vec2(50.0, 375.0), vec2(300.0, 300.0))
+        widgets::Window::new(hash!(), vec2(50.0, 475.0), vec2(300.0, 300.0))
             .label("Inventory")
             .ui(&mut *root_ui(), |ui| {
                 ui.label(None, &format!("weight: {}/{}", player.inventory.get_total_weight(), player.stats.carry_capacity));

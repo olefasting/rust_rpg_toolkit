@@ -52,6 +52,7 @@ use crate::{
     generate_id,
 };
 use crate::nodes::Item;
+use crate::render::Viewport;
 
 #[derive(Clone)]
 pub struct ActorParams {
@@ -200,22 +201,35 @@ impl Actor {
     }
 
     pub fn draw_actor(&mut self) {
-        let (position, rotation) = (self.body.position, self.body.rotation);
-        self.sprite_animation.draw(position, rotation);
-        // self.body.debug_draw();
+        {
+            let (position, rotation) = (self.body.position, self.body.rotation);
+            self.sprite_animation.draw(position, rotation);
+            // self.body.debug_draw();
+        }
 
         let is_local_player = self.is_local_player();
+        let (position, offset_y, alignment, length, height, border) = if is_local_player {
+            let viewport = get_global::<Viewport>();
+            let height = Self::HEALTH_BAR_HEIGHT * viewport.s;
+            (vec2(10.0, 10.0), height / 2.0, HorizontalAlignment::Left, Self::HEALTH_BAR_LENGTH * viewport.s, height, viewport.s)
+        } else {
+            (self.body.position, Self::HEALTH_BAR_OFFSET_Y, HorizontalAlignment::Center, Self::HEALTH_BAR_LENGTH, Self::HEALTH_BAR_HEIGHT, 1.0)
+        };
         if is_local_player || self.stats.current_health < self.stats.max_health {
+            if is_local_player {
+                push_camera_state();
+                set_default_camera();
+            }
             draw_progress_bar(
                 self.stats.current_health,
                 self.stats.max_health,
-                self.body.position + vec2(0.0, Self::HEALTH_BAR_OFFSET_Y),
-                Self::HEALTH_BAR_LENGTH,
-                Self::HEALTH_BAR_HEIGHT,
+                position + vec2(0.0, offset_y),
+                length,
+                height,
                 color::RED,
                 color::GRAY,
-                1.0,
-                HorizontalAlignment::Center,
+                border,
+                alignment.clone(),
                 None, // Some(&format!("{}/{}", self.stats.current_health.round(), self.stats.max_health.round())),
                 None,
             );
@@ -224,29 +238,30 @@ impl Actor {
             draw_progress_bar(
                 self.stats.current_stamina,
                 self.stats.max_stamina,
-                self.body.position + vec2(0.0, Self::HEALTH_BAR_OFFSET_Y + Self::HEALTH_BAR_HEIGHT),
-                Self::HEALTH_BAR_LENGTH,
-                Self::HEALTH_BAR_HEIGHT,
+                position + vec2(0.0, offset_y + height),
+                length,
+                height,
                 color::YELLOW,
                 color::GRAY,
-                1.0,
-                HorizontalAlignment::Center,
+                border,
+                alignment.clone(),
                 None, // Some(&format!("{}/{}", self.stats.current_stamina.round(), self.stats.max_stamina.round())),
                 None,
             );
             draw_progress_bar(
                 self.stats.current_energy,
                 self.stats.max_energy,
-                self.body.position + vec2(0.0, Self::HEALTH_BAR_OFFSET_Y + Self::HEALTH_BAR_HEIGHT * 2.0),
-                Self::HEALTH_BAR_LENGTH,
-                Self::HEALTH_BAR_HEIGHT,
+                position + vec2(0.0, offset_y + height * 2.0),
+                length,
+                height,
                 color::BLUE,
                 color::GRAY,
-                1.0,
-                HorizontalAlignment::Center,
+                border,
+                alignment,
                 None, // Some(&format!("{}/{}", self.stats.current_energy.round(), self.stats.max_energy.round())),
                 None,
             );
+            pop_camera_state();
         }
     }
 

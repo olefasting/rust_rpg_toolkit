@@ -25,8 +25,6 @@ pub struct PhysicsBody {
 }
 
 impl PhysicsBody {
-    const COLLISION_CORRECTION_RESOLUTION: f32 = 5.0;
-
     pub fn new(position: Vec2, rotation: f32, collider: Option<Collider>) -> Self {
         PhysicsBody {
             position,
