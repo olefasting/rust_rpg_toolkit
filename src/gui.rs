@@ -10,6 +10,7 @@ use crate::{
     nodes::{GameState, Actor},
     Item,
 };
+use crate::actions::ActionParams;
 
 pub fn draw_gui() {
     let game_state = scene::find_node_by_type::<GameState>().unwrap();
@@ -46,6 +47,13 @@ pub fn draw_gui() {
                         ui.tree_node(hash!(), "Weapons", |ui| {
                             for item in &items {
                                 ui.label(None, &item.params.name);
+                                if ui.button(None, "Equip") {
+                                    if item.params.action_params.action_kind == ActionParams::PRIMARY_ABILITY.to_string() {
+                                        player.primary_ability = item.to_actor_ability();
+                                    } else if item.params.action_params.action_kind == ActionParams::SECONDARY_ABILITY.to_string() {
+                                        player.secondary_ability = item.to_actor_ability();
+                                    }
+                                }
                                 if ui.button(None, "Drop") {
                                     let position = player.body.position;
                                     player.inventory.drop_item(&item.params.id, position);
@@ -60,6 +68,13 @@ pub fn draw_gui() {
                         ui.tree_node(hash!(), "Miscellaneous", |ui| {
                             for item in &items {
                                 ui.label(None, &item.params.name);
+                                if ui.button(None, "Equip") {
+                                    if item.params.action_params.action_kind == ActionParams::PRIMARY_ABILITY.to_string() {
+                                        player.primary_ability = item.to_actor_ability();
+                                    } else if item.params.action_params.action_kind == ActionParams::SECONDARY_ABILITY.to_string() {
+                                        player.secondary_ability = item.to_actor_ability();
+                                    }
+                                }
                                 if ui.button(None, "Drop") {
                                     let position = player.body.position;
                                     player.inventory.drop_item(&item.params.id, position);

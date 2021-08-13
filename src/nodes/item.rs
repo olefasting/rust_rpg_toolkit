@@ -11,19 +11,15 @@ use macroquad::{
     prelude::*,
 };
 
-use crate::{
-    generate_id,
-    nodes::{
-        ActorAbility,
-        ActorAbilityFunc,
-    },
-    render::{
-        Sprite,
-        SpriteParams,
-    }
-};
+use crate::{generate_id, nodes::{
+    ActorAbility,
+}, render::{
+    Sprite,
+    SpriteParams,
+}, get_global, ActionFuncs};
 
 pub use draw_buffer::ItemDrawBuffer;
+use crate::actions::ActionParams;
 
 #[derive(Clone)]
 pub struct ItemParams {
@@ -33,8 +29,7 @@ pub struct ItemParams {
     pub description: String,
     pub position: Vec2,
     pub weight: f32,
-    pub cooldown: f32,
-    pub action: Option<ActorAbilityFunc>,
+    pub action_params: ActionParams,
     pub sprite_params: SpriteParams,
 }
 
@@ -47,8 +42,7 @@ impl Default for ItemParams {
             description: "".to_string(),
             position: Vec2::ZERO,
             weight: 0.1,
-            cooldown: 0.0,
-            action: None,
+            action_params: Default::default(),
             sprite_params: Default::default(),
         }
     }
@@ -90,14 +84,6 @@ impl Item {
 
     pub fn add_node(params: ItemParams) -> Handle<Self> {
         scene::add_node(Self::new(params))
-    }
-
-    pub fn to_actor_ability(&self, health_cost: f32, stamina_cost: f32, energy_cost: f32) -> Option<ActorAbility> {
-        if let Some(action) = self.params.action {
-            Some(ActorAbility::new(health_cost, stamina_cost, energy_cost, self.params.cooldown, action))
-        } else {
-            None
-        }
     }
 
     pub fn draw_item(&mut self) {

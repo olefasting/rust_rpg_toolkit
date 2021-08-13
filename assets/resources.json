@@ -3,27 +3,22 @@
     {
       "id": "characters",
       "filename": "neo_zero_char_01.png",
-      "filter_mode": "Nearest"
-    },
-    {
-      "id": "characters",
-      "filename": "neo_zero_char_01.png",
-      "filter_mode": "Nearest"
+      "filter_mode": "nearest_neighbor"
     },
     {
       "id": "props",
       "filename": "neo_zero_props_and_items_01.png",
-      "filter_mode": "Nearest"
+      "filter_mode": "nearest_neighbor"
     },
     {
-      "id": "ground_tiles",
+      "id": "tiles",
       "filename": "neo_zero_tiles_and_buildings_01.png",
-      "filter_mode": "Nearest"
+      "filter_mode": "nearest_neighbor"
     },
     {
       "id": "items",
       "filename": "items.png",
-      "filter_mode": "Nearest"
+      "filter_mode": "nearest_neighbor"
     }
   ]
 }

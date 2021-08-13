@@ -8,8 +8,9 @@ use macroquad::{
     prelude::*,
 };
 
-use crate::{ItemParams, Item};
+use crate::{ItemParams, Item, get_global, ActionFuncs};
 use crate::render::Sprite;
+use crate::nodes::ActorAbility;
 
 #[derive(Clone)]
 pub struct ActorInventoryEntry {
@@ -23,6 +24,21 @@ impl ActorInventoryEntry {
         ActorInventoryEntry {
             params,
             sprite,
+        }
+    }
+
+    pub fn to_actor_ability(&self) -> Option<ActorAbility> {
+        let action_funcs = get_global::<ActionFuncs>();
+        match action_funcs.try_get(&self.params.action_params.action_func_id) {
+            Some(action_func) => Some(ActorAbility::new(
+                self.params.action_params.health_cost,
+                self.params.action_params.stamina_cost,
+                self.params.action_params.energy_cost,
+                self.params.action_params.cooldown,
+                self.params.action_params.damage,
+                action_func,
+            )),
+            _ => None,
         }
     }
 }

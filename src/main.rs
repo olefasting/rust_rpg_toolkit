@@ -40,12 +40,19 @@ use render::{
 pub use render::text::draw_aligned_text;
 pub use resources::Resources;
 
-use crate::nodes::actor::{ActorDrawBuffer, ActorStats, primary_test_ability};
+use crate::nodes::actor::{ActorDrawBuffer, ActorStats};
 use crate::nodes::item::ItemDrawBuffer;
+
+pub use actions::{
+    ActionFunc,
+    ActionFuncs
+};
+use crate::actions::ActionParams;
 
 mod resources;
 mod globals;
 mod map;
+mod actions;
 
 pub mod nodes;
 pub mod render;
@@ -74,6 +81,9 @@ async fn main() {
     let load_resources = start_coroutine(async move {
         let resources = Resources::new().await.unwrap();
         set_global(resources);
+
+        let actions = ActionFuncs::new().await;
+        set_global(actions);
     });
 
     while load_resources.is_done() == false {
@@ -128,7 +138,14 @@ async fn main() {
                         name: "Test Ranged Weapon".to_string(),
                         description: "Test Ranged Weapon description".to_string(),
                         weight: 10.0,
-                        action: Some(primary_test_ability),
+                        action_params: ActionParams {
+                            action_func_id: ActionFuncs::PROJECTILE_ACTION_ID.to_string(),
+                            action_kind: ActionParams::PRIMARY_ABILITY.to_string(),
+                            cooldown: 0.0025,
+                            stamina_cost: 10.0,
+                            damage: 10.0,
+                            ..Default::default()
+                        },
                         sprite_params: SpriteParams {
                             texture_id: Resources::ITEMS_TEXTURE_ID.to_string(),
                             texture_coords: uvec2(0, 3),
@@ -143,7 +160,14 @@ async fn main() {
                         name: "Test Ranged Weapon".to_string(),
                         description: "Test Ranged Weapon description".to_string(),
                         weight: 10.0,
-                        action: Some(primary_test_ability),
+                        action_params: ActionParams {
+                            action_func_id: ActionFuncs::PROJECTILE_ACTION_ID.to_string(),
+                            action_kind: ActionParams::PRIMARY_ABILITY.to_string(),
+                            cooldown: 0.0025,
+                            stamina_cost: 10.0,
+                            damage: 10.0,
+                            ..Default::default()
+                        },
                         sprite_params: SpriteParams {
                             texture_id: Resources::ITEMS_TEXTURE_ID.to_string(),
                             texture_coords: uvec2(0, 3),
@@ -158,7 +182,14 @@ async fn main() {
                         name: "Test Ranged Weapon".to_string(),
                         description: "Test Ranged Weapon description".to_string(),
                         weight: 10.0,
-                        action: Some(primary_test_ability),
+                        action_params: ActionParams {
+                            action_func_id: ActionFuncs::PROJECTILE_ACTION_ID.to_string(),
+                            action_kind: ActionParams::PRIMARY_ABILITY.to_string(),
+                            cooldown: 0.0025,
+                            stamina_cost: 10.0,
+                            damage: 10.0,
+                            ..Default::default()
+                        },
                         sprite_params: SpriteParams {
                             texture_id: Resources::ITEMS_TEXTURE_ID.to_string(),
                             texture_coords: uvec2(0, 3),
@@ -173,7 +204,15 @@ async fn main() {
                         name: "Test Trinket".to_string(),
                         description: "Test Trinket description".to_string(),
                         weight: 1.0,
-                        action: Some(primary_test_ability),
+                        action_params: ActionParams {
+                            action_func_id: ActionFuncs::MAGIC_SPHERE_ACTION_ID.to_string(),
+                            action_kind: ActionParams::SECONDARY_ABILITY.to_string(),
+                            cooldown: 0.75,
+                            stamina_cost: 10.0,
+                            energy_cost: 100.0,
+                            damage: 150.0,
+                            ..Default::default()
+                        },
                         sprite_params: SpriteParams {
                             texture_id: Resources::ITEMS_TEXTURE_ID.to_string(),
                             texture_coords: uvec2(3, 3),
@@ -235,7 +274,14 @@ async fn main() {
                         name: "Test Ranged Weapon".to_string(),
                         description: "Test Ranged Weapon description".to_string(),
                         weight: 10.0,
-                        action: Some(primary_test_ability),
+                        action_params: ActionParams {
+                            action_func_id: ActionFuncs::PROJECTILE_ACTION_ID.to_string(),
+                            action_kind: ActionParams::PRIMARY_ABILITY.to_string(),
+                            cooldown: 0.0025,
+                            stamina_cost: 10.0,
+                            damage: 10.0,
+                            ..Default::default()
+                        },
                         sprite_params: SpriteParams {
                             texture_id: Resources::ITEMS_TEXTURE_ID.to_string(),
                             texture_coords: uvec2(0, 3),
@@ -250,7 +296,14 @@ async fn main() {
                         name: "Test Ranged Weapon".to_string(),
                         description: "Test Ranged Weapon description".to_string(),
                         weight: 10.0,
-                        action: Some(primary_test_ability),
+                        action_params: ActionParams {
+                            action_func_id: ActionFuncs::PROJECTILE_ACTION_ID.to_string(),
+                            action_kind: ActionParams::PRIMARY_ABILITY.to_string(),
+                            cooldown: 0.0025,
+                            stamina_cost: 10.0,
+                            damage: 10.0,
+                            ..Default::default()
+                        },
                         sprite_params: SpriteParams {
                             texture_id: Resources::ITEMS_TEXTURE_ID.to_string(),
                             texture_coords: uvec2(0, 3),
@@ -265,6 +318,15 @@ async fn main() {
                         name: "Test Trinket".to_string(),
                         description: "Test Trinket description".to_string(),
                         weight: 1.0,
+                        action_params: ActionParams {
+                            action_func_id: ActionFuncs::MAGIC_SPHERE_ACTION_ID.to_string(),
+                            action_kind: ActionParams::SECONDARY_ABILITY.to_string(),
+                            cooldown: 0.75,
+                            stamina_cost: 10.0,
+                            energy_cost: 100.0,
+                            damage: 150.0,
+                            ..Default::default()
+                        },
                         sprite_params: SpriteParams {
                             texture_id: Resources::ITEMS_TEXTURE_ID.to_string(),
                             texture_coords: uvec2(3, 3),
@@ -327,7 +389,14 @@ async fn main() {
                         name: "Test Ranged Weapon".to_string(),
                         description: "Test Ranged Weapon description".to_string(),
                         weight: 10.0,
-                        action: Some(primary_test_ability),
+                        action_params: ActionParams {
+                            action_func_id: ActionFuncs::PROJECTILE_ACTION_ID.to_string(),
+                            action_kind: ActionParams::PRIMARY_ABILITY.to_string(),
+                            cooldown: 0.0025,
+                            stamina_cost: 10.0,
+                            damage: 10.0,
+                            ..Default::default()
+                        },
                         ..Default::default()
                     },
                     ItemParams {
@@ -335,7 +404,14 @@ async fn main() {
                         name: "Test Ranged Weapon".to_string(),
                         description: "Test Ranged Weapon description".to_string(),
                         weight: 10.0,
-                        action: Some(primary_test_ability),
+                        action_params: ActionParams {
+                            action_func_id: ActionFuncs::PROJECTILE_ACTION_ID.to_string(),
+                            action_kind: ActionParams::PRIMARY_ABILITY.to_string(),
+                            cooldown: 0.0025,
+                            stamina_cost: 10.0,
+                            damage: 10.0,
+                            ..Default::default()
+                        },
                         ..Default::default()
                     },
                     ItemParams {
@@ -343,7 +419,14 @@ async fn main() {
                         name: "Test Ranged Weapon".to_string(),
                         description: "Test Ranged Weapon description".to_string(),
                         weight: 10.0,
-                        action: Some(primary_test_ability),
+                        action_params: ActionParams {
+                            action_func_id: ActionFuncs::PROJECTILE_ACTION_ID.to_string(),
+                            action_kind: ActionParams::PRIMARY_ABILITY.to_string(),
+                            cooldown: 0.0025,
+                            stamina_cost: 10.0,
+                            damage: 10.0,
+                            ..Default::default()
+                        },
                         ..Default::default()
                     },
                     ItemParams {
@@ -351,6 +434,15 @@ async fn main() {
                         name: "Test Trinket".to_string(),
                         description: "Test Trinket description".to_string(),
                         weight: 1.0,
+                        action_params: ActionParams {
+                            action_func_id: ActionFuncs::MAGIC_SPHERE_ACTION_ID.to_string(),
+                            action_kind: ActionParams::SECONDARY_ABILITY.to_string(),
+                            cooldown: 0.75,
+                            stamina_cost: 10.0,
+                            energy_cost: 100.0,
+                            damage: 150.0,
+                            ..Default::default()
+                        },
                         ..Default::default()
                     }
                 ),

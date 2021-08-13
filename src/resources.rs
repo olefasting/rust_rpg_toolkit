@@ -27,18 +27,18 @@ pub struct Resources {
 }
 
 impl Resources {
-    const RESOURCES_FILE_PATH: &'static str = "assets/resources.json";
-    const TEXTURES_FOLDER_PATH: &'static str = "assets/textures";
-
-    const LINEAR_FILTER_MODE: &'static str = "Linear";
-    const NEAREST_FILTER_MODE: &'static str = "Nearest";
-
     pub const WHITE_TEXTURE_ID: &'static str = "__WHITE_TEXTURE__";
 
     pub const CHARACTERS_TEXTURE_ID: &'static str = "characters";
     pub const PROPS_TEXTURE_ID: &'static str = "props";
-    pub const GROUND_TILES_TEXTURE_ID: &'static str = "ground_tiles";
+    pub const GROUND_TILES_TEXTURE_ID: &'static str = "tiles";
     pub const ITEMS_TEXTURE_ID: &'static str = "items";
+
+    const RESOURCES_FILE_PATH: &'static str = "assets/resources.json";
+    const TEXTURES_FOLDER_PATH: &'static str = "assets/textures";
+
+    const LINEAR_FILTER_MODE: &'static str = "linear";
+    const NEAREST_FILTER_MODE: &'static str = "nearest_neighbor";
 
     pub async fn new() -> Result<Resources, FileError> {
         let mut textures= HashMap::new();

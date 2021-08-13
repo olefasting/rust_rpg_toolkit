@@ -2,9 +2,7 @@ use macroquad::{
     prelude::*
 };
 
-use crate::Actor;
-
-pub type ActorAbilityFunc = fn (actor_id: &str, origin: Vec2, target: Vec2);
+use crate::{Actor, ActionFunc};
 
 #[derive(Clone)]
 pub struct ActorAbility {
@@ -13,7 +11,8 @@ pub struct ActorAbility {
     pub energy_cost: f32,
     pub cooldown_timer: f32,
     cooldown: f32,
-    func: ActorAbilityFunc,
+    damage: f32,
+    func: ActionFunc,
 }
 
 impl ActorAbility {
@@ -22,7 +21,8 @@ impl ActorAbility {
         stamina_cost: f32,
         energy_cost: f32,
         cooldown: f32,
-        func: ActorAbilityFunc,
+        damage: f32,
+        func: ActionFunc,
     ) -> Self {
         ActorAbility {
             health_cost,
@@ -30,6 +30,7 @@ impl ActorAbility {
             energy_cost,
             cooldown_timer: cooldown,
             cooldown,
+            damage,
             func,
         }
     }
@@ -48,7 +49,7 @@ impl ActorAbility {
             actor.stats.current_health -= self.health_cost;
             actor.stats.current_stamina -= self.stamina_cost;
             actor.stats.current_energy -= self.energy_cost;
-            (self.func)(&actor.id, origin, target);
+            (self.func)(&actor.id, origin, target, self.damage);
             self.cooldown_timer = 0.0;
         }
     }

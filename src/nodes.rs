@@ -1,7 +1,6 @@
 pub use actor::{
     Actor,
     ActorAbility,
-    ActorAbilityFunc,
     ActorController,
     ActorControllerKind,
     ActorInventory,

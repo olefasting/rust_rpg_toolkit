@@ -29,7 +29,6 @@ pub use controller::{
 pub use inventory::ActorInventory;
 pub use ability::{
     ActorAbility,
-    ActorAbilityFunc,
 };
 
 pub use draw_buffer::ActorDrawBuffer;
@@ -93,19 +92,9 @@ pub struct Actor {
     pub body: PhysicsBody,
     sprite_animation: SpriteAnimationPlayer,
     pub inventory: ActorInventory,
-    primary_ability: Option<ActorAbility>,
-    secondary_ability: Option<ActorAbility>,
+    pub primary_ability: Option<ActorAbility>,
+    pub secondary_ability: Option<ActorAbility>,
     pub controller: ActorController,
-}
-
-pub fn primary_test_ability(actor_id: &str, origin: Vec2, target: Vec2) {
-    let mut projectiles = scene::find_node_by_type::<Projectiles>().unwrap();
-    projectiles.spawn(actor_id, 15.0, color::YELLOW, 2.0, origin, target, 15.0, 10.0, 1.0);
-}
-
-pub fn secondary_test_ability(actor_id: &str, origin: Vec2, target: Vec2) {
-    let mut projectiles = scene::find_node_by_type::<Projectiles>().unwrap();
-    projectiles.spawn(actor_id, 150.0, color::BLUE, 100.0, origin, target, 2.0, 0.0, 2.0);
 }
 
 impl Actor {
@@ -130,8 +119,8 @@ impl Actor {
             body: PhysicsBody::new(params.position, 0.0, params.collider),
             sprite_animation: SpriteAnimationPlayer::new(params.sprite_animation_params.clone()),
             inventory: ActorInventory::new(&params.inventory),
-            primary_ability: Some(ActorAbility::new(0.0, 4.0, 0.0, 0.0025, primary_test_ability)),
-            secondary_ability: Some(ActorAbility::new(0.0, 4.0, 50.0, 1.25, secondary_test_ability)),
+            primary_ability: None,
+            secondary_ability: None,
             controller: ActorController::new(params.controller_kind),
         }
     }
