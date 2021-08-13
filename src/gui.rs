@@ -45,10 +45,10 @@ pub fn draw_gui() {
                     if items.len() > 0 {
                         ui.tree_node(hash!(), "Weapons", |ui| {
                             for item in &items {
-                                ui.label(None, &item.name);
+                                ui.label(None, &item.params.name);
                                 if ui.button(None, "Drop") {
                                     let position = player.body.position;
-                                    player.inventory.drop_item(&item.id, position);
+                                    player.inventory.drop_item(&item.params.id, position);
                                 }
                             }
                         });
@@ -59,10 +59,10 @@ pub fn draw_gui() {
                     if items.len() > 0 {
                         ui.tree_node(hash!(), "Miscellaneous", |ui| {
                             for item in &items {
-                                ui.label(None, &item.name);
+                                ui.label(None, &item.params.name);
                                 if ui.button(None, "Drop") {
                                     let position = player.body.position;
-                                    player.inventory.drop_item(&item.id, position);
+                                    player.inventory.drop_item(&item.params.id, position);
                                 }
                             }
                         });
@@ -73,7 +73,7 @@ pub fn draw_gui() {
                     if items.len() > 0 {
                         ui.tree_node(hash!(), "Quest Items", |ui| {
                             for item in &items {
-                                ui.label(None, &item.name);
+                                ui.label(None, &item.params.name);
                             }
                         });
                     }

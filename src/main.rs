@@ -1,4 +1,5 @@
 #![feature(fn_traits)]
+#![feature(drain_filter)]
 
 use macroquad::{
     color,
@@ -34,8 +35,8 @@ use physics::Collider;
 use render::{
     HorizontalAlignment,
     SpriteParams,
-    text::draw_aligned_text
 };
+pub use render::text::draw_aligned_text;
 pub use resources::Resources;
 
 use crate::nodes::actor::{ActorDrawBuffer, ActorStats, primary_test_ability};

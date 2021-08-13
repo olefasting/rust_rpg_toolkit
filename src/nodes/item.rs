@@ -52,14 +52,7 @@ impl Default for ItemParams {
 
 #[derive(Clone)]
 pub struct Item {
-    id: String,
-    pub kind: String,
-    pub name: String,
-    pub description: String,
-    pub position: Vec2,
-    pub weight: f32,
-    cooldown: f32,
-    action: Option<ActorAbilityFunc>,
+    pub params: ItemParams,
     sprite: SpriteAnimationPlayer,
 }
 
@@ -84,16 +77,10 @@ impl Item {
     pub const QUEST_KIND: &'static str = "quest";
 
     pub fn new(params: ItemParams) -> Self {
+        let sprite = SpriteAnimationPlayer::new(params.sprite_params.clone());
         Item {
-            id: params.id,
-            kind: params.kind,
-            name: params.name,
-            description: params.description,
-            position: params.position,
-            weight: params.weight,
-            cooldown: params.cooldown,
-            action: params.action,
-            sprite: SpriteAnimationPlayer::new(params.sprite_params),
+            params,
+            sprite,
         }
     }
 
@@ -101,30 +88,16 @@ impl Item {
         scene::add_node(Self::new(params))
     }
 
-    pub fn to_item_params(&self) -> ItemParams {
-        ItemParams {
-            id: self.id.clone(),
-            kind: self.kind.clone(),
-            name: self.name.clone(),
-            description: self.description.clone(),
-            position: self.position,
-            weight: self.weight,
-            cooldown: self.cooldown,
-            action: self.action,
-            sprite_params: self.sprite.to_sprite_params(),
-        }
-    }
-
     pub fn to_actor_ability(&self, health_cost: f32, stamina_cost: f32, energy_cost: f32) -> Option<ActorAbility> {
-        if let Some(action) = self.action {
-            Some(ActorAbility::new(health_cost, stamina_cost, energy_cost, self.cooldown, action))
+        if let Some(action) = self.params.action {
+            Some(ActorAbility::new(health_cost, stamina_cost, energy_cost, self.params.cooldown, action))
         } else {
             None
         }
     }
 
     pub fn draw_item(&mut self) {
-        self.sprite.draw(self.position, 0.0);
+        self.sprite.draw(self.params.position, 0.0);
     }
 }
 

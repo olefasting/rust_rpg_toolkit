@@ -9,10 +9,27 @@ use macroquad::{
 };
 
 use crate::{ItemParams, Item};
+use crate::render::SpriteAnimationPlayer;
+
+#[derive(Clone)]
+pub struct ActorInventoryEntry {
+    pub params: ItemParams,
+    pub sprite: SpriteAnimationPlayer,
+}
+
+impl ActorInventoryEntry {
+    pub fn new(params: ItemParams) -> Self {
+        let sprite = SpriteAnimationPlayer::new(params.sprite_params.clone());
+        ActorInventoryEntry {
+            params,
+            sprite,
+        }
+    }
+}
 
 #[derive(Clone)]
 pub struct ActorInventory {
-    items: Vec<ItemParams>,
+    items: Vec<ActorInventoryEntry>,
 }
 
 impl ActorInventory {
@@ -20,14 +37,14 @@ impl ActorInventory {
 
     pub fn new(items: &[ItemParams]) -> Self {
         ActorInventory {
-            items: items.to_vec(),
+            items: items.iter().map(|params| ActorInventoryEntry::new(params.clone())).collect(),
         }
     }
 
-    pub fn get_all_of_kind(&self, kinds: &[&'static str]) -> Vec<ItemParams> {
+    pub fn get_all_of_kind(&self, kinds: &[&'static str]) -> Vec<ActorInventoryEntry> {
         self.items.clone().into_iter().filter(|item| {
             for kind in kinds {
-                if item.kind == *kind {
+                if item.params.kind == *kind {
                     return true;
                 }
             }
@@ -36,31 +53,26 @@ impl ActorInventory {
     }
 
     pub fn pick_up_item(&mut self, item: RefMut<Item>) {
-        self.items.push(item.to_item_params());
+        self.items.push(ActorInventoryEntry::new(item.params.clone()));
         item.delete();
     }
 
-    pub fn drop_item(&mut self, item_id: &str, position: Vec2) -> Option<Handle<Item>> {
-        let mut item = None;
-        self.items.retain(|params| {
-           if params.id == item_id {
-               item = Some(Item::add_node(ItemParams {
-                   position: Self::randomize_drop_position(position),
-                   ..params.clone()
-               }));
-               false
-           } else {
-               true
-           }
-        });
-        item
+    pub fn drop_item(&mut self, item_id: &str, position: Vec2) -> bool {
+        let items: Vec<Handle<Item>> = self.items
+            .drain_filter(|entry| entry.params.id == item_id)
+            .map(|entry| Item::add_node(ItemParams {
+                position: Self::randomize_drop_position(position),
+                ..entry.params
+            }))
+            .collect();
+        !items.is_empty()
     }
 
     pub fn drop_all(&mut self, position: Vec2) {
-        self.items.retain(|params| {
+        self.items.retain(|entry| {
             Item::add_node(ItemParams {
                 position: Self::randomize_drop_position(position),
-                ..params.clone()
+                ..entry.params.clone()
             });
            false
         });
@@ -69,13 +81,13 @@ impl ActorInventory {
     pub fn get_total_weight(&self) -> f32 {
         let mut weight = 0.0;
         for item in &self.items {
-            weight += item.weight;
+            weight += item.params.weight;
         }
         weight
     }
 
     pub fn clone_data(&self) -> Vec<ItemParams> {
-        self.items.clone()
+        self.items.iter().map(|entry| entry.params.clone()).collect()
     }
 
     fn randomize_drop_position(position: Vec2) -> Vec2 {

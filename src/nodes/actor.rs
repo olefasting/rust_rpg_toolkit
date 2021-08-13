@@ -365,7 +365,7 @@ impl Node for Actor {
         if node.controller.is_picking_up_items {
             let collider = Collider::circle(0.0, 0.0, Self::PICK_UP_RADIUS).offset(node.body.position);
             for item in scene::find_nodes_by_type::<Item>() {
-                if collider.contains(item.position) {
+                if collider.contains(item.params.position) {
                     node.inventory.pick_up_item(item);
                 }
             }
