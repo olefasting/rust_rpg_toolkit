@@ -59,15 +59,21 @@ impl PhysicsBody {
         if let Some(collider) = self.get_offset_collider() {
             let mut movement = self.velocity;
             let game_state = scene::find_node_by_type::<GameState>().unwrap();
-            let correction_step = movement.normalize() * Self::COLLISION_CORRECTION_RESOLUTION;
+            // let correction_step = movement.normalize() * Self::COLLISION_CORRECTION_RESOLUTION;
+            // while game_state.map.solid_at_collider(collider.offset(movement)) {
+            //     movement -= correction_step;
+            // }
             while game_state.map.solid_at_collider(collider.offset(movement)) {
-                movement -= correction_step;
+                return;
             }
             for (_, mut body_lens) in scene::find_nodes_with::<PhysicsObject>() {
                 if let Some(body) = body_lens.get() {
                     if let Some(other_collider) = body.get_offset_collider() {
-                        while collider.offset(movement).overlaps(&other_collider) {
-                            movement -= correction_step;
+                        // while collider.offset(movement).overlaps(&other_collider) {
+                        //     movement -= correction_step;
+                        // }
+                        if collider.offset(movement).overlaps(&other_collider) {
+                            return;
                         }
                     }
                 }

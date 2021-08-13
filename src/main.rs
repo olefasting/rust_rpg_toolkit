@@ -122,7 +122,7 @@ fn generic_misc_item() -> ItemParams {
     }
 }
 
-fn generic_actor(name: &str, position: Vec2, sprite_id: u32, factions: &[String], player_id: Option<u32>) -> ActorParams {
+fn generic_actor(name: &str, position: Vec2, skin_id: u32, factions: &[String], player_id: Option<u32>) -> ActorParams {
     ActorParams {
         name: name.to_string(),
         factions: factions.to_vec(),
@@ -156,19 +156,19 @@ fn generic_actor(name: &str, position: Vec2, sprite_id: u32, factions: &[String]
             animations: vec!(
                 Animation {
                     name: "down".to_string(),
-                    row: sprite_id * 3,
+                    row: skin_id * 3,
                     frames: 3,
                     fps: 8,
                 },
                 Animation {
                     name: "up".to_string(),
-                    row: sprite_id * 3 + 1,
+                    row: skin_id * 3 + 1,
                     frames: 3,
                     fps: 8,
                 },
                 Animation {
                     name: "right".to_string(),
-                    row: sprite_id * 3 + 2,
+                    row: skin_id * 3 + 2,
                     frames: 3,
                     fps: 8,
                 }

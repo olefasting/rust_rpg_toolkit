@@ -63,7 +63,6 @@ pub struct ActorParams {
     pub collider: Option<Collider>,
     pub inventory: Vec<ItemParams>,
     pub sprite_animation_params: SpriteAnimationParams,
-
     pub controller_kind: ActorControllerKind,
 }
 
