@@ -1,5 +1,7 @@
 mod draw_buffer;
 
+use serde::{Serialize, Deserialize, Serializer};
+
 use macroquad::{
     experimental::{
         scene::{
@@ -11,23 +13,29 @@ use macroquad::{
     prelude::*,
 };
 
-use crate::{generate_id, nodes::{
-    ActorAbility,
-}, render::{
-    Sprite,
-    SpriteParams,
-}, get_global, ActionFuncs};
+use crate::{
+    generate_id,
+    nodes::{
+        ActorAbility,
+    },
+    render::{
+        Sprite,
+        SpriteParams,
+    },
+    get_global,
+    ActionFuncs,
+    json,
+};
 
 pub use draw_buffer::ItemDrawBuffer;
 use crate::actions::ActionParams;
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct ItemParams {
     pub id: String,
     pub kind: String,
     pub name: String,
     pub description: String,
-    pub position: Vec2,
     pub weight: f32,
     pub action_params: ActionParams,
     pub sprite_params: SpriteParams,
@@ -40,7 +48,6 @@ impl Default for ItemParams {
             kind: Item::MISC_KIND.to_string(),
             name: "Unnamed Item".to_string(),
             description: "".to_string(),
-            position: Vec2::ZERO,
             weight: 0.1,
             action_params: Default::default(),
             sprite_params: Default::default(),
@@ -50,6 +57,8 @@ impl Default for ItemParams {
 
 #[derive(Clone)]
 pub struct Item {
+    pub instance_id: String,
+    pub position: Vec2,
     pub params: ItemParams,
     sprite: Sprite,
 }
@@ -74,20 +83,22 @@ impl Item {
     pub const MISC_KIND: &'static str = "misc";
     pub const QUEST_KIND: &'static str = "quest";
 
-    pub fn new(params: ItemParams) -> Self {
+    pub fn new(position: Vec2, params: ItemParams) -> Self {
         let sprite = Sprite::new(params.sprite_params.clone());
         Item {
+            instance_id: generate_id(),
+            position,
             params,
             sprite,
         }
     }
 
-    pub fn add_node(params: ItemParams) -> Handle<Self> {
-        scene::add_node(Self::new(params))
+    pub fn add_node(position: Vec2, params: ItemParams) -> Handle<Self> {
+        scene::add_node(Self::new(position, params))
     }
 
     pub fn draw_item(&mut self) {
-        self.sprite.draw(self.params.position, 0.0);
+        self.sprite.draw(self.position, 0.0);
     }
 }
 

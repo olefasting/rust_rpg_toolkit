@@ -56,7 +56,7 @@ pub fn draw_gui() {
                                 }
                                 if ui.button(None, "Drop") {
                                     let position = player.body.position;
-                                    player.inventory.drop_item(&item.params.id, position);
+                                    player.inventory.drop_item(&item.instance_id, position);
                                 }
                             }
                         });
@@ -77,7 +77,7 @@ pub fn draw_gui() {
                                 }
                                 if ui.button(None, "Drop") {
                                     let position = player.body.position;
-                                    player.inventory.drop_item(&item.params.id, position);
+                                    player.inventory.drop_item(&item.instance_id, position);
                                 }
                             }
                         });

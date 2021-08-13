@@ -36,7 +36,7 @@ impl Node for ItemDrawBuffer {
         node.buffer.retain(|handle| {
             let viewport = get_global::<Viewport>();
             if let Some(item) = scene::try_get_node(*handle) {
-                viewport.contains(item.params.position)
+                viewport.contains(item.position)
             } else {
                 false
             }
@@ -44,7 +44,7 @@ impl Node for ItemDrawBuffer {
         node.buffer.sort_by(|a, b| {
             let item_a = scene::get_node(*a);
             let item_b = scene::get_node(*b);
-            item_a.params.position.y.partial_cmp(&item_b.params.position.y).unwrap()
+            item_a.position.y.partial_cmp(&item_b.position.y).unwrap()
         });
         for handle in &node.buffer {
             let mut item = scene::get_node(*handle);

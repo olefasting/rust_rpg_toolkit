@@ -9,14 +9,17 @@ use macroquad::{
     prelude::*,
 };
 
-use crate::{Resources, get_global};
+use crate::{
+    Resources,
+    get_global,
+    json,
+};
 
 #[derive(Clone)]
 pub struct SpriteAnimationParams {
-    pub offset: Vec2,
+    pub offset: json::Vec2,
     pub texture_id: String,
-    pub texture_color: Color,
-    pub tile_size: Vec2,
+    pub tile_size: json::Vec2,
     pub animations: Vec<Animation>,
     pub should_play: bool,
 }
@@ -24,10 +27,9 @@ pub struct SpriteAnimationParams {
 impl Default for SpriteAnimationParams {
     fn default() -> Self {
         SpriteAnimationParams {
-            offset: vec2(-8.0, -8.0),
+            offset: json::Vec2::new(-8.0, -8.0),
             texture_id: Resources::WHITE_TEXTURE_ID.to_string(),
-            texture_color: color::WHITE,
-            tile_size: vec2(16.0, 16.0),
+            tile_size: json::Vec2::new(16.0, 16.0),
             animations: vec!(
                 Animation {
                     name: "idle".to_string(),
@@ -48,7 +50,6 @@ pub struct SpriteAnimationPlayer {
     pub flip_x: bool,
     pub flip_y: bool,
     texture_id: String,
-    texture_color: Color,
     tile_size: Vec2,
     animations: Vec<Animation>,
     animated_sprite: AnimatedSprite,
@@ -64,13 +65,12 @@ impl SpriteAnimationPlayer {
         );
 
         SpriteAnimationPlayer {
-            offset: params.offset,
+            offset: params.offset.to_macroquad(),
             rotation: 0.0,
             flip_x: false,
             flip_y: false,
             texture_id: params.texture_id.to_string(),
-            texture_color: params.texture_color,
-            tile_size: params.tile_size,
+            tile_size: params.tile_size.to_macroquad(),
             animations: params.animations,
             animated_sprite: sprite,
         }
@@ -107,10 +107,9 @@ impl SpriteAnimationPlayer {
 
     pub fn to_sprite_params(&self) -> SpriteAnimationParams {
         SpriteAnimationParams {
-            offset: self.offset,
+            offset: json::Vec2::from(self.offset),
             texture_id: self.texture_id.to_string(),
-            texture_color: self.texture_color,
-            tile_size: self.tile_size,
+            tile_size: json::Vec2::from(self.tile_size),
             animations: self.animations.to_vec(),
             should_play: self.animated_sprite.playing,
         }
@@ -123,7 +122,7 @@ impl SpriteAnimationPlayer {
             resources.get_texture(&self.texture_id).clone(),
             position.x + self.offset.x,
             position.y + self.offset.y,
-            self.texture_color,
+            color::WHITE,
             DrawTextureParams {
                 source: Some(self.animated_sprite.frame().source_rect),
                 dest_size: Some(self.animated_sprite.frame().dest_size),

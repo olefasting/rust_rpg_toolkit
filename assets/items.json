@@ -1,0 +1,72 @@
+[
+  {
+    "id": "test_weapon",
+    "kind": "one_handed_weapon",
+    "name": "Test Ranged Weapon",
+    "description": "Test Ranged Weapon description",
+    "weight": 10.0,
+    "action_params": {
+      "id": "test_weapon_action",
+      "action_func_id": "projectile",
+      "action_kind": "primary",
+      "cooldown": 0.0025,
+      "health_cost": 0.0,
+      "stamina_cost": 10.0,
+      "energy_cost": 0.0,
+      "speed": 15.0,
+      "spread": 10.0,
+      "range": 15.0,
+      "damage": 10.0
+    },
+    "sprite_params": {
+      "texture_id": "items",
+      "texture_coords": {
+        "x": 0,
+        "y": 3
+      },
+      "tile_size": {
+        "x": 16,
+        "y": 16
+      },
+      "offset": {
+        "x": -8.0,
+        "y": -8.0
+      }
+    }
+  },
+  {
+    "id": "test_trinket",
+    "kind": "misc",
+    "name": "Test Trinket",
+    "description": "Test Trinket description",
+    "weight": 1.0,
+    "action_params": {
+      "id": "test_trinket_action",
+      "action_func_id": "magic_sphere",
+      "action_kind": "secondary",
+      "cooldown": 0.75,
+      "health_cost": 0.0,
+      "stamina_cost": 10.0,
+      "energy_cost": 100.0,
+      "speed": 1.0,
+      "spread": 0.0,
+      "range": 2.0,
+      "damage": 150.0
+    },
+    "sprite_params": {
+      "texture_id": "items",
+      "texture_coords": {
+        "x": 3,
+        "y": 3
+      },
+      "tile_size": {
+        "x": 16,
+        "y": 16
+      },
+      "offset": {
+        "x": -8.0,
+        "y": -8.0
+      }
+    }
+  }
+]

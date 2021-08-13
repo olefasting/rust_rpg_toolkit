@@ -8,12 +8,11 @@ use macroquad::{
     prelude::*,
 };
 
-use crate::{ItemParams, Item, get_global, ActionFuncs};
-use crate::render::Sprite;
-use crate::nodes::ActorAbility;
+use crate::{ItemParams, Item, get_global, ActionFuncs, render::Sprite, nodes::actor::ActorAbility, json, generate_id};
 
 #[derive(Clone)]
 pub struct ActorInventoryEntry {
+    pub instance_id: String,
     pub params: ItemParams,
     pub sprite: Sprite,
 }
@@ -22,6 +21,7 @@ impl ActorInventoryEntry {
     pub fn new(params: ItemParams) -> Self {
         let sprite = Sprite::new(params.sprite_params.clone());
         ActorInventoryEntry {
+            instance_id: generate_id(),
             params,
             sprite,
         }
@@ -78,21 +78,15 @@ impl ActorInventory {
 
     pub fn drop_item(&mut self, item_id: &str, position: Vec2) -> bool {
         let items: Vec<Handle<Item>> = self.items
-            .drain_filter(|entry| entry.params.id == item_id)
-            .map(|entry| Item::add_node(ItemParams {
-                position: Self::randomize_drop_position(position),
-                ..entry.params
-            }))
+            .drain_filter(|entry| entry.instance_id == item_id)
+            .map(|entry| Item::add_node(Self::randomize_drop_position(position), entry.params))
             .collect();
         !items.is_empty()
     }
 
     pub fn drop_all(&mut self, position: Vec2) {
         self.items.drain_filter(|entry| {
-            Item::add_node(ItemParams {
-                position: Self::randomize_drop_position(position),
-                ..entry.params.clone()
-            });
+            Item::add_node(Self::randomize_drop_position(position), entry.params.clone());
            true
         });
     }

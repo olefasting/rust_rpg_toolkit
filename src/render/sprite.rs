@@ -3,25 +3,32 @@ use macroquad::{
     prelude::*,
 };
 
-use crate::{get_global, Resources};
+use serde::{
+    Serialize,
+    Deserialize
+};
 
-#[derive(Clone)]
+use crate::{
+    get_global,
+    Resources,
+    json,
+};
+
+#[derive(Clone, Serialize, Deserialize)]
 pub struct SpriteParams {
-    pub offset: Vec2,
+    pub offset: json::Vec2,
     pub texture_id: String,
-    pub texture_color: Color,
-    pub tile_size: Vec2,
-    pub texture_coords: UVec2,
+    pub tile_size: json::UVec2,
+    pub texture_coords: json::UVec2,
 }
 
 impl Default for SpriteParams {
     fn default() -> Self {
         SpriteParams {
-            offset: Vec2::ZERO,
+            offset: json::Vec2::from(Vec2::ZERO),
             texture_id: Resources::WHITE_TEXTURE_ID.to_string(),
-            texture_color: color::WHITE,
-            tile_size: vec2(16.0, 16.0),
-            texture_coords: UVec2::ZERO,
+            tile_size: json::UVec2::new(16, 16),
+            texture_coords: json::UVec2::new(0, 0),
         }
     }
 }
@@ -32,23 +39,21 @@ pub struct Sprite {
     pub rotation: f32,
     pub flip_x: bool,
     pub flip_y: bool,
-    tile_size: Vec2,
+    tile_size: UVec2,
     texture_id: String,
     texture_coords: UVec2,
-    texture_color: Color,
 }
 
 impl Sprite {
     pub fn new(params: SpriteParams) -> Self {
         Sprite {
-            offset: params.offset,
+            offset: params.offset.to_macroquad(),
             rotation: 0.0,
             flip_x: false,
             flip_y: false,
-            tile_size: params.tile_size,
+            tile_size: params.tile_size.to_macroquad(),
             texture_id: params.texture_id,
-            texture_coords: params.texture_coords,
-            texture_color: params.texture_color,
+            texture_coords: params.texture_coords.to_macroquad(),
         }
     }
 
@@ -58,15 +63,18 @@ impl Sprite {
             resources.get_texture(&self.texture_id).clone(),
             position.x + self.offset.x,
             position.y + self.offset.y,
-            self.texture_color,
+            color::WHITE,
             DrawTextureParams {
                 source: Some(Rect::new(
-                    self.texture_coords.x as f32 * self.tile_size.x,
-                    self.texture_coords.y as f32 * self.tile_size.y,
-                    self.tile_size.x,
-                    self.tile_size.y,
+                    (self.texture_coords.x * self.tile_size.x) as f32,
+                    (self.texture_coords.y * self.tile_size.y) as f32,
+                    self.tile_size.x as f32,
+                    self.tile_size.y as f32,
                 )),
-                dest_size: Some(self.tile_size),
+                dest_size: Some(vec2(
+                    self.tile_size.x as f32,
+                    self.tile_size.y as f32,
+                )),
                 flip_x: self.flip_x,
                 flip_y: self.flip_y,
                 rotation: self.rotation + rotation,

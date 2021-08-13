@@ -5,9 +5,14 @@ use macroquad::{
     prelude::*,
 };
 
+use serde::{
+    Serialize,
+    Deserialize,
+};
+
 use crate::{Projectiles, generate_id};
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct ActionParams {
     pub id: String,
     pub action_kind: String,

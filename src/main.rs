@@ -48,11 +48,13 @@ pub use actions::{
     ActionFuncs
 };
 use crate::actions::ActionParams;
+pub use items::Items;
 
 mod resources;
 mod globals;
 mod map;
 mod actions;
+mod items;
 
 pub mod nodes;
 pub mod render;
@@ -60,69 +62,14 @@ pub mod input;
 pub mod physics;
 pub mod math;
 pub mod gui;
+pub mod json;
 
 pub fn generate_id() -> String {
     nanoid::nanoid!()
 }
 
-fn generic_ranged_weapon() -> ItemParams {
-    ItemParams {
-        kind: Item::ONE_HANDED_WEAPON_KIND.to_string(),
-        name: "Test Ranged Weapon".to_string(),
-        description: "Test Ranged Weapon description".to_string(),
-        weight: 10.0,
-        action_params: ActionParams {
-            action_func_id: ActionFuncs::PROJECTILE_ACTION_ID.to_string(),
-            action_kind: ActionParams::PRIMARY_ABILITY.to_string(),
-            cooldown: 0.0025,
-            stamina_cost: 10.0,
-            speed: 15.0,
-            spread: 10.0,
-            range: 15.0,
-            damage: 10.0,
-            ..Default::default()
-        },
-        sprite_params: SpriteParams {
-            texture_id: Resources::ITEMS_TEXTURE_ID.to_string(),
-            texture_coords: uvec2(0, 3),
-            tile_size: vec2(16.0, 16.0),
-            offset: vec2(-8.0, -8.0),
-            ..Default::default()
-        },
-        ..Default::default()
-    }
-}
-
-fn generic_misc_item() -> ItemParams {
-    ItemParams {
-        kind: Item::MISC_KIND.to_string(),
-        name: "Test Trinket".to_string(),
-        description: "Test Trinket description".to_string(),
-        weight: 1.0,
-        action_params: ActionParams {
-            action_func_id: ActionFuncs::MAGIC_SPHERE_ACTION_ID.to_string(),
-            action_kind: ActionParams::SECONDARY_ABILITY.to_string(),
-            cooldown: 0.75,
-            stamina_cost: 10.0,
-            energy_cost: 100.0,
-            speed: 1.0,
-            spread: 0.0,
-            range: 2.0,
-            damage: 150.0,
-            ..Default::default()
-        },
-        sprite_params: SpriteParams {
-            texture_id: Resources::ITEMS_TEXTURE_ID.to_string(),
-            texture_coords: uvec2(3, 3),
-            tile_size: vec2(16.0, 16.0),
-            offset: vec2(-8.0, -8.0),
-            ..Default::default()
-        },
-        ..Default::default()
-    }
-}
-
 fn generic_actor(name: &str, position: Vec2, skin_id: u32, factions: &[String], player_id: Option<u32>) -> ActorParams {
+    let items = get_global::<Items>();
     ActorParams {
         name: name.to_string(),
         factions: factions.to_vec(),
@@ -137,12 +84,12 @@ fn generic_actor(name: &str, position: Vec2, skin_id: u32, factions: &[String], 
             8,
         ),
         inventory: vec!(
-            generic_ranged_weapon(),
-            generic_ranged_weapon(),
-            generic_ranged_weapon(),
-            generic_misc_item(),
-            generic_misc_item(),
-            generic_misc_item(),
+            items.get("test_weapon").clone(),
+            items.get("test_weapon").clone(),
+            items.get("test_weapon").clone(),
+            items.get("test_weapon").clone(),
+            items.get("test_trinket").clone(),
+            items.get("test_trinket").clone(),
         ),
         collider: Some(Collider::circle(0.0, 8.0, 8.0)),
         controller_kind: match player_id {
@@ -151,8 +98,8 @@ fn generic_actor(name: &str, position: Vec2, skin_id: u32, factions: &[String], 
         },
         sprite_animation_params: SpriteAnimationParams {
             texture_id: Resources::CHARACTERS_TEXTURE_ID.to_string(),
-            tile_size: vec2(32.0, 32.0),
-            offset: vec2(-16.0, -16.0),
+            tile_size: json::Vec2::new(32.0, 32.0),
+            offset: json::Vec2::new(-16.0, -16.0),
             animations: vec!(
                 Animation {
                     name: "down".to_string(),
@@ -195,6 +142,9 @@ async fn main() {
     let load_resources = start_coroutine(async move {
         let resources = Resources::new().await.unwrap();
         set_global(resources);
+
+        let items = Items::new().await.unwrap();
+        set_global(items);
 
         let actions = ActionFuncs::new().await;
         set_global(actions);
