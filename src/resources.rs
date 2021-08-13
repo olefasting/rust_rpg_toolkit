@@ -51,6 +51,7 @@ impl Resources {
             .expect(&format!("Unable to find resources file '{}'", Self::RESOURCES_FILE_PATH));
         let resources: ResourcesData = serde_json::from_str(&json)
             .expect(&format!("Error when parsing resource file '{}'", Self::RESOURCES_FILE_PATH));
+
         for texture_data in &resources.textures {
             let texture = load_texture(  &format!("{}/{}", Self::TEXTURES_FOLDER_PATH, &texture_data.filename)).await?;
             if texture_data.filter_mode == Self::LINEAR_FILTER_MODE.to_string() {

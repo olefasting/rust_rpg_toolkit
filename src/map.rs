@@ -8,12 +8,12 @@ use crate::{get_global, Resources};
 use crate::physics::Collider;
 
 pub struct Map {
-    tile_size: Vec2,
+    tile_size: UVec2,
     tiled_map: tiled::Map,
 }
 
 impl Map {
-    pub async fn new(tile_size: Vec2, path: &str) -> Self {
+    pub async fn new(tile_size: UVec2, path: &str) -> Self {
         let resources = get_global::<Resources>();
         let tiled_map_json = load_string(path).await.unwrap();
         let tiled_map = tiled::load_map(
@@ -32,30 +32,33 @@ impl Map {
     }
 
     pub fn solid_at(&self, position: Vec2) -> bool {
-        let coords = position / self.tile_size;
-        self.tiled_map.get_tile("solids", coords.x as u32, coords.y as u32).is_some()
+        let coords = uvec2(
+            position.x as u32 / self.tile_size.x,
+            position.y as u32 / self.tile_size.y,
+        );
+        self.tiled_map.get_tile("solids", coords.x, coords.y).is_some()
     }
 
     pub fn solid_at_collider(&self, collider: Collider) -> bool {
         let coords = match collider {
             Collider::Rectangle(rect) => {
                 (uvec2(
-                    (rect.x / self.tile_size.x - (rect.w / self.tile_size.x) / 2.0) as u32,
-                    (rect.y / self.tile_size.y - (rect.w / self.tile_size.y) / 2.0) as u32,
+                    (rect.x / self.tile_size.x as f32 - (rect.w / self.tile_size.x as f32) / 2.0) as u32,
+                    (rect.y / self.tile_size.y as f32 - (rect.w / self.tile_size.y as f32) / 2.0) as u32,
                 ),
                 uvec2(
-                    (rect.x / self.tile_size.x + (rect.h / self.tile_size.x) / 2.0) as u32,
-                    (rect.y / self.tile_size.y + (rect.h / self.tile_size.y) / 2.0) as u32,
+                    (rect.x / self.tile_size.x as f32 + (rect.h / self.tile_size.x as f32) / 2.0) as u32,
+                    (rect.y / self.tile_size.y as f32 + (rect.h / self.tile_size.y as f32) / 2.0) as u32,
                 ))
             },
             Collider::Circle(circle) => {
                 (uvec2(
-                    (circle.x / self.tile_size.x - (circle.r / self.tile_size.x)) as u32,
-                    (circle.y / self.tile_size.y - (circle.r / self.tile_size.y)) as u32,
+                    (circle.x / self.tile_size.x as f32 - (circle.r / self.tile_size.x as f32)) as u32,
+                    (circle.y / self.tile_size.y as f32 - (circle.r / self.tile_size.y as f32)) as u32,
                 ),
                 uvec2(
-                    (circle.x / self.tile_size.x + (circle.r / self.tile_size.x)) as u32,
-                    (circle.y / self.tile_size.y + (circle.r / self.tile_size.y)) as u32,
+                    (circle.x / self.tile_size.x as f32 + (circle.r / self.tile_size.x as f32)) as u32,
+                    (circle.y / self.tile_size.y as f32 + (circle.r / self.tile_size.y as f32)) as u32,
                 ))
             }
         };
@@ -76,8 +79,8 @@ impl Map {
                 Rect::new(
                     0.0,
                     0.0,
-                    self.tile_size.x * layer.width as f32,
-                    self.tile_size.y * layer.height as f32,
+                    (self.tile_size.x * layer.width) as f32,
+                    (self.tile_size.y * layer.height) as f32,
                 ),
                 None,
             );
@@ -88,8 +91,8 @@ impl Map {
                 Rect::new(
                     0.0,
                     0.0,
-                    self.tile_size.x * layer.width as f32,
-                    self.tile_size.y * layer.height as f32,
+                    (self.tile_size.x * layer.width) as f32,
+                    (self.tile_size.y * layer.height) as f32,
                 ),
                 None,
             );
