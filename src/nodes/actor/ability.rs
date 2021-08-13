@@ -11,6 +11,9 @@ pub struct ActorAbility {
     pub energy_cost: f32,
     pub cooldown_timer: f32,
     cooldown: f32,
+    speed: f32,
+    spread: f32,
+    range: f32,
     damage: f32,
     func: ActionFunc,
 }
@@ -21,6 +24,9 @@ impl ActorAbility {
         stamina_cost: f32,
         energy_cost: f32,
         cooldown: f32,
+        speed: f32,
+        spread: f32,
+        range: f32,
         damage: f32,
         func: ActionFunc,
     ) -> Self {
@@ -30,6 +36,9 @@ impl ActorAbility {
             energy_cost,
             cooldown_timer: cooldown,
             cooldown,
+            speed,
+            spread,
+            range,
             damage,
             func,
         }
@@ -49,7 +58,7 @@ impl ActorAbility {
             actor.stats.current_health -= self.health_cost;
             actor.stats.current_stamina -= self.stamina_cost;
             actor.stats.current_energy -= self.energy_cost;
-            (self.func)(&actor.id, origin, target, self.damage);
+            (self.func)(&actor.id, origin, target, self.speed, self.spread, self.range, self.damage);
             self.cooldown_timer = 0.0;
         }
     }

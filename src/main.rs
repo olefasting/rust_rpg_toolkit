@@ -143,6 +143,9 @@ async fn main() {
                             action_kind: ActionParams::PRIMARY_ABILITY.to_string(),
                             cooldown: 0.0025,
                             stamina_cost: 10.0,
+                            speed: 15.0,
+                            spread: 10.0,
+                            range: 15.0,
                             damage: 10.0,
                             ..Default::default()
                         },
@@ -165,6 +168,9 @@ async fn main() {
                             action_kind: ActionParams::PRIMARY_ABILITY.to_string(),
                             cooldown: 0.0025,
                             stamina_cost: 10.0,
+                            speed: 15.0,
+                            spread: 10.0,
+                            range: 15.0,
                             damage: 10.0,
                             ..Default::default()
                         },
@@ -187,6 +193,9 @@ async fn main() {
                             action_kind: ActionParams::PRIMARY_ABILITY.to_string(),
                             cooldown: 0.0025,
                             stamina_cost: 10.0,
+                            speed: 15.0,
+                            spread: 10.0,
+                            range: 15.0,
                             damage: 10.0,
                             ..Default::default()
                         },
@@ -210,6 +219,9 @@ async fn main() {
                             cooldown: 0.75,
                             stamina_cost: 10.0,
                             energy_cost: 100.0,
+                            speed: 1.0,
+                            spread: 0.0,
+                            range: 2.0,
                             damage: 150.0,
                             ..Default::default()
                         },
@@ -279,6 +291,9 @@ async fn main() {
                             action_kind: ActionParams::PRIMARY_ABILITY.to_string(),
                             cooldown: 0.0025,
                             stamina_cost: 10.0,
+                            speed: 15.0,
+                            spread: 10.0,
+                            range: 15.0,
                             damage: 10.0,
                             ..Default::default()
                         },
@@ -301,6 +316,9 @@ async fn main() {
                             action_kind: ActionParams::PRIMARY_ABILITY.to_string(),
                             cooldown: 0.0025,
                             stamina_cost: 10.0,
+                            speed: 15.0,
+                            spread: 10.0,
+                            range: 15.0,
                             damage: 10.0,
                             ..Default::default()
                         },
@@ -324,6 +342,9 @@ async fn main() {
                             cooldown: 0.75,
                             stamina_cost: 10.0,
                             energy_cost: 100.0,
+                            speed: 1.0,
+                            spread: 0.0,
+                            range: 2.0,
                             damage: 150.0,
                             ..Default::default()
                         },
@@ -394,6 +415,9 @@ async fn main() {
                             action_kind: ActionParams::PRIMARY_ABILITY.to_string(),
                             cooldown: 0.0025,
                             stamina_cost: 10.0,
+                            speed: 15.0,
+                            spread: 10.0,
+                            range: 15.0,
                             damage: 10.0,
                             ..Default::default()
                         },
@@ -424,6 +448,9 @@ async fn main() {
                             action_kind: ActionParams::PRIMARY_ABILITY.to_string(),
                             cooldown: 0.0025,
                             stamina_cost: 10.0,
+                            speed: 15.0,
+                            spread: 10.0,
+                            range: 15.0,
                             damage: 10.0,
                             ..Default::default()
                         },
@@ -440,6 +467,9 @@ async fn main() {
                             cooldown: 0.75,
                             stamina_cost: 10.0,
                             energy_cost: 100.0,
+                            speed: 1.0,
+                            spread: 0.0,
+                            range: 2.0,
                             damage: 150.0,
                             ..Default::default()
                         },
