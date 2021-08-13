@@ -5,9 +5,7 @@
     "name": "Test Ranged Weapon",
     "description": "Test Ranged Weapon description",
     "weight": 10.0,
-    "action_params": {
-      "id": "test_weapon_action",
-      "action_func_id": "projectile",
+    "ability_params": {
       "action_kind": "primary",
       "cooldown": 0.0025,
       "health_cost": 0.0,
@@ -16,7 +14,14 @@
       "speed": 15.0,
       "spread": 10.0,
       "range": 15.0,
-      "damage": 10.0
+      "damage": 10.0,
+      "projectile_size": 2.0,
+      "projectile_color": {
+        "r": 0.99,
+        "g": 0.98,
+        "b": 0.0,
+        "a": 1.0
+      }
     },
     "sprite_params": {
       "texture_id": "items",
@@ -40,9 +45,7 @@
     "name": "Test Trinket",
     "description": "Test Trinket description",
     "weight": 1.0,
-    "action_params": {
-      "id": "test_trinket_action",
-      "action_func_id": "magic_sphere",
+    "ability_params": {
       "action_kind": "secondary",
       "cooldown": 0.75,
       "health_cost": 0.0,
@@ -51,7 +54,14 @@
       "speed": 1.0,
       "spread": 0.0,
       "range": 2.0,
-      "damage": 150.0
+      "damage": 150.0,
+      "projectile_size": 100.0,
+      "projectile_color": {
+        "r": 0.0,
+        "g": 0.47,
+        "b": 0.95,
+        "a": 1.0
+      }
     },
     "sprite_params": {
       "texture_id": "items",

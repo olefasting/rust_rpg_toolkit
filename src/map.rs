@@ -19,8 +19,8 @@ impl Map {
         let tiled_map = tiled::load_map(
             &tiled_map_json,
             &[
-                ("../sprites/neo_zero_tiles_and_buildings_01.png", resources.get_texture(Resources::GROUND_TILES_TEXTURE_ID).clone()),
-                ("../sprites/neo_zero_props_and_items_01.png", resources.get_texture(Resources::PROPS_TEXTURE_ID).clone()),
+                ("../textures/neo_zero_tiles.png", resources.get_texture(Resources::GROUND_TILES_TEXTURE_ID).clone()),
+                ("../textures/neo_zero_props.png", resources.get_texture(Resources::PROPS_TEXTURE_ID).clone()),
             ],
             &[],
         ).unwrap();

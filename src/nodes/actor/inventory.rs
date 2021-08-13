@@ -8,7 +8,7 @@ use macroquad::{
     prelude::*,
 };
 
-use crate::{ItemParams, Item, get_global, ActionFuncs, render::Sprite, nodes::actor::ActorAbility, json, generate_id, Resources};
+use crate::{ItemParams, Item, get_global, render::Sprite, nodes::actor::ActorAbility, json, generate_id, Resources};
 
 #[derive(Clone)]
 pub struct ActorInventoryEntry {
@@ -19,30 +19,20 @@ pub struct ActorInventoryEntry {
 
 impl ActorInventoryEntry {
     pub fn new(params: ItemParams) -> Self {
+        let id = generate_id();
         let sprite = Sprite::new(params.sprite_params.clone());
         ActorInventoryEntry {
-            instance_id: generate_id(),
-            params,
+            instance_id: id.clone(),
+            params: ItemParams {
+                id,
+                ..params
+            },
             sprite,
         }
     }
 
-    pub fn to_actor_ability(&self) -> Option<ActorAbility> {
-        let resources = get_global::<Resources>();
-        match resources.try_get_action_func(&self.params.action_params.action_func_id) {
-            Some(action_func) => Some(ActorAbility::new(
-                self.params.action_params.health_cost,
-                self.params.action_params.stamina_cost,
-                self.params.action_params.energy_cost,
-                self.params.action_params.cooldown,
-                self.params.action_params.speed,
-                self.params.action_params.spread,
-                self.params.action_params.range,
-                self.params.action_params.damage,
-                action_func,
-            )),
-            _ => None,
-        }
+    pub fn to_actor_ability(&self) -> ActorAbility {
+        ActorAbility::new(self.params.ability_params.clone())
     }
 }
 

@@ -85,7 +85,7 @@ impl ActorStats {
                 self.current_energy = self.max_energy;
             }
             self.health_regen = (self.constitution + self.strength / 4 + self.willpower / 4) as f32 * 0.1;
-            self.stamina_regen = (self.constitution + self.dexterity / 4 + self.willpower / 4) as f32 * 4.0;
+            self.stamina_regen = (self.constitution + self.dexterity / 4 + self.willpower / 4) as f32 * 8.0;
             self.energy_regen = (self.willpower + self.constitution / 2) as f32 * 0.5;
             self.move_speed = (self.dexterity + self.strength / 4 + self.willpower / 4) as f32 * 0.1;
             self.carry_capacity = (self.strength + self.constitution / 4 + self.willpower / 4) as f32 * 50.0;

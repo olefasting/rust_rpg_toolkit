@@ -21,12 +21,13 @@
       "test_trinket"
     ],
     "collider": {
-      "kind": "circle",
+      "kind": "rectangle",
       "offset": {
         "x": 0.0,
         "y": 8.0
       },
-      "radius": 8.0
+      "width": 16.0,
+      "height": 16.0
     },
     "sprite_animation_params": {
       "texture_id": "characters",
@@ -82,12 +83,13 @@
       "test_trinket"
     ],
     "collider": {
-      "kind": "circle",
+      "kind": "rectangle",
       "offset": {
         "x": 0.0,
         "y": 8.0
       },
-      "radius": 8.0
+      "width": 16.0,
+      "height": 16.0
     },
     "sprite_animation_params": {
       "texture_id": "characters",
@@ -143,12 +145,13 @@
       "test_trinket"
     ],
     "collider": {
-      "kind": "circle",
+      "kind": "rectangle",
       "offset": {
         "x": 0.0,
         "y": 8.0
       },
-      "radius": 8.0
+      "width": 16.0,
+      "height": 16.0
     },
     "sprite_animation_params": {
       "texture_id": "characters",

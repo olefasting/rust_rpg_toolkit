@@ -23,12 +23,11 @@ use crate::{
         SpriteParams,
     },
     get_global,
-    ActionFuncs,
     json,
 };
 
 pub use draw_buffer::ItemDrawBuffer;
-use crate::resources::ActionParams;
+use crate::nodes::actor::ActorAbilityParams;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct ItemParams {
@@ -37,7 +36,7 @@ pub struct ItemParams {
     pub name: String,
     pub description: String,
     pub weight: f32,
-    pub action_params: ActionParams,
+    pub ability_params: ActorAbilityParams,
     pub sprite_params: SpriteParams,
 }
 
@@ -49,7 +48,7 @@ impl Default for ItemParams {
             name: "Unnamed Item".to_string(),
             description: "".to_string(),
             weight: 0.1,
-            action_params: Default::default(),
+            ability_params: Default::default(),
             sprite_params: Default::default(),
         }
     }
@@ -84,11 +83,15 @@ impl Item {
     pub const QUEST_KIND: &'static str = "quest";
 
     pub fn new(position: Vec2, params: ItemParams) -> Self {
+        let id = generate_id();
         let sprite = Sprite::new(params.sprite_params.clone());
         Item {
-            instance_id: generate_id(),
+            instance_id: id.clone(),
             position,
-            params,
+            params: ItemParams {
+                id,
+                ..params
+            },
             sprite,
         }
     }

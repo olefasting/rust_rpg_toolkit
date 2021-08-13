@@ -40,8 +40,6 @@ use render::{
 pub use render::text::draw_aligned_text;
 pub use resources::{
     Resources,
-    ActionFunc,
-    ActionFuncs,
 };
 
 use crate::nodes::actor::{ActorDrawBuffer, ActorStats};
@@ -64,7 +62,7 @@ pub fn generate_id() -> String {
 }
 
 fn generic_actor(name: &str, position: Vec2, skin_id: u32, factions: &[String], player_id: Option<u32>) -> Actor {
-    assert!(skin_id >= 0 && skin_id <= 2, "invalid skin id");
+    assert!(skin_id <= 2, "invalid skin id");
     let controller_kind = match player_id {
         Some(id) => ActorControllerKind::Player { id },
         None => ActorControllerKind::Computer,
@@ -122,7 +120,7 @@ async fn main() {
         let map = Map::new(uvec2(16, 16), "assets/maps/map_01.json").await;
         GameState::add_node(map);
 
-        Camera::add_node(vec2(100.0, 100.0));
+        Camera::add_node(vec2(100.0, 400.0));
 
         ItemDrawBuffer::add_node();
 
@@ -130,7 +128,7 @@ async fn main() {
 
         scene::add_node(generic_actor(
             "Player Actor",
-            vec2(100.0, 100.0),
+            vec2(100.0, 400.0),
             0,
             &["player_faction".to_string()],
             Some(0),
@@ -138,7 +136,7 @@ async fn main() {
 
         scene::add_node(generic_actor(
             "Friendly Actor",
-            vec2(100.0, 200.0),
+            vec2(200.0, 375.0),
             2,
             &["player_faction".to_string()],
             None,
@@ -146,7 +144,7 @@ async fn main() {
 
         scene::add_node(generic_actor(
             "Enemy Actor",
-            vec2(250.0, 250.0),
+            vec2(250.0, 350.0),
             1,
             &[],
             None,

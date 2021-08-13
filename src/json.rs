@@ -279,3 +279,31 @@ impl Default for ActorStats {
         }
     }
 }
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct Color {
+    pub r: f32,
+    pub g: f32,
+    pub b: f32,
+    pub a: f32,
+}
+
+impl Color {
+    pub fn from(other: macroquad::color::Color) -> Self {
+        Color {
+            r: other.r,
+            g: other.g,
+            b: other.b,
+            a: other.a,
+        }
+    }
+
+    pub fn to_macroquad(&self) -> macroquad::color::Color {
+        macroquad::color::Color {
+            r: self.r,
+            g: self.g,
+            b: self.b,
+            a: self.a,
+        }
+    }
+}

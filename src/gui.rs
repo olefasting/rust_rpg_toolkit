@@ -9,8 +9,9 @@ use macroquad::{
 use crate::{
     nodes::{GameState, Actor},
     Item,
-    resources::ActionParams,
 };
+use crate::nodes::actor::ActorAbilityParams;
+use crate::nodes::ActorAbility;
 
 pub fn draw_gui() {
     let game_state = scene::find_node_by_type::<GameState>().unwrap();
@@ -48,10 +49,10 @@ pub fn draw_gui() {
                             for item in &items {
                                 ui.label(None, &item.params.name);
                                 if ui.button(None, "Equip") {
-                                    if item.params.action_params.action_kind == ActionParams::PRIMARY_ABILITY.to_string() {
-                                        player.primary_ability = item.to_actor_ability();
-                                    } else if item.params.action_params.action_kind == ActionParams::SECONDARY_ABILITY.to_string() {
-                                        player.secondary_ability = item.to_actor_ability();
+                                    if item.params.ability_params.action_kind == ActorAbility::PRIMARY_ABILITY.to_string() {
+                                        player.primary_ability = Some(item.to_actor_ability());
+                                    } else if item.params.ability_params.action_kind == ActorAbility::SECONDARY_ABILITY.to_string() {
+                                        player.secondary_ability = Some(item.to_actor_ability());
                                     }
                                 }
                                 if ui.button(None, "Drop") {
@@ -69,10 +70,10 @@ pub fn draw_gui() {
                             for item in &items {
                                 ui.label(None, &item.params.name);
                                 if ui.button(None, "Equip") {
-                                    if item.params.action_params.action_kind == ActionParams::PRIMARY_ABILITY.to_string() {
-                                        player.primary_ability = item.to_actor_ability();
-                                    } else if item.params.action_params.action_kind == ActionParams::SECONDARY_ABILITY.to_string() {
-                                        player.secondary_ability = item.to_actor_ability();
+                                    if item.params.ability_params.action_kind == ActorAbility::PRIMARY_ABILITY.to_string() {
+                                        player.primary_ability = Some(item.to_actor_ability());
+                                    } else if item.params.ability_params.action_kind == ActorAbility::SECONDARY_ABILITY.to_string() {
+                                        player.secondary_ability = Some(item.to_actor_ability());
                                     }
                                 }
                                 if ui.button(None, "Drop") {

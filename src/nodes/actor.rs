@@ -33,6 +33,7 @@ pub use controller::{
 
 pub use inventory::ActorInventory;
 pub use ability::{
+    ActorAbilityParams,
     ActorAbility,
 };
 
@@ -63,6 +64,7 @@ use crate::render::Viewport;
 #[derive(Clone, Serialize, Deserialize)]
 pub struct ActorParams {
     pub id: String,
+    pub position: Option<json::Vec2>,
     pub name: String,
     pub stats: json::ActorStats,
     pub factions: Vec<String>,
@@ -75,6 +77,7 @@ impl Default for ActorParams {
     fn default() -> Self {
         ActorParams {
             id: generate_id(),
+            position: None,
             name: "Unnamed Actor".to_string(),
             stats: Default::default(),
             factions: Vec::new(),
@@ -119,7 +122,7 @@ impl Actor {
         };
         let body = PhysicsBody::new(position, 0.0, collider);
         Actor {
-            id: params.id,
+            id: generate_id(),
             name: params.name,
             stats: params.stats.to_actor_stats(max_vitals),
             factions: params.factions,
@@ -143,6 +146,7 @@ impl Actor {
         };
         ActorParams {
             id: self.id.clone(),
+            position: Some(json::Vec2::from(self.body.position)),
             name: self.name.clone(),
             stats: json::ActorStats::from(self.stats.clone()),
             factions: self.factions.clone(),
@@ -211,9 +215,9 @@ impl Actor {
 
     pub fn draw_actor(&mut self) {
         {
+            self.body.debug_draw();
             let (position, rotation) = (self.body.position, self.body.rotation);
             self.sprite_animation.draw(position, rotation);
-            // self.body.debug_draw();
         }
 
         let is_local_player = self.is_local_player();
