@@ -4,6 +4,7 @@ use macroquad::{
         Handle,
         RefMut,
     },
+    color,
     prelude::*,
 };
 use crate::nodes::Actor;
@@ -84,6 +85,12 @@ impl Node for Beams {
 
     fn draw(mut node: RefMut<Self>) {
         node.active.retain(|beam| {
+            draw_circle(
+                beam.end.x,
+                beam.end.y,
+                beam.width / 2.0,
+                beam.color,
+            );
             draw_line(
                 beam.origin.x,
                 beam.origin.y,
@@ -95,8 +102,16 @@ impl Node for Beams {
             draw_circle(
                 beam.end.x,
                 beam.end.y,
-                beam.width / 2.0,
-                beam.color,
+                ((beam.width / 2.0) * 0.8) / 2.0,
+                color::WHITE,
+            );
+            draw_line(
+                beam.origin.x,
+                beam.origin.y,
+                beam.end.x,
+                beam.end.y,
+                (beam.width - 4.0) * 0.8,
+                color::WHITE,
             );
             false
         });
