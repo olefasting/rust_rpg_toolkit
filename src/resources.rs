@@ -1,11 +1,38 @@
+use std::{
+    collections::HashMap,
+    fs,
+};
+
+use serde::{
+    Deserialize,
+    Serialize,
+};
+
 use macroquad::prelude::*;
-use std::collections::HashMap;
+
+#[derive(Clone, Serialize, Deserialize)]
+struct TextureData {
+    pub id: String,
+    pub filename: String,
+    pub filter_mode: String,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+struct ResourcesData {
+    pub textures: Vec<TextureData>,
+}
 
 pub struct Resources {
     textures: HashMap<String, Texture2D>,
 }
 
 impl Resources {
+    const RESOURCES_FILE_PATH: &'static str = "assets/resources.json";
+    const TEXTURES_FOLDER_PATH: &'static str = "assets/textures";
+
+    const LINEAR_FILTER_MODE: &'static str = "Linear";
+    const NEAREST_FILTER_MODE: &'static str = "Nearest";
+
     pub const WHITE_TEXTURE_ID: &'static str = "__WHITE_TEXTURE__";
 
     pub const CHARACTERS_TEXTURE_ID: &'static str = "characters";
@@ -16,30 +43,30 @@ impl Resources {
     pub async fn new() -> Result<Resources, FileError> {
         let mut textures= HashMap::new();
 
-        let white_texture = load_texture("assets/sprites/white_texture.png").await?;
+        let white_texture = load_texture("assets/textures/white_texture.png").await?;
         white_texture.set_filter(FilterMode::Nearest);
         textures.insert(Self::WHITE_TEXTURE_ID.to_string(), white_texture);
 
-        let characters = load_texture("assets/sprites/neo_zero_char_01.png").await?;
-        characters.set_filter(FilterMode::Nearest);
-        textures.insert(Self::CHARACTERS_TEXTURE_ID.to_string(), characters);
-
-        let props = load_texture("assets/sprites/neo_zero_props_and_items_01.png").await?;
-        props.set_filter(FilterMode::Nearest);
-        textures.insert(Self::PROPS_TEXTURE_ID.to_string(), props);
-
-        let ground_tiles = load_texture("assets/sprites/neo_zero_tiles_and_buildings_01.png").await?;
-        ground_tiles.set_filter(FilterMode::Nearest);
-        textures.insert(Self::GROUND_TILES_TEXTURE_ID.to_string(), ground_tiles);
+        let json = fs::read_to_string(Self::RESOURCES_FILE_PATH)
+            .expect(&format!("Unable to find resources file '{}'", Self::RESOURCES_FILE_PATH));
+        let resources: ResourcesData = serde_json::from_str(&json)
+            .expect(&format!("Error when parsing resource file '{}'", Self::RESOURCES_FILE_PATH));
+        for texture_data in &resources.textures {
+            let texture = load_texture(  &format!("{}/{}", Self::TEXTURES_FOLDER_PATH, &texture_data.filename)).await?;
+            if texture_data.filter_mode == Self::LINEAR_FILTER_MODE.to_string() {
+                texture.set_filter(FilterMode::Linear)
+            } else if texture_data.filter_mode == Self::NEAREST_FILTER_MODE.to_string() {
+                texture.set_filter(FilterMode::Nearest);
+            } else {
+                assert!(false, "Invalid filter mode '{}'", texture_data.filter_mode);
+            }
+            textures.insert(texture_data.id.clone(), texture);
+        }
 
         // https://rafazcruz.itch.io/cyberpunk-top-down-game-asset-pack
         // cyberpunk_city_pack_1.png
         // cyberpunk_city_pack_2.png
-
         // https://jeresikstus.itch.io/cyberpunk-items-16x16
-        let items = load_texture("assets/sprites/items.png").await?;
-        items.set_filter(FilterMode::Nearest);
-        textures.insert(Self::ITEMS_TEXTURE_ID.to_string(), items);
 
         Ok(Resources {
             textures,

@@ -1,0 +1,29 @@
+{
+  "textures": [
+    {
+      "id": "characters",
+      "filename": "neo_zero_char_01.png",
+      "filter_mode": "Nearest"
+    },
+    {
+      "id": "characters",
+      "filename": "neo_zero_char_01.png",
+      "filter_mode": "Nearest"
+    },
+    {
+      "id": "props",
+      "filename": "neo_zero_props_and_items_01.png",
+      "filter_mode": "Nearest"
+    },
+    {
+      "id": "ground_tiles",
+      "filename": "neo_zero_tiles_and_buildings_01.png",
+      "filter_mode": "Nearest"
+    },
+    {
+      "id": "items",
+      "filename": "items.png",
+      "filter_mode": "Nearest"
+    }
+  ]
+}
