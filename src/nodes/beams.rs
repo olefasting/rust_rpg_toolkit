@@ -8,6 +8,13 @@ use macroquad::{
 };
 use crate::nodes::Actor;
 
+fn beam_collision_check(origin: Vec2, end: Vec2, width: f32, point: Vec2) -> bool {
+    let va = origin - end;
+    let vb = point - end;
+    let area = va.x * vb.y - va.y * vb.x;
+    return area.abs() < width * Beam::WIDTH_TOLERANCE_FACTOR;
+}
+
 pub struct Beam {
     pub actor_id: String,
     pub factions: Vec<String>,
@@ -52,8 +59,8 @@ impl Beams {
 }
 
 impl Node for Beams {
-    fn fixed_update(node: RefMut<Self>) {
-        for beam in &node.active {
+    fn fixed_update(mut node: RefMut<Self>) {
+        for mut beam in &mut node.active {
             'outer: for mut other_actor in scene::find_nodes_by_type::<Actor>() {
                 if other_actor.id != beam.actor_id {
                     for faction in &beam.factions {
@@ -66,11 +73,9 @@ impl Node for Beams {
                         None => other_actor.body.position,
                     };
 
-                    let va = beam.origin - beam.end;
-                    let vb = position - beam.end;
-                    let area = va.x * vb.y - va.y * vb.x;
-                    if area.abs() < beam.width * Beam::WIDTH_TOLERANCE_FACTOR {
+                    if beam_collision_check(beam.origin, beam.end, beam.width,position) {
                         other_actor.take_damage(&beam.actor_id, beam.damage);
+                        beam.end = position;
                     }
                 }
             }
