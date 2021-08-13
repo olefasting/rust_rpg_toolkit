@@ -94,49 +94,46 @@ impl ActorAbility {
     }
 
     pub fn activate(&mut self, actor: &mut Actor, origin: Vec2, target: Vec2) {
-        if self.health_cost > 0.0 && actor.stats.current_health < self.health_cost {
-            return;
-        }
-        if self.stamina_cost > 0.0 && actor.stats.current_stamina < self.stamina_cost {
-            return;
-        }
-        if self.energy_cost > 0.0 && actor.stats.current_energy < self.energy_cost {
-            return;
-        }
-        if self.effect_kind == ActorAbility::PROJECTILE_EFFECT && self.cooldown_timer >= self.cooldown {
-            actor.stats.current_health -= self.health_cost;
-            actor.stats.current_stamina -= self.stamina_cost;
-            actor.stats.current_energy -= self.energy_cost;
-            self.cooldown_timer = 0.0;
-            let mut projectiles = scene::find_node_by_type::<Projectiles>().unwrap();
-            let ttl = self.range / self.speed;
-            projectiles.spawn(
-                &actor.id,
-                &actor.factions,
-                self.damage,
-                self.effect_color,
-                self.effect_size,
-                origin,
-                target,
-                self.speed,
-                self.spread,
-                ttl,
-            );
-        } else if self.effect_kind == ActorAbility::BEAM_EFFECT {
-            actor.stats.current_health -= self.health_cost;
-            actor.stats.current_stamina -= self.stamina_cost;
-            actor.stats.current_energy -= self.energy_cost;
-            let mut beams = scene::find_node_by_type::<Beams>().unwrap();
-            let end = actor.body.position + target.sub(actor.body.position).normalize_or_zero() * self.range;
-            beams.spawn(
-                &actor.id,
-                &actor.factions,
-                self.damage,
-                self.effect_color,
-                self.effect_size,
-                actor.body.position,
-                end,
-            )
+        if (self.health_cost == 0.0 || actor.stats.current_health >= self.health_cost)
+            && (self.stamina_cost == 0.0 || actor.stats.current_stamina >= self.stamina_cost)
+            && (self.energy_cost == 0.0 || actor.stats.current_energy >= self.energy_cost) {
+            if self.effect_kind == ActorAbility::PROJECTILE_EFFECT && self.cooldown_timer >= self.cooldown {
+                actor.stats.current_health -= self.health_cost;
+                actor.stats.current_stamina -= self.stamina_cost;
+                actor.stats.current_energy -= self.energy_cost;
+                self.cooldown_timer = 0.0;
+                let mut projectiles = scene::find_node_by_type::<Projectiles>().unwrap();
+                let ttl = self.range / self.speed;
+                projectiles.spawn(
+                    &actor.id,
+                    &actor.factions,
+                    self.damage,
+                    self.effect_color,
+                    self.effect_size,
+                    origin,
+                    target,
+                    self.speed,
+                    self.spread,
+                    ttl,
+                );
+            } else if self.effect_kind == ActorAbility::BEAM_EFFECT {
+                actor.stats.current_health -= self.health_cost;
+                actor.stats.current_stamina -= self.stamina_cost;
+                actor.stats.current_energy -= self.energy_cost;
+                let mut beams = scene::find_node_by_type::<Beams>().unwrap();
+                let end = actor.body.position + target.sub(actor.body.position).normalize_or_zero() * self.range;
+                beams.spawn(
+                    &actor.id,
+                    &actor.factions,
+                    self.damage,
+                    self.effect_color,
+                    self.effect_size,
+                    actor.body.position,
+                    end,
+                )
+            } else {
+                assert!(false, "Invalid effect kind '{}'", self.effect_kind);
+            }
         }
     }
 

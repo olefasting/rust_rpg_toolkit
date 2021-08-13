@@ -125,12 +125,15 @@ impl Node for Projectiles {
         let viewport = get_global::<Viewport>();
         for projectile in &node.active {
             if viewport.contains(projectile.position) {
-                draw_circle(
+                let begin = projectile.position - projectile.direction * projectile.size * 2.0;
+                draw_line(
+                    begin.x,
+                    begin.y,
                     projectile.position.x,
                     projectile.position.y,
-                    projectile.size / 2.0,
+                    projectile.size,
                     projectile.color,
-                )
+                );
             }
         }
     }

@@ -6,7 +6,6 @@
     "description": "Test Ranged Weapon description",
     "weight": 10.0,
     "ability_params": {
-      "effect_kind": "projectile",
       "action_kind": "primary",
       "cooldown": 0.0025,
       "health_cost": 0.0,
@@ -16,6 +15,7 @@
       "spread": 10.0,
       "range": 15.0,
       "damage": 10.0,
+      "effect_kind": "projectile",
       "effect_size": 2.0,
       "effect_color": {
         "r": 0.99,
@@ -47,7 +47,6 @@
     "description": "Test Beam Weapon description",
     "weight": 10.0,
     "ability_params": {
-      "effect_kind": "beam",
       "action_kind": "primary",
       "health_cost": 0.0,
       "stamina_cost": 0.0,
@@ -56,6 +55,7 @@
       "spread": 10.0,
       "range": 300.0,
       "damage": 2.0,
+      "effect_kind": "beam",
       "effect_size": 6.0,
       "effect_color": {
         "r": 0.99,
@@ -87,7 +87,6 @@
     "description": "Test Trinket description",
     "weight": 1.0,
     "ability_params": {
-      "effect_kind": "projectile",
       "action_kind": "secondary",
       "cooldown": 0.75,
       "health_cost": 0.0,
@@ -97,6 +96,7 @@
       "spread": 0.0,
       "range": 2.0,
       "damage": 150.0,
+      "effect_kind": "projectile",
       "effect_size": 100.0,
       "effect_color": {
         "r": 0.0,
