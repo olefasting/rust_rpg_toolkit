@@ -65,6 +65,120 @@ pub fn generate_id() -> String {
     nanoid::nanoid!()
 }
 
+fn generic_ranged_weapon() -> ItemParams {
+    ItemParams {
+        kind: Item::ONE_HANDED_WEAPON_KIND.to_string(),
+        name: "Test Ranged Weapon".to_string(),
+        description: "Test Ranged Weapon description".to_string(),
+        weight: 10.0,
+        action_params: ActionParams {
+            action_func_id: ActionFuncs::PROJECTILE_ACTION_ID.to_string(),
+            action_kind: ActionParams::PRIMARY_ABILITY.to_string(),
+            cooldown: 0.0025,
+            stamina_cost: 10.0,
+            speed: 15.0,
+            spread: 10.0,
+            range: 15.0,
+            damage: 10.0,
+            ..Default::default()
+        },
+        sprite_params: SpriteParams {
+            texture_id: Resources::ITEMS_TEXTURE_ID.to_string(),
+            texture_coords: uvec2(0, 3),
+            tile_size: vec2(16.0, 16.0),
+            offset: vec2(-8.0, -8.0),
+            ..Default::default()
+        },
+        ..Default::default()
+    }
+}
+
+fn generic_misc_item() -> ItemParams {
+    ItemParams {
+        kind: Item::MISC_KIND.to_string(),
+        name: "Test Trinket".to_string(),
+        description: "Test Trinket description".to_string(),
+        weight: 1.0,
+        action_params: ActionParams {
+            action_func_id: ActionFuncs::MAGIC_SPHERE_ACTION_ID.to_string(),
+            action_kind: ActionParams::SECONDARY_ABILITY.to_string(),
+            cooldown: 0.75,
+            stamina_cost: 10.0,
+            energy_cost: 100.0,
+            speed: 1.0,
+            spread: 0.0,
+            range: 2.0,
+            damage: 150.0,
+            ..Default::default()
+        },
+        sprite_params: SpriteParams {
+            texture_id: Resources::ITEMS_TEXTURE_ID.to_string(),
+            texture_coords: uvec2(3, 3),
+            tile_size: vec2(16.0, 16.0),
+            offset: vec2(-8.0, -8.0),
+            ..Default::default()
+        },
+        ..Default::default()
+    }
+}
+
+fn generic_actor(name: &str, position: Vec2, sprite_id: u32, factions: &[String], player_id: Option<u32>) -> ActorParams {
+    ActorParams {
+        name: name.to_string(),
+        factions: factions.to_vec(),
+        position,
+        stats: ActorStats::new(
+            8,
+            8,
+            8,
+            8,
+            8,
+            8,
+            8,
+        ),
+        inventory: vec!(
+            generic_ranged_weapon(),
+            generic_ranged_weapon(),
+            generic_ranged_weapon(),
+            generic_misc_item(),
+            generic_misc_item(),
+            generic_misc_item(),
+        ),
+        collider: Some(Collider::circle(0.0, 8.0, 8.0)),
+        controller_kind: match player_id {
+            Some(id) => ActorControllerKind::Player { id },
+            None => ActorControllerKind::Computer,
+        },
+        sprite_animation_params: SpriteAnimationParams {
+            texture_id: Resources::CHARACTERS_TEXTURE_ID.to_string(),
+            tile_size: vec2(32.0, 32.0),
+            offset: vec2(-16.0, -16.0),
+            animations: vec!(
+                Animation {
+                    name: "down".to_string(),
+                    row: sprite_id * 3,
+                    frames: 3,
+                    fps: 8,
+                },
+                Animation {
+                    name: "up".to_string(),
+                    row: sprite_id * 3 + 1,
+                    frames: 3,
+                    fps: 8,
+                },
+                Animation {
+                    name: "right".to_string(),
+                    row: sprite_id * 3 + 2,
+                    frames: 3,
+                    fps: 8,
+                }
+            ),
+            ..Default::default()
+        },
+        ..Default::default()
+    }
+}
+
 fn window_conf() -> Conf {
     Conf {
         window_title: "Capstone".to_owned(),
@@ -118,395 +232,29 @@ async fn main() {
 
         Projectiles::add_node();
 
-        Actor::add_node(
-            ActorParams {
-                name: "Abraxas".to_string(),
-                factions: vec!("player_faction".to_string()),
-                position: vec2(100.0, 100.0),
-                stats: ActorStats::new(
-                    8,
-                    8,
-                    8,
-                    8,
-                    8,
-                    8,
-                    8,
-                ),
-                inventory: vec!(
-                    ItemParams {
-                        kind: Item::ONE_HANDED_WEAPON_KIND.to_string(),
-                        name: "Test Ranged Weapon".to_string(),
-                        description: "Test Ranged Weapon description".to_string(),
-                        weight: 10.0,
-                        action_params: ActionParams {
-                            action_func_id: ActionFuncs::PROJECTILE_ACTION_ID.to_string(),
-                            action_kind: ActionParams::PRIMARY_ABILITY.to_string(),
-                            cooldown: 0.0025,
-                            stamina_cost: 10.0,
-                            speed: 15.0,
-                            spread: 10.0,
-                            range: 15.0,
-                            damage: 10.0,
-                            ..Default::default()
-                        },
-                        sprite_params: SpriteParams {
-                            texture_id: Resources::ITEMS_TEXTURE_ID.to_string(),
-                            texture_coords: uvec2(0, 3),
-                            tile_size: vec2(16.0, 16.0),
-                            offset: vec2(-8.0, -8.0),
-                            ..Default::default()
-                        },
-                        ..Default::default()
-                    },
-                    ItemParams {
-                        kind: Item::ONE_HANDED_WEAPON_KIND.to_string(),
-                        name: "Test Ranged Weapon".to_string(),
-                        description: "Test Ranged Weapon description".to_string(),
-                        weight: 10.0,
-                        action_params: ActionParams {
-                            action_func_id: ActionFuncs::PROJECTILE_ACTION_ID.to_string(),
-                            action_kind: ActionParams::PRIMARY_ABILITY.to_string(),
-                            cooldown: 0.0025,
-                            stamina_cost: 10.0,
-                            speed: 15.0,
-                            spread: 10.0,
-                            range: 15.0,
-                            damage: 10.0,
-                            ..Default::default()
-                        },
-                        sprite_params: SpriteParams {
-                            texture_id: Resources::ITEMS_TEXTURE_ID.to_string(),
-                            texture_coords: uvec2(0, 3),
-                            tile_size: vec2(16.0, 16.0),
-                            offset: vec2(-8.0, -8.0),
-                            ..Default::default()
-                        },
-                        ..Default::default()
-                    },
-                    ItemParams {
-                        kind: Item::ONE_HANDED_WEAPON_KIND.to_string(),
-                        name: "Test Ranged Weapon".to_string(),
-                        description: "Test Ranged Weapon description".to_string(),
-                        weight: 10.0,
-                        action_params: ActionParams {
-                            action_func_id: ActionFuncs::PROJECTILE_ACTION_ID.to_string(),
-                            action_kind: ActionParams::PRIMARY_ABILITY.to_string(),
-                            cooldown: 0.0025,
-                            stamina_cost: 10.0,
-                            speed: 15.0,
-                            spread: 10.0,
-                            range: 15.0,
-                            damage: 10.0,
-                            ..Default::default()
-                        },
-                        sprite_params: SpriteParams {
-                            texture_id: Resources::ITEMS_TEXTURE_ID.to_string(),
-                            texture_coords: uvec2(0, 3),
-                            tile_size: vec2(16.0, 16.0),
-                            offset: vec2(-8.0, -8.0),
-                            ..Default::default()
-                        },
-                        ..Default::default()
-                    },
-                    ItemParams {
-                        kind: Item::MISC_KIND.to_string(),
-                        name: "Test Trinket".to_string(),
-                        description: "Test Trinket description".to_string(),
-                        weight: 1.0,
-                        action_params: ActionParams {
-                            action_func_id: ActionFuncs::MAGIC_SPHERE_ACTION_ID.to_string(),
-                            action_kind: ActionParams::SECONDARY_ABILITY.to_string(),
-                            cooldown: 0.75,
-                            stamina_cost: 10.0,
-                            energy_cost: 100.0,
-                            speed: 1.0,
-                            spread: 0.0,
-                            range: 2.0,
-                            damage: 150.0,
-                            ..Default::default()
-                        },
-                        sprite_params: SpriteParams {
-                            texture_id: Resources::ITEMS_TEXTURE_ID.to_string(),
-                            texture_coords: uvec2(3, 3),
-                            tile_size: vec2(16.0, 16.0),
-                            offset: vec2(-8.0, -8.0),
-                            ..Default::default()
-                        },
-                        ..Default::default()
-                    }
-                ),
-                collider: Some(Collider::circle(0.0, 8.0, 8.0)),
-                controller_kind: ActorControllerKind::Player { id: 0 },
-                sprite_animation_params: SpriteAnimationParams {
-                    texture_id: Resources::CHARACTERS_TEXTURE_ID.to_string(),
-                    tile_size: vec2(32.0, 32.0),
-                    offset: vec2(-16.0, -16.0),
-                    animations: vec!(
-                        Animation {
-                            name: "down".to_string(),
-                            row: 0,
-                            frames: 3,
-                            fps: 8,
-                        },
-                        Animation {
-                            name: "up".to_string(),
-                            row: 1,
-                            frames: 3,
-                            fps: 8,
-                        },
-                        Animation {
-                            name: "right".to_string(),
-                            row: 2,
-                            frames: 3,
-                            fps: 8,
-                        }
-                    ),
-                    ..Default::default()
-                },
-                ..Default::default()
-            },
-        );
+        Actor::add_node(generic_actor(
+            "Player Actor",
+            vec2(100.0, 100.0),
+            0,
+            &["player_faction".to_string()],
+            Some(0),
+        ));
 
-        Actor::add_node(
-            ActorParams {
-                name: "Enemy Actor".to_string(),
-                position: vec2(300.0, 300.0),
-                stats: ActorStats::new(
-                    8,
-                    8,
-                    8,
-                    8,
-                    8,
-                    8,
-                    8,
-                ),
-                inventory: vec!(
-                    ItemParams {
-                        kind: Item::ONE_HANDED_WEAPON_KIND.to_string(),
-                        name: "Test Ranged Weapon".to_string(),
-                        description: "Test Ranged Weapon description".to_string(),
-                        weight: 10.0,
-                        action_params: ActionParams {
-                            action_func_id: ActionFuncs::PROJECTILE_ACTION_ID.to_string(),
-                            action_kind: ActionParams::PRIMARY_ABILITY.to_string(),
-                            cooldown: 0.0025,
-                            stamina_cost: 10.0,
-                            speed: 15.0,
-                            spread: 10.0,
-                            range: 15.0,
-                            damage: 10.0,
-                            ..Default::default()
-                        },
-                        sprite_params: SpriteParams {
-                            texture_id: Resources::ITEMS_TEXTURE_ID.to_string(),
-                            texture_coords: uvec2(0, 3),
-                            tile_size: vec2(16.0, 16.0),
-                            offset: vec2(-8.0, -8.0),
-                            ..Default::default()
-                        },
-                        ..Default::default()
-                    },
-                    ItemParams {
-                        kind: Item::ONE_HANDED_WEAPON_KIND.to_string(),
-                        name: "Test Ranged Weapon".to_string(),
-                        description: "Test Ranged Weapon description".to_string(),
-                        weight: 10.0,
-                        action_params: ActionParams {
-                            action_func_id: ActionFuncs::PROJECTILE_ACTION_ID.to_string(),
-                            action_kind: ActionParams::PRIMARY_ABILITY.to_string(),
-                            cooldown: 0.0025,
-                            stamina_cost: 10.0,
-                            speed: 15.0,
-                            spread: 10.0,
-                            range: 15.0,
-                            damage: 10.0,
-                            ..Default::default()
-                        },
-                        sprite_params: SpriteParams {
-                            texture_id: Resources::ITEMS_TEXTURE_ID.to_string(),
-                            texture_coords: uvec2(0, 3),
-                            tile_size: vec2(16.0, 16.0),
-                            offset: vec2(-8.0, -8.0),
-                            ..Default::default()
-                        },
-                        ..Default::default()
-                    },
-                    ItemParams {
-                        kind: Item::MISC_KIND.to_string(),
-                        name: "Test Trinket".to_string(),
-                        description: "Test Trinket description".to_string(),
-                        weight: 1.0,
-                        action_params: ActionParams {
-                            action_func_id: ActionFuncs::MAGIC_SPHERE_ACTION_ID.to_string(),
-                            action_kind: ActionParams::SECONDARY_ABILITY.to_string(),
-                            cooldown: 0.75,
-                            stamina_cost: 10.0,
-                            energy_cost: 100.0,
-                            speed: 1.0,
-                            spread: 0.0,
-                            range: 2.0,
-                            damage: 150.0,
-                            ..Default::default()
-                        },
-                        sprite_params: SpriteParams {
-                            texture_id: Resources::ITEMS_TEXTURE_ID.to_string(),
-                            texture_coords: uvec2(3, 3),
-                            tile_size: vec2(16.0, 16.0),
-                            offset: vec2(-8.0, -8.0),
-                            ..Default::default()
-                        },
-                        ..Default::default()
-                    }
-                ),
-                collider: Some(Collider::circle(0.0, 8.0, 8.0)),
-                controller_kind: ActorControllerKind::Computer,
-                sprite_animation_params: SpriteAnimationParams {
-                    texture_id: Resources::CHARACTERS_TEXTURE_ID.to_string(),
-                    tile_size: vec2(32.0, 32.0),
-                    offset: vec2(-16.0, -16.0),
-                    animations: vec!(
-                        Animation {
-                            name: "down".to_string(),
-                            row: 3,
-                            frames: 3,
-                            fps: 8,
-                        },
-                        Animation {
-                            name: "up".to_string(),
-                            row: 4,
-                            frames: 3,
-                            fps: 8,
-                        },
-                        Animation {
-                            name: "right".to_string(),
-                            row: 5,
-                            frames: 3,
-                            fps: 8,
-                        }
-                    ),
-                    ..Default::default()
-                },
-                ..Default::default()
-            },
-        );
+        Actor::add_node(generic_actor(
+            "Friendly Actor",
+            vec2(100.0, 200.0),
+            2,
+            &["player_faction".to_string()],
+            None,
+        ));
 
-        Actor::add_node(
-            ActorParams {
-                name: "Friendly Actor".to_string(),
-                factions: vec!("player_faction".to_string()),
-                position: vec2(100.0, 250.0),
-                stats: ActorStats::new(
-                    8,
-                    8,
-                    8,
-                    8,
-                    8,
-                    8,
-                    8,
-                ),
-                inventory: vec!(
-                    ItemParams {
-                        kind: Item::ONE_HANDED_WEAPON_KIND.to_string(),
-                        name: "Test Ranged Weapon".to_string(),
-                        description: "Test Ranged Weapon description".to_string(),
-                        weight: 10.0,
-                        action_params: ActionParams {
-                            action_func_id: ActionFuncs::PROJECTILE_ACTION_ID.to_string(),
-                            action_kind: ActionParams::PRIMARY_ABILITY.to_string(),
-                            cooldown: 0.0025,
-                            stamina_cost: 10.0,
-                            speed: 15.0,
-                            spread: 10.0,
-                            range: 15.0,
-                            damage: 10.0,
-                            ..Default::default()
-                        },
-                        ..Default::default()
-                    },
-                    ItemParams {
-                        kind: Item::ONE_HANDED_WEAPON_KIND.to_string(),
-                        name: "Test Ranged Weapon".to_string(),
-                        description: "Test Ranged Weapon description".to_string(),
-                        weight: 10.0,
-                        action_params: ActionParams {
-                            action_func_id: ActionFuncs::PROJECTILE_ACTION_ID.to_string(),
-                            action_kind: ActionParams::PRIMARY_ABILITY.to_string(),
-                            cooldown: 0.0025,
-                            stamina_cost: 10.0,
-                            damage: 10.0,
-                            ..Default::default()
-                        },
-                        ..Default::default()
-                    },
-                    ItemParams {
-                        kind: Item::ONE_HANDED_WEAPON_KIND.to_string(),
-                        name: "Test Ranged Weapon".to_string(),
-                        description: "Test Ranged Weapon description".to_string(),
-                        weight: 10.0,
-                        action_params: ActionParams {
-                            action_func_id: ActionFuncs::PROJECTILE_ACTION_ID.to_string(),
-                            action_kind: ActionParams::PRIMARY_ABILITY.to_string(),
-                            cooldown: 0.0025,
-                            stamina_cost: 10.0,
-                            speed: 15.0,
-                            spread: 10.0,
-                            range: 15.0,
-                            damage: 10.0,
-                            ..Default::default()
-                        },
-                        ..Default::default()
-                    },
-                    ItemParams {
-                        kind: Item::MISC_KIND.to_string(),
-                        name: "Test Trinket".to_string(),
-                        description: "Test Trinket description".to_string(),
-                        weight: 1.0,
-                        action_params: ActionParams {
-                            action_func_id: ActionFuncs::MAGIC_SPHERE_ACTION_ID.to_string(),
-                            action_kind: ActionParams::SECONDARY_ABILITY.to_string(),
-                            cooldown: 0.75,
-                            stamina_cost: 10.0,
-                            energy_cost: 100.0,
-                            speed: 1.0,
-                            spread: 0.0,
-                            range: 2.0,
-                            damage: 150.0,
-                            ..Default::default()
-                        },
-                        ..Default::default()
-                    }
-                ),
-                collider: Some(Collider::circle(0.0, 8.0, 8.0)),
-                controller_kind: ActorControllerKind::Computer,
-                sprite_animation_params: SpriteAnimationParams {
-                    texture_id: Resources::CHARACTERS_TEXTURE_ID.to_string(),
-                    tile_size: vec2(32.0, 32.0),
-                    offset: vec2(-16.0, -16.0),
-                    animations: vec!(
-                        Animation {
-                            name: "down".to_string(),
-                            row: 6,
-                            frames: 3,
-                            fps: 8,
-                        },
-                        Animation {
-                            name: "up".to_string(),
-                            row: 7,
-                            frames: 3,
-                            fps: 8,
-                        },
-                        Animation {
-                            name: "right".to_string(),
-                            row: 8,
-                            frames: 3,
-                            fps: 8,
-                        }
-                    ),
-                    ..Default::default()
-                },
-                ..Default::default()
-            },
-        );
+        Actor::add_node(generic_actor(
+            "Enemy Actor",
+            vec2(250.0, 250.0),
+            1,
+            &[],
+            None,
+        ));
 
         ActorDrawBuffer::add_node();
     }
