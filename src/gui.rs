@@ -9,8 +9,8 @@ use macroquad::{
 use crate::{
     nodes::{GameState, Actor},
     Item,
+    resources::ActionParams,
 };
-use crate::actions::ActionParams;
 
 pub fn draw_gui() {
     let game_state = scene::find_node_by_type::<GameState>().unwrap();

@@ -8,7 +8,7 @@ use macroquad::{
     prelude::*,
 };
 
-use crate::{ItemParams, Item, get_global, ActionFuncs, render::Sprite, nodes::actor::ActorAbility, json, generate_id};
+use crate::{ItemParams, Item, get_global, ActionFuncs, render::Sprite, nodes::actor::ActorAbility, json, generate_id, Resources};
 
 #[derive(Clone)]
 pub struct ActorInventoryEntry {
@@ -28,8 +28,8 @@ impl ActorInventoryEntry {
     }
 
     pub fn to_actor_ability(&self) -> Option<ActorAbility> {
-        let action_funcs = get_global::<ActionFuncs>();
-        match action_funcs.try_get(&self.params.action_params.action_func_id) {
+        let resources = get_global::<Resources>();
+        match resources.try_get_action_func(&self.params.action_params.action_func_id) {
             Some(action_func) => Some(ActorAbility::new(
                 self.params.action_params.health_cost,
                 self.params.action_params.stamina_cost,
@@ -54,9 +54,13 @@ pub struct ActorInventory {
 impl ActorInventory {
     const DROP_ALL_POSITION_VARIANCE: f32 = 15.0;
 
-    pub fn new(items: &[ItemParams]) -> Self {
+    pub fn new(items: &[String]) -> Self {
         ActorInventory {
-            items: items.iter().map(|params| ActorInventoryEntry::new(params.clone())).collect(),
+            items: items.iter().map(|item_id| {
+                let resources = get_global::<Resources>();
+                let params = resources.get_item(item_id);
+                ActorInventoryEntry::new(params.clone())
+            }).collect(),
         }
     }
 
@@ -101,6 +105,10 @@ impl ActorInventory {
 
     pub fn clone_data(&self) -> Vec<ItemParams> {
         self.items.iter().map(|entry| entry.params.clone()).collect()
+    }
+
+    pub fn to_item_ids(&self) -> Vec<String> {
+        self.items.iter().map(|entry| entry.params.id.clone()).collect()
     }
 
     fn randomize_drop_position(position: Vec2) -> Vec2 {

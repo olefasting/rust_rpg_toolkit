@@ -28,7 +28,7 @@ use crate::{
 };
 
 pub use draw_buffer::ItemDrawBuffer;
-use crate::actions::ActionParams;
+use crate::resources::ActionParams;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct ItemParams {

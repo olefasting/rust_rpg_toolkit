@@ -1,0 +1,185 @@
+[
+  {
+    "id": "generic_actor_01",
+    "name": "Generic Actor",
+    "factions": [],
+    "stats": {
+      "strength": 8,
+      "dexterity": 8,
+      "constitution": 8,
+      "intelligence": 8,
+      "willpower": 8,
+      "perception": 8,
+      "charisma": 8
+    },
+    "inventory": [
+      "test_weapon",
+      "test_weapon",
+      "test_weapon",
+      "test_weapon",
+      "test_trinket",
+      "test_trinket"
+    ],
+    "collider": {
+      "kind": "circle",
+      "offset": {
+        "x": 0.0,
+        "y": 8.0
+      },
+      "radius": 8.0
+    },
+    "sprite_animation_params": {
+      "texture_id": "characters",
+      "tile_size": {
+        "x": 32.0,
+        "y": 32.0
+      },
+      "offset": {
+        "x": -16.0,
+        "y": -16.0
+      },
+      "animations": [
+        {
+          "name": "down",
+          "row": 0,
+          "frames": 3,
+          "fps": 8
+        },
+        {
+          "name": "up",
+          "row": 1,
+          "frames": 3,
+          "fps": 8
+        },
+        {
+          "name": "right",
+          "row": 2,
+          "frames": 3,
+          "fps": 8
+        }
+      ]
+    }
+  },
+  {
+    "id": "generic_actor_02",
+    "name": "Generic Actor",
+    "factions": [],
+    "stats": {
+      "strength": 8,
+      "dexterity": 8,
+      "constitution": 8,
+      "intelligence": 8,
+      "willpower": 8,
+      "perception": 8,
+      "charisma": 8
+    },
+    "inventory": [
+      "test_weapon",
+      "test_weapon",
+      "test_weapon",
+      "test_weapon",
+      "test_trinket",
+      "test_trinket"
+    ],
+    "collider": {
+      "kind": "circle",
+      "offset": {
+        "x": 0.0,
+        "y": 8.0
+      },
+      "radius": 8.0
+    },
+    "sprite_animation_params": {
+      "texture_id": "characters",
+      "tile_size": {
+        "x": 32.0,
+        "y": 32.0
+      },
+      "offset": {
+        "x": -16.0,
+        "y": -16.0
+      },
+      "animations": [
+        {
+          "name": "down",
+          "row": 3,
+          "frames": 3,
+          "fps": 8
+        },
+        {
+          "name": "up",
+          "row": 4,
+          "frames": 3,
+          "fps": 8
+        },
+        {
+          "name": "right",
+          "row": 5,
+          "frames": 3,
+          "fps": 8
+        }
+      ]
+    }
+  },
+  {
+    "id": "generic_actor_03",
+    "name": "Generic Actor",
+    "factions": [],
+    "stats": {
+      "strength": 8,
+      "dexterity": 8,
+      "constitution": 8,
+      "intelligence": 8,
+      "willpower": 8,
+      "perception": 8,
+      "charisma": 8
+    },
+    "inventory": [
+      "test_weapon",
+      "test_weapon",
+      "test_weapon",
+      "test_weapon",
+      "test_trinket",
+      "test_trinket"
+    ],
+    "collider": {
+      "kind": "circle",
+      "offset": {
+        "x": 0.0,
+        "y": 8.0
+      },
+      "radius": 8.0
+    },
+    "sprite_animation_params": {
+      "texture_id": "characters",
+      "tile_size": {
+        "x": 32.0,
+        "y": 32.0
+      },
+      "offset": {
+        "x": -16.0,
+        "y": -16.0
+      },
+      "animations": [
+        {
+          "name": "down",
+          "row": 6,
+          "frames": 3,
+          "fps": 8
+        },
+        {
+          "name": "up",
+          "row": 7,
+          "frames": 3,
+          "fps": 8
+        },
+        {
+          "name": "right",
+          "row": 8,
+          "frames": 3,
+          "fps": 8
+        }
+      ]
+    }
+  }
+]

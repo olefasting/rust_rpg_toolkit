@@ -9,19 +9,24 @@ use macroquad::{
     prelude::*,
 };
 
+use serde::{
+    Serialize,
+    Deserialize,
+};
+
 use crate::{
     Resources,
     get_global,
     json,
 };
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct SpriteAnimationParams {
     pub offset: json::Vec2,
     pub texture_id: String,
     pub tile_size: json::Vec2,
-    pub animations: Vec<Animation>,
-    pub should_play: bool,
+    pub animations: Vec<json::Animation>,
+    pub should_play: Option<bool>,
 }
 
 impl Default for SpriteAnimationParams {
@@ -31,14 +36,14 @@ impl Default for SpriteAnimationParams {
             texture_id: Resources::WHITE_TEXTURE_ID.to_string(),
             tile_size: json::Vec2::new(16.0, 16.0),
             animations: vec!(
-                Animation {
+                json::Animation {
                     name: "idle".to_string(),
                     row: 0,
                     frames: 1,
                     fps: 8
                 },
             ),
-            should_play: false,
+            should_play: Some(false),
         }
     }
 }
@@ -57,11 +62,12 @@ pub struct SpriteAnimationPlayer {
 
 impl SpriteAnimationPlayer {
     pub fn new(params: SpriteAnimationParams) -> Self {
+        let animations: Vec<Animation> = params.animations.iter().map(|anim| anim.to_macroquad()).collect();
         let sprite = AnimatedSprite::new(
             params.tile_size.x as u32,
             params.tile_size.y as u32,
-            &params.animations,
-            params.should_play,
+            &animations,
+            params.should_play.unwrap_or_default(),
         );
 
         SpriteAnimationPlayer {
@@ -71,7 +77,7 @@ impl SpriteAnimationPlayer {
             flip_y: false,
             texture_id: params.texture_id.to_string(),
             tile_size: params.tile_size.to_macroquad(),
-            animations: params.animations,
+            animations,
             animated_sprite: sprite,
         }
     }
@@ -110,8 +116,8 @@ impl SpriteAnimationPlayer {
             offset: json::Vec2::from(self.offset),
             texture_id: self.texture_id.to_string(),
             tile_size: json::Vec2::from(self.tile_size),
-            animations: self.animations.to_vec(),
-            should_play: self.animated_sprite.playing,
+            animations: self.animations.iter().map(|anim| json::Animation::from(anim.clone())).collect(),
+            should_play: Some(self.animated_sprite.playing),
         }
     }
 

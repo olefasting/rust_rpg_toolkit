@@ -1,5 +1,10 @@
 use std::ops::Sub;
 
+use serde::{
+    Serialize,
+    Deserialize,
+};
+
 use macroquad::{
     experimental::{
         scene::{
@@ -47,6 +52,7 @@ use crate::{
         PhysicsObject,
         Collider,
     },
+    json,
     nodes::Projectiles,
     ItemParams,
     generate_id,
@@ -54,17 +60,15 @@ use crate::{
 use crate::nodes::Item;
 use crate::render::Viewport;
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct ActorParams {
     pub id: String,
     pub name: String,
-    pub stats: ActorStats,
+    pub stats: json::ActorStats,
     pub factions: Vec<String>,
-    pub position: Vec2,
-    pub collider: Option<Collider>,
-    pub inventory: Vec<ItemParams>,
+    pub collider: Option<json::Collider>,
+    pub inventory: Vec<String>,
     pub sprite_animation_params: SpriteAnimationParams,
-    pub controller_kind: ActorControllerKind,
 }
 
 impl Default for ActorParams {
@@ -74,11 +78,9 @@ impl Default for ActorParams {
             name: "Unnamed Actor".to_string(),
             stats: Default::default(),
             factions: Vec::new(),
-            position: Vec2::ZERO,
             collider: None,
             inventory: Vec::new(),
             sprite_animation_params: Default::default(),
-            controller_kind: ActorControllerKind::Computer,
         }
     }
 }
@@ -110,36 +112,43 @@ impl Actor {
     const PICK_UP_RADIUS: f32 = 36.0;
     const INTERACT_RADIUS: f32 = 36.0;
 
-    pub fn new(params: ActorParams) -> Self {
+    pub fn new(position: Vec2, controller_kind: ActorControllerKind, max_vitals: bool, params: ActorParams) -> Self {
+        let collider = match params.collider {
+            Some(collider) => Some(collider.to_collider()),
+            None => None,
+        };
+        let body = PhysicsBody::new(position, 0.0, collider);
         Actor {
             id: params.id,
             name: params.name,
-            stats: params.stats,
+            stats: params.stats.to_actor_stats(max_vitals),
             factions: params.factions,
-            body: PhysicsBody::new(params.position, 0.0, params.collider),
+            body,
             sprite_animation: SpriteAnimationPlayer::new(params.sprite_animation_params.clone()),
             inventory: ActorInventory::new(&params.inventory),
             primary_ability: None,
             secondary_ability: None,
-            controller: ActorController::new(params.controller_kind),
+            controller: ActorController::new(controller_kind),
         }
     }
 
-    pub fn add_node(params: ActorParams) -> Handle<Self> {
-        scene::add_node(Self::new(params))
+    pub fn add_node(position: Vec2, controller_kind: ActorControllerKind, max_vitals: bool, params: ActorParams) -> Handle<Self> {
+        scene::add_node(Self::new(position, controller_kind, max_vitals, params))
     }
 
     pub fn to_actor_params(&self) -> ActorParams {
+        let collider = match self.body.collider {
+            Some(collider) => Some(json::Collider::from(collider)),
+            None => None,
+        };
         ActorParams {
             id: self.id.clone(),
             name: self.name.clone(),
-            stats: self.stats.clone(),
+            stats: json::ActorStats::from(self.stats.clone()),
             factions: self.factions.clone(),
-            position: self.body.position,
-            collider: self.body.collider,
-            inventory: self.inventory.clone_data(),
+            collider,
+            inventory: self.inventory.to_item_ids(),
             sprite_animation_params: self.sprite_animation.to_sprite_params(),
-            controller_kind: self.controller.kind,
         }
     }
 
