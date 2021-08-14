@@ -87,7 +87,7 @@ impl Map {
         false
     }
 
-    pub fn get_beam_collision_point(&self, origin: Vec2, end: Vec2, width: f32, include_barriers: bool) -> Vec2 {
+    pub fn get_beam_collision_point(&self, origin: Vec2, end: Vec2, width: f32, tolerance: f32, include_barriers: bool) -> Vec2 {
         let coords = (
             uvec2(origin.x as u32 / self.tile_size.x, origin.y as u32 / self.tile_size.y),
             uvec2(end.x as u32 / self.tile_size.x, end.y as u32 / self.tile_size.y),
@@ -97,13 +97,16 @@ impl Map {
         let mut collisions = Vec::new();
         for x in ord_x.0..ord_x.1 {
             for y in ord_y.0..ord_y.1 {
-                let position = vec2((x * self.tile_size.x) as f32, (y * self.tile_size.y) as f32);
+                let position = vec2(
+                    ((x * self.tile_size.x) + self.tile_size.x / 2) as f32,
+                    ((y * self.tile_size.y) + self.tile_size.y / 2) as f32,
+                );
                 if self.tiled_map.get_tile(Self::SOLIDS_LAYER, x, y).is_some() {
-                    if beam_collision_check(position, origin, end, width) {
+                    if beam_collision_check(position, origin, end, width, tolerance) {
                         collisions.push(position);
                     }
                 } else if include_barriers && self.tiled_map.get_tile(Self::BARRIERS_LAYER, x, y).is_some() {
-                    if beam_collision_check(position, origin, end, width) {
+                    if beam_collision_check(position, origin, end, width, tolerance) {
                         collisions.push(position);
                     }
                 }

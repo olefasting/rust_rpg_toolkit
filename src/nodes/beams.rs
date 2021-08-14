@@ -30,6 +30,8 @@ pub struct Beams {
 }
 
 impl Beams {
+    const WIDTH_TOLERANCE_FACTOR: f32 = 350.0;
+
     pub fn new() -> Self {
         Beams {
             active: Vec::new(),
@@ -58,7 +60,13 @@ impl Node for Beams {
     fn fixed_update(mut node: RefMut<Self>) {
         for mut beam in &mut node.active {
             let game_state = scene::find_node_by_type::<GameState>().unwrap();
-            let mut cutoff = game_state.map.get_beam_collision_point(beam.origin, beam.end, beam.width, false);
+            let mut cutoff = game_state.map.get_beam_collision_point(
+                beam.origin,
+                beam.end,
+                beam.width,
+                Self::WIDTH_TOLERANCE_FACTOR,
+                false,
+            );
             'outer: for mut other_actor in scene::find_nodes_by_type::<Actor>() {
                 if other_actor.id != beam.actor_id {
                     for faction in &beam.factions {
@@ -70,7 +78,7 @@ impl Node for Beams {
                         Some(collider) => collider.get_position(),
                         None => other_actor.body.position,
                     };
-                    if beam_collision_check(position, beam.origin, beam.end, beam.width) {
+                    if beam_collision_check(position, beam.origin, beam.end, beam.width, Self::WIDTH_TOLERANCE_FACTOR) {
                         other_actor.take_damage(&beam.actor_id, beam.damage);
                         if beam.origin.distance(position) < beam.origin.distance(cutoff) {
                             cutoff = position;
