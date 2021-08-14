@@ -132,18 +132,37 @@
       "cooldown": 0.75,
       "health_cost": 0.0,
       "stamina_cost": 10.0,
-      "energy_cost": 100.0,
+      "energy_cost": 10.0,
       "speed": 1.0,
       "spread": 0.0,
-      "range": 2.0,
+      "range": 15.0,
       "damage": 150.0,
       "effect_kind": "energy_sphere",
-      "effect_size": 100.0,
+      "effect_size": 4.5,
       "effect_color": {
         "r": 0.0,
         "g": 0.47,
         "b": 0.95,
         "a": 1.0
+      },
+      "effect_sprite_animation_params": {
+        "texture_id": "fireball",
+        "tile_size": {
+          "x": 68.0,
+          "y": 9.0
+        },
+        "offset": {
+          "x": -34.0,
+          "y": -4.5
+        },
+        "animations": [
+          {
+            "name": "projectile",
+            "row": 1,
+            "frames": 10,
+            "fps": 8
+          }
+        ]
       }
     },
     "sprite_params": {

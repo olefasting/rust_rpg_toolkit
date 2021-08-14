@@ -12,6 +12,7 @@ use crate::{Actor, generate_id, json};
 use crate::nodes::{Projectiles, ContinuousBeams};
 use std::ops::Sub;
 use crate::nodes::projectiles::ProjectileKind;
+use crate::render::{SpriteAnimationParams, SpriteAnimationPlayer};
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct ActorAbilityParams {
@@ -28,6 +29,7 @@ pub struct ActorAbilityParams {
     pub damage: f32,
     pub effect_size: f32,
     pub effect_color: json::Color,
+    pub effect_sprite_animation_params: Option<SpriteAnimationParams>,
 }
 
 impl Default for ActorAbilityParams {
@@ -46,6 +48,7 @@ impl Default for ActorAbilityParams {
             damage: 0.0,
             effect_size: 5.0,
             effect_color: json::Color::from(color::WHITE),
+            effect_sprite_animation_params: None,
         }
     }
 }
@@ -66,6 +69,7 @@ pub struct ActorAbility {
     pub damage: f32,
     pub effect_size: f32,
     pub effect_color: Color,
+    pub effect_sprite_animation_params: Option<SpriteAnimationParams>,
 }
 
 impl ActorAbility {
@@ -93,6 +97,7 @@ impl ActorAbility {
             damage: params.damage,
             effect_size: params.effect_size,
             effect_color: params.effect_color.to_macroquad(),
+            effect_sprite_animation_params: params.effect_sprite_animation_params,
         }
     }
 
@@ -114,7 +119,7 @@ impl ActorAbility {
                     self.effect_size,
                     actor.body.position,
                     end,
-                )
+                );
             } else if self.cooldown_timer >= self.cooldown {
                 let kind = if self.effect_kind == Self::PROJECTILE_EFFECT {
                     ProjectileKind::Bullet
@@ -144,6 +149,7 @@ impl ActorAbility {
                     self.speed,
                     self.spread,
                     ttl,
+                    self.effect_sprite_animation_params.clone(),
                 );
             }
         }

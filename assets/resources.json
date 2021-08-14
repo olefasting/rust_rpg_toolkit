@@ -19,6 +19,11 @@
       "id": "items",
       "filename": "items.png",
       "filter_mode": "nearest_neighbor"
+    },
+    {
+      "id": "fireball",
+      "filename": "fireball.png",
+      "filter_mode": "nearest_neighbor"
     }
   ],
   "sound_effects": [

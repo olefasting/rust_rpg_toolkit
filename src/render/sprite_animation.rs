@@ -121,8 +121,11 @@ impl SpriteAnimationPlayer {
         }
     }
 
-    pub fn draw(&mut self, position: Vec2, rotation: f32) {
+    pub fn update(&mut self) {
         self.animated_sprite.update();
+    }
+
+    pub fn draw(&mut self, position: Vec2, rotation: f32) {
         let resources = get_global::<Resources>();
         draw_texture_ex(
             resources.get_texture(&self.texture_id).clone(),

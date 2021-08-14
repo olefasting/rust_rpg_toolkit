@@ -300,6 +300,7 @@ impl Node for Actor {
 
     fn update(mut node: RefMut<Self>) {
         node.stats.update_derived(false);
+        node.sprite_animation.update();
 
         if node.stats.current_health <= 0.0 {
             let position = node.body.position;
