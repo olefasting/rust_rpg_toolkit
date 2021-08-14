@@ -1,14 +1,29 @@
+use std::collections::HashMap;
+
 use macroquad::{
     prelude::*,
 };
 
 use macroquad_tiled as tiled;
-
 use crate::{get_global, Resources};
 use crate::physics::{Collider, beam_collision_check};
 
+#[derive(Clone)]
+pub struct SpawnPoint {
+    pub id: String,
+    pub position: Vec2,
+}
+
+#[derive(Clone)]
+pub struct MapItem {
+    pub id: String,
+    pub position: Vec2,
+}
+
 pub struct Map {
-    tile_size: UVec2,
+    pub tile_size: UVec2,
+    pub items: HashMap<String, MapItem>,
+    pub spawn_points: HashMap<String, SpawnPoint>,
     pub tiled_map: tiled::Map,
 }
 
@@ -33,9 +48,34 @@ impl Map {
             ],
             &[],
         ).unwrap();
+
+        let mut items = HashMap::new();
+        for item in tiled_map.layers[Map::ITEMS_LAYER].objects.clone() {
+            items.insert(item.name.clone(), MapItem {
+                id: item.name,
+                position: vec2(
+                    item.world_x,
+                    item.world_y,
+                ),
+            });
+        }
+
+        let mut spawn_points = HashMap::new();
+        for spawn_point in tiled_map.layers[Map::SPAWN_POINTS_LAYER].objects.clone() {
+            spawn_points.insert(spawn_point.name.clone(), SpawnPoint {
+                id: spawn_point.name,
+                position: vec2(
+                    spawn_point.world_x,
+                    spawn_point.world_y,
+                ),
+            });
+        }
+
         Map {
             tile_size,
             tiled_map,
+            items,
+            spawn_points,
         }
     }
 
@@ -140,5 +180,27 @@ impl Map {
                 );
             }
         }
+    }
+
+    pub fn try_get_item(&self, id: &str) -> Option<MapItem> {
+        match self.items.get(id) {
+            Some(item) => Some(item.clone()),
+            None => None,
+        }
+    }
+
+    pub fn get_item(&self, id: &str) -> MapItem {
+        self.try_get_item(id).unwrap()
+    }
+
+    pub fn try_get_spawn_point(&self, id: &str) -> Option<SpawnPoint> {
+        match self.spawn_points.get(id) {
+            Some(spawn_point) => Some(spawn_point.clone()),
+            None => None,
+        }
+    }
+
+    pub fn get_spawn_point(&self, id: &str) -> SpawnPoint {
+        self.try_get_spawn_point(id).unwrap()
     }
 }

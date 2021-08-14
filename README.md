@@ -13,6 +13,19 @@ The game is unlicensed because it has a planned commercial release, so  the game
 Feel free to browse the code, however, and use anything you find for your own project(s). This means that you can copy and reuse implementation methods and bits of code, for commercial and non-commercial purposes, but you can't compile the game, with or without modifications, to distribute it.
 You can, of course, compile the game and try it out, as long as it falls in under fair-use.
 
+## Controls
+
+Currently, controls are mapped as follows:
+
+- 'W', 'A', 'S', 'D' or arrows for movement
+- 'Shift' for sprint
+- 'Left Mouse Button' for primary ability (needs an equipped weapon)
+- 'Right Mouse Button' for secondary ability (needs an equipped trinket, for now)
+- 'I' for inventory window
+- 'C' for character window
+
+To use the primary and secondary abilities, go to Inventory and equip a weapon and a trinket....
+
 ## Features
 
 This is a work in progress but current features include (not an exhaustive list as we are adding features at a high pace):
