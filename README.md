@@ -25,9 +25,9 @@ This is a work in progress but current features include (not an exhaustive list 
 
 ## Twilight of The Archons
 
-The name 'Twilight of the Archons' has been inspired by the documentary of the same name, made by Robert Bonomo of [Cactus Land Productions](http://www.thecactusland.com/). Though the documentary focus more on the worldly aspects of our current predicament and this game more on the spiritual aspects; I believe the title was such an excellent one that I sought Robert's blessing to steal it.
+The name 'Twilight of the Archons' has been inspired by the [documentary](https://www.youtube.com/watch?v=HsYTsdBCBdE) by the same name, made by Robert Bonomo of [Cactus Land Productions](http://www.thecactusland.com/). Though the documentary focus more on the worldly aspects of our current predicament and this game more on the spiritual aspects; I believe the title was such an excellent one that I sought Robert's blessing to steal it.
 Blessing has been given and, even though he is not affiliated with the project in any way, I would like to give credit to him and his awesome work, here.
 
-Copyright 2021 Ole A. Sjo Fasting
+Copyright 2021 Ole A. Sjo Fasting and [Magus Interactive](https://magus.no)
 
 UNLICENSED
