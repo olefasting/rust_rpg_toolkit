@@ -65,7 +65,7 @@ impl Node for ContinuousBeams {
                 beam.end,
                 beam.width,
                 Self::WIDTH_TOLERANCE_FACTOR,
-                false,
+                true,
             );
             'outer: for mut other_actor in scene::find_nodes_by_type::<Actor>() {
                 if other_actor.id != beam.actor_id {
@@ -78,7 +78,7 @@ impl Node for ContinuousBeams {
                         Some(collider) => collider.get_position(),
                         None => other_actor.body.position,
                     };
-                    if beam_collision_check(position, beam.origin, beam.end, beam.width, Self::WIDTH_TOLERANCE_FACTOR) {
+                    if beam_collision_check(position, beam.origin, beam.end, beam.width,Self::WIDTH_TOLERANCE_FACTOR) {
                         other_actor.take_damage(&beam.actor_id, beam.damage);
                         if beam.origin.distance(position) < beam.origin.distance(cutoff) {
                             cutoff = position;

@@ -117,6 +117,7 @@ async fn main() {
         // TODO: Move to resources
         let map = Map::new(uvec2(16, 16), "assets/maps/map_01.json").await;
         let spawn_points = map.tiled_map.layers[Map::SPAWN_POINTS_LAYER].objects.clone();
+        let items = map.tiled_map.layers[Map::ITEMS_LAYER].objects.clone();
         GameState::add_node(map);
 
         let mut player_spawn = Vec2::ZERO;
@@ -133,6 +134,11 @@ async fn main() {
         Camera::add_node(player_spawn);
 
         ItemDrawBuffer::add_node();
+
+        let resources = get_global::<Resources>();
+        for item in &items {
+            Item::add_node(vec2(item.world_x, item.world_y), resources.get_item(&item.name).clone());
+        }
 
         Projectiles::add_node();
         ContinuousBeams::add_node();

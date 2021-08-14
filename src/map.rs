@@ -29,6 +29,7 @@ impl Map {
             &[
                 ("../textures/neo_zero_tiles.png", resources.get_texture(Resources::GROUND_TILES_TEXTURE_ID).clone()),
                 ("../textures/neo_zero_props.png", resources.get_texture(Resources::PROPS_TEXTURE_ID).clone()),
+                ("../textures/items.png", resources.get_texture(Resources::ITEMS_TEXTURE_ID).clone()),
             ],
             &[],
         ).unwrap();
@@ -123,8 +124,8 @@ impl Map {
     pub fn draw(&self) {
         for layer_name in [
             Self::GROUND_LAYER,
-            Self::BARRIERS_LAYER,
             Self::SOLIDS_LAYER,
+            Self::BARRIERS_LAYER,
         ] {
             if let Some(layer) = self.tiled_map.layers.get(layer_name) {
                 self.tiled_map.draw_tiles(
