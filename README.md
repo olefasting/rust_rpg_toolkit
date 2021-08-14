@@ -22,6 +22,7 @@ Currently, controls are mapped as follows:
 - `Shift` for sprint
 - `Left Mouse Button` for primary ability (needs an equipped weapon)
 - `Right Mouse Button` for secondary ability (needs an equipped trinket, for now)
+- `R` to pick up nearby items
 - `I` for inventory window
 - `C` for character window
 

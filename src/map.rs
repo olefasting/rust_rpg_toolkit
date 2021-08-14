@@ -21,10 +21,11 @@ pub struct MapItem {
 }
 
 pub struct Map {
+    pub map_size: UVec2,
     pub tile_size: UVec2,
     pub items: HashMap<String, MapItem>,
     pub spawn_points: HashMap<String, SpawnPoint>,
-    pub tiled_map: tiled::Map,
+    tiled_map: tiled::Map,
 }
 
 impl Map {
@@ -47,7 +48,11 @@ impl Map {
                 ("../textures/items.png", resources.get_texture(Resources::ITEMS_TEXTURE_ID).clone()),
             ],
             &[],
-        ).unwrap();
+        ).expect(&format!("Error when parsing Tiled map '{}'", path));
+
+        let ground_layer = tiled_map.layers.get(Self::GROUND_LAYER)
+            .expect(&format!("No ground layer defined in Tiled map and ground layer ('{}') size is used to define map size...", Self::GROUND_LAYER));
+        let map_size = uvec2(ground_layer.width, ground_layer.height);
 
         let mut items = HashMap::new();
         for item in tiled_map.layers[Map::ITEMS_LAYER].objects.clone() {
@@ -72,6 +77,7 @@ impl Map {
         }
 
         Map {
+            map_size,
             tile_size,
             tiled_map,
             items,
@@ -167,18 +173,16 @@ impl Map {
             Self::SOLIDS_LAYER,
             Self::BARRIERS_LAYER,
         ] {
-            if let Some(layer) = self.tiled_map.layers.get(layer_name) {
-                self.tiled_map.draw_tiles(
-                    layer_name,
-                    Rect::new(
-                        0.0,
-                        0.0,
-                        (self.tile_size.x * layer.width) as f32,
-                        (self.tile_size.y * layer.height) as f32,
-                    ),
-                    None,
-                );
-            }
+            self.tiled_map.draw_tiles(
+                layer_name,
+                Rect::new(
+                    0.0,
+                    0.0,
+                    (self.tile_size.x * self.map_size.x) as f32,
+                    (self.tile_size.y * self.map_size.y) as f32,
+                ),
+                None,
+            );
         }
     }
 
