@@ -57,6 +57,8 @@ impl Beams {
 impl Node for Beams {
     fn fixed_update(mut node: RefMut<Self>) {
         for mut beam in &mut node.active {
+            let game_state = scene::find_node_by_type::<GameState>().unwrap();
+            let mut cutoff = game_state.map.get_beam_collision_point(beam.origin, beam.end, beam.width, false);
             'outer: for mut other_actor in scene::find_nodes_by_type::<Actor>() {
                 if other_actor.id != beam.actor_id {
                     for faction in &beam.factions {
@@ -68,14 +70,15 @@ impl Node for Beams {
                         Some(collider) => collider.get_position(),
                         None => other_actor.body.position,
                     };
-                    let game_state = scene::find_node_by_type::<GameState>().unwrap();
-                    beam.end = game_state.map.get_beam_collision_point(beam.origin, beam.end, beam.width, false);
                     if beam_collision_check(position, beam.origin, beam.end, beam.width) {
                         other_actor.take_damage(&beam.actor_id, beam.damage);
-                        beam.end -= beam.end.sub(position);
+                        if beam.end.distance(position) < beam.end.distance(cutoff) {
+                            cutoff = position;
+                        }
                     }
                 }
             }
+            beam.end = cutoff;
         }
     }
 

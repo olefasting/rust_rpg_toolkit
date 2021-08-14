@@ -95,8 +95,8 @@ impl Map {
         let ord_x = if coords.0.x > coords.1.x { (coords.1.x, coords.0.x) } else { (coords.0.x, coords.1.x) };
         let ord_y = if coords.0.y > coords.1.y { (coords.1.y, coords.0.y) } else { (coords.0.y, coords.1.y) };
         let mut collisions = Vec::new();
-        for x in ord_x.0-1..ord_x.1+1 {
-            for y in ord_y.0-1..ord_y.1+1 {
+        for x in ord_x.0..ord_x.1 {
+            for y in ord_y.0..ord_y.1 {
                 let position = vec2((x * self.tile_size.x) as f32, (y * self.tile_size.y) as f32);
                 if self.tiled_map.get_tile(Self::SOLIDS_LAYER, x, y).is_some() {
                     if beam_collision_check(position, origin, end, width) {
