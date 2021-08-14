@@ -69,7 +69,7 @@ pub struct ActorAbility {
 
 impl ActorAbility {
     pub const PROJECTILE_EFFECT: &'static str = "projectile";
-    pub const ENERGY_SPHERE: &'static str = "energy_sphere";
+    pub const ENERGY_SPHERE_EFFECT: &'static str = "energy_sphere";
     pub const BEAM_EFFECT: &'static str = "beam";
 
     pub const PRIMARY_ABILITY: &'static str = "primary";
@@ -121,7 +121,7 @@ impl ActorAbility {
                 let mut projectiles = scene::find_node_by_type::<Projectiles>().unwrap();
                 let ttl = self.range / self.speed;
                 let is_sphere = [
-                    ActorAbility::ENERGY_SPHERE.to_string(),
+                    ActorAbility::ENERGY_SPHERE_EFFECT.to_string(),
                 ].contains(&self.effect_kind);
                 projectiles.spawn(
                     &actor.id,
