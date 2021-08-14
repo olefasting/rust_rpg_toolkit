@@ -96,8 +96,6 @@ impl Resources {
         // cyberpunk_city_pack_2.png
         // https://jeresikstus.itch.io/cyberpunk-items-16x16
 
-
-
         let mut sound_effects = HashMap::new();
 
         for sound_data in &resources.sound_effects {
