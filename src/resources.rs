@@ -18,6 +18,7 @@ use crate::{
         ActorParams,
     },
 };
+use macroquad::audio::{Sound, load_sound};
 
 #[derive(Clone, Serialize, Deserialize)]
 struct TextureData {
@@ -27,12 +28,22 @@ struct TextureData {
 }
 
 #[derive(Clone, Serialize, Deserialize)]
+struct SoundData {
+    pub id: String,
+    pub filename: String,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
 struct ResourcesData {
     textures: Vec<TextureData>,
+    sound_effects: Vec<SoundData>,
+    music: Vec<SoundData>,
 }
 
 pub struct Resources {
     textures: HashMap<String, Texture2D>,
+    sound_effects: HashMap<String, Sound>,
+    music: HashMap<String, Sound>,
     actors: HashMap<String, ActorParams>,
     items: HashMap<String, ItemParams>,
 }
@@ -47,6 +58,8 @@ impl Resources {
 
     const RESOURCES_FILE_PATH: &'static str = "assets/resources.json";
     const TEXTURES_FOLDER_PATH: &'static str = "assets/textures";
+    const SOUND_EFFECTS_FOLDER_PATH: &'static str = "assets/sound_effects";
+    const MUSIC_FOLDER_PATH: &'static str = "assets/music";
 
     const LINEAR_FILTER_MODE: &'static str = "linear";
     const NEAREST_FILTER_MODE: &'static str = "nearest_neighbor";
@@ -83,6 +96,22 @@ impl Resources {
         // cyberpunk_city_pack_2.png
         // https://jeresikstus.itch.io/cyberpunk-items-16x16
 
+
+
+        let mut sound_effects = HashMap::new();
+
+        for sound_data in &resources.sound_effects {
+            let sound = load_sound(&format!("{}/{}", Self::SOUND_EFFECTS_FOLDER_PATH, sound_data.filename)).await.unwrap();
+            sound_effects.insert(sound_data.id.clone(), sound);
+        }
+
+        let mut music = HashMap::new();
+
+        for music_data in &resources.music {
+            let track = load_sound(&format!("{}/{}", Self::MUSIC_FOLDER_PATH, music_data.filename)).await.unwrap();
+            music.insert(music_data.id.clone(), track);
+        }
+
         let mut actors= HashMap::new();
 
         let json = std::fs::read_to_string(Self::ACTORS_FILE_PATH)
@@ -107,6 +136,8 @@ impl Resources {
 
         Ok(Resources {
             textures,
+            sound_effects,
+            music,
             actors,
             items,
         })

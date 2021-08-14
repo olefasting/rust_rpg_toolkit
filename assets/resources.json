@@ -20,5 +20,9 @@
       "filename": "items.png",
       "filter_mode": "nearest_neighbor"
     }
+  ],
+  "sound_effects": [
+  ],
+  "music": [
   ]
 }
