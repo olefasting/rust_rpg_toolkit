@@ -1,5 +1,6 @@
 mod physics_body;
 mod collider;
+mod beam;
 
 pub use physics_body::{
     PhysicsBody,
@@ -7,3 +8,5 @@ pub use physics_body::{
 };
 
 pub use collider::Collider;
+
+pub use beam::beam_collision_check;

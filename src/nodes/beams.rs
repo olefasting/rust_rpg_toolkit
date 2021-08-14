@@ -7,14 +7,13 @@ use macroquad::{
     color,
     prelude::*,
 };
-use crate::nodes::Actor;
 
-fn beam_collision_check(origin: Vec2, end: Vec2, width: f32, point: Vec2) -> bool {
-    let va = origin - end;
-    let vb = point - end;
-    let area = va.x * vb.y - va.y * vb.x;
-    return area.abs() < width * Beam::WIDTH_TOLERANCE_FACTOR;
-}
+use crate::{
+    nodes::Actor,
+    physics::beam_collision_check,
+};
+use std::ops::Sub;
+use crate::nodes::GameState;
 
 pub struct Beam {
     pub actor_id: String,
@@ -24,10 +23,6 @@ pub struct Beam {
     pub width: f32,
     pub origin: Vec2,
     pub end: Vec2,
-}
-
-impl Beam {
-    pub const WIDTH_TOLERANCE_FACTOR: f32 = 300.0;
 }
 
 pub struct Beams {
@@ -73,10 +68,11 @@ impl Node for Beams {
                         Some(collider) => collider.get_position(),
                         None => other_actor.body.position,
                     };
-
-                    if beam_collision_check(beam.origin, beam.end, beam.width,position) {
+                    let game_state = scene::find_node_by_type::<GameState>().unwrap();
+                    beam.end = game_state.map.get_beam_collision_point(beam.origin, beam.end, beam.width, false);
+                    if beam_collision_check(position, beam.origin, beam.end, beam.width) {
                         other_actor.take_damage(&beam.actor_id, beam.damage);
-                        beam.end = position;
+                        beam.end -= beam.end.sub(position);
                     }
                 }
             }

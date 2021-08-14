@@ -39,23 +39,16 @@ pub use ability::{
 
 pub use draw_buffer::ActorDrawBuffer;
 
-use crate::{
-    get_global,
-    render::{
-        SpriteAnimationPlayer,
-        SpriteAnimationParams,
-        draw_progress_bar,
-        HorizontalAlignment,
-    },
-    globals::LocalPlayer,
-    physics::{
-        PhysicsBody,
-        PhysicsObject,
-        Collider,
-    },
-    json,
-    generate_id,
-};
+use crate::{get_global, render::{
+    SpriteAnimationPlayer,
+    SpriteAnimationParams,
+    draw_progress_bar,
+    HorizontalAlignment,
+}, globals::LocalPlayer, physics::{
+    PhysicsBody,
+    PhysicsObject,
+    Collider,
+}, json, generate_id, draw_aligned_text};
 use crate::nodes::Item;
 use crate::render::Viewport;
 
@@ -246,6 +239,13 @@ impl Actor {
             );
         }
         if is_local_player {
+            draw_aligned_text(
+                &format!("position: {}", self.body.position.to_string()) ,
+                screen_width() - 50.0,
+                50.0,
+                HorizontalAlignment::Right,
+                Default::default(),
+            );
             draw_progress_bar(
                 self.stats.current_stamina,
                 self.stats.max_stamina,

@@ -116,9 +116,21 @@ async fn main() {
 
         // TODO: Move to resources
         let map = Map::new(uvec2(16, 16), "assets/maps/map_01.json").await;
+        let spawn_points = map.tiled_map.layers[Map::SPAWN_POINTS_LAYER].objects.clone();
         GameState::add_node(map);
 
-        Camera::add_node(vec2(100.0, 400.0));
+        let mut player_spawn = Vec2::ZERO;
+        for spawn_point in &spawn_points {
+            if spawn_point.name == Map::PLAYER_SPAWN_POINT_NAME {
+                player_spawn = vec2(
+                    spawn_point.world_x,
+                    spawn_point.world_y,
+                );
+                break;
+            }
+        }
+
+        Camera::add_node(player_spawn);
 
         ItemDrawBuffer::add_node();
 
@@ -127,7 +139,7 @@ async fn main() {
 
         scene::add_node(generic_actor(
             "Player Actor",
-            vec2(100.0, 400.0),
+            player_spawn,
             0,
             &["player_faction".to_string()],
             Some(0),
@@ -135,7 +147,7 @@ async fn main() {
 
         scene::add_node(generic_actor(
             "Friendly Actor",
-            vec2(200.0, 375.0),
+            vec2(225.0, 375.0),
             2,
             &["player_faction".to_string()],
             None,
@@ -143,7 +155,7 @@ async fn main() {
 
         scene::add_node(generic_actor(
             "Enemy Actor",
-            vec2(250.0, 350.0),
+            vec2(300.0, 350.0),
             1,
             &[],
             None,
