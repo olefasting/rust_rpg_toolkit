@@ -5,7 +5,7 @@ The future holds huge boss fights, and a mind-nuking story line, as you progress
 
 ## Contributing
 
-If you want to contribute, pull requests are welcome. If you want to partake in the project, I am also open to this. The prototype currently use placehoder graphics leeched from ich.io so I would love to get a good pixel artist on board. Coders are also welcome to alleviate, but I more or less have that role fulfilled myself. Send me a mail, on [simon@magus.no](mailto:simon@magus.no), if you are interested.
+If you want to contribute, pull requests are welcome. If you want to partake in the project, we are also open to this. The prototype currently use placehoder graphics leeched from ich.io so we would love to get a good pixel artist on board. Coders are also welcome to alleviate, but we more or less have that role fulfilled already. Send me a mail, on [simon@magus.no](mailto:simon@magus.no), if you are interested.
 
 ## License
 
