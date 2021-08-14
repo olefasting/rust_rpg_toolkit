@@ -9,7 +9,7 @@ If you want to contribute, pull requests are welcome. If you want to partake in 
 
 ## License
 
-The game is unlicensed because it has a planned commercial release, so  the game in its entirety, the IP (as it is fleshed out in the future), is mine and not to be copied.
+The game is unlicensed because it has a planned commercial release, so  the game in its entirety, the IP (as it is fleshed out in the future), is ours and not to be copied.
 Feel free to browse the code, however, and use anything you find for your own project(s). This means that you can copy and reuse implementation methods and bits of code, for commercial and non-commercial purposes, but you can't compile the game, with or without modifications, to distribute it.
 You can, of course, compile the game and try it out, as long as it falls in under fair-use.
 
