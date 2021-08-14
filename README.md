@@ -3,6 +3,10 @@
 This is an action/run 'n' gun RPG, created in Rust using [macroquad](https://github.com/not-fl3/macroquad).
 The future holds huge boss fights, and a mind-nuking story line, as you progress through the world, and your own mind, to battle yourself and the archons to break free of samsara and the materialist dystopia of our not too distant future.
 
+## Contributing
+
+If you want to contribute, pull requests are welcome. If you want to partake in the project, I am also open to this. The prototype currently use placehoder graphics leeched from ich.io so I would love to get a good pixel artist on board. Coders are also welcome to alleviate, but I more or less have that role fulfilled myself. Send me a mail, on [simon@magus.no](mailto:simon@magus.no), if you are interested.
+
 ## License
 
 The game is unlicensed because it has a planned commercial release, so  the game in its entirety, the IP (as it is fleshed out in the future), is mine and not to be copied.
