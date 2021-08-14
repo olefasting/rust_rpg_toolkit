@@ -8,7 +8,15 @@ use macroquad::{
     prelude::*,
 };
 
-use crate::{ItemParams, Item, get_global, render::Sprite, nodes::actor::ActorAbility, json, generate_id, Resources};
+use crate::{
+    ItemParams,
+    Item,
+    get_global,
+    render::Sprite,
+    nodes::actor::ActorAbility,
+    generate_id,
+    Resources,
+};
 
 #[derive(Clone)]
 pub struct ActorInventoryEntry {

@@ -54,8 +54,6 @@ use crate::{
         Collider,
     },
     json,
-    nodes::Projectiles,
-    ItemParams,
     generate_id,
 };
 use crate::nodes::Item;

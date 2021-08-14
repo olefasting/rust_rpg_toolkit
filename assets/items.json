@@ -96,7 +96,7 @@
       "spread": 0.0,
       "range": 2.0,
       "damage": 150.0,
-      "effect_kind": "projectile",
+      "effect_kind": "energy_sphere",
       "effect_size": 100.0,
       "effect_color": {
         "r": 0.0,

@@ -10,7 +10,6 @@ use crate::{
     nodes::{GameState, Actor},
     Item,
 };
-use crate::nodes::actor::ActorAbilityParams;
 use crate::nodes::ActorAbility;
 
 pub fn draw_gui() {

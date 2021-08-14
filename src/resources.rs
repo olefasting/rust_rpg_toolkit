@@ -9,15 +9,15 @@ use serde::{
 };
 
 use macroquad::{
-    color,
     prelude::*,
 };
 
 use crate::{
-    nodes::{ItemParams, Projectiles, ActorParams},
-    json,
+    nodes::{
+        ItemParams,
+        ActorParams,
+    },
 };
-use crate::generate_id;
 
 #[derive(Clone, Serialize, Deserialize)]
 struct TextureData {

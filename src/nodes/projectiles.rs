@@ -28,10 +28,21 @@ pub struct Projectile {
     speed: f32,
     lived: f32,
     ttl: f32,
+    is_sphere: bool,
 }
 
 impl Projectile {
-    pub fn new(actor_id: &str, factions: &[String], damage: f32, color: Color, size: f32, position: Vec2, direction: Vec2, speed: f32, ttl: f32) -> Self {
+    pub fn new(
+        actor_id: &str,
+        factions: &[String],
+        damage: f32, color: Color,
+        size: f32,
+        position: Vec2,
+        direction: Vec2,
+        speed: f32,
+        ttl: f32,
+        is_sphere: bool,
+    ) -> Self {
         Projectile {
             actor_id: actor_id.to_string(),
             factions: factions.to_vec(),
@@ -43,6 +54,7 @@ impl Projectile {
             speed,
             lived: 0.0,
             ttl,
+            is_sphere,
         }
     }
 }
@@ -67,7 +79,20 @@ impl Projectiles {
         scene::add_node(Self::new())
     }
 
-    pub fn spawn(&mut self, actor_id: &str, factions: &[String], damage: f32, color: Color, size: f32, position: Vec2, target: Vec2, speed: f32, spread: f32, ttl: f32) {
+    pub fn spawn(
+        &mut self,
+        actor_id: &str,
+        factions: &[String],
+        damage: f32,
+        color: Color,
+        size: f32,
+        position: Vec2,
+        target: Vec2,
+        speed: f32,
+        spread: f32,
+        ttl: f32,
+        is_sphere: bool,
+    ) {
         assert!(ttl > 0.0, "Projectile TTL must be a positive float and not 0.0");
 
         let spread_target = target.sub(position).normalize_or_zero() * Self::SPREAD_CALCULATION_DISTANCE;
@@ -75,7 +100,18 @@ impl Projectiles {
           rand::gen_range(spread_target.x - spread, spread_target.x + spread),
             rand::gen_range(spread_target.y - spread, spread_target.y + spread),
         ).normalize_or_zero();
-        self.active.push(Projectile::new(actor_id, factions, damage, color, size, position, direction, speed, ttl));
+        self.active.push(Projectile::new(
+            actor_id,
+            factions,
+            damage,
+            color,
+            size,
+            position,
+            direction,
+            speed,
+            ttl,
+            is_sphere,
+        ));
     }
 }
 
@@ -125,15 +161,24 @@ impl Node for Projectiles {
         let viewport = get_global::<Viewport>();
         for projectile in &node.active {
             if viewport.contains(projectile.position) {
-                let begin = projectile.position - projectile.direction * projectile.size * 2.0;
-                draw_line(
-                    begin.x,
-                    begin.y,
-                    projectile.position.x,
-                    projectile.position.y,
-                    projectile.size,
-                    projectile.color,
-                );
+                if projectile.is_sphere {
+                    draw_circle(
+                        projectile.position.x,
+                        projectile.position.y,
+                        projectile.size / 2.0,
+                        projectile.color,
+                    );
+                } else {
+                    let begin = projectile.position - projectile.direction * projectile.size * 2.0;
+                    draw_line(
+                        begin.x,
+                        begin.y,
+                        projectile.position.x,
+                        projectile.position.y,
+                        projectile.size,
+                        projectile.color,
+                    );
+                }
             }
         }
     }

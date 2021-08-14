@@ -69,6 +69,7 @@ pub struct ActorAbility {
 
 impl ActorAbility {
     pub const PROJECTILE_EFFECT: &'static str = "projectile";
+    pub const ENERGY_SPHERE: &'static str = "energy_sphere";
     pub const BEAM_EFFECT: &'static str = "beam";
 
     pub const PRIMARY_ABILITY: &'static str = "primary";
@@ -97,26 +98,7 @@ impl ActorAbility {
         if (self.health_cost == 0.0 || actor.stats.current_health >= self.health_cost)
             && (self.stamina_cost == 0.0 || actor.stats.current_stamina >= self.stamina_cost)
             && (self.energy_cost == 0.0 || actor.stats.current_energy >= self.energy_cost) {
-            if self.effect_kind == ActorAbility::PROJECTILE_EFFECT && self.cooldown_timer >= self.cooldown {
-                actor.stats.current_health -= self.health_cost;
-                actor.stats.current_stamina -= self.stamina_cost;
-                actor.stats.current_energy -= self.energy_cost;
-                self.cooldown_timer = 0.0;
-                let mut projectiles = scene::find_node_by_type::<Projectiles>().unwrap();
-                let ttl = self.range / self.speed;
-                projectiles.spawn(
-                    &actor.id,
-                    &actor.factions,
-                    self.damage,
-                    self.effect_color,
-                    self.effect_size,
-                    origin,
-                    target,
-                    self.speed,
-                    self.spread,
-                    ttl,
-                );
-            } else if self.effect_kind == ActorAbility::BEAM_EFFECT {
+            if self.effect_kind == ActorAbility::BEAM_EFFECT {
                 actor.stats.current_health -= self.health_cost;
                 actor.stats.current_stamina -= self.stamina_cost;
                 actor.stats.current_energy -= self.energy_cost;
@@ -131,6 +113,29 @@ impl ActorAbility {
                     actor.body.position,
                     end,
                 )
+            } else if self.cooldown_timer >= self.cooldown {
+                actor.stats.current_health -= self.health_cost;
+                actor.stats.current_stamina -= self.stamina_cost;
+                actor.stats.current_energy -= self.energy_cost;
+                self.cooldown_timer = 0.0;
+                let mut projectiles = scene::find_node_by_type::<Projectiles>().unwrap();
+                let ttl = self.range / self.speed;
+                let is_sphere = [
+                    ActorAbility::ENERGY_SPHERE.to_string(),
+                ].contains(&self.effect_kind);
+                projectiles.spawn(
+                    &actor.id,
+                    &actor.factions,
+                    self.damage,
+                    self.effect_color,
+                    self.effect_size,
+                    origin,
+                    target,
+                    self.speed,
+                    self.spread,
+                    ttl,
+                    is_sphere,
+                );
             }
         }
     }

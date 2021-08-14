@@ -9,7 +9,6 @@ use macroquad::{
     },
     prelude::*,
 };
-use macroquad::prelude::animation::Animation;
 
 pub use globals::{
     get_global,
@@ -34,8 +33,6 @@ use nodes::{
 use physics::Collider;
 use render::{
     HorizontalAlignment,
-    SpriteAnimationParams,
-    SpriteParams,
 };
 pub use render::text::draw_aligned_text;
 pub use resources::{

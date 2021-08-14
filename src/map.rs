@@ -84,41 +84,19 @@ impl Map {
     }
 
     pub fn draw(&self) {
-        if let Some(layer) = self.tiled_map.layers.get(Self::GROUND_LAYER) {
-            self.tiled_map.draw_tiles(
-                Self::GROUND_LAYER,
-                Rect::new(
-                    0.0,
-                    0.0,
-                    (self.tile_size.x * layer.width) as f32,
-                    (self.tile_size.y * layer.height) as f32,
-                ),
-                None,
-            );
-        }
-        if let Some(layer) = self.tiled_map.layers.get(Self::SOLIDS_LAYER) {
-            self.tiled_map.draw_tiles(
-                Self::SOLIDS_LAYER,
-                Rect::new(
-                    0.0,
-                    0.0,
-                    (self.tile_size.x * layer.width) as f32,
-                    (self.tile_size.y * layer.height) as f32,
-                ),
-                None,
-            );
-        }
-        if let Some(layer) = self.tiled_map.layers.get(Self::BARRIERS_LAYER) {
-            self.tiled_map.draw_tiles(
-                Self::BARRIERS_LAYER,
-                Rect::new(
-                    0.0,
-                    0.0,
-                    (self.tile_size.x * layer.width) as f32,
-                    (self.tile_size.y * layer.height) as f32,
-                ),
-                None,
-            );
+        for layer_name in [Self::GROUND_LAYER, Self::SOLIDS_LAYER, Self::BARRIERS_LAYER] {
+            if let Some(layer) = self.tiled_map.layers.get(layer_name) {
+                self.tiled_map.draw_tiles(
+                    layer_name,
+                    Rect::new(
+                        0.0,
+                        0.0,
+                        (self.tile_size.x * layer.width) as f32,
+                        (self.tile_size.y * layer.height) as f32,
+                    ),
+                    None,
+                );
+            }
         }
     }
 }
