@@ -1,4 +1,4 @@
-# capstone
+# Capstone - Twilight of the Archons
 
 This is an action/run 'n' gun RPG, created in Rust using [macroquad](https://github.com/not-fl3/macroquad).
 The future holds huge boss fights, and a mind-nuking story line, as you progress through the world, and your own mind, to battle yourself and the archons to break free of samsara and the materialist dystopia of our not too distant future.
@@ -22,6 +22,11 @@ This is a work in progress but current features include (not an exhaustive list 
 - Composable items, from code of by JSON [assets/items.json](https://github.com/olefasting/capstone/blob/master/assets/items.json), character inventory and more
 - Dynamic resource loading, so textures can be added by editing [assets/resources.json](https://github.com/olefasting/capstone/blob/master/assets/resources.json) and referenced by `texture_id` in actors and items, both in-code and in the corresponding json-files
 - Tiled maps (to be replaced by a proprietary format, as soon as we create an in-game editor)
+
+## Twilight of The Archons
+
+The name 'Twilight of the Archons' has been inspired by the documentary of the same name, made by Robert Bonomo of [Cactus Land Productions](http://www.thecactusland.com/). Though the documentary focus more on the worldly aspects of our current predicament and this game more on the spiritual aspects; I believe the title was such an excellent one that I sought Robert's blessing to steal it.
+Blessing has been given and, even though he is not affiliated with the project in any way, I would like to give credit to him and his awsome work, here.
 
 Copyright 2021 Ole A. Sjo Fasting
 
