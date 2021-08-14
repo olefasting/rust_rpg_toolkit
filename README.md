@@ -45,6 +45,11 @@ All assets currently used are placeholders, taken from ich.io. When writing this
 - [Cyberpunk Top Down Game Asset Pack](https://rafazcruz.itch.io/cyberpunk-top-down-game-asset-pack) (currently not used but included in the repository)
 - [Cyberpunk Items 16x16](https://jeresikstus.itch.io/cyberpunk-items-16x16) (currently used for all item graphics)
 
+### Fish Fight
+
+I am currently a developer for [Fish Fight](https://twitter.com/fishfightgame) and my work on that project was the reason why I was introduced to [macroquad](https://github.com/not-fl3/macroquad) which, again, was the reason why I chose to reignite this project and port it to Rust.
+Some boilerplate (maybe 30-40 lines of code) was yanked from Fish Fight, when I started out, and even though it is a closed project, for now, we are planning on making it open source in the near future, even though it is a commercial project. It will probably be released under the MIT license, thus being even more permissive than this project, so there should be no conflicts...
+
 ### Twilight of The Archons
 
 The name 'Twilight of the Archons' has been inspired by the [documentary](https://www.youtube.com/watch?v=HsYTsdBCBdE) of the same name, made by Robert Bonomo of [Cactus Land Productions](http://www.thecactusland.com/). Though the documentary focus more on the worldly aspects of our current predicament and this game more on the spiritual aspects; I believe the title was such an excellent one that I sought Robert's blessing to steal it.
