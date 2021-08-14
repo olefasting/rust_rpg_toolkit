@@ -91,11 +91,6 @@ impl Resources {
             textures.insert(texture_data.id.clone(), texture);
         }
 
-        // https://rafazcruz.itch.io/cyberpunk-top-down-game-asset-pack
-        // cyberpunk_city_pack_1.png
-        // cyberpunk_city_pack_2.png
-        // https://jeresikstus.itch.io/cyberpunk-items-16x16
-
         let mut sound_effects = HashMap::new();
 
         for sound_data in &resources.sound_effects {

@@ -5,7 +5,8 @@ The future holds huge boss fights, and a mind-nuking story line, as you progress
 
 ## Contributing
 
-If you want to contribute, pull requests are welcome. If you want to partake in the project, we are also open to this. The prototype currently use placehoder graphics leeched from ich.io so we would love to get a good pixel artist on board. Coders are also welcome to alleviate, but we more or less have that role fulfilled already. Send me a mail, on [simon@magus.no](mailto:simon@magus.no), if you are interested.
+If you want to contribute, pull requests are welcome. If you want to partake in the project, we are also open to this. The prototype currently use placehoder graphics leeched from ich.io so we would love to get a good pixel artist on board. Coders are also welcome to alleviate, but we more or less have that role fulfilled already.
+Send me a mail, on [simon@magus.no](mailto:simon@magus.no), if you are interested.
 
 ## License
 
@@ -17,12 +18,12 @@ You can, of course, compile the game and try it out, as long as it falls in unde
 
 Currently, controls are mapped as follows:
 
-- 'W', 'A', 'S', 'D' or arrows for movement
-- 'Shift' for sprint
-- 'Left Mouse Button' for primary ability (needs an equipped weapon)
-- 'Right Mouse Button' for secondary ability (needs an equipped trinket, for now)
-- 'I' for inventory window
-- 'C' for character window
+- `W, A, S, D` or `arrows` for movement
+- `Shift` for sprint
+- `Left Mouse Button` for primary ability (needs an equipped weapon)
+- `Right Mouse Button` for secondary ability (needs an equipped trinket, for now)
+- `I` for inventory window
+- `C` for character window
 
 To use the primary and secondary abilities, go to Inventory and equip a weapon and a trinket....
 
@@ -36,9 +37,17 @@ This is a work in progress but current features include (not an exhaustive list 
 - Dynamic resource loading, so textures can be added by editing [assets/resources.json](https://github.com/olefasting/capstone/blob/master/assets/resources.json) and referenced by `texture_id` in actors and items, both in-code and in the corresponding json-files
 - Tiled maps (to be replaced by a proprietary format, as soon as we create an in-game editor)
 
-## Twilight of The Archons
+## Credits, thanks and such...
 
-The name 'Twilight of the Archons' has been inspired by the [documentary](https://www.youtube.com/watch?v=HsYTsdBCBdE) by the same name, made by Robert Bonomo of [Cactus Land Productions](http://www.thecactusland.com/). Though the documentary focus more on the worldly aspects of our current predicament and this game more on the spiritual aspects; I believe the title was such an excellent one that I sought Robert's blessing to steal it.
+All assets currently used are placeholders, taken from ich.io. When writing this, credits for assets are due to:
+
+- [Neo Zero Cyberpunk City Tileset](https://yunusyanin.itch.io/neo-zero-cyberpunk-city-tileset) (map tiles and props)
+- [Cyberpunk Top Down Game Asset Pack](https://rafazcruz.itch.io/cyberpunk-top-down-game-asset-pack) (currently not used but included in the repository)
+- [Cyberpunk Items 16x16](https://jeresikstus.itch.io/cyberpunk-items-16x16) (currently used for all item graphics)
+
+### Twilight of The Archons
+
+The name 'Twilight of the Archons' has been inspired by the [documentary](https://www.youtube.com/watch?v=HsYTsdBCBdE) of the same name, made by Robert Bonomo of [Cactus Land Productions](http://www.thecactusland.com/). Though the documentary focus more on the worldly aspects of our current predicament and this game more on the spiritual aspects; I believe the title was such an excellent one that I sought Robert's blessing to steal it.
 Blessing has been given and, even though he is not affiliated with the project in any way, I would like to give credit to him and his awesome work, here.
 
 Copyright 2021 Ole A. Sjo Fasting and [Magus Interactive](https://magus.no)
