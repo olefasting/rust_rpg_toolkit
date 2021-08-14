@@ -72,13 +72,13 @@ impl Node for Beams {
                     };
                     if beam_collision_check(position, beam.origin, beam.end, beam.width) {
                         other_actor.take_damage(&beam.actor_id, beam.damage);
-                        if beam.end.distance(position) < beam.end.distance(cutoff) {
+                        if beam.origin.distance(position) < beam.origin.distance(cutoff) {
                             cutoff = position;
                         }
                     }
                 }
             }
-            beam.end = cutoff;
+            beam.end = beam.origin + beam.end.sub(beam.origin).clamp_length(0.0, beam.origin.distance(cutoff));
         }
     }
 
