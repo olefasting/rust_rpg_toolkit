@@ -16,10 +16,50 @@
       "range": 15.0,
       "damage": 10.0,
       "effect_kind": "projectile",
-      "effect_size": 2.0,
+      "effect_size": 1.0,
       "effect_color": {
         "r": 0.99,
         "g": 0.98,
+        "b": 0.0,
+        "a": 1.0
+      }
+    },
+    "sprite_params": {
+      "texture_id": "items",
+      "texture_coords": {
+        "x": 0,
+        "y": 3
+      },
+      "tile_size": {
+        "x": 16,
+        "y": 16
+      },
+      "offset": {
+        "x": -8.0,
+        "y": -8.0
+      }
+    }
+  },
+  {
+    "id": "test_continuous_beam_weapon",
+    "kind": "one_handed_weapon",
+    "name": "Test Continuous Beam Weapon",
+    "description": "Test Continuous Beam Weapon description",
+    "weight": 10.0,
+    "ability_params": {
+      "action_kind": "primary",
+      "health_cost": 0.0,
+      "stamina_cost": 0.0,
+      "energy_cost": 0.0,
+      "speed": 0.0,
+      "spread": 10.0,
+      "range": 300.0,
+      "damage": 2.0,
+      "effect_kind": "continuous_beam",
+      "effect_size": 6.0,
+      "effect_color": {
+        "r": 0.99,
+        "g": 0.0,
         "b": 0.0,
         "a": 1.0
       }
@@ -49,14 +89,15 @@
     "ability_params": {
       "action_kind": "primary",
       "health_cost": 0.0,
-      "stamina_cost": 0.0,
+      "stamina_cost": 10.0,
       "energy_cost": 0.0,
-      "speed": 0.0,
+      "cooldown": 0.025,
+      "speed": 25.0,
       "spread": 10.0,
       "range": 300.0,
-      "damage": 2.0,
+      "damage": 50.0,
       "effect_kind": "beam",
-      "effect_size": 6.0,
+      "effect_size": 2.0,
       "effect_color": {
         "r": 0.99,
         "g": 0.0,

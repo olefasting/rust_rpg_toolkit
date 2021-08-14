@@ -9,7 +9,7 @@ pub use actor::{
 pub use camera::Camera;
 pub use game_state::GameState;
 pub use projectiles::Projectiles;
-pub use beams::Beams;
+pub use continuous_beams::ContinuousBeams;
 pub use item::{
     ItemParams,
     Item,
@@ -20,4 +20,4 @@ pub mod game_state;
 pub mod actor;
 pub mod camera;
 pub mod item;
-pub mod beams;
+pub mod continuous_beams;

@@ -14,8 +14,8 @@
     },
     "inventory": [
       "test_beam_weapon",
+      "test_continuous_beam_weapon",
       "test_projectile_weapon",
-      "test_trinket",
       "test_trinket"
     ],
     "collider": {
@@ -74,8 +74,8 @@
     },
     "inventory": [
       "test_beam_weapon",
+      "test_continuous_beam_weapon",
       "test_projectile_weapon",
-      "test_trinket",
       "test_trinket"
     ],
     "collider": {
@@ -134,8 +134,8 @@
     },
     "inventory": [
       "test_beam_weapon",
+      "test_continuous_beam_weapon",
       "test_projectile_weapon",
-      "test_trinket",
       "test_trinket"
     ],
     "collider": {

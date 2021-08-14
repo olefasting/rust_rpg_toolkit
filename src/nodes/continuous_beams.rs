@@ -15,7 +15,7 @@ use crate::{
 use std::ops::Sub;
 use crate::nodes::GameState;
 
-pub struct Beam {
+pub struct ContinuousBeam {
     pub actor_id: String,
     pub factions: Vec<String>,
     pub damage: f32,
@@ -25,15 +25,15 @@ pub struct Beam {
     pub end: Vec2,
 }
 
-pub struct Beams {
-    active: Vec<Beam>,
+pub struct ContinuousBeams {
+    active: Vec<ContinuousBeam>,
 }
 
-impl Beams {
+impl ContinuousBeams {
     const WIDTH_TOLERANCE_FACTOR: f32 = 350.0;
 
     pub fn new() -> Self {
-        Beams {
+        ContinuousBeams {
             active: Vec::new(),
         }
     }
@@ -43,7 +43,7 @@ impl Beams {
     }
 
     pub fn spawn(&mut self, actor_id: &str, factions: &[String], damage: f32, color: Color, width: f32, origin: Vec2, end: Vec2) {
-        let beam = Beam {
+        let beam = ContinuousBeam {
             actor_id: actor_id.to_string(),
             factions: factions.to_vec(),
             damage,
@@ -56,7 +56,7 @@ impl Beams {
     }
 }
 
-impl Node for Beams {
+impl Node for ContinuousBeams {
     fn fixed_update(mut node: RefMut<Self>) {
         for mut beam in &mut node.active {
             let game_state = scene::find_node_by_type::<GameState>().unwrap();

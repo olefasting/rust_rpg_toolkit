@@ -41,7 +41,7 @@ pub use resources::{
 
 use crate::nodes::actor::{ActorDrawBuffer, ActorStats};
 use crate::nodes::item::ItemDrawBuffer;
-use crate::nodes::Beams;
+use crate::nodes::ContinuousBeams;
 
 mod resources;
 mod globals;
@@ -135,7 +135,7 @@ async fn main() {
         ItemDrawBuffer::add_node();
 
         Projectiles::add_node();
-        Beams::add_node();
+        ContinuousBeams::add_node();
 
         scene::add_node(generic_actor(
             "Player Actor",

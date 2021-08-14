@@ -9,8 +9,9 @@ use serde::{
 };
 
 use crate::{Actor, generate_id, json};
-use crate::nodes::{Projectiles, Beams};
+use crate::nodes::{Projectiles, ContinuousBeams};
 use std::ops::Sub;
+use crate::nodes::projectiles::ProjectileKind;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct ActorAbilityParams {
@@ -71,6 +72,7 @@ impl ActorAbility {
     pub const PROJECTILE_EFFECT: &'static str = "projectile";
     pub const ENERGY_SPHERE_EFFECT: &'static str = "energy_sphere";
     pub const BEAM_EFFECT: &'static str = "beam";
+    pub const CONTINUOUS_BEAM_EFFECT: &'static str = "continuous_beam";
 
     pub const PRIMARY_ABILITY: &'static str = "primary";
     pub const SECONDARY_ABILITY: &'static str = "secondary";
@@ -98,11 +100,11 @@ impl ActorAbility {
         if (self.health_cost == 0.0 || actor.stats.current_health >= self.health_cost)
             && (self.stamina_cost == 0.0 || actor.stats.current_stamina >= self.stamina_cost)
             && (self.energy_cost == 0.0 || actor.stats.current_energy >= self.energy_cost) {
-            if self.effect_kind == ActorAbility::BEAM_EFFECT {
+            if self.effect_kind == ActorAbility::CONTINUOUS_BEAM_EFFECT {
                 actor.stats.current_health -= self.health_cost;
                 actor.stats.current_stamina -= self.stamina_cost;
                 actor.stats.current_energy -= self.energy_cost;
-                let mut beams = scene::find_node_by_type::<Beams>().unwrap();
+                let mut beams = scene::find_node_by_type::<ContinuousBeams>().unwrap();
                 let end = actor.body.position + target.sub(actor.body.position).normalize_or_zero() * self.range;
                 beams.spawn(
                     &actor.id,
@@ -114,18 +116,26 @@ impl ActorAbility {
                     end,
                 )
             } else if self.cooldown_timer >= self.cooldown {
+                let kind = if self.effect_kind == Self::PROJECTILE_EFFECT {
+                    ProjectileKind::Bullet
+                } else if self.effect_kind == Self::BEAM_EFFECT {
+                    ProjectileKind::Beam
+                } else if self.effect_kind == Self::ENERGY_SPHERE_EFFECT {
+                    ProjectileKind::EnergySphere
+                } else {
+                    assert!(false, "Invalid effect kind '{}'", self.effect_kind);
+                    ProjectileKind::Bullet
+                };
                 actor.stats.current_health -= self.health_cost;
                 actor.stats.current_stamina -= self.stamina_cost;
                 actor.stats.current_energy -= self.energy_cost;
                 self.cooldown_timer = 0.0;
                 let mut projectiles = scene::find_node_by_type::<Projectiles>().unwrap();
                 let ttl = self.range / self.speed;
-                let is_sphere = [
-                    ActorAbility::ENERGY_SPHERE_EFFECT.to_string(),
-                ].contains(&self.effect_kind);
                 projectiles.spawn(
                     &actor.id,
                     &actor.factions,
+                    kind,
                     self.damage,
                     self.effect_color,
                     self.effect_size,
@@ -134,7 +144,6 @@ impl ActorAbility {
                     self.speed,
                     self.spread,
                     ttl,
-                    is_sphere,
                 );
             }
         }

@@ -1,4 +1,4 @@
-use std::ops::Sub;
+use std::ops::{Sub, Mul};
 
 use macroquad::{
     experimental::{
@@ -17,9 +17,16 @@ use crate::{nodes::{
 }, physics::Collider, get_global};
 use crate::render::Viewport;
 
+pub enum ProjectileKind {
+    Bullet,
+    Beam,
+    EnergySphere,
+}
+
 pub struct Projectile {
     actor_id: String,
     factions: Vec<String>,
+    kind: ProjectileKind,
     damage: f32,
     color: Color,
     size: f32,
@@ -28,24 +35,24 @@ pub struct Projectile {
     speed: f32,
     lived: f32,
     ttl: f32,
-    is_sphere: bool,
 }
 
 impl Projectile {
     pub fn new(
         actor_id: &str,
         factions: &[String],
+        kind: ProjectileKind,
         damage: f32, color: Color,
         size: f32,
         position: Vec2,
         direction: Vec2,
         speed: f32,
         ttl: f32,
-        is_sphere: bool,
     ) -> Self {
         Projectile {
             actor_id: actor_id.to_string(),
             factions: factions.to_vec(),
+            kind,
             damage,
             color,
             size,
@@ -54,7 +61,6 @@ impl Projectile {
             speed,
             lived: 0.0,
             ttl,
-            is_sphere,
         }
     }
 }
@@ -64,10 +70,19 @@ pub struct Projectiles {
 }
 
 impl Projectiles {
+    const MIN_PROJECTILE_SPEED: f32 = 1.0;
+    const MAX_PROJECTILE_SPEED: f32 = 200.0;
+
     const SPEED_VARIANCE_MIN: f32 = 0.9;
     const SPEED_VARIANCE_MAX: f32 = 1.1;
 
     const SPREAD_CALCULATION_DISTANCE: f32 = 100.0;
+
+    const PROJECTILE_LENGTH_FACTOR_MIN: f32 = 6.0;
+    const PROJECTILE_LENGTH_FACTOR_MAX: f32 = 20.0;
+
+    const BEAM_LENGTH_FACTOR_MIN: f32 = 2.0;
+    const BEAM_LENGTH_FACTOR_MAX: f32 = 6.0;
 
     pub fn new() -> Self {
         Projectiles {
@@ -83,6 +98,7 @@ impl Projectiles {
         &mut self,
         actor_id: &str,
         factions: &[String],
+        kind: ProjectileKind,
         damage: f32,
         color: Color,
         size: f32,
@@ -91,26 +107,25 @@ impl Projectiles {
         speed: f32,
         spread: f32,
         ttl: f32,
-        is_sphere: bool,
     ) {
         assert!(ttl > 0.0, "Projectile TTL must be a positive float and not 0.0");
 
         let spread_target = target.sub(position).normalize_or_zero() * Self::SPREAD_CALCULATION_DISTANCE;
         let direction = vec2(
-          rand::gen_range(spread_target.x - spread, spread_target.x + spread),
+            rand::gen_range(spread_target.x - spread, spread_target.x + spread),
             rand::gen_range(spread_target.y - spread, spread_target.y + spread),
         ).normalize_or_zero();
         self.active.push(Projectile::new(
             actor_id,
             factions,
+            kind,
             damage,
             color,
             size,
             position,
             direction,
-            speed,
+            speed.clamp(Self::MIN_PROJECTILE_SPEED, Self::MAX_PROJECTILE_SPEED),
             ttl,
-            is_sphere,
         ));
     }
 }
@@ -161,23 +176,59 @@ impl Node for Projectiles {
         let viewport = get_global::<Viewport>();
         for projectile in &node.active {
             if viewport.contains(projectile.position) {
-                if projectile.is_sphere {
-                    draw_circle(
+                match projectile.kind {
+                    ProjectileKind::Bullet => {
+                        let begin = projectile
+                            .position.sub(projectile.direction.mul(
+                            projectile.size * rand::gen_range(
+                                Self::PROJECTILE_LENGTH_FACTOR_MIN,
+                                Self::PROJECTILE_LENGTH_FACTOR_MAX,
+                            )));
+                        draw_line(
+                            begin.x,
+                            begin.y,
+                            projectile.position.x,
+                            projectile.position.y,
+                            projectile.size,
+                            projectile.color,
+                        );
+                    },
+                    ProjectileKind::Beam => {
+                        let begin = projectile
+                            .position.sub(projectile.direction.mul(
+                            projectile.size * rand::gen_range(
+                                Self::BEAM_LENGTH_FACTOR_MIN,
+                                Self::BEAM_LENGTH_FACTOR_MAX,
+                            )));
+                        if projectile.size > 2.0 {
+                            draw_circle(
+                                begin.x,
+                                begin.y,
+                                projectile.size / 2.0,
+                                projectile.color,
+                            );
+                            draw_circle(
+                                projectile.position.x,
+                                projectile.position.y,
+                                projectile.size / 2.0,
+                                projectile.color,
+                            );
+                        }
+                        draw_line(
+                            begin.x,
+                            begin.y,
+                            projectile.position.x,
+                            projectile.position.y,
+                            projectile.size,
+                            projectile.color,
+                        );
+                    },
+                    ProjectileKind::EnergySphere => draw_circle(
                         projectile.position.x,
                         projectile.position.y,
                         projectile.size / 2.0,
                         projectile.color,
-                    );
-                } else {
-                    let begin = projectile.position - projectile.direction * projectile.size * 2.0;
-                    draw_line(
-                        begin.x,
-                        begin.y,
-                        projectile.position.x,
-                        projectile.position.y,
-                        projectile.size,
-                        projectile.color,
-                    );
+                    ),
                 }
             }
         }
