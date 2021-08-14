@@ -114,7 +114,7 @@ impl Node for Projectiles {
                 }
             }
             let game_state = scene::find_node_by_type::<GameState>().unwrap();
-            if game_state.map.solid_at_collider(collider) {
+            if game_state.map.solid_at_collider(collider, false) {
                 return false;
             }
             return true;

@@ -85,6 +85,8 @@ impl Node for Beams {
 
     fn draw(mut node: RefMut<Self>) {
         node.active.retain(|beam| {
+            let mut highlight = color::WHITE;
+            highlight.a = 0.5;
             draw_circle(
                 beam.end.x,
                 beam.end.y,
@@ -103,7 +105,7 @@ impl Node for Beams {
                 beam.end.x,
                 beam.end.y,
                 ((beam.width / 2.0) * 0.8) / 2.0,
-                color::WHITE,
+                highlight,
             );
             draw_line(
                 beam.origin.x,
@@ -111,7 +113,7 @@ impl Node for Beams {
                 beam.end.x,
                 beam.end.y,
                 (beam.width - 4.0) * 0.8,
-                color::WHITE,
+                highlight,
             );
             false
         });

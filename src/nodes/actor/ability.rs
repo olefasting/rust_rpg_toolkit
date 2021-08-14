@@ -131,8 +131,6 @@ impl ActorAbility {
                     actor.body.position,
                     end,
                 )
-            } else {
-                assert!(false, "Invalid effect kind '{}'", self.effect_kind);
             }
         }
     }

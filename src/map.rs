@@ -13,6 +13,10 @@ pub struct Map {
 }
 
 impl Map {
+    pub const GROUND_LAYER: &'static str = "ground";
+    pub const SOLIDS_LAYER: &'static str = "solids";
+    pub const BARRIERS_LAYER: &'static str = "barriers";
+
     pub async fn new(tile_size: UVec2, path: &str) -> Self {
         let resources = get_global::<Resources>();
         let tiled_map_json = load_string(path).await.unwrap();
@@ -24,22 +28,26 @@ impl Map {
             ],
             &[],
         ).unwrap();
-
         Map {
             tile_size,
             tiled_map,
         }
     }
 
-    pub fn solid_at(&self, position: Vec2) -> bool {
+    pub fn solid_at(&self, position: Vec2, include_barriers: bool) -> bool {
         let coords = uvec2(
             position.x as u32 / self.tile_size.x,
             position.y as u32 / self.tile_size.y,
         );
-        self.tiled_map.get_tile("solids", coords.x, coords.y).is_some()
+        let barriers = if include_barriers {
+            self.tiled_map.get_tile(Self::BARRIERS_LAYER, coords.x, coords.y).is_some()
+        } else {
+            false
+        };
+        barriers || self.tiled_map.get_tile(Self::SOLIDS_LAYER, coords.x, coords.y).is_some()
     }
 
-    pub fn solid_at_collider(&self, collider: Collider) -> bool {
+    pub fn solid_at_collider(&self, collider: Collider, include_barriers: bool) -> bool {
         let coords = match collider {
             Collider::Rectangle(rect) => {
                 (uvec2(
@@ -64,7 +72,10 @@ impl Map {
         };
         for x in coords.0.x..coords.1.x+1 {
             for y in coords.0.y..coords.1.y+1 {
-                if self.tiled_map.get_tile("solids", x, y).is_some() {
+                if self.tiled_map.get_tile(Self::SOLIDS_LAYER, x, y).is_some() {
+                    return true;
+                }
+                if include_barriers && self.tiled_map.get_tile(Self::BARRIERS_LAYER, x, y).is_some() {
                     return true;
                 }
             }
@@ -73,9 +84,9 @@ impl Map {
     }
 
     pub fn draw(&self) {
-        if let Some(layer) = self.tiled_map.layers.get("ground") {
+        if let Some(layer) = self.tiled_map.layers.get(Self::GROUND_LAYER) {
             self.tiled_map.draw_tiles(
-                "ground",
+                Self::GROUND_LAYER,
                 Rect::new(
                     0.0,
                     0.0,
@@ -85,9 +96,21 @@ impl Map {
                 None,
             );
         }
-        if let Some(layer) = self.tiled_map.layers.get("solids") {
+        if let Some(layer) = self.tiled_map.layers.get(Self::SOLIDS_LAYER) {
             self.tiled_map.draw_tiles(
-                "solids",
+                Self::SOLIDS_LAYER,
+                Rect::new(
+                    0.0,
+                    0.0,
+                    (self.tile_size.x * layer.width) as f32,
+                    (self.tile_size.y * layer.height) as f32,
+                ),
+                None,
+            );
+        }
+        if let Some(layer) = self.tiled_map.layers.get(Self::BARRIERS_LAYER) {
+            self.tiled_map.draw_tiles(
+                Self::BARRIERS_LAYER,
                 Rect::new(
                     0.0,
                     0.0,
