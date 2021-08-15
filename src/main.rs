@@ -120,13 +120,6 @@ async fn main() {
             id: 0,
         });
 
-        // let resources = get_global::<Resources>();
-        // let map = TiledMap::new(uvec2(16, 16), "assets/maps/map_01.json").await;
-        // let player_spawn = map.get_spawn_point(TiledMap::PLAYER_SPAWN_POINT_NAME);
-        // for (_, item) in &map.items {
-        //     Item::add_node(item.position, resources.get_item(&item.id).clone());
-        // }
-
         let player_spawn_position = vec2(32.0, 0.0);
 
         let map = Map::new("assets/maps/capstone_map.json");
