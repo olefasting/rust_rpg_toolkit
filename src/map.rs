@@ -88,7 +88,7 @@ impl Map {
     }
 
     pub fn get_tile_at_position(&self, position: Vec2, layer_id: &str) -> Option<MapTile> {
-        let offset_position = position + self.world_offset;
+        let offset_position = position - self.world_offset;
         self.get_tile_at_coords(uvec2(offset_position.x as u32, offset_position.y as u32) / self.tile_size, layer_id)
     }
 
