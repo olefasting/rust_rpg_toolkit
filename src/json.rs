@@ -347,7 +347,7 @@ impl From<Color> for macroquad::prelude::Color {
 pub struct Map {
     pub world_offset: Option<Vec2>,
     pub grid_size: UVec2,
-    pub tile_size: Vec2,
+    pub tile_size: UVec2,
     pub layers: Vec<MapLayer>,
     pub tilesets: Vec<MapTileset>,
 }
@@ -357,7 +357,7 @@ impl From<crate::Map> for Map {
         Map {
             world_offset: if other.world_offset != macroquad::prelude::Vec2::ZERO { Some(Vec2::from(other.world_offset)) } else { None },
             grid_size: UVec2::from(other.grid_size),
-            tile_size: Vec2::from(other.tile_size),
+            tile_size: UVec2::from(other.tile_size),
             layers: other.layers.into_iter().map(|layer| MapLayer::from(layer)).collect(),
             tilesets: other.tilesets.into_iter().map(|tileset| MapTileset::from(tileset)).collect(),
         }
@@ -370,7 +370,6 @@ impl From<Map> for crate::Map {
         let layers = other.layers.into_iter().map(|layer| crate::MapLayer {
             id: layer.id.clone(),
             kind: MapLayerKind::from(&*layer.kind),
-            offset: macroquad::prelude::Vec2::from(layer.offset.unwrap_or_default()),
             tiles: layer.tiles
                 .unwrap_or_default()
                 .into_iter()
@@ -395,7 +394,7 @@ impl From<Map> for crate::Map {
         crate::Map {
             world_offset: macroquad::prelude::Vec2::from(other.world_offset.unwrap_or_default()),
             grid_size: macroquad::prelude::UVec2::from(other.grid_size),
-            tile_size: macroquad::prelude::Vec2::from(other.tile_size),
+            tile_size: macroquad::prelude::UVec2::from(other.tile_size),
             layers,
             tilesets,
         }
@@ -406,7 +405,6 @@ impl From<Map> for crate::Map {
 pub struct MapLayer {
     pub id: String,
     pub kind: String,
-    pub offset: Option<Vec2>,
     pub tiles: Option<Vec<u32>>,
     pub objects: Option<Vec<MapObject>>,
 }
@@ -433,11 +431,9 @@ impl From<crate::MapLayer> for MapLayer {
                  Some(other.objects.into_iter().map(|object| MapObject::from(object)).collect()))
             }
         };
-        let offset = if other.offset != crate::Vec2::ZERO { Some(Vec2::from(other.offset)) } else { None };
         MapLayer {
             id: other.id.clone(),
             kind,
-            offset,
             objects,
             tiles,
         }
@@ -460,7 +456,7 @@ impl From<&str> for crate::MapLayerKind {
 #[derive(Clone, Serialize, Deserialize)]
 pub struct MapObject {
     pub id: String,
-    pub prototype_id: String,
+    pub prototype_id: Option<String>,
     pub position: Vec2,
 }
 

@@ -128,7 +128,7 @@ async fn main() {
         //     Item::add_node(item.position, resources.get_item(&item.id).clone());
         // }
 
-        let player_spawn_position = vec2(0.0, 0.0);
+        let player_spawn_position = vec2(32.0, 0.0);
 
         let map = Map::new("assets/maps/capstone_map.json");
         GameState::add_node(map);
