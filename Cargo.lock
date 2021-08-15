@@ -88,7 +88,6 @@ version = "0.1.0"
 dependencies = [
  "gamepad-rs",
  "macroquad",
- "macroquad-ldtk",
  "macroquad-particles",
  "macroquad-profiler",
  "macroquad-tiled",
@@ -250,16 +249,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 
 [[package]]
-name = "ldtk_rust"
-version = "0.5.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7135094ff34d3ccd8d30a2aaf555a51828a41a0d4c7977ae4d2165ca21c3809c"
-dependencies = [
- "serde",
- "serde_json",
-]
-
-[[package]]
 name = "lewton"
 version = "0.9.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -298,15 +287,6 @@ dependencies = [
  "miniquad",
  "quad-rand",
  "quad-snd",
-]
-
-[[package]]
-name = "macroquad-ldtk"
-version = "0.1.0"
-dependencies = [
- "ldtk_rust",
- "macroquad",
- "serde",
 ]
 
 [[package]]

@@ -31,7 +31,10 @@ impl Map {
 
     pub fn draw(&self) {
         let resource = get_global::<Resources>();
-        let textures: HashMap<String, Texture2D> = HashMap::from_iter(self.tilesets.iter().map(|tileset| (tileset.texture_id.clone(), *resource.get_texture(&tileset.texture_id))));
+        let textures: HashMap<String, Texture2D> = HashMap::from_iter(
+            self.tilesets
+                .iter()
+                .map(|tileset| (tileset.texture_id.clone(), *resource.get_texture(&tileset.texture_id))));
         for layer in &self.layers {
             let total_offset = self.world_offset + layer.offset;
             for i in 0..layer.tiles.len() {
@@ -43,7 +46,12 @@ impl Map {
                         total_offset.y + y as f32 * self.tile_size.y,
                         color::WHITE,
                         DrawTextureParams {
-                            source: Some(Rect::new(tile.tileset_position.x, tile.tileset_position.y, self.tile_size.x, self.tile_size.y)),
+                            source: Some(Rect::new(
+                                tile.tileset_position.x,
+                                tile.tileset_position.y,
+                                self.tile_size.x,
+                                self.tile_size.y,
+                            )),
                             dest_size: Some(self.tile_size),
                             ..Default::default()
                         },

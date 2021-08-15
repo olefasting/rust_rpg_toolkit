@@ -8,7 +8,6 @@ opt-level = 3
 
 [dependencies]
 gamepad-rs = { path = "./gamepad-rs" }
-macroquad-ldtk = { path = "./macroquad-ldtk" }
 nanoid = "0.4.0"
 nanoserde = { version = "0.1.29" }
 serde = { version = "1.0.127", features = ["derive"] }

@@ -11,8 +11,6 @@ use macroquad::{
     prelude::*,
 };
 
-use macroquad_ldtk::Project;
-
 pub use globals::{
     get_global,
     set_global,
