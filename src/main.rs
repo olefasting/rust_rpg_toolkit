@@ -25,7 +25,6 @@ pub use map::{
     MapObject,
     MapTile,
     MapTileset,
-    TiledMap,
 };
 use nodes::{
     Actor,

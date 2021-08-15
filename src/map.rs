@@ -6,9 +6,6 @@ use macroquad::{
     prelude::*,
 };
 
-pub mod tiled;
-
-pub use tiled::TiledMap;
 use crate::{get_global, Resources, Collider};
 use crate::physics::beam_collision_check;
 
