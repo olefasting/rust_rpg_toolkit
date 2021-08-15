@@ -9,7 +9,7 @@ use macroquad::{
     prelude::*,
 };
 
-use crate::Map;
+use crate::map::Map;
 
 pub struct GameState {
     pub map: Map,

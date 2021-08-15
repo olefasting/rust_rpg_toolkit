@@ -62,6 +62,7 @@ pub struct ActorParams {
     pub collider: Option<json::Collider>,
     pub inventory: Vec<String>,
     pub sprite_animation_params: SpriteAnimationParams,
+    pub is_prototype: Option<bool>,
 }
 
 impl Default for ActorParams {
@@ -75,6 +76,7 @@ impl Default for ActorParams {
             collider: None,
             inventory: Vec::new(),
             sprite_animation_params: Default::default(),
+            is_prototype: None,
         }
     }
 }
@@ -106,16 +108,18 @@ impl Actor {
     const PICK_UP_RADIUS: f32 = 36.0;
     const INTERACT_RADIUS: f32 = 36.0;
 
-    pub fn new(position: Vec2, controller_kind: ActorControllerKind, max_vitals: bool, params: ActorParams) -> Self {
+    pub fn new(position: Vec2, controller_kind: ActorControllerKind, params: ActorParams) -> Self {
+        let mut stats = ActorStats::from(params.stats);
+        stats.update_derived(params.is_prototype.unwrap_or_default());
         let collider = match params.collider {
-            Some(collider) => Some(collider.to_collider()),
+            Some(collider) => Some(Collider::from(collider)),
             None => None,
         };
         let body = PhysicsBody::new(position, 0.0, collider);
         Actor {
             id: generate_id(),
             name: params.name,
-            stats: params.stats.to_actor_stats(max_vitals),
+            stats,
             factions: params.factions,
             body,
             sprite_animation: SpriteAnimationPlayer::new(params.sprite_animation_params.clone()),
@@ -126,8 +130,8 @@ impl Actor {
         }
     }
 
-    pub fn add_node(position: Vec2, controller_kind: ActorControllerKind, max_vitals: bool, params: ActorParams) -> Handle<Self> {
-        scene::add_node(Self::new(position, controller_kind, max_vitals, params))
+    pub fn add_node(position: Vec2, controller_kind: ActorControllerKind, params: ActorParams) -> Handle<Self> {
+        scene::add_node(Self::new(position, controller_kind, params))
     }
 
     pub fn to_actor_params(&self) -> ActorParams {
@@ -144,6 +148,7 @@ impl Actor {
             collider,
             inventory: self.inventory.to_item_ids(),
             sprite_animation_params: self.sprite_animation.to_sprite_params(),
+            is_prototype: None,
         }
     }
 

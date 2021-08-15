@@ -2,6 +2,7 @@ use serde::{
     Serialize,
     Deserialize,
 };
+use crate::MapLayerKind;
 
 #[derive(Copy, Clone, Serialize, Deserialize)]
 pub struct Vec2 {
@@ -16,18 +17,31 @@ impl Vec2 {
             y,
         }
     }
+}
 
-    pub fn from(other: macroquad::prelude::Vec2) -> Self {
+impl Default for Vec2 {
+    fn default() -> Self {
+        Vec2 {
+            x: 0.0,
+            y: 0.0,
+        }
+    }
+}
+
+impl From<macroquad::prelude::Vec2> for Vec2 {
+    fn from(other: macroquad::prelude::Vec2) -> Self {
         Vec2 {
             x: other.x,
             y: other.y,
         }
     }
+}
 
-    pub fn to_macroquad(&self) -> macroquad::prelude::Vec2 {
+impl From<Vec2> for macroquad::prelude::Vec2 {
+    fn from(other: Vec2) -> Self {
         macroquad::prelude::vec2(
-            self.x,
-            self.y,
+            other.x,
+            other.y,
         )
     }
 }
@@ -45,18 +59,31 @@ impl UVec2 {
             y,
         }
     }
+}
 
-    pub fn from(other: macroquad::prelude::UVec2) -> Self {
+impl Default for UVec2 {
+    fn default() -> Self {
+        UVec2 {
+            x: 0,
+            y: 0,
+        }
+    }
+}
+
+impl From<macroquad::prelude::UVec2> for UVec2 {
+    fn from(other: macroquad::prelude::UVec2) -> Self {
         UVec2 {
             x: other.x,
             y: other.y,
         }
     }
+}
 
-    pub fn to_macroquad(&self) -> macroquad::prelude::UVec2 {
+impl From<UVec2> for macroquad::prelude::UVec2 {
+    fn from(other: UVec2) -> Self {
         macroquad::prelude::uvec2(
-            self.x,
-            self.y,
+            other.x,
+            other.y,
         )
     }
 }
@@ -92,15 +119,17 @@ impl Collider {
             }
         }
     }
+}
 
-    pub fn to_collider(&self) -> crate::Collider {
-        if self.kind == Self::CIRCLE_KIND {
-            crate::Collider::circle(self.offset.x, self.offset.y, self.radius.unwrap())
-        } else if self.kind == Self::RECTANGLE_KIND {
-            crate::Collider::rect(self.offset.x, self.offset.y, self.width.unwrap(), self.height.unwrap())
-        } else {
-            assert!(false, "Invalid collider kind '{}", self.kind);
-            crate::Collider::circle(0.0,0.0,0.0)
+impl From<Collider> for crate::Collider {
+    fn from(other: Collider) -> Self {
+        match &*other.kind {
+            Collider::CIRCLE_KIND => crate::Collider::circle(other.offset.x, other.offset.y, other.radius.unwrap()),
+            Collider::RECTANGLE_KIND => crate::Collider::rect(other.offset.x, other.offset.y, other.width.unwrap(), other.height.unwrap()),
+            _ => {
+                panic!("Invalid collider kind '{}", other.kind);
+                crate::Collider::circle(0.0, 0.0, 0.0)
+            }
         }
     }
 }
@@ -113,18 +142,20 @@ pub struct Animation {
     pub fps: u32,
 }
 
-impl Animation {
-    pub fn to_macroquad(&self) -> macroquad::prelude::animation::Animation {
-        macroquad::prelude::animation::Animation {
-            name: self.name.clone(),
-            row: self.row,
-            frames: self.frames,
-            fps: self.fps,
+impl From<&macroquad::prelude::animation::Animation> for Animation {
+    fn from(other: &macroquad::prelude::animation::Animation) -> Self {
+        Animation {
+            name: other.name.clone(),
+            row: other.row,
+            frames: other.frames,
+            fps: other.fps,
         }
     }
+}
 
-    pub fn from(other: macroquad::prelude::animation::Animation) -> Self {
-        Animation {
+impl From<&Animation> for macroquad::prelude::animation::Animation {
+    fn from(other: &Animation) -> Self {
+        macroquad::prelude::animation::Animation {
             name: other.name.clone(),
             row: other.row,
             frames: other.frames,
@@ -202,8 +233,10 @@ impl ActorStats {
             ..Default::default()
         }
     }
+}
 
-    pub fn from(other: crate::ActorStats) -> Self {
+impl From<crate::ActorStats> for ActorStats {
+    fn from(other: crate::ActorStats) -> Self {
         ActorStats {
             strength: other.strength,
             dexterity: other.dexterity,
@@ -226,31 +259,31 @@ impl ActorStats {
             is_static: Some(other.is_static),
         }
     }
+}
 
-    pub fn to_actor_stats(&self, max_vitals: bool) -> crate::ActorStats {
-        let mut stats = crate::ActorStats {
-            strength: self.strength,
-            dexterity: self.dexterity,
-            constitution: self.constitution,
-            intelligence: self.intelligence,
-            willpower: self.willpower,
-            perception: self.perception,
-            charisma: self.charisma,
-            current_health: self.current_health.unwrap_or_default(),
-            max_health: self.max_health.unwrap_or_default(),
-            current_stamina: self.current_stamina.unwrap_or_default(),
-            max_stamina: self.max_stamina.unwrap_or_default(),
-            current_energy: self.current_energy.unwrap_or_default(),
-            max_energy: self.max_energy.unwrap_or_default(),
-            health_regen: self.health_regen.unwrap_or_default(),
-            stamina_regen: self.stamina_regen.unwrap_or_default(),
-            energy_regen: self.energy_regen.unwrap_or_default(),
-            carry_capacity: self.carry_capacity.unwrap_or_default(),
-            move_speed: self.move_speed.unwrap_or_default(),
-            is_static: self.is_static.unwrap_or_default(),
-        };
-        stats.update_derived(max_vitals);
-        stats
+impl From<ActorStats> for crate::ActorStats {
+    fn from(other: ActorStats) -> Self {
+        crate::ActorStats {
+            strength: other.strength,
+            dexterity: other.dexterity,
+            constitution: other.constitution,
+            intelligence: other.intelligence,
+            willpower: other.willpower,
+            perception: other.perception,
+            charisma: other.charisma,
+            current_health: other.current_health.unwrap_or_default(),
+            max_health: other.max_health.unwrap_or_default(),
+            current_stamina: other.current_stamina.unwrap_or_default(),
+            max_stamina: other.max_stamina.unwrap_or_default(),
+            current_energy: other.current_energy.unwrap_or_default(),
+            max_energy: other.max_energy.unwrap_or_default(),
+            health_regen: other.health_regen.unwrap_or_default(),
+            stamina_regen: other.stamina_regen.unwrap_or_default(),
+            energy_regen: other.energy_regen.unwrap_or_default(),
+            carry_capacity: other.carry_capacity.unwrap_or_default(),
+            move_speed: other.move_speed.unwrap_or_default(),
+            is_static: other.is_static.unwrap_or_default(),
+        }
     }
 }
 
@@ -288,8 +321,8 @@ pub struct Color {
     pub a: f32,
 }
 
-impl Color {
-    pub fn from(other: macroquad::color::Color) -> Self {
+impl From<macroquad::prelude::Color> for Color {
+    fn from(other: macroquad::color::Color) -> Self {
         Color {
             r: other.r,
             g: other.g,
@@ -297,13 +330,193 @@ impl Color {
             a: other.a,
         }
     }
+}
 
-    pub fn to_macroquad(&self) -> macroquad::color::Color {
+impl From<Color> for macroquad::prelude::Color {
+    fn from(other: Color) -> Self {
         macroquad::color::Color {
-            r: self.r,
-            g: self.g,
-            b: self.b,
-            a: self.a,
+            r: other.r,
+            g: other.g,
+            b: other.b,
+            a: other.a,
+        }
+    }
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct Map {
+    pub world_offset: Option<Vec2>,
+    pub grid_size: UVec2,
+    pub tile_size: Vec2,
+    pub layers: Vec<MapLayer>,
+    pub tilesets: Vec<MapTileset>,
+}
+
+impl From<crate::Map> for Map {
+    fn from(other: crate::Map) -> Self {
+        Map {
+            world_offset: if other.world_offset != macroquad::prelude::Vec2::ZERO { Some(Vec2::from(other.world_offset)) } else { None },
+            grid_size: UVec2::from(other.grid_size),
+            tile_size: Vec2::from(other.tile_size),
+            layers: other.layers.into_iter().map(|layer| MapLayer::from(layer)).collect(),
+            tilesets: other.tilesets.into_iter().map(|tileset| MapTileset::from(tileset)).collect(),
+        }
+    }
+}
+
+impl From<Map> for crate::Map {
+    fn from(other: Map) -> Self {
+        let tilesets: Vec<crate::MapTileset> = other.tilesets.into_iter().map(|tileset| crate::MapTileset::from(tileset)).collect();
+        let layers = other.layers.into_iter().map(|layer| crate::MapLayer {
+            id: layer.id.clone(),
+            kind: MapLayerKind::from(&*layer.kind),
+            offset: macroquad::prelude::Vec2::from(layer.offset.unwrap_or_default()),
+            tiles: layer.tiles
+                .unwrap_or_default()
+                .into_iter()
+                .map(|tile_id| if tile_id == 0 { None } else {
+                    match tilesets
+                        .iter()
+                        .find(|tileset| tile_id >= tileset.first_tile_id
+                            && tile_id <= tileset.first_tile_id + tileset.grid_size.x * tileset.grid_size.y) {
+                        Some(tileset) => Some(crate::MapTile {
+                            tile_id,
+                            texture_id: tileset.texture_id.clone(),
+                            tileset_position: tileset.get_texture_position_from_tile_id(tile_id),
+                        }),
+                        _ => {
+                            panic!("Unable to determine tileset from tile_id '{}'", tile_id);
+                            None
+                        }
+                    }
+                }).collect(),
+            objects: layer.objects.unwrap_or_default().into_iter().map(|object| crate::MapObject::from(object)).collect(),
+        }).collect();
+        crate::Map {
+            world_offset: macroquad::prelude::Vec2::from(other.world_offset.unwrap_or_default()),
+            grid_size: macroquad::prelude::UVec2::from(other.grid_size),
+            tile_size: macroquad::prelude::Vec2::from(other.tile_size),
+            layers,
+            tilesets,
+        }
+    }
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct MapLayer {
+    pub id: String,
+    pub kind: String,
+    pub offset: Option<Vec2>,
+    pub tiles: Option<Vec<u32>>,
+    pub objects: Option<Vec<MapObject>>,
+}
+
+impl MapLayer {
+    const TILE_LAYER_KIND: &'static str = "tile_layer";
+    const OBJECT_LAYER_KIND: &'static str = "object_layer";
+}
+
+impl From<crate::MapLayer> for MapLayer {
+    fn from(other: crate::MapLayer) -> Self {
+        let (kind, tiles, objects) = match other.kind {
+            crate::MapLayerKind::TileLayer => {
+                (Self::TILE_LAYER_KIND.to_string(),
+                 Some(other.tiles.into_iter().map(|opt| match opt {
+                     Some(tile) => tile.tile_id,
+                     _ => 0,
+                 }).collect()),
+                 None)
+            }
+            crate::MapLayerKind::ObjectLayer => {
+                (Self::OBJECT_LAYER_KIND.to_string(),
+                 None,
+                 Some(other.objects.into_iter().map(|object| MapObject::from(object)).collect()))
+            }
+        };
+        let offset = if other.offset != crate::Vec2::ZERO { Some(Vec2::from(other.offset)) } else { None };
+        MapLayer {
+            id: other.id.clone(),
+            kind,
+            offset,
+            objects,
+            tiles,
+        }
+    }
+}
+
+impl From<&str> for crate::MapLayerKind {
+    fn from(other: &str) -> Self {
+        match other {
+            MapLayer::TILE_LAYER_KIND => MapLayerKind::TileLayer,
+            MapLayer::OBJECT_LAYER_KIND => MapLayerKind::ObjectLayer,
+            _ => {
+                panic!("Invalid map layer kind '{}'!", other);
+                MapLayerKind::TileLayer
+            }
+        }
+    }
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct MapObject {
+    pub id: String,
+    pub prototype_id: String,
+    pub position: Vec2,
+}
+
+impl From<crate::MapObject> for MapObject {
+    fn from(other: crate::MapObject) -> Self {
+        MapObject {
+            id: other.id.clone(),
+            prototype_id: other.prototype_id.clone(),
+            position: Vec2::from(other.position),
+        }
+    }
+}
+
+
+impl From<MapObject> for crate::MapObject {
+    fn from(other: MapObject) -> Self {
+        crate::MapObject {
+            id: other.id.clone(),
+            prototype_id: other.prototype_id.clone(),
+            position: macroquad::prelude::Vec2::from(other.position),
+        }
+    }
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct MapTileset {
+    pub id: String,
+    pub texture_id: String,
+    pub texture_size: UVec2,
+    pub tile_size: UVec2,
+    pub grid_size: UVec2,
+    pub first_tile_id: u32,
+}
+
+impl From<crate::MapTileset> for MapTileset {
+    fn from(other: crate::MapTileset) -> Self {
+        MapTileset {
+            id: other.id.clone(),
+            texture_id: other.texture_id.clone(),
+            texture_size: UVec2::from(other.texture_size),
+            tile_size: UVec2::from(other.tile_size),
+            grid_size: UVec2::from(other.grid_size),
+            first_tile_id: other.first_tile_id,
+        }
+    }
+}
+
+impl From<MapTileset> for crate::MapTileset {
+    fn from(other: MapTileset) -> Self {
+        crate::MapTileset {
+            id: other.id.clone(),
+            texture_id: other.texture_id.clone(),
+            texture_size: crate::UVec2::from(other.texture_size),
+            tile_size: crate::UVec2::from(other.tile_size),
+            grid_size: crate::UVec2::from(other.grid_size),
+            first_tile_id: other.first_tile_id,
         }
     }
 }

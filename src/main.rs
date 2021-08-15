@@ -1,5 +1,6 @@
 #![feature(fn_traits)]
 #![feature(drain_filter)]
+#![feature(try_find)]
 
 use macroquad::{
     color,
@@ -10,6 +11,8 @@ use macroquad::{
     prelude::*,
 };
 
+use macroquad_ldtk::Project;
+
 pub use globals::{
     get_global,
     set_global,
@@ -19,6 +22,12 @@ use globals::LocalPlayer;
 pub use input::get_mouse_position;
 pub use map::{
     Map,
+    MapLayerKind,
+    MapLayer,
+    MapObject,
+    MapTile,
+    MapTileset,
+    TiledMap,
 };
 use nodes::{
     Actor,
@@ -67,7 +76,7 @@ fn generic_actor(name: &str, position: Vec2, skin_id: u32, factions: &[String], 
     };
     let resources = get_global::<Resources>();
     let params = resources.get_actor(&format!("generic_actor_0{}", skin_id+1));
-    Actor::new(position, controller_kind, true,ActorParams {
+    Actor::new(position, controller_kind, ActorParams {
         name: name.to_string(),
         factions: factions.to_vec(),
         ..params.clone()
@@ -114,16 +123,19 @@ async fn main() {
             id: 0,
         });
 
-        let map = Map::new(uvec2(16, 16), "assets/maps/map_01.json").await;
-        let player_spawn = map.get_spawn_point(Map::PLAYER_SPAWN_POINT_NAME);
-        let resources = get_global::<Resources>();
-        for (_, item) in &map.items {
-            Item::add_node(item.position, resources.get_item(&item.id).clone());
-        }
+        // let resources = get_global::<Resources>();
+        // let map = TiledMap::new(uvec2(16, 16), "assets/maps/map_01.json").await;
+        // let player_spawn = map.get_spawn_point(TiledMap::PLAYER_SPAWN_POINT_NAME);
+        // for (_, item) in &map.items {
+        //     Item::add_node(item.position, resources.get_item(&item.id).clone());
+        // }
 
+        let player_spawn_position = vec2(0.0, 0.0);
+
+        let map = Map::new("assets/maps/capstone_map.json");
         GameState::add_node(map);
 
-        Camera::add_node(player_spawn.position);
+        Camera::add_node(player_spawn_position);
 
         ItemDrawBuffer::add_node();
 
@@ -132,7 +144,7 @@ async fn main() {
 
         scene::add_node(generic_actor(
             "Player Actor",
-            player_spawn.position,
+            player_spawn_position,
             0,
             &["player_faction".to_string()],
             Some(0),

@@ -62,7 +62,7 @@ pub struct SpriteAnimationPlayer {
 
 impl SpriteAnimationPlayer {
     pub fn new(params: SpriteAnimationParams) -> Self {
-        let animations: Vec<Animation> = params.animations.iter().map(|anim| anim.to_macroquad()).collect();
+        let animations: Vec<Animation> = params.animations.iter().map(|anim| Animation::from(anim)).collect();
         let sprite = AnimatedSprite::new(
             params.tile_size.x as u32,
             params.tile_size.y as u32,
@@ -71,12 +71,12 @@ impl SpriteAnimationPlayer {
         );
 
         SpriteAnimationPlayer {
-            offset: params.offset.to_macroquad(),
+            offset: Vec2::from(params.offset),
             rotation: 0.0,
             flip_x: false,
             flip_y: false,
             texture_id: params.texture_id.to_string(),
-            tile_size: params.tile_size.to_macroquad(),
+            tile_size: Vec2::from(params.tile_size),
             animations,
             animated_sprite: sprite,
         }
@@ -116,7 +116,7 @@ impl SpriteAnimationPlayer {
             offset: json::Vec2::from(self.offset),
             texture_id: self.texture_id.to_string(),
             tile_size: json::Vec2::from(self.tile_size),
-            animations: self.animations.iter().map(|anim| json::Animation::from(anim.clone())).collect(),
+            animations: self.animations.iter().map(|anim| json::Animation::from(anim)).collect(),
             should_play: Some(self.animated_sprite.playing),
         }
     }

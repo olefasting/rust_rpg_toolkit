@@ -47,13 +47,13 @@ pub struct Sprite {
 impl Sprite {
     pub fn new(params: SpriteParams) -> Self {
         Sprite {
-            offset: params.offset.to_macroquad(),
+            offset: Vec2::from(params.offset),
             rotation: 0.0,
             flip_x: false,
             flip_y: false,
-            tile_size: params.tile_size.to_macroquad(),
+            tile_size: UVec2::from(params.tile_size),
             texture_id: params.texture_id,
-            texture_coords: params.texture_coords.to_macroquad(),
+            texture_coords: UVec2::from(params.texture_coords),
         }
     }
 

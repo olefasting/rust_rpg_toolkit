@@ -96,7 +96,7 @@ impl ActorAbility {
             range: params.range,
             damage: params.damage,
             effect_size: params.effect_size,
-            effect_color: params.effect_color.to_macroquad(),
+            effect_color: Color::from(params.effect_color),
             effect_sprite_animation_params: params.effect_sprite_animation_params,
         }
     }
