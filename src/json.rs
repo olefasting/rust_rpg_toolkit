@@ -5,6 +5,7 @@ use serde::{
 use crate::MapLayerKind;
 use std::collections::HashMap;
 use std::iter::FromIterator;
+use crate::map::MapLayerKind::TileLayer;
 
 #[derive(Copy, Clone, Serialize, Deserialize)]
 pub struct Vec2 {
@@ -345,6 +346,9 @@ impl From<Color> for macroquad::prelude::Color {
     }
 }
 
+const TILE_LAYER_KIND: &'static str = "tile_layer";
+const OBJECT_LAYER_KIND: &'static str = "object_layer";
+
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Map {
     pub world_offset: Option<Vec2>,
@@ -356,11 +360,39 @@ pub struct Map {
 
 impl From<crate::Map> for Map {
     fn from(other: crate::Map) -> Self {
+        let layers = other.layers.iter().map(|(_, layer)|  {
+            let (kind, tiles, objects) = match layer.kind {
+                crate::MapLayerKind::TileLayer => {
+                    (TILE_LAYER_KIND.to_string(),
+                     Some(layer.tiles.iter().map(|opt| match opt {
+                         Some(tile) => {
+                             let tileset = other.tilesets.get(&tile.tileset_id)
+                                 .expect(&format!("Unable to find tileset with id '{}'!", tile.tileset_id));
+                             tile.tile_id + tileset.first_tile_id
+                         },
+                         _ => 0,
+                     }).collect()),
+                     None)
+                }
+                crate::MapLayerKind::ObjectLayer => {
+                    (OBJECT_LAYER_KIND.to_string(),
+                     None,
+                     Some(layer.objects.iter().map(|object| MapObject::from(object.clone())).collect()))
+                }
+            };
+            MapLayer {
+                id: layer.id.clone(),
+                kind,
+                objects,
+                tiles,
+            }
+        }).collect();
+
         Map {
             world_offset: if other.world_offset != macroquad::prelude::Vec2::ZERO { Some(Vec2::from(other.world_offset)) } else { None },
             grid_size: UVec2::from(other.grid_size),
             tile_size: UVec2::from(other.tile_size),
-            layers: other.layers.into_iter().map(|(_, layer)| MapLayer::from(layer)).collect(),
+            layers,
             tilesets: other.tilesets.into_iter().map(|(_, tileset)| MapTileset::from(tileset)).collect(),
         }
     }
@@ -381,9 +413,10 @@ impl From<Map> for crate::Map {
                         .find(|(_, tileset)| tile_id >= tileset.first_tile_id
                             && tile_id <= tileset.first_tile_id + tileset.grid_size.x * tileset.grid_size.y) {
                         Some((_, tileset)) => Some(crate::MapTile {
-                            tile_id,
+                            tile_id: tile_id - tileset.first_tile_id,
+                            tileset_id: tileset.id.clone(),
                             texture_id: tileset.texture_id.clone(),
-                            tileset_position: tileset.get_texture_position_from_tile_id(tile_id),
+                            texture_coords: tileset.get_texture_position_from_tile_id(tile_id),
                         }),
                         _ => {
                             panic!("Unable to determine tileset from tile_id '{}'", tile_id);
@@ -411,42 +444,11 @@ pub struct MapLayer {
     pub objects: Option<Vec<MapObject>>,
 }
 
-impl MapLayer {
-    const TILE_LAYER_KIND: &'static str = "tile_layer";
-    const OBJECT_LAYER_KIND: &'static str = "object_layer";
-}
-
-impl From<crate::MapLayer> for MapLayer {
-    fn from(other: crate::MapLayer) -> Self {
-        let (kind, tiles, objects) = match other.kind {
-            crate::MapLayerKind::TileLayer => {
-                (Self::TILE_LAYER_KIND.to_string(),
-                 Some(other.tiles.into_iter().map(|opt| match opt {
-                     Some(tile) => tile.tile_id,
-                     _ => 0,
-                 }).collect()),
-                 None)
-            }
-            crate::MapLayerKind::ObjectLayer => {
-                (Self::OBJECT_LAYER_KIND.to_string(),
-                 None,
-                 Some(other.objects.into_iter().map(|object| MapObject::from(object)).collect()))
-            }
-        };
-        MapLayer {
-            id: other.id.clone(),
-            kind,
-            objects,
-            tiles,
-        }
-    }
-}
-
 impl From<&str> for crate::MapLayerKind {
     fn from(other: &str) -> Self {
         match other {
-            MapLayer::TILE_LAYER_KIND => MapLayerKind::TileLayer,
-            MapLayer::OBJECT_LAYER_KIND => MapLayerKind::ObjectLayer,
+            TILE_LAYER_KIND => MapLayerKind::TileLayer,
+            OBJECT_LAYER_KIND => MapLayerKind::ObjectLayer,
             _ => {
                 panic!("Invalid map layer kind '{}'!", other);
                 MapLayerKind::TileLayer

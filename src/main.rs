@@ -139,6 +139,7 @@ async fn main() {
             ("items", "../textures/items.png", "items"),
         ]));
         // let map = Map::new("assets/maps/capstone_map.json");
+
         GameState::add_node(map);
 
         Camera::add_node(player_spawn_position);

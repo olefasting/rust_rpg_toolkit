@@ -55,8 +55,8 @@ impl Map {
                         color::WHITE,
                         DrawTextureParams {
                             source: Some(Rect::new(
-                                tile.tileset_position.x,
-                                tile.tileset_position.y,
+                                tile.texture_coords.x,
+                                tile.texture_coords.y,
                                 self.tile_size.x as f32,
                                 self.tile_size.y as f32,
                             )),
@@ -237,8 +237,9 @@ impl From<TiledMap> for Map {
                             .expect(&format!("Unable to find tiled tileset '{}'! Are you sure you defined all the tilesets when importing the map?", tiled_tile.tileset));
                         Some(MapTile {
                             tile_id: tiled_tile.id.clone(),
+                            tileset_id: tileset.id.clone(),
                             texture_id: tileset.texture_id.clone(),
-                            tileset_position: tileset.get_texture_position_from_tile_id(tiled_tile.id),
+                            texture_coords: tileset.get_texture_position_from_tile_id(tiled_tile.id),
                         })
                     } else {
                         None
@@ -281,8 +282,9 @@ pub struct MapLayer {
 #[derive(Clone)]
 pub struct MapTile {
     pub tile_id: u32,
+    pub tileset_id: String,
     pub texture_id: String,
-    pub tileset_position: Vec2,
+    pub texture_coords: Vec2,
 }
 
 #[derive(Clone)]
