@@ -44,6 +44,7 @@ impl Map {
                         .cloned()
                         .expect(&format!("Unable to find texture with texture id '{}'!", tileset.texture_id)))
                 }));
+
         for (id, layer) in &self.layers {
             for i in 0..layer.tiles.len() {
                 if let Some(Some(tile)) = layer.tiles.get(i) {
@@ -55,10 +56,10 @@ impl Map {
                         color::WHITE,
                         DrawTextureParams {
                             source: Some(Rect::new(
-                                tile.texture_coords.x,
-                                tile.texture_coords.y,
-                                self.tile_size.x as f32,
-                                self.tile_size.y as f32,
+                                tile.texture_coords.x + 1.1,
+                                tile.texture_coords.y + 1.1,
+                                self.tile_size.x as f32 - 2.2,
+                                self.tile_size.y as f32 - 2.2,
                             )),
                             dest_size: Some(vec2(
                                 self.tile_size.x as f32,
