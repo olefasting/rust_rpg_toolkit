@@ -45,13 +45,13 @@ pub trait BufferedDraw: Node {
 }
 
 pub struct DrawBuffer<T: 'static + BufferedDraw> {
-    pub nodes: Vec<Handle<T>>,
+    pub buffered: Vec<Handle<T>>,
 }
 
 impl<T: 'static + BufferedDraw> DrawBuffer<T> {
     pub fn new() -> Self {
         DrawBuffer {
-            nodes: Vec::new(),
+            buffered: Vec::new(),
         }
     }
 
@@ -64,13 +64,13 @@ impl<T: 'static + BufferedDraw> Node for DrawBuffer<T> {
     fn draw(mut node: RefMut<Self>) {
         let viewport = get_global::<Viewport>();
         let frustum = viewport.get_frustum_rect();
-        node.nodes.retain(|handle| if let Some(buffered) = scene::try_get_node(*handle) {
+        node.buffered.retain(|handle| if let Some(buffered) = scene::try_get_node(*handle) {
             buffered.is_in_frustum(&frustum)
         } else {
             false
         });
 
-        node.nodes.sort_by(|a, b| {
+        node.buffered.sort_by(|a, b| {
             if let Some(a) = scene::try_get_node(*a) {
                 if let Some(b) = scene::try_get_node(*b) {
                     return a.get_z_index().partial_cmp(&b.get_z_index()).unwrap();
@@ -79,7 +79,7 @@ impl<T: 'static + BufferedDraw> Node for DrawBuffer<T> {
             Ordering::Equal
         });
 
-        for handle in &node.nodes {
+        for handle in &node.buffered {
             let mut buffered = scene::get_node(*handle);
             buffered.buffered_draw();
         }

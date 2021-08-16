@@ -111,6 +111,6 @@ impl BufferedDraw for Item {
 impl Node for Item {
     fn draw(node: RefMut<Self>) {
         let mut draw_buffer = scene::find_node_by_type::<DrawBuffer<Self>>().unwrap();
-        draw_buffer.nodes.push(node.handle());
+        draw_buffer.buffered.push(node.handle());
     }
 }

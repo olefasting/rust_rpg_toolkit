@@ -63,10 +63,10 @@ impl Map {
 
     pub fn get_tile_at_coords(&self, coords: UVec2, layer_id: &str) -> Option<MapTile> {
         if let Some(layer) = self.layers.iter().find(|layer| layer.id == layer_id) {
-            if coords.x < 0 || coords.x >= self.grid_size.x
-                || coords.y < 0 || coords.y >= self.grid_size.y
-                || coords.x < 0 || coords.x >= self.grid_size.x
-                || coords.y < 0 || coords.y >= self.grid_size.y {
+            if coords.x >= self.grid_size.x
+                || coords.y >= self.grid_size.y
+                || coords.x >= self.grid_size.x
+                || coords.y >= self.grid_size.y {
                 return None;
             }
             let i = coords.y * self.grid_size.x + coords.x;
@@ -78,7 +78,12 @@ impl Map {
 
     pub fn get_tile_at_position(&self, position: Vec2, layer_id: &str) -> Option<MapTile> {
         let offset_position = position - self.world_offset;
-        self.get_tile_at_coords(uvec2(offset_position.x as u32, offset_position.y as u32) / self.tile_size, layer_id)
+        let map_size = self.grid_size * self.tile_size;
+        if offset_position.x < 0.0 || offset_position.x >= map_size.x as f32 || offset_position.y < 0.0 || offset_position.y >= map_size.y as f32 {
+            None
+        } else {
+            self.get_tile_at_coords(uvec2(offset_position.x as u32, offset_position.y as u32) / self.tile_size, layer_id)
+        }
     }
 
     pub fn is_tile_at_position(&self, position: Vec2, layer_ids: &[&str]) -> bool {
@@ -91,44 +96,50 @@ impl Map {
     }
 
     pub fn is_tile_at_collider(&self, collider: Collider, layer_ids: &[&str]) -> bool {
-        let coords = match collider {
-            Collider::Rectangle(rect) => {
-                (uvec2(
-                    ((rect.x - self.world_offset.x)  / self.tile_size.x as f32 - (rect.w / self.tile_size.x as f32) / 2.0) as u32,
-                    ((rect.y - self.world_offset.y)  / self.tile_size.y as f32 - (rect.w / self.tile_size.y as f32) / 2.0) as u32,
-                ),
-                 uvec2(
-                     ((rect.x - self.world_offset.x)  / self.tile_size.x as f32 + (rect.h / self.tile_size.x as f32) / 2.0) as u32,
-                     ((rect.y - self.world_offset.y)  / self.tile_size.y as f32 + (rect.h / self.tile_size.y as f32) / 2.0) as u32,
-                 ))
-            },
-            Collider::Circle(circle) => {
-                (uvec2(
-                    ((circle.x - self.world_offset.x)  / self.tile_size.x as f32 - (circle.r / self.tile_size.x as f32)) as u32,
-                    ((circle.y - self.world_offset.y)  / self.tile_size.y as f32 - (circle.r / self.tile_size.y as f32)) as u32,
-                ),
-                 uvec2(
-                     ((circle.x - self.world_offset.x)  / self.tile_size.x as f32 + (circle.r / self.tile_size.x as f32)) as u32,
-                     ((circle.y - self.world_offset.y)  / self.tile_size.y as f32 + (circle.r / self.tile_size.y as f32)) as u32,
-                 ))
+        let offset_position = collider.get_position() - self.world_offset;
+        let map_size = self.grid_size * self.tile_size;
+        if offset_position.x < 0.0 || offset_position.x >= map_size.x as f32 || offset_position.y < 0.0 || offset_position.y >= map_size.y as f32 {
+            false
+        } else {
+            let coords = match collider {
+                Collider::Rectangle(rect) => {
+                    (uvec2(
+                        ((rect.x - self.world_offset.x) / self.tile_size.x as f32 - (rect.w / self.tile_size.x as f32) / 2.0) as u32,
+                        ((rect.y - self.world_offset.y) / self.tile_size.y as f32 - (rect.w / self.tile_size.y as f32) / 2.0) as u32,
+                    ),
+                     uvec2(
+                         ((rect.x - self.world_offset.x) / self.tile_size.x as f32 + (rect.h / self.tile_size.x as f32) / 2.0) as u32,
+                         ((rect.y - self.world_offset.y) / self.tile_size.y as f32 + (rect.h / self.tile_size.y as f32) / 2.0) as u32,
+                     ))
+                },
+                Collider::Circle(circle) => {
+                    (uvec2(
+                        ((circle.x - self.world_offset.x) / self.tile_size.x as f32 - (circle.r / self.tile_size.x as f32)) as u32,
+                        ((circle.y - self.world_offset.y) / self.tile_size.y as f32 - (circle.r / self.tile_size.y as f32)) as u32,
+                    ),
+                     uvec2(
+                         ((circle.x - self.world_offset.x) / self.tile_size.x as f32 + (circle.r / self.tile_size.x as f32)) as u32,
+                         ((circle.y - self.world_offset.y) / self.tile_size.y as f32 + (circle.r / self.tile_size.y as f32)) as u32,
+                     ))
+                }
+            };
+            if coords.0.x >= self.grid_size.x
+                || coords.0.y >= self.grid_size.y
+                || coords.1.x >= self.grid_size.x
+                || coords.1.y >= self.grid_size.y {
+                return false;
             }
-        };
-        if coords.0.x < 0 || coords.0.x >= self.grid_size.x
-            || coords.0.y < 0 || coords.0.y >= self.grid_size.y
-            || coords.1.x < 0 || coords.1.x >= self.grid_size.x
-            || coords.1.y < 0 || coords.1.y >= self.grid_size.y {
-            return false;
-        }
-        for x in coords.0.x..coords.1.x+1 {
-            for y in coords.0.y..coords.1.y+1 {
-                for layer_id in layer_ids {
-                    if self.get_tile_at_coords(uvec2(x, y), layer_id).is_some() {
-                        return true;
+            for x in coords.0.x..coords.1.x + 1 {
+                for y in coords.0.y..coords.1.y + 1 {
+                    for layer_id in layer_ids {
+                        if self.get_tile_at_coords(uvec2(x, y), layer_id).is_some() {
+                            return true;
+                        }
                     }
                 }
             }
+            false
         }
-        false
     }
 
     pub fn get_beam_collision_point(&self, origin: Vec2, end: Vec2, width: f32, tolerance: f32, layer_ids: &[&str]) -> Vec2 {
