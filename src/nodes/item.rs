@@ -1,5 +1,3 @@
-mod draw_buffer;
-
 use serde::{Serialize, Deserialize};
 
 use macroquad::{
@@ -21,8 +19,8 @@ use crate::{
     },
 };
 
-pub use draw_buffer::ItemDrawBuffer;
 use crate::nodes::actor::ActorAbilityParams;
+use crate::nodes::draw_buffer::{DrawBuffer, BufferedDraw, CulledPosition};
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct ItemParams {
@@ -94,15 +92,27 @@ impl Item {
     pub fn add_node(position: Vec2, params: ItemParams) -> Handle<Self> {
         scene::add_node(Self::new(position, params))
     }
+}
 
-    pub fn draw_item(&mut self) {
+impl BufferedDraw for Item {
+    fn buffered_draw(&mut self) {
         self.sprite.draw(self.position, 0.0);
+    }
+
+    fn get_z_index(&self) -> f32 {
+        self.position.y
+    }
+}
+
+impl CulledPosition for Item {
+    fn get_position(&self) -> Vec2 {
+        self.position
     }
 }
 
 impl Node for Item {
     fn draw(node: RefMut<Self>) {
-        let mut draw_queue = scene::find_node_by_type::<ItemDrawBuffer>().unwrap();
-        draw_queue.add_to_buffer(node.handle());
+        let mut draw_buffer = scene::find_node_by_type::<DrawBuffer<Self>>().unwrap();
+        draw_buffer.nodes.push(node.handle());
     }
 }

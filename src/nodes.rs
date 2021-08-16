@@ -21,3 +21,4 @@ pub mod actor;
 pub mod camera;
 pub mod item;
 pub mod continuous_beams;
+pub mod draw_buffer;

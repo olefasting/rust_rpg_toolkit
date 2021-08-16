@@ -14,8 +14,11 @@ use macroquad::{
 use crate::{nodes::{
     Actor,
     GameState,
-}, physics::Collider, get_global, get_mouse_position};
-use crate::render::{Viewport, SpriteAnimationParams, SpriteAnimationPlayer};
+}, physics::Collider, get_global, get_mouse_position, render::{
+    Viewport,
+    SpriteAnimationParams,
+    SpriteAnimationPlayer,
+}, map::Map, MAP_SOLIDS_LAYER, MAP_BARRIERS_LAYER, MAP_SOLID_AND_BARRIER_LAYERS};
 
 pub enum ProjectileKind {
     Bullet,
@@ -56,7 +59,7 @@ impl Projectile {
                 let mut anim = SpriteAnimationPlayer::new(params);
                 anim.play();
                 Some(anim)
-            },
+            }
             None => None,
         };
         Projectile {
@@ -118,7 +121,7 @@ impl Projectiles {
         speed: f32,
         spread: f32,
         ttl: f32,
-        sprite_animation_params: Option<SpriteAnimationParams>
+        sprite_animation_params: Option<SpriteAnimationParams>,
     ) {
         assert!(ttl > 0.0, "Projectile TTL must be a positive float and not 0.0");
 
@@ -181,7 +184,7 @@ impl Node for Projectiles {
                 }
             }
             let game_state = scene::find_node_by_type::<GameState>().unwrap();
-            if game_state.map.solid_at_collider(collider, true) {
+            if game_state.map.is_tile_at_collider(collider, MAP_SOLID_AND_BARRIER_LAYERS) {
                 return false;
             }
             return true;
@@ -212,7 +215,7 @@ impl Node for Projectiles {
                                 projectile.size,
                                 projectile.color,
                             );
-                        },
+                        }
                         ProjectileKind::Beam => {
                             let begin = projectile
                                 .position.sub(projectile.direction.mul(
@@ -242,7 +245,7 @@ impl Node for Projectiles {
                                 projectile.size,
                                 projectile.color,
                             );
-                        },
+                        }
                         ProjectileKind::EnergySphere => draw_circle(
                             projectile.position.x,
                             projectile.position.y,

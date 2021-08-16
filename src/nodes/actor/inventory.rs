@@ -56,7 +56,7 @@ impl ActorInventory {
         ActorInventory {
             items: items.iter().map(|item_id| {
                 let resources = get_global::<Resources>();
-                let params = resources.get_item(item_id);
+                let params = resources.items.get(item_id).unwrap();
                 ActorInventoryEntry::new(params.clone())
             }).collect(),
         }

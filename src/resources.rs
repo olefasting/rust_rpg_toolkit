@@ -41,11 +41,11 @@ struct ResourcesData {
 }
 
 pub struct Resources {
-    textures: HashMap<String, Texture2D>,
-    sound_effects: HashMap<String, Sound>,
-    music: HashMap<String, Sound>,
-    actors: HashMap<String, ActorParams>,
-    items: HashMap<String, ItemParams>,
+    pub textures: HashMap<String, Texture2D>,
+    pub sound_effects: HashMap<String, Sound>,
+    pub music: HashMap<String, Sound>,
+    pub actors: HashMap<String, ActorParams>,
+    pub items: HashMap<String, ItemParams>,
 }
 
 impl Resources {
@@ -134,29 +134,5 @@ impl Resources {
             actors,
             items,
         })
-    }
-
-    pub fn get_texture(&self, id: &str) -> &Texture2D {
-        self.textures.get(id).unwrap()
-    }
-
-    pub fn try_get_texture(&self, id: &str) -> Option<&Texture2D> {
-        self.textures.get(id)
-    }
-
-    pub fn get_actor(&self, id: &str) -> &ActorParams {
-        self.actors.get(id).unwrap()
-    }
-
-    pub fn try_get_actor(&self, id: &str) -> Option<&ActorParams> {
-        self.actors.get(id)
-    }
-
-    pub fn get_item(&self, id: &str) -> &ItemParams {
-        self.items.get(id).unwrap()
-    }
-
-    pub fn try_get_item(&self, id: &str) -> Option<&ItemParams> {
-        self.items.get(id)
     }
 }

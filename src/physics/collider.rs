@@ -45,6 +45,20 @@ impl Collider {
         }
     }
 
+    pub fn overlaps_rect(&self, rect: &Rect) -> bool {
+        match self {
+            Collider::Rectangle(other_rect) => other_rect.overlaps(rect),
+            Collider::Circle(circle) => circle.overlaps_rect(rect),
+        }
+    }
+
+    pub fn overlaps_circle(&self, circle: &Circle) -> bool {
+        match self {
+            Collider::Rectangle(rect) => circle.overlaps_rect(rect),
+            Collider::Circle(other_circle) => other_circle.overlaps(circle),
+        }
+    }
+
     pub fn contains(&self, position: Vec2) -> bool {
         match self {
             Collider::Rectangle(rect) => rect.contains(position),

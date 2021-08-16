@@ -128,7 +128,7 @@ impl SpriteAnimationPlayer {
     pub fn draw(&mut self, position: Vec2, rotation: f32) {
         let resources = get_global::<Resources>();
         draw_texture_ex(
-            resources.get_texture(&self.texture_id).clone(),
+            resources.textures.get(&self.texture_id).cloned().unwrap(),
             position.x + self.offset.x,
             position.y + self.offset.y,
             color::WHITE,

@@ -22,7 +22,6 @@ use crate::input::apply_local_player_input;
 mod controller;
 mod inventory;
 mod ability;
-mod draw_buffer;
 mod stats;
 
 pub use stats::ActorStats;
@@ -37,8 +36,6 @@ pub use ability::{
     ActorAbility,
 };
 
-pub use draw_buffer::ActorDrawBuffer;
-
 use crate::{get_global, render::{
     SpriteAnimationPlayer,
     SpriteAnimationParams,
@@ -51,6 +48,7 @@ use crate::{get_global, render::{
 }, json, generate_id, draw_aligned_text};
 use crate::nodes::Item;
 use crate::render::Viewport;
+use crate::nodes::draw_buffer::{DrawBuffer, CulledCollider, BufferedDraw};
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct ActorParams {
@@ -209,78 +207,6 @@ impl Actor {
         }
     }
 
-    pub fn draw_actor(&mut self) {
-        {
-            self.body.debug_draw();
-            let (position, rotation) = (self.body.position, self.body.rotation);
-            self.sprite_animation.draw(position, rotation);
-        }
-
-        let is_local_player = self.is_local_player();
-        let (position, offset_y, alignment, length, height, border) = if is_local_player {
-            let viewport = get_global::<Viewport>();
-            let height = Self::HEALTH_BAR_HEIGHT * viewport.s;
-            (vec2(10.0, 10.0), height / 2.0, HorizontalAlignment::Left, Self::HEALTH_BAR_LENGTH * viewport.s, height, viewport.s)
-        } else {
-            (self.body.position, Self::HEALTH_BAR_OFFSET_Y, HorizontalAlignment::Center, Self::HEALTH_BAR_LENGTH, Self::HEALTH_BAR_HEIGHT, 1.0)
-        };
-        if is_local_player || self.stats.current_health < self.stats.max_health {
-            if is_local_player {
-                push_camera_state();
-                set_default_camera();
-            }
-            draw_progress_bar(
-                self.stats.current_health,
-                self.stats.max_health,
-                position + vec2(0.0, offset_y),
-                length,
-                height,
-                color::RED,
-                color::GRAY,
-                border,
-                alignment.clone(),
-                None, // Some(&format!("{}/{}", self.stats.current_health.round(), self.stats.max_health.round())),
-                None,
-            );
-        }
-        if is_local_player {
-            draw_aligned_text(
-                &format!("position: {}", self.body.position.to_string()) ,
-                screen_width() - 50.0,
-                50.0,
-                HorizontalAlignment::Right,
-                Default::default(),
-            );
-            draw_progress_bar(
-                self.stats.current_stamina,
-                self.stats.max_stamina,
-                position + vec2(0.0, offset_y + height),
-                length,
-                height,
-                color::YELLOW,
-                color::GRAY,
-                border,
-                alignment.clone(),
-                None, // Some(&format!("{}/{}", self.stats.current_stamina.round(), self.stats.max_stamina.round())),
-                None,
-            );
-            draw_progress_bar(
-                self.stats.current_energy,
-                self.stats.max_energy,
-                position + vec2(0.0, offset_y + height * 2.0),
-                length,
-                height,
-                color::BLUE,
-                color::GRAY,
-                border,
-                alignment,
-                None, // Some(&format!("{}/{}", self.stats.current_energy.round(), self.stats.max_energy.round())),
-                None,
-            );
-            pop_camera_state();
-        }
-    }
-
     pub fn is_local_player(&self) -> bool {
         if let ActorControllerKind::Player { id } = self.controller.kind {
             let local_player = get_global::<LocalPlayer>();
@@ -410,7 +336,91 @@ impl Node for Actor {
     }
 
     fn draw(node: RefMut<Self>) {
-        let mut draw_queue = scene::find_node_by_type::<ActorDrawBuffer>().unwrap();
-        draw_queue.add_to_buffer(node.handle());
+        let mut draw_buffer = scene::find_node_by_type::<DrawBuffer<Self>>().unwrap();
+        draw_buffer.nodes.push(node.handle());
+    }
+}
+
+impl BufferedDraw for Actor {
+    fn buffered_draw(&mut self) {
+        {
+            self.body.debug_draw();
+            let (position, rotation) = (self.body.position, self.body.rotation);
+            self.sprite_animation.draw(position, rotation);
+        }
+
+        let is_local_player = self.is_local_player();
+        let (position, offset_y, alignment, length, height, border) = if is_local_player {
+            let viewport = get_global::<Viewport>();
+            let height = Self::HEALTH_BAR_HEIGHT * viewport.s;
+            (vec2(10.0, 10.0), height / 2.0, HorizontalAlignment::Left, Self::HEALTH_BAR_LENGTH * viewport.s, height, viewport.s)
+        } else {
+            (self.body.position, Self::HEALTH_BAR_OFFSET_Y, HorizontalAlignment::Center, Self::HEALTH_BAR_LENGTH, Self::HEALTH_BAR_HEIGHT, 1.0)
+        };
+        if is_local_player || self.stats.current_health < self.stats.max_health {
+            if is_local_player {
+                push_camera_state();
+                set_default_camera();
+            }
+            draw_progress_bar(
+                self.stats.current_health,
+                self.stats.max_health,
+                position + vec2(0.0, offset_y),
+                length,
+                height,
+                color::RED,
+                color::GRAY,
+                border,
+                alignment.clone(),
+                None, // Some(&format!("{}/{}", self.stats.current_health.round(), self.stats.max_health.round())),
+                None,
+            );
+        }
+        if is_local_player {
+            draw_aligned_text(
+                &format!("position: {}", self.body.position.to_string()) ,
+                screen_width() - 50.0,
+                50.0,
+                HorizontalAlignment::Right,
+                Default::default(),
+            );
+            draw_progress_bar(
+                self.stats.current_stamina,
+                self.stats.max_stamina,
+                position + vec2(0.0, offset_y + height),
+                length,
+                height,
+                color::YELLOW,
+                color::GRAY,
+                border,
+                alignment.clone(),
+                None, // Some(&format!("{}/{}", self.stats.current_stamina.round(), self.stats.max_stamina.round())),
+                None,
+            );
+            draw_progress_bar(
+                self.stats.current_energy,
+                self.stats.max_energy,
+                position + vec2(0.0, offset_y + height * 2.0),
+                length,
+                height,
+                color::BLUE,
+                color::GRAY,
+                border,
+                alignment,
+                None, // Some(&format!("{}/{}", self.stats.current_energy.round(), self.stats.max_energy.round())),
+                None,
+            );
+            pop_camera_state();
+        }
+    }
+
+    fn get_z_index(&self) -> f32 {
+        self.body.position.y
+    }
+}
+
+impl CulledCollider for Actor {
+    fn get_bounds_as_offset_collider(&self) -> Collider {
+        self.body.get_offset_collider().unwrap()
     }
 }

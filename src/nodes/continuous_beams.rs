@@ -8,10 +8,7 @@ use macroquad::{
     prelude::*,
 };
 
-use crate::{
-    nodes::Actor,
-    physics::beam_collision_check,
-};
+use crate::{nodes::Actor, physics::beam_collision_check, Map, MAP_SOLID_AND_BARRIER_LAYERS};
 use std::ops::Sub;
 use crate::nodes::GameState;
 
@@ -65,7 +62,7 @@ impl Node for ContinuousBeams {
                 beam.end,
                 beam.width,
                 Self::WIDTH_TOLERANCE_FACTOR,
-                true,
+                MAP_SOLID_AND_BARRIER_LAYERS,
             );
             'outer: for mut other_actor in scene::find_nodes_by_type::<Actor>() {
                 if other_actor.id != beam.actor_id {

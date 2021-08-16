@@ -19,14 +19,6 @@ pub struct Map {
 }
 
 impl Map {
-    pub const GROUND_LAYER_ID: &'static str = "ground";
-    pub const SOLIDS_LAYER_ID: &'static str = "solids";
-    pub const BARRIERS_LAYER_ID: &'static str = "barriers";
-    pub const ITEMS_LAYER_ID: &'static str = "items";
-    pub const SPAWN_POINTS_LAYER_ID: &'static str = "spawn_points";
-
-    pub const PLAYER_SPAWN_POINT_NAME: &'static str = "player_spawn";
-
     pub fn new(path: &str) -> Self {
         let json = std::fs::read_to_string(path)
             .expect(&format!("Unable to find map file '{}'", path));
@@ -40,7 +32,7 @@ impl Map {
         let textures: HashMap<String, Texture2D> = HashMap::from_iter(
             self.tilesets
                 .iter()
-                .map(|tileset| (tileset.texture_id.clone(), *resource.get_texture(&tileset.texture_id))));
+                .map(|tileset| (tileset.texture_id.clone(), *resource.textures.get(&tileset.texture_id).unwrap())));
         for layer in &self.layers {
             for i in 0..layer.tiles.len() {
                 if let Some(Some(tile)) = layer.tiles.get(i) {
@@ -89,16 +81,16 @@ impl Map {
         self.get_tile_at_coords(uvec2(offset_position.x as u32, offset_position.y as u32) / self.tile_size, layer_id)
     }
 
-    pub fn solid_at(&self, position: Vec2, include_barriers: bool) -> bool {
-        let barriers = if include_barriers {
-            self.get_tile_at_position(position, Self::BARRIERS_LAYER_ID).is_some()
-        } else {
-            false
-        };
-        barriers || self.get_tile_at_position(position, Self::SOLIDS_LAYER_ID).is_some()
+    pub fn is_tile_at_position(&self, position: Vec2, layer_ids: &[&str]) -> bool {
+        for layer_id in layer_ids {
+            if self.get_tile_at_position(position, layer_id).is_some() {
+                return true;
+            }
+        }
+        false
     }
 
-    pub fn solid_at_collider(&self, collider: Collider, include_barriers: bool) -> bool {
+    pub fn is_tile_at_collider(&self, collider: Collider, layer_ids: &[&str]) -> bool {
         let coords = match collider {
             Collider::Rectangle(rect) => {
                 (uvec2(
@@ -129,18 +121,17 @@ impl Map {
         }
         for x in coords.0.x..coords.1.x+1 {
             for y in coords.0.y..coords.1.y+1 {
-                if self.get_tile_at_coords(uvec2(x, y), Self::SOLIDS_LAYER_ID).is_some() {
-                    return true;
-                }
-                if include_barriers && self.get_tile_at_coords(uvec2(x, y),Self::BARRIERS_LAYER_ID).is_some() {
-                    return true;
+                for layer_id in layer_ids {
+                    if self.get_tile_at_coords(uvec2(x, y), layer_id).is_some() {
+                        return true;
+                    }
                 }
             }
         }
         false
     }
 
-    pub fn get_beam_collision_point(&self, origin: Vec2, end: Vec2, width: f32, tolerance: f32, include_barriers: bool) -> Vec2 {
+    pub fn get_beam_collision_point(&self, origin: Vec2, end: Vec2, width: f32, tolerance: f32, layer_ids: &[&str]) -> Vec2 {
         let coords = (
             uvec2((origin.x + self.world_offset.x) as u32 / self.tile_size.x, (origin.y + self.world_offset.y) as u32 / self.tile_size.y),
             uvec2((end.x + self.world_offset.x) as u32 / self.tile_size.x, (end.y + self.world_offset.y) as u32 / self.tile_size.y),
@@ -154,13 +145,11 @@ impl Map {
                     ((x * self.tile_size.x) + self.tile_size.x / 2) as f32,
                     ((y * self.tile_size.y) + self.tile_size.y / 2) as f32,
                 );
-                if self.get_tile_at_coords(uvec2(x, y), Self::SOLIDS_LAYER_ID).is_some() {
-                    if beam_collision_check(position, origin, end, width, tolerance) {
-                        collisions.push(position);
-                    }
-                } else if include_barriers && self.get_tile_at_coords(uvec2(x, y), Self::BARRIERS_LAYER_ID).is_some() {
-                    if beam_collision_check(position, origin, end, width, tolerance) {
-                        collisions.push(position);
+                for layer_id in layer_ids {
+                    if self.get_tile_at_coords(uvec2(x, y), layer_id).is_some() {
+                        if beam_collision_check(position, origin, end, width, tolerance) {
+                            collisions.push(position);
+                        }
                     }
                 }
             }

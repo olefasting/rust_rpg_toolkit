@@ -45,9 +45,9 @@ pub use resources::{
     Resources,
 };
 
-use crate::nodes::actor::{ActorDrawBuffer, ActorStats};
-use crate::nodes::item::ItemDrawBuffer;
+use crate::nodes::actor::ActorStats;
 use crate::nodes::ContinuousBeams;
+use crate::nodes::draw_buffer::DrawBuffer;
 
 mod resources;
 mod globals;
@@ -61,6 +61,17 @@ pub mod math;
 pub mod gui;
 pub mod json;
 
+pub const MAP_GROUND_LAYER: &'static str = "ground";
+pub const MAP_SOLIDS_LAYER: &'static str = "solids";
+pub const MAP_BARRIERS_LAYER: &'static str = "barriers";
+pub const MAP_ITEMS_LAYER: &'static str = "items";
+pub const MAP_SPAWN_POINTS_LAYER: &'static str = "spawn_points";
+
+pub const MAP_SOLID_AND_BARRIER_LAYERS: &'static [&'static str] = &[
+    MAP_SOLIDS_LAYER,
+    MAP_BARRIERS_LAYER,
+];
+
 pub fn generate_id() -> String {
     nanoid::nanoid!()
 }
@@ -72,7 +83,7 @@ fn generic_actor(name: &str, position: Vec2, skin_id: u32, factions: &[String], 
         None => ActorControllerKind::Computer,
     };
     let resources = get_global::<Resources>();
-    let params = resources.get_actor(&format!("generic_actor_0{}", skin_id+1));
+    let params = resources.actors.get(&format!("generic_actor_0{}", skin_id+1)).unwrap();
     Actor::new(position, controller_kind, ActorParams {
         name: name.to_string(),
         factions: factions.to_vec(),
@@ -127,7 +138,8 @@ async fn main() {
 
         Camera::add_node(player_spawn_position);
 
-        ItemDrawBuffer::add_node();
+        //ItemDrawBuffer::add_node();
+        DrawBuffer::<Item>::add_node();
 
         Projectiles::add_node();
         ContinuousBeams::add_node();
@@ -156,7 +168,9 @@ async fn main() {
             None,
         ));
 
-        ActorDrawBuffer::add_node();
+        //ActorDrawBuffer::add_node();
+
+        DrawBuffer::<Actor>::add_node();
     }
 
     loop {

@@ -9,10 +9,7 @@ use macroquad::{
     prelude::*,
 };
 
-use crate::{
-    physics::Collider,
-    GameState,
-};
+use crate::{physics::Collider, GameState, Map, MAP_SOLID_AND_BARRIER_LAYERS};
 
 pub type PhysicsObject = (HandleUntyped, Lens<PhysicsBody>);
 
@@ -56,7 +53,7 @@ impl PhysicsBody {
     pub fn integrate(&mut self) {
         if let Some(collider) = self.get_offset_collider() {
             let game_state = scene::find_node_by_type::<GameState>().unwrap();
-            if game_state.map.solid_at_collider(collider.offset(self.velocity), true) {
+            if game_state.map.is_tile_at_collider(collider.offset(self.velocity), MAP_SOLID_AND_BARRIER_LAYERS) {
                 return;
             }
             for (_, mut body_lens) in scene::find_nodes_with::<PhysicsObject>() {
