@@ -1,3 +1,5 @@
+mod tiled;
+
 use std::collections::HashMap;
 use std::iter::FromIterator;
 
@@ -6,7 +8,12 @@ use macroquad::{
     prelude::*,
 };
 
-use crate::{get_global, Resources, Collider};
+pub use tiled::{
+    TiledMap,
+    TiledTileset
+};
+
+use crate::{get_global, Resources, Collider, generate_id};
 use crate::physics::beam_collision_check;
 
 #[derive(Clone)]
@@ -14,8 +21,8 @@ pub struct Map {
     pub world_offset: Vec2,
     pub grid_size: UVec2,
     pub tile_size: UVec2,
-    pub layers: Vec<MapLayer>,
-    pub tilesets: Vec<MapTileset>,
+    pub layers: HashMap<String, MapLayer>,
+    pub tilesets: HashMap<String, MapTileset>,
 }
 
 impl Map {
@@ -32,8 +39,12 @@ impl Map {
         let textures: HashMap<String, Texture2D> = HashMap::from_iter(
             self.tilesets
                 .iter()
-                .map(|tileset| (tileset.texture_id.clone(), *resource.textures.get(&tileset.texture_id).unwrap())));
-        for layer in &self.layers {
+                .map(|(_, tileset)| {
+                    (tileset.texture_id.clone(), resource.textures.get(&tileset.texture_id)
+                        .cloned()
+                        .expect(&format!("Unable to find texture with texture id '{}'!", tileset.texture_id)))
+                }));
+        for (id, layer) in &self.layers {
             for i in 0..layer.tiles.len() {
                 if let Some(Some(tile)) = layer.tiles.get(i) {
                     let (x, y) = (i as u32 % self.grid_size.x, i as u32 / self.grid_size.x);
@@ -62,7 +73,7 @@ impl Map {
     }
 
     pub fn get_tile_at_coords(&self, coords: UVec2, layer_id: &str) -> Option<MapTile> {
-        if let Some(layer) = self.layers.iter().find(|layer| layer.id == layer_id) {
+        if let Some((_, layer)) = self.layers.iter().find(|(_, layer)| layer.id == layer_id) {
             if coords.x >= self.grid_size.x
                 || coords.y >= self.grid_size.y
                 || coords.x >= self.grid_size.x
@@ -104,22 +115,22 @@ impl Map {
             let coords = match collider {
                 Collider::Rectangle(rect) => {
                     (uvec2(
-                        ((rect.x - self.world_offset.x) / self.tile_size.x as f32 - (rect.w / self.tile_size.x as f32) / 2.0) as u32,
-                        ((rect.y - self.world_offset.y) / self.tile_size.y as f32 - (rect.w / self.tile_size.y as f32) / 2.0) as u32,
+                        (offset_position.x / self.tile_size.x as f32 - (rect.w / self.tile_size.x as f32) / 2.0) as u32,
+                        (offset_position.y / self.tile_size.y as f32 - (rect.w / self.tile_size.y as f32) / 2.0) as u32,
                     ),
                      uvec2(
-                         ((rect.x - self.world_offset.x) / self.tile_size.x as f32 + (rect.h / self.tile_size.x as f32) / 2.0) as u32,
-                         ((rect.y - self.world_offset.y) / self.tile_size.y as f32 + (rect.h / self.tile_size.y as f32) / 2.0) as u32,
+                         (offset_position.x / self.tile_size.x as f32 + (rect.h / self.tile_size.x as f32) / 2.0) as u32,
+                         (offset_position.y / self.tile_size.y as f32 + (rect.h / self.tile_size.y as f32) / 2.0) as u32,
                      ))
                 },
                 Collider::Circle(circle) => {
                     (uvec2(
-                        ((circle.x - self.world_offset.x) / self.tile_size.x as f32 - (circle.r / self.tile_size.x as f32)) as u32,
-                        ((circle.y - self.world_offset.y) / self.tile_size.y as f32 - (circle.r / self.tile_size.y as f32)) as u32,
+                        (offset_position.x / self.tile_size.x as f32 - (circle.r / self.tile_size.x as f32)) as u32,
+                        (offset_position.y / self.tile_size.y as f32 - (circle.r / self.tile_size.y as f32)) as u32,
                     ),
                      uvec2(
-                         ((circle.x - self.world_offset.x) / self.tile_size.x as f32 + (circle.r / self.tile_size.x as f32)) as u32,
-                         ((circle.y - self.world_offset.y) / self.tile_size.y as f32 + (circle.r / self.tile_size.y as f32)) as u32,
+                         (offset_position.x / self.tile_size.x as f32 + (circle.r / self.tile_size.x as f32)) as u32,
+                         (offset_position.y / self.tile_size.y as f32 + (circle.r / self.tile_size.y as f32)) as u32,
                      ))
                 }
             };
@@ -174,6 +185,85 @@ impl Map {
     }
 }
 
+impl From<TiledMap> for Map {
+    fn from(other: TiledMap) -> Self {
+        let raw_tiled_map = &other.tiled_map.raw_tiled_map;
+        let tile_size = uvec2(raw_tiled_map.tilewidth, raw_tiled_map.tileheight);
+        let grid_size = uvec2(raw_tiled_map.width, raw_tiled_map.height);
+
+        let mut tileset_names = Vec::new();
+        let tilesets = HashMap::from_iter(raw_tiled_map.tilesets.iter().map(|raw_tiled_tileset| {
+            let tiled_tileset = other.tiled_tilesets
+                .get(&raw_tiled_tileset.name)
+                .expect(&format!("Unable to find definition for tileset with image '{}'! Did you remember to define all the tilesets when importing the TiledMap?", raw_tiled_tileset.image));
+            let name = if tileset_names.contains(&raw_tiled_tileset.name) {
+                format!("{}_{}", raw_tiled_tileset.name, generate_id())
+            } else {
+                tileset_names.push(raw_tiled_tileset.name.clone());
+                raw_tiled_tileset.name.clone()
+            };
+            (name.clone(), MapTileset {
+                id: name,
+                texture_id: tiled_tileset.texture_id.clone(),
+                texture_size: uvec2(raw_tiled_tileset.imagewidth as u32, raw_tiled_tileset.imageheight as u32),
+                tile_size: uvec2(raw_tiled_tileset.tilewidth as u32, raw_tiled_tileset.tileheight as u32),
+                grid_size: uvec2(raw_tiled_tileset.columns as u32, raw_tiled_tileset.tilecount / raw_tiled_tileset.columns as u32),
+                first_tile_id: raw_tiled_tileset.firstgid,
+                tile_cnt: raw_tiled_tileset.tilecount,
+            })
+        }));
+
+        let layers = HashMap::from_iter(other.tiled_map.layers.iter().map(|(layer_id, tiled_layer)| {
+            let (kind, tiles, objects) = if tiled_layer.objects.len() > 0 {
+                let mut object_names = Vec::new();
+                let objects = tiled_layer.objects.iter().map(|tiled_object| {
+                    let id = if object_names.contains(&tiled_object.name) {
+                        format!("{}_{}", tiled_object.name, generate_id())
+                    } else {
+                        object_names.push(tiled_object.name.clone());
+                        tiled_object.name.clone()
+                    };
+                    MapObject {
+                        id,
+                        prototype_id: None,
+                        position: vec2(tiled_object.world_x, tiled_object.world_y),
+                    }
+                }).collect();
+                (MapLayerKind::ObjectLayer, Vec::new(), objects)
+            } else {
+                let tiles = tiled_layer.data.iter().map(|tiled_tile| {
+                    if let Some(tiled_tile) = tiled_tile {
+                        let tileset = tilesets.get(&tiled_tile.tileset)
+                            .expect(&format!("Unable to find tiled tileset '{}'! Are you sure you defined all the tilesets when importing the map?", tiled_tile.tileset));
+                        Some(MapTile {
+                            tile_id: tiled_tile.id.clone(),
+                            texture_id: tileset.texture_id.clone(),
+                            tileset_position: tileset.get_texture_position_from_tile_id(tiled_tile.id),
+                        })
+                    } else {
+                        None
+                    }
+                }).collect();
+                (MapLayerKind::TileLayer, tiles, Vec::new())
+            };
+            (layer_id.clone(), MapLayer {
+                id: layer_id.clone(),
+                kind,
+                tiles,
+                objects,
+            })
+        }));
+
+        Map {
+            world_offset: Vec2::ZERO,
+            grid_size,
+            tile_size,
+            layers,
+            tilesets,
+        }
+    }
+}
+
 #[derive(Clone)]
 pub enum MapLayerKind {
     TileLayer,
@@ -210,20 +300,14 @@ pub struct MapTileset {
     pub tile_size: UVec2,
     pub grid_size: UVec2,
     pub first_tile_id: u32,
+    pub tile_cnt: u32,
 }
 
 impl MapTileset {
     pub fn get_texture_position_from_tile_id(&self, tile_id: u32) -> Vec2 {
-        assert_ne!(tile_id, 0, "Invalid tile id '{}' (tile id can not be zero)!", tile_id);
-        assert!(
-            tile_id >= self.first_tile_id && tile_id <= self.first_tile_id + self.grid_size.x * self.grid_size.y,
-            "The specified tile id '{}' does not belong to this tileset!",
-            tile_id,
-        );
-        let i = tile_id - self.first_tile_id;
         vec2(
-            ((i % self.grid_size.x) * self.tile_size.x) as f32,
-            ((i / self.grid_size.x) * self.tile_size.y) as f32,
+            ((tile_id % self.grid_size.x) * self.tile_size.x) as f32,
+            ((tile_id / self.grid_size.x) * self.tile_size.y) as f32,
         )
     }
 }

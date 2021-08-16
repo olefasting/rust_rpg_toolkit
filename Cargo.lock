@@ -90,6 +90,7 @@ dependencies = [
  "macroquad",
  "macroquad-particles",
  "macroquad-profiler",
+ "macroquad-tiled",
  "nanoid",
  "nanoserde",
  "serde",
@@ -304,6 +305,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4cfbe9a07d3f695bc12127a583e7154dc71a88c0daa7eead6c4ddc8a233b5f36"
 dependencies = [
  "macroquad",
+]
+
+[[package]]
+name = "macroquad-tiled"
+version = "0.1.1"
+source = "git+https://github.com/not-fl3/macroquad.git?rev=1f4c57eaf42#1f4c57eaf42300c037c927fd0327645a899faec8"
+dependencies = [
+ "macroquad",
+ "nanoserde",
 ]
 
 [[package]]

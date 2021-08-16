@@ -131,9 +131,14 @@ async fn main() {
             id: 0,
         });
 
-        let player_spawn_position = vec2(32.0, 0.0);
+        let player_spawn_position = vec2(64.0, 100.0);
 
-        let map = Map::new("assets/maps/capstone_map.json");
+        let map = Map::from(map::TiledMap::new("assets/maps/map_01.json", &[
+            ("neo_zero_tiles", "../textures/neo_zero_tiles.png", "tiles"),
+            ("neo_zero_props", "../textures/neo_zero_props.png", "props"),
+            ("items", "../textures/items.png", "items"),
+        ]));
+        // let map = Map::new("assets/maps/capstone_map.json");
         GameState::add_node(map);
 
         Camera::add_node(player_spawn_position);

@@ -3,6 +3,8 @@ use serde::{
     Deserialize,
 };
 use crate::MapLayerKind;
+use std::collections::HashMap;
+use std::iter::FromIterator;
 
 #[derive(Copy, Clone, Serialize, Deserialize)]
 pub struct Vec2 {
@@ -358,16 +360,16 @@ impl From<crate::Map> for Map {
             world_offset: if other.world_offset != macroquad::prelude::Vec2::ZERO { Some(Vec2::from(other.world_offset)) } else { None },
             grid_size: UVec2::from(other.grid_size),
             tile_size: UVec2::from(other.tile_size),
-            layers: other.layers.into_iter().map(|layer| MapLayer::from(layer)).collect(),
-            tilesets: other.tilesets.into_iter().map(|tileset| MapTileset::from(tileset)).collect(),
+            layers: other.layers.into_iter().map(|(_, layer)| MapLayer::from(layer)).collect(),
+            tilesets: other.tilesets.into_iter().map(|(_, tileset)| MapTileset::from(tileset)).collect(),
         }
     }
 }
 
 impl From<Map> for crate::Map {
     fn from(other: Map) -> Self {
-        let tilesets: Vec<crate::MapTileset> = other.tilesets.into_iter().map(|tileset| crate::MapTileset::from(tileset)).collect();
-        let layers = other.layers.into_iter().map(|layer| crate::MapLayer {
+        let tilesets = HashMap::from_iter(other.tilesets.into_iter().map(|tileset| (tileset.id.clone(), crate::MapTileset::from(tileset))));
+        let layers = HashMap::from_iter(other.layers.into_iter().map(|layer| (layer.id.clone(), crate::MapLayer {
             id: layer.id.clone(),
             kind: MapLayerKind::from(&*layer.kind),
             tiles: layer.tiles
@@ -376,9 +378,9 @@ impl From<Map> for crate::Map {
                 .map(|tile_id| if tile_id == 0 { None } else {
                     match tilesets
                         .iter()
-                        .find(|tileset| tile_id >= tileset.first_tile_id
+                        .find(|(_, tileset)| tile_id >= tileset.first_tile_id
                             && tile_id <= tileset.first_tile_id + tileset.grid_size.x * tileset.grid_size.y) {
-                        Some(tileset) => Some(crate::MapTile {
+                        Some((_, tileset)) => Some(crate::MapTile {
                             tile_id,
                             texture_id: tileset.texture_id.clone(),
                             tileset_position: tileset.get_texture_position_from_tile_id(tile_id),
@@ -390,7 +392,7 @@ impl From<Map> for crate::Map {
                     }
                 }).collect(),
             objects: layer.objects.unwrap_or_default().into_iter().map(|object| crate::MapObject::from(object)).collect(),
-        }).collect();
+        })));
         crate::Map {
             world_offset: macroquad::prelude::Vec2::from(other.world_offset.unwrap_or_default()),
             grid_size: macroquad::prelude::UVec2::from(other.grid_size),
@@ -489,6 +491,7 @@ pub struct MapTileset {
     pub tile_size: UVec2,
     pub grid_size: UVec2,
     pub first_tile_id: u32,
+    pub tile_cnt: u32,
 }
 
 impl From<crate::MapTileset> for MapTileset {
@@ -500,6 +503,7 @@ impl From<crate::MapTileset> for MapTileset {
             tile_size: UVec2::from(other.tile_size),
             grid_size: UVec2::from(other.grid_size),
             first_tile_id: other.first_tile_id,
+            tile_cnt: other.tile_cnt,
         }
     }
 }
@@ -513,6 +517,7 @@ impl From<MapTileset> for crate::MapTileset {
             tile_size: crate::UVec2::from(other.tile_size),
             grid_size: crate::UVec2::from(other.grid_size),
             first_tile_id: other.first_tile_id,
+            tile_cnt: other.tile_cnt,
         }
     }
 }

@@ -122,7 +122,8 @@
         "x": 15,
         "y": 20
       },
-      "first_tile_id": 1
+      "first_tile_id": 1,
+      "tile_cnt": 300
     },
     {
       "id": "props_tiles",
@@ -139,7 +140,8 @@
         "x": 10,
         "y": 10
       },
-      "first_tile_id": 301
+      "first_tile_id": 301,
+      "tile_cnt": 100
     }
   ]
 }
