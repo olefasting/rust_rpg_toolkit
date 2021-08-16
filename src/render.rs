@@ -23,3 +23,6 @@ mod viewport;
 
 pub mod text;
 pub mod helpers;
+
+pub const LINEAR_FILTER_MODE: &'static str = "linear";
+pub const NEAREST_FILTER_MODE: &'static str = "nearest_neighbor";

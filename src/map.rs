@@ -45,7 +45,7 @@ impl Map {
                         .expect(&format!("Unable to find texture with texture id '{}'!", tileset.texture_id)))
                 }));
 
-        for (id, layer) in &self.layers {
+        for (_, layer) in &self.layers {
             for i in 0..layer.tiles.len() {
                 if let Some(Some(tile)) = layer.tiles.get(i) {
                     let (x, y) = (i as u32 % self.grid_size.x, i as u32 / self.grid_size.x);

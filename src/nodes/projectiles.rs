@@ -151,7 +151,7 @@ impl Node for Projectiles {
     fn update(mut node: RefMut<Self>) {
         for projectile in &mut node.active {
             projectile.lived += get_frame_time();
-            if let Some(mut animation) = projectile.sprite_animation.as_mut() {
+            if let Some(animation) = projectile.sprite_animation.as_mut() {
                 animation.update();
             }
         }
@@ -197,7 +197,7 @@ impl Node for Projectiles {
         let frustum = viewport.get_frustum_rect();
         for projectile in &mut node.active {
             if frustum.contains(projectile.position) {
-                if let Some(mut animation) = projectile.sprite_animation.as_mut() {
+                if let Some(animation) = projectile.sprite_animation.as_mut() {
                     let rotation = projectile.position.normalize().angle_between(projectile.direction) + 0.75; // WHY??
                     animation.draw(projectile.position, rotation);
                 } else {

@@ -133,7 +133,7 @@ async fn main() {
 
         let player_spawn_position = vec2(64.0, 100.0);
 
-        let map = Map::from(map::TiledMap::new("assets/maps/map_01.json", &[
+        let map = Map::from(map::TiledMap::new("assets/maps/test_tiled_map.json", &[
             ("neo_zero_tiles", "../textures/neo_zero_tiles.png", "tiles"),
             ("neo_zero_props", "../textures/neo_zero_props.png", "props"),
             ("items", "../textures/items.png", "items"),
