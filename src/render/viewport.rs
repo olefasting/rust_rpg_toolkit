@@ -18,18 +18,20 @@ pub fn to_world_space(coords: Vec2, viewport_pos: Vec2, scale: f32) -> Vec2 {
 pub struct Viewport {
     pub x: f32,
     pub y: f32,
-    pub w: f32,
-    pub h: f32,
-    pub s: f32,
+    pub width: f32,
+    pub height: f32,
+    pub scale: f32,
 }
 
 impl Viewport {
+    pub const FRUSTUM_PADDING: f32 = 100.0;
+
     pub fn to_screen_space(&self, coords: Vec2) -> Vec2 {
-        to_screen_space(coords,vec2(self.x, self.y), self.s)
+        to_screen_space(coords,vec2(self.x, self.y), self.scale)
     }
 
     pub fn to_world_space(&self, coords: Vec2) -> Vec2 {
-        to_world_space(coords,vec2(self.x, self.y), self.s)
+        to_world_space(coords,vec2(self.x, self.y), self.scale)
     }
 
     pub fn get_mouse_world_coords(&self) -> Vec2 {
@@ -37,32 +39,22 @@ impl Viewport {
         self.to_world_space(vec2(x, y))
     }
 
-    pub fn to_rect(&self) -> Rect {
+    pub fn get_view_rect(&self) -> Rect {
         Rect::new(
             self.x,
             self.y,
-            self.w,
-            self.h,
+            self.width,
+            self.height,
         )
     }
 
-    pub fn overlaps(&self, rect: &Rect) -> bool {
-        let padding = Camera::FRUSTUM_PADDING;
-        let mut view_rect = self.to_rect();
-        view_rect.x -= padding;
-        view_rect.y -= padding;
-        view_rect.w += padding * 2.0;
-        view_rect.h += padding * 2.0;
-        view_rect.overlaps(rect)
-    }
-
-    pub fn contains(&self, position: Vec2) -> bool {
-        let padding = Camera::FRUSTUM_PADDING;
-        let mut view_rect = self.to_rect();
-        view_rect.x -= padding;
-        view_rect.y -= padding;
-        view_rect.w += padding * 2.0;
-        view_rect.h += padding * 2.0;
-        view_rect.contains(position)
+    pub fn get_frustum_rect(&self) -> Rect {
+        let padding = Self::FRUSTUM_PADDING;
+        let mut frustum = self.get_view_rect();
+        frustum.x -= padding;
+        frustum.y -= padding;
+        frustum.w += padding * 2.0;
+        frustum.h += padding * 2.0;
+        frustum
     }
 }

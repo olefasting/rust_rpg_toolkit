@@ -6,23 +6,20 @@ use macroquad::{
             RefMut,
         },
     },
+    color,
     prelude::*,
 };
 
-use crate::{
-    set_global,
-    render::{
-        get_aspect_ratio,
-        to_world_space,
-        to_screen_space,
-        Viewport,
-    },
-    nodes::{
-        Actor,
-    },
-    get_mouse_position,
-};
+use crate::{set_global, render::{
+    get_aspect_ratio,
+    to_world_space,
+    to_screen_space,
+    Viewport,
+}, nodes::{
+    Actor,
+}, get_mouse_position, draw_aligned_text, get_global};
 use std::ops::Sub;
+use crate::render::HorizontalAlignment;
 
 pub struct Camera {
     pub position: Vec2,
@@ -35,8 +32,6 @@ pub struct Camera {
 
 impl Camera {
     const FOLLOW_THRESHOLD: f32 = 0.35;
-
-    pub const FRUSTUM_PADDING: f32 = 100.0;
 
     const DEFAULT_PAN_SPEED: f32 = 50.0;
     const DEFAULT_ROTATION_SPEED: f32 = 75.0;
@@ -65,34 +60,24 @@ impl Camera {
         get_aspect_ratio()
     }
 
-    pub fn get_view_rect(&self) -> Rect {
+    pub fn get_viewport(&self) -> Viewport {
         let width = screen_width() / self.scale;
         let height = screen_height() / self.scale;
-        Rect::new(
-            self.position.x - (width / 2.0),
-            self.position.y - (height / 2.0),
+        Viewport {
+            x: self.position.x - (width / 2.0),
+            y: self.position.y - (height / 2.0),
             width,
             height,
-        )
-    }
-
-    pub fn get_viewport(&self) -> Viewport {
-        let view_rect = self.get_view_rect();
-        Viewport {
-            x: view_rect.x,
-            y: view_rect.y,
-            w: view_rect.w,
-            h: view_rect.h,
-            s: self.scale,
+            scale: self.scale,
         }
     }
 
     pub fn to_screen_space(&self, coords: Vec2) -> Vec2 {
-        to_screen_space(coords, self.get_view_rect().point(), self.scale)
+        to_screen_space(coords, self.get_viewport().get_view_rect().point(), self.scale)
     }
 
     pub fn to_world_space(&self, coords: Vec2) -> Vec2 {
-        to_world_space(coords, self.get_view_rect().point(), self.scale)
+        to_world_space(coords, self.get_viewport().get_view_rect().point(), self.scale)
     }
 
     pub fn get_mouse_world_coords(&self) -> Vec2 {
@@ -137,13 +122,17 @@ impl Node for Camera {
         set_global(node.get_viewport());
     }
 
+    fn update(node: RefMut<Self>) {
+        set_global(node.get_viewport());
+    }
+
     fn fixed_update(mut node: RefMut<Self>) {
         let actor = Actor::find_local_player().unwrap();
         let viewport = node.get_viewport();
-        let mod_size = vec2(viewport.w * Self::FOLLOW_THRESHOLD, viewport.h * Self::FOLLOW_THRESHOLD);
+        let mod_size = vec2(viewport.width * Self::FOLLOW_THRESHOLD, viewport.height * Self::FOLLOW_THRESHOLD);
         let bounds = Rect::new(
-            viewport.x + (viewport.w - mod_size.x) / 2.0,
-            viewport.y + (viewport.h - mod_size.y) / 2.0,
+            viewport.x + (viewport.width - mod_size.x) / 2.0,
+            viewport.y + (viewport.height - mod_size.y) / 2.0,
             mod_size.x,
             mod_size.y,
         );
@@ -151,11 +140,20 @@ impl Node for Camera {
             let direction = actor.body.position.sub(node.position).normalize_or_zero();
             node.position += direction * actor.stats.move_speed;
         }
-
-        set_global(node.get_viewport());
     }
 
     fn draw(node: RefMut<Self>) {
+        push_camera_state();
+        set_default_camera();
+        draw_aligned_text(
+            &format!("camera: {}", node.position.to_string()) ,
+            screen_width() - 50.0,
+            100.0,
+            HorizontalAlignment::Right,
+            Default::default(),
+        );
+        pop_camera_state();
+
         scene::set_camera_1(Camera2D {
             offset: vec2(0.0, 0.0),
             target: vec2(node.position.x, node.position.y),

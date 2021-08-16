@@ -10,56 +10,37 @@ use macroquad::{
             RefMut,
         },
     },
+    color,
     prelude::*,
 };
 
-use crate::{
-    get_global,
-    Resources,
-    render::Viewport,
-};
+use crate::{Camera, get_global, Resources, render::Viewport, draw_aligned_text};
 use crate::physics::Collider;
 use crate::math::Circle;
+use crate::render::HorizontalAlignment;
+use crate::nodes::Actor;
 
-pub trait BufferedDraw : Node {
+pub enum Bounds {
+    Point(Vec2),
+    Rectangle(Rect),
+    Circle(Circle),
+    Collider(Collider),
+}
+
+pub trait BufferedDraw: Node {
     fn buffered_draw(&mut self);
 
     fn get_z_index(&self) -> f32;
 
-    fn is_in_view(&self, _view_rect: &Rect) -> bool {
-        true
-    }
-}
+    fn get_bounds(&self) -> Bounds;
 
-pub trait CulledPosition: BufferedDraw {
-    fn get_position(&self) -> Vec2;
-
-    fn is_in_view(&self, view_rect: &Rect) -> bool {
-        view_rect.contains(self.get_position())
-    }
-}
-
-pub trait CulledRect: BufferedDraw {
-    fn get_bounds_as_rect(&self) -> Rect;
-
-    fn is_in_view(&self, view_rect: &Rect) -> bool {
-        view_rect.overlaps(&self.get_bounds_as_rect())
-    }
-}
-
-pub trait CulledCircle: BufferedDraw {
-    fn get_bounds_as_circle(&self) -> Circle;
-
-    fn is_in_view(&self, view_rect: &Rect) -> bool {
-        self.get_bounds_as_circle().overlaps_rect(&view_rect)
-    }
-}
-
-pub trait CulledCollider: BufferedDraw {
-    fn get_bounds_as_offset_collider(&self) -> Collider;
-
-    fn is_in_view(&self, view_rect: &Rect) -> bool {
-        self.get_bounds_as_offset_collider().overlaps_rect(&view_rect)
+    fn is_in_frustum(&self, frustum: &Rect) -> bool {
+        match self.get_bounds() {
+            Bounds::Point(vec) => frustum.contains(vec),
+            Bounds::Rectangle(rect) => frustum.overlaps(&rect),
+            Bounds::Circle(circle) => circle.overlaps_rect(&frustum),
+            Bounds::Collider(collider) => collider.overlaps_rect(&frustum),
+        }
     }
 }
 
@@ -81,9 +62,10 @@ impl<T: 'static + BufferedDraw> DrawBuffer<T> {
 
 impl<T: 'static + BufferedDraw> Node for DrawBuffer<T> {
     fn draw(mut node: RefMut<Self>) {
-        let view_rect = get_global::<Viewport>().to_rect();
+        let viewport = get_global::<Viewport>();
+        let frustum = viewport.get_frustum_rect();
         node.nodes.retain(|handle| if let Some(buffered) = scene::try_get_node(*handle) {
-            buffered.is_in_view(&view_rect)
+            buffered.is_in_frustum(&frustum)
         } else {
             false
         });

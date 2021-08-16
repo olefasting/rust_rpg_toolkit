@@ -48,7 +48,7 @@ use crate::{get_global, render::{
 }, json, generate_id, draw_aligned_text};
 use crate::nodes::Item;
 use crate::render::Viewport;
-use crate::nodes::draw_buffer::{DrawBuffer, CulledCollider, BufferedDraw};
+use crate::nodes::draw_buffer::{DrawBuffer, BufferedDraw, Bounds};
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct ActorParams {
@@ -344,7 +344,7 @@ impl Node for Actor {
 impl BufferedDraw for Actor {
     fn buffered_draw(&mut self) {
         {
-            self.body.debug_draw();
+            //self.body.debug_draw();
             let (position, rotation) = (self.body.position, self.body.rotation);
             self.sprite_animation.draw(position, rotation);
         }
@@ -352,8 +352,8 @@ impl BufferedDraw for Actor {
         let is_local_player = self.is_local_player();
         let (position, offset_y, alignment, length, height, border) = if is_local_player {
             let viewport = get_global::<Viewport>();
-            let height = Self::HEALTH_BAR_HEIGHT * viewport.s;
-            (vec2(10.0, 10.0), height / 2.0, HorizontalAlignment::Left, Self::HEALTH_BAR_LENGTH * viewport.s, height, viewport.s)
+            let height = Self::HEALTH_BAR_HEIGHT * viewport.scale;
+            (vec2(10.0, 10.0), height / 2.0, HorizontalAlignment::Left, Self::HEALTH_BAR_LENGTH * viewport.scale, height, viewport.scale)
         } else {
             (self.body.position, Self::HEALTH_BAR_OFFSET_Y, HorizontalAlignment::Center, Self::HEALTH_BAR_LENGTH, Self::HEALTH_BAR_HEIGHT, 1.0)
         };
@@ -417,10 +417,12 @@ impl BufferedDraw for Actor {
     fn get_z_index(&self) -> f32 {
         self.body.position.y
     }
-}
 
-impl CulledCollider for Actor {
-    fn get_bounds_as_offset_collider(&self) -> Collider {
-        self.body.get_offset_collider().unwrap()
+    fn get_bounds(&self) -> Bounds {
+        if let Some(collider) = self.body.get_offset_collider() {
+            Bounds::Collider(collider)
+        } else {
+            Bounds::Point(self.body.position)
+        }
     }
 }

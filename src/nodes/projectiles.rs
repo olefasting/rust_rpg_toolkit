@@ -12,6 +12,7 @@ use macroquad::{
 };
 
 use crate::{nodes::{
+    Camera,
     Actor,
     GameState,
 }, physics::Collider, get_global, get_mouse_position, render::{
@@ -193,8 +194,9 @@ impl Node for Projectiles {
 
     fn draw(mut node: RefMut<Self>) {
         let viewport = get_global::<Viewport>();
+        let frustum = viewport.get_frustum_rect();
         for projectile in &mut node.active {
-            if viewport.contains(projectile.position) {
+            if frustum.contains(projectile.position) {
                 if let Some(mut animation) = projectile.sprite_animation.as_mut() {
                     let rotation = projectile.position.normalize().angle_between(projectile.direction) + 0.75; // WHY??
                     animation.draw(projectile.position, rotation);

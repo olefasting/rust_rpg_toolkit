@@ -9,7 +9,10 @@ use crate::{
         GameState,
     },
 };
-use crate::nodes::ActorController;
+use crate::nodes::{
+    ActorController,
+    Camera,
+};
 
 pub fn get_mouse_position() -> Vec2 {
     let (x, y) = mouse_position();
@@ -17,7 +20,8 @@ pub fn get_mouse_position() -> Vec2 {
 }
 
 pub fn apply_local_player_input(controller: &mut ActorController) {
-    let viewport = get_global::<Viewport>();
+    let camera= scene::find_node_by_type::<Camera>().unwrap();
+    let viewport = camera.get_viewport();
     let coords = viewport.get_mouse_world_coords();
     controller.primary_target = if is_mouse_button_down(MouseButton::Left) {
         Some(coords)

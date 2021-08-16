@@ -138,7 +138,6 @@ async fn main() {
 
         Camera::add_node(player_spawn_position);
 
-        //ItemDrawBuffer::add_node();
         DrawBuffer::<Item>::add_node();
 
         Projectiles::add_node();
@@ -167,8 +166,6 @@ async fn main() {
             &[],
             None,
         ));
-
-        //ActorDrawBuffer::add_node();
 
         DrawBuffer::<Actor>::add_node();
     }

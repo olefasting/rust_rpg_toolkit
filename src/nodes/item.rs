@@ -20,7 +20,7 @@ use crate::{
 };
 
 use crate::nodes::actor::ActorAbilityParams;
-use crate::nodes::draw_buffer::{DrawBuffer, BufferedDraw, CulledPosition};
+use crate::nodes::draw_buffer::{DrawBuffer, BufferedDraw, Bounds};
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct ItemParams {
@@ -102,11 +102,9 @@ impl BufferedDraw for Item {
     fn get_z_index(&self) -> f32 {
         self.position.y
     }
-}
 
-impl CulledPosition for Item {
-    fn get_position(&self) -> Vec2 {
-        self.position
+    fn get_bounds(&self) -> Bounds {
+        Bounds::Point(self.position)
     }
 }
 
