@@ -9,4 +9,4 @@ Layers consist of a small amount of metadata, and a Vec of tiles, represented by
 
 There are also object layers that can be used to represent non-tile data, like spawn points, items, actors, etc.
 
-For more information, reference the data structures in the [json module](https://github.com/olefasting/capstone/blob/master/src/json.rs), which holds the intermediate files that are used for serializing and deserializing of files for the project.
+For more information, reference the data structures in the [json module](https://github.com/olefasting/capstone/blob/master/src/json.rs), which holds the intermediate data structures that are used for serializing and deserializing of files for the project.
