@@ -24,7 +24,7 @@ use std::thread::current;
 pub struct Map {
     pub world_offset: Vec2,
     pub grid_size: UVec2,
-    pub tile_size: UVec2,
+    pub tile_size: Vec2,
     pub layers: HashMap<String, MapLayer>,
     pub tilesets: HashMap<String, MapTileset>,
 }
@@ -40,10 +40,10 @@ impl Map {
 
     pub fn to_grid_coords(&self, rect: Rect) -> URect {
         URect::new(
-            ((rect.x as u32 - self.world_offset.x as u32) / self.tile_size.x).clamp(0, self.grid_size.x),
-            ((rect.y as u32 - self.world_offset.y as u32) / self.tile_size.y).clamp(0, self.grid_size.y),
-            (rect.w as u32 / self.tile_size.x).clamp(0, self.grid_size.x),
-            (rect.h as u32 / self.tile_size.y).clamp(0, self.grid_size.y),
+            ((rect.x - self.world_offset.x) as u32 / self.tile_size.x as u32).clamp(0, self.grid_size.x),
+            ((rect.y - self.world_offset.y) as u32 / self.tile_size.y as u32).clamp(0, self.grid_size.y),
+            ((rect.w / self.tile_size.x) as u32 + 1).clamp(0, self.grid_size.x),
+            ((rect.h / self.tile_size.y) as u32 + 1).clamp(0, self.grid_size.y),
         )
     }
 
@@ -65,20 +65,19 @@ impl Map {
         &layer.tiles[i]
     }
 
-    pub fn draw(&self, layer_ids: &[&str], rect: Option<URect>) {
+    pub fn draw(&mut self, layer_ids: &[&str], rect: Option<URect>) {
         let resources = get_global::<Resources>();
         for layer_id in layer_ids {
             for (x, y, tile) in self.get_tiles(layer_id, rect) {
                 if let Some(tile) = tile {
+                    let world_position = self.world_offset + vec2(
+                        x as f32 * self.tile_size.x,
+                        y as f32 * self.tile_size.y,
+                    );
                     let texture = resources.textures
                         .get(&tile.texture_id)
                         .cloned()
                         .expect(&format!("No texture with id '{}'!", tile.texture_id));
-
-                    let world_position = self.world_offset + vec2(
-                        x as f32 * self.tile_size.x as f32,
-                        y as f32 * self.tile_size.y as f32,
-                    );
 
                     draw_texture_ex(
                         texture,
@@ -89,12 +88,12 @@ impl Map {
                             source: Some(Rect::new(
                                 tile.texture_coords.x + 1.1,
                                 tile.texture_coords.y + 1.1,
-                                self.tile_size.x as f32 - 2.2,
-                                self.tile_size.y as f32 - 2.2,
+                                self.tile_size.x - 2.2,
+                                self.tile_size.y - 2.2,
                             )),
                             dest_size: Some(vec2(
-                                self.tile_size.x as f32,
-                                self.tile_size.y as f32,
+                                self.tile_size.x,
+                                self.tile_size.y,
                             )),
                             ..Default::default()
                         },
@@ -106,8 +105,14 @@ impl Map {
 
     pub fn get_beam_collision_point(&self, origin: Vec2, end: Vec2, width: f32, tolerance: f32, layer_ids: &[&str]) -> Vec2 {
         let coords = (
-            uvec2((origin.x + self.world_offset.x) as u32 / self.tile_size.x, (origin.y + self.world_offset.y) as u32 / self.tile_size.y),
-            uvec2((end.x + self.world_offset.x) as u32 / self.tile_size.x, (end.y + self.world_offset.y) as u32 / self.tile_size.y),
+            uvec2(
+                ((origin.x + self.world_offset.x) / self.tile_size.x) as u32,
+                ((origin.y + self.world_offset.y) / self.tile_size.y) as u32,
+            ),
+            uvec2(
+                ((end.x + self.world_offset.x) / self.tile_size.x) as u32,
+                ((end.y + self.world_offset.y) / self.tile_size.y) as u32,
+            ),
         );
         let ord_x = if coords.0.x > coords.1.x { (coords.1.x, coords.0.x) } else { (coords.0.x, coords.1.x) };
         let ord_y = if coords.0.y > coords.1.y { (coords.1.y, coords.0.y) } else { (coords.0.y, coords.1.y) };
@@ -115,8 +120,8 @@ impl Map {
         for x in ord_x.0..ord_x.1 {
             for y in ord_y.0..ord_y.1 {
                 let position = vec2(
-                    ((x * self.tile_size.x) + self.tile_size.x / 2) as f32,
-                    ((y * self.tile_size.y) + self.tile_size.y / 2) as f32,
+                    (x as f32 * self.tile_size.x) + self.tile_size.x / 2.0,
+                    (y as f32 * self.tile_size.y) + self.tile_size.y / 2.0,
                 );
                 for layer_id in layer_ids {
                     if self.get_tile(layer_id, x, y).is_some() {
@@ -139,7 +144,7 @@ impl Map {
 impl From<TiledMap> for Map {
     fn from(other: TiledMap) -> Self {
         let raw_tiled_map = &other.tiled_map.raw_tiled_map;
-        let tile_size = uvec2(raw_tiled_map.tilewidth, raw_tiled_map.tileheight);
+        let tile_size = vec2(raw_tiled_map.tilewidth as f32, raw_tiled_map.tileheight as f32);
         let grid_size = uvec2(raw_tiled_map.width, raw_tiled_map.height);
 
         let mut tileset_names = Vec::new();

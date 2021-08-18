@@ -25,30 +25,22 @@ pub struct Camera {
     pub position: Vec2,
     pub rotation: f32,
     pub scale: f32,
-    zoom_speed: f32,
-    pan_speed: f32,
-    rotation_speed: f32,
+    pub is_following: bool,
 }
 
 impl Camera {
-    const FOLLOW_THRESHOLD: f32 = 0.35;
+    const FOLLOW_THRESHOLD_FRACTION: f32 = 0.4;
+    const FOLLOW_END_AT_DISTANCE: f32 = 25.0;
+    const FOLLOW_LERP_FRACTION: f32 = 0.02;
 
-    const DEFAULT_PAN_SPEED: f32 = 50.0;
-    const DEFAULT_ROTATION_SPEED: f32 = 75.0;
-    const DEFAULT_ZOOM_SPEED: f32 = 0.75;
     const DEFAULT_SCALE: f32 = 3.0;
-
-    const ZOOM_MIN: f32 = 1.0;
-    const ZOOM_MAX: f32 = 6.0;
 
     pub fn new(position: Vec2) -> Self {
         Camera {
             position,
             rotation: 0.0,
             scale: Self::DEFAULT_SCALE,
-            zoom_speed: Self::DEFAULT_ZOOM_SPEED,
-            pan_speed: Self::DEFAULT_PAN_SPEED,
-            rotation_speed: Self::DEFAULT_ROTATION_SPEED,
+            is_following: false,
         }
     }
 
@@ -71,38 +63,6 @@ impl Camera {
             scale: self.scale,
         }
     }
-
-    pub fn pan(&mut self, direction: Vec2) {
-        self.position.x += direction.x * (self.pan_speed);
-        self.position.y -= direction.y * (self.pan_speed);
-    }
-
-    pub fn rotate(&mut self, rotation: f32) {
-        self.rotation += rotation.clamp(-self.rotation_speed, self.rotation_speed);
-    }
-
-    pub fn rotate_cw(&mut self) {
-        self.rotation += self.rotation_speed;
-    }
-
-    pub fn rotate_ccw(&mut self) {
-        self.rotation -= self.rotation_speed;
-    }
-
-    pub fn zoom(&mut self, zoom: f32) {
-        let zoom = self.scale + (zoom * self.zoom_speed).clamp(-self.zoom_speed, self.zoom_speed);
-        self.scale = zoom.clamp(Self::ZOOM_MIN, Self::ZOOM_MAX);
-    }
-
-    pub fn zoom_in(&mut self) {
-        let zoom = self.scale - self.zoom_speed;
-        self.scale = zoom.clamp(Self::ZOOM_MIN, Self::ZOOM_MAX);
-    }
-
-    pub fn zoom_out(&mut self) {
-        let zoom = self.scale + self.zoom_speed;
-        self.scale = zoom.clamp(Self::ZOOM_MIN, Self::ZOOM_MAX);
-    }
 }
 
 impl Node for Camera {
@@ -117,17 +77,18 @@ impl Node for Camera {
     fn fixed_update(mut node: RefMut<Self>) {
         let actor = Actor::find_local_player_actor().unwrap();
         let viewport = node.get_viewport();
-        let mod_size = vec2(viewport.width * Self::FOLLOW_THRESHOLD, viewport.height * Self::FOLLOW_THRESHOLD);
-        let bounds = Rect::new(
-            viewport.x + (viewport.width - mod_size.x) / 2.0,
-            viewport.y + (viewport.height - mod_size.y) / 2.0,
-            mod_size.x,
-            mod_size.y,
-        );
+        let bounds = {
+            let size = vec2(viewport.width * Self::FOLLOW_THRESHOLD_FRACTION, viewport.height * Self::FOLLOW_THRESHOLD_FRACTION);
+            Rect::new(viewport.x + viewport.width / 2.0 - size.x / 2.0, viewport.y + viewport.height / 2.0 - size.y / 2.0, size.x, size.y)
+        };
 
-        if !bounds.contains(actor.body.position) {
-            let direction = actor.body.position.sub(node.position).normalize_or_zero();
-            node.position += direction * actor.stats.move_speed;
+        if node.is_following || bounds.contains(actor.body.position) == false {
+            let distance = actor.body.position.sub(node.position);
+            if distance.length() <= Self::FOLLOW_END_AT_DISTANCE {
+                node.is_following = false;
+                return;
+            }
+            node.position += distance * Self::FOLLOW_LERP_FRACTION;
         }
 
         scene::set_camera_1(Camera2D {
@@ -137,5 +98,8 @@ impl Node for Camera {
             rotation: node.rotation,
             ..Camera2D::default()
         });
+    }
+
+    fn draw(_node: RefMut<Self>) where Self: Sized {
     }
 }

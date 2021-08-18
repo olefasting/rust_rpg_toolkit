@@ -661,7 +661,7 @@ const OBJECT_LAYER_KIND: &'static str = "object_layer";
 pub struct Map {
     pub world_offset: Option<Vec2>,
     pub grid_size: UVec2,
-    pub tile_size: UVec2,
+    pub tile_size: Vec2,
     pub layers: Vec<MapLayer>,
     pub tilesets: Vec<MapTileset>,
 }
@@ -699,7 +699,7 @@ impl From<crate::Map> for Map {
         Map {
             world_offset: if other.world_offset != macroquad::prelude::Vec2::ZERO { Some(Vec2::from(other.world_offset)) } else { None },
             grid_size: UVec2::from(other.grid_size),
-            tile_size: UVec2::from(other.tile_size),
+            tile_size: Vec2::from(other.tile_size),
             layers,
             tilesets: other.tilesets.into_iter().map(|(_, tileset)| MapTileset::from(tileset)).collect(),
         }
@@ -715,7 +715,7 @@ impl From<Map> for crate::Map {
 
         let world_offset = macroquad::prelude::Vec2::from(other.world_offset.unwrap_or_default());
         let grid_size = macroquad::prelude::UVec2::from(other.grid_size);
-        let tile_size = macroquad::prelude::UVec2::from(other.tile_size);
+        let tile_size = macroquad::prelude::Vec2::from(other.tile_size);
 
         let layers = HashMap::from_iter(
             other.layers
