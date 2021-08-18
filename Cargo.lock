@@ -93,7 +93,6 @@ dependencies = [
  "macroquad-tiled",
  "nanoid",
  "nanoserde",
- "num-traits",
  "serde",
  "serde_json",
 ]

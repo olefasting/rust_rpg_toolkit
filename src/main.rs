@@ -19,8 +19,8 @@ pub use globals::{
 pub use input::get_mouse_position;
 pub use map::{
     Map,
-    MapLayerKind,
     MapLayer,
+    MapLayerKind,
     MapObject,
     MapTile,
     MapTileset,
@@ -31,17 +31,17 @@ use nodes::{
     ActorParams,
     Camera,
     GameState,
-    Projectiles,
     Item,
     ItemParams,
+    Projectiles,
 };
 use physics::Collider;
-use render::{
-    HorizontalAlignment,
-};
+use render::HorizontalAlignment;
 pub use render::text::draw_aligned_text;
-pub use resources::{
-    Resources,
+pub use resources::Resources;
+pub use ability::{
+    AbilityParams,
+    Ability,
 };
 
 use crate::nodes::actor::ActorStats;
@@ -51,6 +51,7 @@ use crate::nodes::draw_buffer::DrawBuffer;
 mod resources;
 mod globals;
 mod map;
+mod ability;
 
 pub mod nodes;
 pub mod render;

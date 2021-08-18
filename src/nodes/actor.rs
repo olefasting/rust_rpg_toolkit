@@ -1,59 +1,66 @@
-use std::ops::{Sub, Deref};
-
-use serde::{
-    Serialize,
-    Deserialize,
-};
+use std::any::Any;
+use std::fs::read_to_string;
+use std::ops::{Deref, Sub};
 
 use macroquad::{
+    color,
     experimental::{
         scene::{
-            Node,
             Handle,
+            Node,
             RefMut,
         },
     },
-    color,
     prelude::*,
 };
 
-use crate::input::apply_local_input;
+use serde::{
+    Deserialize,
+    Serialize,
+};
 
-mod controller;
-mod inventory;
-mod ability;
-mod stats;
-
-pub use stats::ActorStats;
 pub use controller::{
-    ActorControllerKind,
     ActorController,
+    ActorControllerKind,
 };
 
 pub use inventory::ActorInventory;
-pub use ability::{
-    ActorAbilityParams,
-    ActorAbility,
+pub use stats::ActorStats;
+
+use crate::{
+    draw_aligned_text,
+    generate_id,
+    get_global,
+    globals::LocalPlayer,
+    physics::{
+        Collider,
+        PhysicsBody,
+        PhysicsObject,
+    },
+    render::{
+        draw_progress_bar,
+        HorizontalAlignment,
+        SpriteAnimationParams,
+        SpriteAnimationPlayer,
+    },
+    ability::{
+        Ability,
+        AbilityParams,
+    },
+    Resources,
 };
 
-use crate::{get_global, render::{
-    SpriteAnimationPlayer,
-    SpriteAnimationParams,
-    draw_progress_bar,
-    HorizontalAlignment,
-}, globals::LocalPlayer, physics::{
-    PhysicsBody,
-    PhysicsObject,
-    Collider,
-}, json, generate_id, draw_aligned_text, Resources};
-use crate::nodes::{Item, ItemParams};
-use crate::render::Viewport;
-use crate::nodes::draw_buffer::{DrawBuffer, BufferedDraw, Bounds};
 use crate::globals::DebugMode;
+use crate::input::apply_local_input;
+use crate::nodes::{Item, ItemParams};
 use crate::nodes::actor::inventory::ActorInventoryEntry;
-use std::any::Any;
+use crate::nodes::draw_buffer::{Bounds, BufferedDraw, DrawBuffer};
 use crate::nodes::item::ItemPrototype;
-use std::fs::read_to_string;
+use crate::render::Viewport;
+
+mod controller;
+mod inventory;
+mod stats;
 
 #[derive(Clone)]
 pub struct ActorPrototype {
@@ -94,7 +101,7 @@ impl ActorParams {
                 } else {
                     None
                 }
-            }) .collect(),
+            }).collect(),
             sprite_animation: prototype.sprite_animation,
         }
     }
@@ -137,8 +144,8 @@ pub struct Actor {
     pub body: PhysicsBody,
     sprite_animation: SpriteAnimationPlayer,
     pub inventory: ActorInventory,
-    pub primary_ability: Option<ActorAbility>,
-    pub secondary_ability: Option<ActorAbility>,
+    pub primary_ability: Option<Ability>,
+    pub secondary_ability: Option<Ability>,
     pub controller: ActorController,
 }
 
@@ -217,7 +224,7 @@ impl Actor {
         } else if direction.x < 0.0 {
             self.sprite_animation.start_animation(2);
             self.sprite_animation.flip_x = true;
-        }else if direction.y > 0.0 && direction.y.abs() > direction.x.abs() {
+        } else if direction.y > 0.0 && direction.y.abs() > direction.x.abs() {
             self.sprite_animation.start_animation(0);
         } else if direction.y < 0.0 {
             self.sprite_animation.start_animation(1);
@@ -333,7 +340,7 @@ impl Node for Actor {
             node.stats.move_speed
         };
 
-       node.body.integrate();
+        node.body.integrate();
 
         if node.controller.is_picking_up_items {
             let collider = Collider::circle(0.0, 0.0, Self::PICK_UP_RADIUS).offset(node.body.position);
@@ -362,8 +369,7 @@ impl Node for Actor {
         }
     }
 
-    fn draw(mut node: RefMut<Self>) {
-    }
+    fn draw(mut node: RefMut<Self>) {}
 }
 
 impl BufferedDraw for Actor {
@@ -401,7 +407,7 @@ impl BufferedDraw for Actor {
         }
         if is_local_player {
             draw_aligned_text(
-                &format!("position: {}", self.body.position.to_string()) ,
+                &format!("position: {}", self.body.position.to_string()),
                 screen_width() - 50.0,
                 50.0,
                 HorizontalAlignment::Right,

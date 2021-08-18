@@ -19,7 +19,7 @@ use crate::{
     get_global,
 };
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct SpriteAnimationParams {
     pub offset: Vec2,
     pub texture_id: String,

@@ -3,7 +3,7 @@ use macroquad::{
 };
 use crate::render::text::draw_aligned_text;
 
-#[derive(Clone)]
+#[derive(Debug, Copy, Clone)]
 pub enum HorizontalAlignment {
     Left,
     Right,

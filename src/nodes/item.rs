@@ -16,10 +16,13 @@ use crate::{
     render::{
         Sprite,
     },
+    nodes::draw_buffer::{
+        DrawBuffer,
+        BufferedDraw,
+        Bounds,
+    },
+    ability::AbilityParams,
 };
-
-use crate::nodes::actor::ActorAbilityParams;
-use crate::nodes::draw_buffer::{DrawBuffer, BufferedDraw, Bounds};
 
 #[derive(Clone)]
 pub struct ItemPrototype {
@@ -28,7 +31,7 @@ pub struct ItemPrototype {
     pub description: String,
     pub kind: String,
     pub weight: f32,
-    pub ability: ActorAbilityParams,
+    pub ability: AbilityParams,
     pub sprite: Sprite,
 }
 
@@ -57,7 +60,7 @@ pub struct ItemParams {
     pub position: Option<Vec2>,
     pub kind: String,
     pub weight: f32,
-    pub ability: ActorAbilityParams,
+    pub ability: AbilityParams,
     pub sprite: Sprite,
 }
 
@@ -111,7 +114,7 @@ pub struct Item {
     pub position: Vec2,
     pub kind: String,
     pub weight: f32,
-    ability: ActorAbilityParams,
+    ability: AbilityParams,
     sprite: Sprite,
 }
 

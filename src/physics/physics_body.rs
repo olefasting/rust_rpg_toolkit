@@ -58,7 +58,7 @@ impl PhysicsBody {
     pub fn integrate(&mut self) {
         if let Some(collider) = self.get_offset_collider() {
             let mut game_state = scene::find_node_by_type::<GameState>().unwrap();
-            let rect = game_state.map.to_grid_rect(Rect::from(collider.offset(self.velocity)));
+            let rect = game_state.map.to_map_grid(Rect::from(collider.offset(self.velocity)));
             for layer_id in &[MAP_LAYER_SOLIDS, MAP_LAYER_BARRIERS] {
                 for (_, _, tile) in game_state.map.get_tiles(layer_id, Some(rect)) {
                     if tile.is_some() {

@@ -14,7 +14,7 @@ use crate::{
     json,
 };
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct Sprite {
     pub offset: Vec2,
     pub rotation: f32,

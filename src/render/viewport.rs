@@ -2,7 +2,7 @@ use macroquad::prelude::*;
 
 use crate::Camera;
 
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Viewport {
     pub position: Vec2,
     pub size: Vec2,

@@ -9,8 +9,8 @@ use macroquad::{
 use crate::{
     nodes::Actor,
     Item,
+    Ability,
 };
-use crate::nodes::ActorAbility;
 
 pub fn draw_inventory_window(player: &mut Actor) {
     widgets::Window::new(hash!(), vec2(50.0, 475.0), vec2(300.0, 300.0))
@@ -24,9 +24,9 @@ pub fn draw_inventory_window(player: &mut Actor) {
                         for item in &items {
                             ui.label(None, &item.params.name);
                             if ui.button(None, "Equip") {
-                                if item.params.ability.action_kind == ActorAbility::PRIMARY_ABILITY.to_string() {
+                                if item.params.ability.action_kind == Ability::PRIMARY_ABILITY.to_string() {
                                     player.primary_ability = Some(item.to_actor_ability());
-                                } else if item.params.ability.action_kind == ActorAbility::SECONDARY_ABILITY.to_string() {
+                                } else if item.params.ability.action_kind == Ability::SECONDARY_ABILITY.to_string() {
                                     player.secondary_ability = Some(item.to_actor_ability());
                                 }
                             }
@@ -45,9 +45,9 @@ pub fn draw_inventory_window(player: &mut Actor) {
                         for item in &items {
                             ui.label(None, &item.params.name);
                             if ui.button(None, "Equip") {
-                                if item.params.ability.action_kind == ActorAbility::PRIMARY_ABILITY.to_string() {
+                                if item.params.ability.action_kind == Ability::PRIMARY_ABILITY.to_string() {
                                     player.primary_ability = Some(item.to_actor_ability());
-                                } else if item.params.ability.action_kind == ActorAbility::SECONDARY_ABILITY.to_string() {
+                                } else if item.params.ability.action_kind == Ability::SECONDARY_ABILITY.to_string() {
                                     player.secondary_ability = Some(item.to_actor_ability());
                                 }
                             }

@@ -1,3 +1,5 @@
+use std::ops::Sub;
+
 use macroquad::{
     color,
     prelude::*
@@ -8,14 +10,22 @@ use serde::{
     Deserialize,
 };
 
-use crate::{Actor, generate_id, json};
-use crate::nodes::{Projectiles, ContinuousBeams};
-use std::ops::Sub;
-use crate::nodes::projectiles::ProjectileKind;
-use crate::render::{SpriteAnimationParams, SpriteAnimationPlayer};
+use crate::{
+    Actor,
+    generate_id,
+    nodes::{
+        Projectiles,
+        ContinuousBeams,
+        projectiles::ProjectileKind,
+    },
+    render::{
+        SpriteAnimationParams,
+        SpriteAnimationPlayer,
+    },
+};
 
 #[derive(Clone)]
-pub struct ActorAbilityParams {
+pub struct AbilityParams {
     pub effect_kind: String,
     pub action_kind: String,
     pub cooldown: f32,
@@ -31,11 +41,11 @@ pub struct ActorAbilityParams {
     pub effect_sprite_animation: Option<SpriteAnimationParams>,
 }
 
-impl Default for ActorAbilityParams {
+impl Default for AbilityParams {
     fn default() -> Self {
-        ActorAbilityParams {
-            effect_kind: ActorAbility::PROJECTILE_EFFECT.to_string(),
-            action_kind: ActorAbility::PRIMARY_ABILITY.to_string(),
+        AbilityParams {
+            effect_kind: Ability::PROJECTILE_EFFECT.to_string(),
+            action_kind: Ability::PRIMARY_ABILITY.to_string(),
             cooldown: 0.0,
             health_cost: 0.0,
             stamina_cost: 0.0,
@@ -52,7 +62,7 @@ impl Default for ActorAbilityParams {
 }
 
 #[derive(Clone)]
-pub struct ActorAbility {
+pub struct Ability {
     pub effect_kind: String,
     pub action_kind: String,
     pub cooldown: f32,
@@ -69,7 +79,7 @@ pub struct ActorAbility {
     pub effect_sprite_animation_params: Option<SpriteAnimationParams>,
 }
 
-impl ActorAbility {
+impl Ability {
     pub const PROJECTILE_EFFECT: &'static str = "projectile";
     pub const ENERGY_SPHERE_EFFECT: &'static str = "energy_sphere";
     pub const BEAM_EFFECT: &'static str = "beam";
@@ -78,8 +88,8 @@ impl ActorAbility {
     pub const PRIMARY_ABILITY: &'static str = "primary";
     pub const SECONDARY_ABILITY: &'static str = "secondary";
 
-    pub fn new(params: ActorAbilityParams) -> Self {
-        ActorAbility {
+    pub fn new(params: AbilityParams) -> Self {
+        Ability {
             effect_kind: params.effect_kind,
             action_kind: params.action_kind,
             health_cost: params.health_cost,
@@ -101,7 +111,7 @@ impl ActorAbility {
         if (self.health_cost == 0.0 || actor.stats.current_health >= self.health_cost)
             && (self.stamina_cost == 0.0 || actor.stats.current_stamina >= self.stamina_cost)
             && (self.energy_cost == 0.0 || actor.stats.current_energy >= self.energy_cost) {
-            if self.effect_kind == ActorAbility::CONTINUOUS_BEAM_EFFECT {
+            if self.effect_kind == Ability::CONTINUOUS_BEAM_EFFECT {
                 actor.stats.current_health -= self.health_cost;
                 actor.stats.current_stamina -= self.stamina_cost;
                 actor.stats.current_energy -= self.energy_cost;

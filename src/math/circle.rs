@@ -1,6 +1,11 @@
+use serde::{
+    Serialize,
+    Deserialize,
+};
+
 use macroquad::math::{Vec2, Rect, vec2};
 
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub struct Circle {
     pub x: f32,
     pub y: f32,

@@ -28,20 +28,20 @@ use std::iter::FromIterator;
 use crate::nodes::actor::ActorPrototype;
 use crate::nodes::item::ItemPrototype;
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 struct TextureData {
     pub id: String,
     pub filename: String,
     pub filter_mode: String,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 struct SoundData {
     pub id: String,
     pub filename: String,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 struct ResourcesData {
     textures: Vec<TextureData>,
     sound_effects: Vec<SoundData>,

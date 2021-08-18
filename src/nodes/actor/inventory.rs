@@ -13,7 +13,7 @@ use crate::{
     Item,
     get_global,
     render::Sprite,
-    nodes::actor::ActorAbility,
+    nodes::actor::Ability,
     generate_id,
     Resources,
 };
@@ -34,8 +34,8 @@ impl ActorInventoryEntry {
 }
 
 impl ActorInventoryEntry {
-    pub fn to_actor_ability(&self) -> ActorAbility {
-        ActorAbility::new(self.params.ability.clone())
+    pub fn to_actor_ability(&self) -> Ability {
+        Ability::new(self.params.ability.clone())
     }
 }
 
