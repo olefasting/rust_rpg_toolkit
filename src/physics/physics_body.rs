@@ -9,9 +9,17 @@ use macroquad::{
     prelude::*,
 };
 
-use crate::{physics::Collider, GameState, Map, get_global, MAP_LAYER_SOLIDS, MAP_LAYER_BARRIERS};
-use crate::globals::DebugMode;
-use std::ops::Deref;
+use crate::{
+    physics::Collider,
+    GameState,
+    Map,
+    MAP_LAYER_SOLIDS,
+    MAP_LAYER_BARRIERS,
+};
+
+use crate::{
+    get_global,
+};
 
 pub type PhysicsObject = (HandleUntyped, Lens<PhysicsBody>);
 
@@ -34,14 +42,14 @@ impl PhysicsBody {
     }
 
     pub fn debug_draw(&self) {
-        let debug_mode  = get_global::<DebugMode>();
-        if debug_mode.is_enabled {
+        let game_state  = scene::find_node_by_type::<GameState>().unwrap();
+        if game_state.in_debug_mode {
             if let Some(collider) = self.get_offset_collider() {
                 match collider {
                     Collider::Rectangle(rect) => draw_rectangle_lines(
-                        rect.x, rect.y, rect.w, rect.h, 4.0, debug_mode.color),
+                        rect.x, rect.y, rect.w, rect.h, 4.0, color::RED),
                     Collider::Circle(circle) => draw_circle_lines(
-                        circle.x, circle.y, circle.r, 4.0, debug_mode.color)
+                        circle.x, circle.y, circle.r, 4.0, color::RED)
                 }
             }
         }

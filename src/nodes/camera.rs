@@ -12,11 +12,14 @@ use macroquad::{
     prelude::*,
 };
 
-use crate::{set_global, render::{
+use crate::{
+    GameState,
+    set_global,
     Viewport,
-}, nodes::{
     Actor,
-}, get_mouse_position, draw_aligned_text, get_global};
+    get_mouse_position,
+    draw_aligned_text,
+};
 
 use crate::render::HorizontalAlignment;
 
@@ -68,23 +71,24 @@ impl Node for Camera {
     }
 
     fn fixed_update(mut node: RefMut<Self>) {
-        let actor = Actor::find_local_player_actor().unwrap();
-        let viewport = node.get_viewport();
-        let bounds = {
-            let size = viewport.size * Self::FOLLOW_THRESHOLD_FRACTION;
-            let center = viewport.get_center();
-            Rect::new(center.x - size.x / 2.0, center.y - size.y / 2.0, size.x, size.y)
-        };
+        let game_state = scene::find_node_by_type::<GameState>().unwrap();
+        if let Some(mut player) = Actor::find_by_player_id(&game_state.local_player_id) {
+            let viewport = node.get_viewport();
+            let bounds = {
+                let size = viewport.size * Self::FOLLOW_THRESHOLD_FRACTION;
+                let center = viewport.get_center();
+                Rect::new(center.x - size.x / 2.0, center.y - size.y / 2.0, size.x, size.y)
+            };
 
-        if node.is_following || bounds.contains(actor.body.position) == false {
-            let difference = actor.body.position.sub(node.position);
-            if difference.length() <= Self::FOLLOW_END_AT_DISTANCE {
-                node.is_following = false;
-                return;
+            if node.is_following || bounds.contains(player.body.position) == false {
+                let difference = player.body.position.sub(node.position);
+                if difference.length() > Self::FOLLOW_END_AT_DISTANCE {
+                    node.is_following = true;
+                    node.position += difference * Self::FOLLOW_LERP_FRACTION;
+                } else {
+                    node.is_following = false;
+                }
             }
-
-            node.is_following = true;
-            node.position += difference * Self::FOLLOW_LERP_FRACTION;
         }
 
         scene::set_camera_1(Camera2D {
@@ -96,6 +100,5 @@ impl Node for Camera {
         });
     }
 
-    fn draw(node: RefMut<Self>) where Self: Sized {
-    }
+    fn draw(_node: RefMut<Self>) where Self: Sized {}
 }

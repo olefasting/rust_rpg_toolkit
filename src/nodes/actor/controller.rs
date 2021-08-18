@@ -1,8 +1,9 @@
 use macroquad::prelude::*;
 
-#[derive(Copy, Clone)]
+#[derive(Clone)]
 pub enum ActorControllerKind {
-    Player { id: u32 },
+    LocalPlayer { player_id: String },
+    RemotePlayer { player_id: String },
     Computer,
     None,
 }

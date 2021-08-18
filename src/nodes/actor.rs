@@ -28,10 +28,9 @@ pub use inventory::ActorInventory;
 pub use stats::ActorStats;
 
 use crate::{
+    get_global,
     draw_aligned_text,
     generate_id,
-    get_global,
-    globals::LocalPlayer,
     physics::{
         Collider,
         PhysicsBody,
@@ -50,7 +49,6 @@ use crate::{
     Resources,
 };
 
-use crate::globals::DebugMode;
 use crate::input::apply_local_input;
 use crate::nodes::{Item, ItemParams};
 use crate::nodes::actor::inventory::ActorInventoryEntry;
@@ -185,30 +183,26 @@ impl Actor {
         self.stats.current_health -= damage;
     }
 
-    pub fn find_player(player_id: u32) -> Option<RefMut<Self>> {
+    pub fn find_by_player_id(id: &str) -> Option<RefMut<Self>> {
         for actor in scene::find_nodes_by_type::<Self>() {
-            match actor.controller.kind {
-                ActorControllerKind::Player { id } => {
+            match &actor.controller.kind {
+                ActorControllerKind::LocalPlayer { player_id } => {
                     if player_id == id {
                         return Some(actor);
                     }
-                }
+                },
+                ActorControllerKind::RemotePlayer { player_id } => {
+                   if player_id == id {
+                       return Some(actor)
+                   }
+                },
                 _ => {}
             }
         }
         None
     }
 
-    pub fn find_local_player_actor() -> Option<RefMut<Self>> {
-        let local_player = get_global::<LocalPlayer>();
-        if let Some(actor) = Self::find_player(local_player.id) {
-            Some(actor)
-        } else {
-            None
-        }
-    }
-
-    pub fn find_with_id(id: &str) -> Option<RefMut<Actor>> {
+    pub fn find_by_id(id: &str) -> Option<RefMut<Actor>> {
         for actor in scene::find_nodes_by_type::<Actor>() {
             if actor.id == id.to_string() {
                 return Some(actor);
@@ -238,12 +232,10 @@ impl Actor {
         }
     }
 
-    pub fn is_local_player_actor(&self) -> bool {
-        if let ActorControllerKind::Player { id } = self.controller.kind {
-            let local_player = get_global::<LocalPlayer>();
-            id == local_player.id
-        } else {
-            false
+    pub fn is_local_player(&self) -> bool {
+        match &self.controller.kind {
+            ActorControllerKind::LocalPlayer { player_id } => true,
+            _ => false,
         }
     }
 
@@ -282,14 +274,13 @@ impl Node for Actor {
             ability.update();
         }
 
-        match node.controller.kind {
-            ActorControllerKind::Player { id } => {
-                let local_player = get_global::<LocalPlayer>();
-                if id == local_player.id {
-                    apply_local_input(&mut node.controller);
-                } else {
-                    // TODO: Remote player (?)
-                }
+        let controller_kind = node.controller.kind.clone();
+        match controller_kind {
+            ActorControllerKind::LocalPlayer { player_id } => {
+                apply_local_input(&player_id, &mut node.controller);
+            }
+            ActorControllerKind::RemotePlayer { player_id } => {
+
             }
             ActorControllerKind::Computer => {
                 // TODO: Computer controlled
@@ -378,7 +369,7 @@ impl BufferedDraw for Actor {
         let (position, rotation) = (self.body.position, self.body.rotation);
         self.sprite_animation.draw(position, rotation);
 
-        let is_local_player = self.is_local_player_actor();
+        let is_local_player = self.is_local_player();
         let (position, offset_y, alignment, length, height, border) = if is_local_player {
             let viewport = get_global::<Viewport>();
             let height = Self::HEALTH_BAR_HEIGHT * viewport.scale;

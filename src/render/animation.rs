@@ -15,8 +15,8 @@ use serde::{
 };
 
 use crate::{
-    Resources,
     get_global,
+    Resources,
 };
 
 #[derive(Debug, Clone)]

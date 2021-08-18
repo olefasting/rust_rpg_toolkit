@@ -11,11 +11,6 @@ use macroquad::{
     prelude::*,
 };
 
-pub use globals::{
-    get_global,
-    set_global,
-    try_get_global,
-};
 pub use input::get_mouse_position;
 pub use map::{
     Map,
@@ -25,6 +20,7 @@ pub use map::{
     MapTile,
     MapTileset,
 };
+
 use nodes::{
     Actor,
     ActorControllerKind,
@@ -34,25 +30,34 @@ use nodes::{
     Item,
     ItemParams,
     Projectiles,
+    ContinuousBeams,
+    DrawBuffer,
+    ActorStats,
 };
+
 use physics::Collider;
 use render::HorizontalAlignment;
-pub use render::text::draw_aligned_text;
+
+pub use render::{
+    Viewport,
+    text::draw_aligned_text,
+};
 pub use resources::Resources;
 pub use ability::{
     AbilityParams,
     Ability,
 };
-
-use crate::nodes::actor::ActorStats;
-use crate::nodes::ContinuousBeams;
-use crate::nodes::draw_buffer::DrawBuffer;
+pub use global::{
+    try_get_global,
+    get_global,
+    set_global,
+};
 
 mod resources;
-mod globals;
 mod map;
 mod ability;
 
+pub mod global;
 pub mod nodes;
 pub mod render;
 pub mod input;
@@ -71,10 +76,10 @@ pub fn generate_id() -> String {
     nanoid::nanoid!()
 }
 
-fn generic_actor(name: &str, position: Vec2, skin_id: u32, factions: &[String], player_id: Option<u32>) -> Actor {
+fn generic_actor(name: &str, position: Vec2, skin_id: u32, factions: &[String], player_id: Option<String>) -> Actor {
     assert!(skin_id <= 2, "invalid skin id");
     let controller_kind = match player_id {
-        Some(id) => ActorControllerKind::Player { id },
+        Some(player_id) => ActorControllerKind::LocalPlayer { player_id },
         None => ActorControllerKind::Computer,
     };
     let resources = get_global::<Resources>();
@@ -123,9 +128,7 @@ async fn main() {
     }
 
     {
-        set_global(globals::DebugMode { color: color::RED, is_enabled: true });
-        set_global(globals::LocalPlayer { id: 0 });
-
+        let player_id = generate_id();
         let player_spawn_position = vec2(64.0, 100.0);
 
         let map = Map::from(map::TiledMap::new("assets/maps/test_tiled_map.json", &[
@@ -135,7 +138,7 @@ async fn main() {
         ]));
         // let map = Map::new("assets/maps/capstone_map.json");
 
-        GameState::add_node(map);
+        GameState::add_node(map, &player_id);
 
         Camera::add_node(player_spawn_position);
 
@@ -149,7 +152,7 @@ async fn main() {
             player_spawn_position,
             0,
             &["player_faction".to_string()],
-            Some(0),
+            Some(player_id),
         ));
 
         scene::add_node(generic_actor(

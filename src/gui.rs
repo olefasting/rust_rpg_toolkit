@@ -1,23 +1,28 @@
+use macroquad::prelude::*;
+
 mod inventory;
 mod character;
 
-use macroquad::prelude::*;
+pub mod theme;
 
-use inventory::draw_inventory_window;
-use character::draw_character_window;
+pub use inventory::draw_inventory_window;
+pub use character::draw_character_window;
 
-use crate::nodes::{
-    GameState,
-    Actor,
+use crate::{
+    nodes::{
+        GameState,
+        Actor,
+    }
 };
 
 pub fn draw_gui() {
     let game_state = scene::find_node_by_type::<GameState>().unwrap();
-    let mut player = Actor::find_local_player_actor().unwrap();
-    if game_state.show_character_window {
-        draw_character_window(&*player);
-    }
-    if game_state.show_inventory_window {
-        draw_inventory_window(&mut *player);
+    if let Some(mut player) = Actor::find_by_player_id(&game_state.local_player_id) {
+        if game_state.show_character_window {
+            draw_character_window(&*player);
+        }
+        if game_state.show_inventory_window {
+            draw_inventory_window(&mut *player);
+        }
     }
 }

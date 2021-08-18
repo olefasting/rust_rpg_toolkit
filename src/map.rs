@@ -13,10 +13,18 @@ pub use tiled::{
     TiledTileset,
 };
 
-use crate::{get_global, Resources, Collider, generate_id, MAP_LAYER_BARRIERS, MAP_LAYER_SOLIDS, draw_aligned_text, MAP_LAYER_GROUND};
+use crate::{
+    Resources,
+    Collider,
+    generate_id,
+    MAP_LAYER_BARRIERS,
+    MAP_LAYER_SOLIDS,
+    draw_aligned_text,
+    MAP_LAYER_GROUND,
+    get_global,
+};
 use crate::physics::beam_collision_check;
 use crate::render::{Viewport, HorizontalAlignment};
-use crate::globals::DebugMode;
 use crate::math::URect;
 
 #[derive(Debug, Clone)]

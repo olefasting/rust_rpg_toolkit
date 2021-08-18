@@ -1,10 +1,16 @@
-use macroquad_tiled as tiled;
-use std::collections::HashMap;
-use std::iter::FromIterator;
-
-use crate::{get_global, Resources};
 use macroquad::prelude::Texture2D;
-use std::ops::Deref;
+use macroquad_tiled as tiled;
+
+use std::{
+    collections::HashMap,
+    ops::Deref,
+    iter::FromIterator,
+};
+
+use crate::{
+    get_global,
+    Resources,
+};
 
 pub struct TiledMap {
     pub tiled_map: tiled::Map,

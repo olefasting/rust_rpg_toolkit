@@ -1,6 +1,8 @@
 use macroquad::prelude::*;
 
-use crate::Camera;
+use crate::{
+    Camera,
+};
 
 #[derive(Debug, Copy, Clone)]
 pub struct Viewport {

@@ -4,10 +4,8 @@ use macroquad::{
 
 use crate::{
     get_global,
-    render::Viewport,
-    nodes::{
-        GameState,
-    },
+    Viewport,
+    GameState,
 };
 use crate::nodes::{
     ActorController,
@@ -24,7 +22,7 @@ pub fn get_mouse_in_world_space() -> Vec2 {
     viewport.to_world_space(get_mouse_position())
 }
 
-pub fn apply_local_input(controller: &mut ActorController) {
+pub fn apply_local_input(player_id: &str, controller: &mut ActorController) {
     let coords = get_mouse_in_world_space();
     controller.primary_target = if is_mouse_button_down(MouseButton::Left) {
         Some(coords)

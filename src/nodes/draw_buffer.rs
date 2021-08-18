@@ -14,12 +14,17 @@ use macroquad::{
     prelude::*,
 };
 
-use crate::{Camera, get_global, Resources, render::Viewport, draw_aligned_text};
-use crate::physics::Collider;
-use crate::math::Circle;
-use crate::render::HorizontalAlignment;
-use crate::nodes::Actor;
-use std::ops::Deref;
+use crate::{
+    get_global,
+    Camera,
+    Resources,
+    Viewport,
+    draw_aligned_text,
+    HorizontalAlignment,
+    physics::Collider,
+    math::Circle,
+    Actor,
+};
 
 pub enum Bounds {
     Point(Vec2),

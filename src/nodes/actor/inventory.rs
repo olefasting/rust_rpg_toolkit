@@ -11,7 +11,6 @@ use macroquad::{
 use crate::{
     ItemParams,
     Item,
-    get_global,
     render::Sprite,
     nodes::actor::Ability,
     generate_id,

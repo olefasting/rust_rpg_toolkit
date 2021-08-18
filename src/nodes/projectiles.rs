@@ -11,15 +11,24 @@ use macroquad::{
     prelude::*,
 };
 
-use crate::{nodes::{
-    Camera,
-    Actor,
-    GameState,
-}, physics::Collider, get_global, get_mouse_position, render::{
-    Viewport,
-    SpriteAnimationParams,
-    SpriteAnimationPlayer,
-}, map::Map, MAP_LAYER_SOLIDS, MAP_LAYER_BARRIERS};
+use crate::{
+    get_global,
+    nodes::{
+        Camera,
+        Actor,
+        GameState,
+    },
+    physics::Collider,
+    get_mouse_position,
+    render::{
+        Viewport,
+        SpriteAnimationParams,
+        SpriteAnimationPlayer,
+    },
+    map::Map,
+    MAP_LAYER_SOLIDS,
+    MAP_LAYER_BARRIERS,
+};
 
 pub enum ProjectileKind {
     Bullet,
