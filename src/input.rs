@@ -19,10 +19,13 @@ pub fn get_mouse_position() -> Vec2 {
     vec2(x, y)
 }
 
-pub fn apply_local_player_input(controller: &mut ActorController) {
-    let camera= scene::find_node_by_type::<Camera>().unwrap();
-    let viewport = camera.get_viewport();
-    let coords = viewport.get_mouse_in_world();
+pub fn get_mouse_in_world_space() -> Vec2 {
+    let viewport = get_global::<Viewport>();
+    viewport.to_world_space(get_mouse_position())
+}
+
+pub fn apply_local_input(controller: &mut ActorController) {
+    let coords = get_mouse_in_world_space();
     controller.primary_target = if is_mouse_button_down(MouseButton::Left) {
         Some(coords)
     } else {
@@ -33,7 +36,6 @@ pub fn apply_local_player_input(controller: &mut ActorController) {
     } else {
         None
     };
-
     controller.direction = Vec2::ZERO;
     if is_key_down(KeyCode::Up) || is_key_down(KeyCode::W) {
         controller.direction.y -= 1.0;
@@ -47,7 +49,6 @@ pub fn apply_local_player_input(controller: &mut ActorController) {
     if is_key_down(KeyCode::Right) || is_key_down(KeyCode::D) {
         controller.direction.x += 1.0;
     }
-
     controller.is_sprinting = is_key_down(KeyCode::LeftShift);
 
     controller.is_interacting = is_key_released(KeyCode::E);

@@ -1,3 +1,5 @@
+use std::ops::Sub;
+
 use macroquad::{
     experimental::{
         scene::{
@@ -11,14 +13,11 @@ use macroquad::{
 };
 
 use crate::{set_global, render::{
-    get_aspect_ratio,
-    to_world_space,
-    to_screen_space,
     Viewport,
 }, nodes::{
     Actor,
 }, get_mouse_position, draw_aligned_text, get_global};
-use std::ops::Sub;
+
 use crate::render::HorizontalAlignment;
 
 pub struct Camera {
@@ -30,8 +29,8 @@ pub struct Camera {
 
 impl Camera {
     const FOLLOW_THRESHOLD_FRACTION: f32 = 0.4;
-    const FOLLOW_END_AT_DISTANCE: f32 = 25.0;
-    const FOLLOW_LERP_FRACTION: f32 = 0.02;
+    const FOLLOW_END_AT_DISTANCE: f32 = 20.0;
+    const FOLLOW_LERP_FRACTION: f32 = 0.015;
 
     const DEFAULT_SCALE: f32 = 3.0;
 
@@ -48,18 +47,12 @@ impl Camera {
         scene::add_node(Camera::new(position))
     }
 
-    pub fn get_ratio(&self) -> f32 {
-        get_aspect_ratio()
-    }
-
     pub fn get_viewport(&self) -> Viewport {
-        let width = screen_width() / self.scale;
-        let height = screen_height() / self.scale;
+        let size = vec2(screen_width() / self.scale, screen_height() / self.scale);
+        let position = self.position - size / 2.0;
         Viewport {
-            x: self.position.x - (width / 2.0),
-            y: self.position.y - (height / 2.0),
-            width,
-            height,
+            position,
+            size,
             scale: self.scale,
         }
     }
@@ -78,17 +71,20 @@ impl Node for Camera {
         let actor = Actor::find_local_player_actor().unwrap();
         let viewport = node.get_viewport();
         let bounds = {
-            let size = vec2(viewport.width * Self::FOLLOW_THRESHOLD_FRACTION, viewport.height * Self::FOLLOW_THRESHOLD_FRACTION);
-            Rect::new(viewport.x + viewport.width / 2.0 - size.x / 2.0, viewport.y + viewport.height / 2.0 - size.y / 2.0, size.x, size.y)
+            let size = viewport.size * Self::FOLLOW_THRESHOLD_FRACTION;
+            let center = viewport.get_center();
+            Rect::new(center.x - size.x / 2.0, center.y - size.y / 2.0, size.x, size.y)
         };
 
         if node.is_following || bounds.contains(actor.body.position) == false {
-            let distance = actor.body.position.sub(node.position);
-            if distance.length() <= Self::FOLLOW_END_AT_DISTANCE {
+            let difference = actor.body.position.sub(node.position);
+            if difference.length() <= Self::FOLLOW_END_AT_DISTANCE {
                 node.is_following = false;
                 return;
             }
-            node.position += distance * Self::FOLLOW_LERP_FRACTION;
+
+            node.is_following = true;
+            node.position += difference * Self::FOLLOW_LERP_FRACTION;
         }
 
         scene::set_camera_1(Camera2D {
@@ -100,6 +96,6 @@ impl Node for Camera {
         });
     }
 
-    fn draw(_node: RefMut<Self>) where Self: Sized {
+    fn draw(node: RefMut<Self>) where Self: Sized {
     }
 }

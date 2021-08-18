@@ -1,14 +1,11 @@
 pub use sprite::{
     Sprite,
 };
-pub use sprite_animation::{
+pub use animation::{
     SpriteAnimationPlayer,
     SpriteAnimationParams,
 };
 pub use viewport::{
-    get_aspect_ratio,
-    to_screen_space,
-    to_world_space,
     Viewport,
 };
 pub use helpers::{
@@ -17,7 +14,7 @@ pub use helpers::{
 };
 
 mod sprite;
-mod sprite_animation;
+mod animation;
 mod viewport;
 
 pub mod text;

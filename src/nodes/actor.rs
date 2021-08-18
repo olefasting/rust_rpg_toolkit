@@ -17,7 +17,7 @@ use macroquad::{
     prelude::*,
 };
 
-use crate::input::apply_local_player_input;
+use crate::input::apply_local_input;
 
 mod controller;
 mod inventory;
@@ -279,7 +279,7 @@ impl Node for Actor {
             ActorControllerKind::Player { id } => {
                 let local_player = get_global::<LocalPlayer>();
                 if id == local_player.id {
-                    apply_local_player_input(&mut node.controller);
+                    apply_local_input(&mut node.controller);
                 } else {
                     // TODO: Remote player (?)
                 }

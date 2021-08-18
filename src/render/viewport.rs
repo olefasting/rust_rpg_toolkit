@@ -2,50 +2,35 @@ use macroquad::prelude::*;
 
 use crate::Camera;
 
-pub fn get_aspect_ratio() -> f32 {
-    screen_width() / screen_height()
-}
-
-pub fn to_screen_space(coords: Vec2, viewport_pos: Vec2, scale: f32) -> Vec2 {
-    (coords / scale) - viewport_pos
-}
-
-pub fn to_world_space(coords: Vec2, viewport_pos: Vec2, scale: f32) -> Vec2 {
-    viewport_pos + (coords / scale)
-}
-
 #[derive(Copy, Clone)]
 pub struct Viewport {
-    pub x: f32,
-    pub y: f32,
-    pub width: f32,
-    pub height: f32,
+    pub position: Vec2,
+    pub size: Vec2,
     pub scale: f32,
 }
 
 impl Viewport {
     pub const FRUSTUM_PADDING: f32 = 25.0;
 
-    pub fn to_screen(&self, coords: Vec2) -> Vec2 {
-        to_screen_space(coords,vec2(self.x, self.y), self.scale)
+    pub fn to_screen_space(&self, position: Vec2) -> Vec2 {
+        (position / self.scale) - self.position
     }
 
-    pub fn to_world(&self, coords: Vec2) -> Vec2 {
-        to_world_space(coords,vec2(self.x, self.y), self.scale)
-    }
-
-    pub fn get_mouse_in_world(&self) -> Vec2 {
-        let (x, y) = mouse_position();
-        self.to_world(vec2(x, y))
+    pub fn to_world_space(&self, position: Vec2) -> Vec2 {
+        self.position + (position / self.scale)
     }
 
     pub fn get_rect(&self) -> Rect {
         Rect::new(
-            self.x,
-            self.y,
-            self.width,
-            self.height,
+            self.position.x,
+            self.position.y,
+            self.size.x,
+            self.size.y,
         )
+    }
+
+    pub fn get_center(&self) -> Vec2 {
+        self.position + self.size / 2.0
     }
 
     pub fn get_frustum(&self) -> Rect {
