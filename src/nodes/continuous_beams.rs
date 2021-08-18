@@ -11,6 +11,7 @@ use macroquad::{
 use crate::{nodes::Actor, physics::beam_collision_check, Map, MAP_LAYER_SOLIDS, MAP_LAYER_BARRIERS};
 use std::ops::Sub;
 use crate::nodes::GameState;
+use crate::physics::get_beam_end;
 
 pub struct ContinuousBeam {
     pub actor_id: String,
@@ -56,8 +57,7 @@ impl ContinuousBeams {
 impl Node for ContinuousBeams {
     fn fixed_update(mut node: RefMut<Self>) {
         for mut beam in &mut node.active {
-            let game_state = scene::find_node_by_type::<GameState>().unwrap();
-            let mut cutoff = game_state.map.get_beam_collision_point(
+            let mut cutoff = get_beam_end(
                 beam.origin,
                 beam.end,
                 beam.width,

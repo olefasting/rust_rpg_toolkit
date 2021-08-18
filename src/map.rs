@@ -18,7 +18,6 @@ use crate::physics::beam_collision_check;
 use crate::render::{Viewport, HorizontalAlignment};
 use crate::globals::DebugMode;
 use crate::math::URect;
-use std::thread::current;
 
 #[derive(Debug, Clone)]
 pub struct Map {
@@ -38,12 +37,19 @@ impl Map {
         Self::from(map)
     }
 
-    pub fn to_grid_coords(&self, rect: Rect) -> URect {
+    pub fn to_grid_rect(&self, rect: Rect) -> URect {
         URect::new(
             ((rect.x - self.world_offset.x) as u32 / self.tile_size.x as u32).clamp(0, self.grid_size.x),
             ((rect.y - self.world_offset.y) as u32 / self.tile_size.y as u32).clamp(0, self.grid_size.y),
             ((rect.w / self.tile_size.x) as u32 + 1).clamp(0, self.grid_size.x),
             ((rect.h / self.tile_size.y) as u32 + 1).clamp(0, self.grid_size.y),
+        )
+    }
+
+    pub fn to_grid_coords(&self, position: Vec2) -> UVec2 {
+        uvec2(
+            ((position.x - self.world_offset.x) as u32 / self.tile_size.x as u32).clamp(0, self.grid_size.x),
+            ((position.y - self.world_offset.y) as u32 / self.tile_size.y as u32).clamp(0, self.grid_size.y),
         )
     }
 
@@ -100,43 +106,6 @@ impl Map {
                     );
                 }
             }
-        }
-    }
-
-    pub fn get_beam_collision_point(&self, origin: Vec2, end: Vec2, width: f32, tolerance: f32, layer_ids: &[&str]) -> Vec2 {
-        let coords = (
-            uvec2(
-                ((origin.x + self.world_offset.x) / self.tile_size.x) as u32,
-                ((origin.y + self.world_offset.y) / self.tile_size.y) as u32,
-            ),
-            uvec2(
-                ((end.x + self.world_offset.x) / self.tile_size.x) as u32,
-                ((end.y + self.world_offset.y) / self.tile_size.y) as u32,
-            ),
-        );
-        let ord_x = if coords.0.x > coords.1.x { (coords.1.x, coords.0.x) } else { (coords.0.x, coords.1.x) };
-        let ord_y = if coords.0.y > coords.1.y { (coords.1.y, coords.0.y) } else { (coords.0.y, coords.1.y) };
-        let mut collisions = Vec::new();
-        for x in ord_x.0..ord_x.1 {
-            for y in ord_y.0..ord_y.1 {
-                let position = vec2(
-                    (x as f32 * self.tile_size.x) + self.tile_size.x / 2.0,
-                    (y as f32 * self.tile_size.y) + self.tile_size.y / 2.0,
-                );
-                for layer_id in layer_ids {
-                    if self.get_tile(layer_id, x, y).is_some() {
-                        if beam_collision_check(position, origin, end, width, tolerance) {
-                            collisions.push(position);
-                        }
-                    }
-                }
-            }
-        }
-        if collisions.len() > 0 {
-            collisions.sort_by(|a, b| a.distance(origin).partial_cmp(&b.distance(origin)).unwrap());
-            *collisions.first().unwrap_or(&end)
-        } else {
-            end
         }
     }
 }

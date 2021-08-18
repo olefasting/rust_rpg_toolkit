@@ -9,4 +9,7 @@ pub use physics_body::{
 
 pub use collider::Collider;
 
-pub use beam::beam_collision_check;
+pub use beam::{
+    beam_collision_check,
+    get_beam_end,
+};

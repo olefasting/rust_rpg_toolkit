@@ -39,7 +39,7 @@ impl GameState {
 impl Node for GameState {
     fn draw(mut node: RefMut<Self>) {
         let viewport = get_global::<Viewport>();
-        let rect = node.map.to_grid_coords(viewport.get_frustum());
+        let rect = node.map.to_grid_rect(viewport.get_frustum());
         node.map.draw(&[MAP_LAYER_GROUND, MAP_LAYER_BARRIERS, MAP_LAYER_SOLIDS], Some(rect));
     }
 }
