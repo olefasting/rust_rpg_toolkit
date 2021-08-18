@@ -46,7 +46,7 @@ impl ActorStats {
             is_static: false,
             ..Default::default()
         };
-        stats.update_derived(true);
+        stats.update();
         stats
     }
 
@@ -74,22 +74,21 @@ impl ActorStats {
         }
     }
 
-    pub fn update_derived(&mut self, max_vitals: bool) {
+    pub fn recalculate_derived(&mut self) {
         if !self.is_static {
             self.max_health = (self.constitution + self.strength / 4 + self.willpower / 4) as f32 * 100.0;
             self.max_stamina = (self.constitution + self.dexterity / 4 + self.willpower / 4) as f32 * 100.0;
             self.max_energy = (self.willpower + self.constitution / 2) as f32 * 100.0;
-            if max_vitals {
-                self.current_health = self.max_health;
-                self.current_stamina = self.max_stamina;
-                self.current_energy = self.max_energy;
-            }
             self.health_regen = (self.constitution + self.strength / 4 + self.willpower / 4) as f32 * 0.1;
             self.stamina_regen = (self.constitution + self.dexterity / 4 + self.willpower / 4) as f32 * 8.0;
             self.energy_regen = (self.willpower + self.constitution / 2) as f32 * 0.5;
             self.move_speed = (self.dexterity + self.strength / 4 + self.willpower / 4) as f32 * 0.1;
             self.carry_capacity = (self.strength + self.constitution / 4 + self.willpower / 4) as f32 * 50.0;
         }
+    }
+
+    pub fn update(&mut self) {
+        self.recalculate_derived();
         let dt = get_frame_time();
         if self.current_health < self.max_health {
             self.current_health += self.health_regen * dt;
@@ -120,6 +119,13 @@ impl ActorStats {
                 self.current_energy = self.max_energy;
             }
         }
+    }
+
+    pub fn restore_vitals(&mut self) {
+        self.recalculate_derived();
+        self.current_health = self.max_health;
+        self.current_stamina = self.max_stamina;
+        self.current_energy = self.max_energy;
     }
 }
 

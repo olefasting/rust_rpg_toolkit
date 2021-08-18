@@ -9,7 +9,9 @@ use macroquad::{
     prelude::*,
 };
 
-use crate::{physics::Collider, GameState, Map, MAP_SOLID_AND_BARRIER_LAYERS};
+use crate::{physics::Collider, GameState, Map, get_global, MAP_LAYER_SOLIDS, MAP_LAYER_BARRIERS};
+use crate::globals::DebugMode;
+use std::ops::Deref;
 
 pub type PhysicsObject = (HandleUntyped, Lens<PhysicsBody>);
 
@@ -32,12 +34,15 @@ impl PhysicsBody {
     }
 
     pub fn debug_draw(&self) {
-        if let Some(collider) = self.get_offset_collider() {
-            match collider {
-                Collider::Rectangle(rect) => draw_rectangle_lines(
-                    rect.x - (rect.w / 2.0),rect.y - (rect.h / 2.0), rect.w, rect.h, 4.0, color::RED),
-                Collider::Circle(circle) => draw_circle_lines(
-                    circle.x, circle.y, circle.r, 4.0, color::RED)
+        let debug_mode  = get_global::<DebugMode>();
+        if debug_mode.is_enabled {
+            if let Some(collider) = self.get_offset_collider() {
+                match collider {
+                    Collider::Rectangle(rect) => draw_rectangle_lines(
+                        rect.x, rect.y, rect.w, rect.h, 4.0, debug_mode.color),
+                    Collider::Circle(circle) => draw_circle_lines(
+                        circle.x, circle.y, circle.r, 4.0, debug_mode.color)
+                }
             }
         }
     }
@@ -53,9 +58,15 @@ impl PhysicsBody {
     pub fn integrate(&mut self) {
         if let Some(collider) = self.get_offset_collider() {
             let game_state = scene::find_node_by_type::<GameState>().unwrap();
-            if game_state.map.is_tile_at_collider(collider.offset(self.velocity), MAP_SOLID_AND_BARRIER_LAYERS) {
-                return;
+            let rect = game_state.map.to_grid_coords(Rect::from(collider.offset(self.velocity)));
+            for layer_id in &[MAP_LAYER_SOLIDS, MAP_LAYER_BARRIERS] {
+                for (_, _, tile) in game_state.map.get_tiles(layer_id, Some(rect)) {
+                    if tile.is_some() {
+                        return;
+                    }
+                }
             }
+
             for (_, mut body_lens) in scene::find_nodes_with::<PhysicsObject>() {
                 if let Some(body) = body_lens.get() {
                     if let Some(other_collider) = body.get_offset_collider() {
@@ -65,6 +76,7 @@ impl PhysicsBody {
                     }
                 }
             }
+
             self.position += self.velocity;
         }
     }

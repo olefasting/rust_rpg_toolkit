@@ -16,7 +16,6 @@ pub use globals::{
     set_global,
     try_get_global,
 };
-use globals::LocalPlayer;
 pub use input::get_mouse_position;
 pub use map::{
     Map,
@@ -61,16 +60,11 @@ pub mod math;
 pub mod gui;
 pub mod json;
 
-pub const MAP_GROUND_LAYER: &'static str = "ground";
-pub const MAP_SOLIDS_LAYER: &'static str = "solids";
-pub const MAP_BARRIERS_LAYER: &'static str = "barriers";
-pub const MAP_ITEMS_LAYER: &'static str = "items";
-pub const MAP_SPAWN_POINTS_LAYER: &'static str = "spawn_points";
-
-pub const MAP_SOLID_AND_BARRIER_LAYERS: &'static [&'static str] = &[
-    MAP_SOLIDS_LAYER,
-    MAP_BARRIERS_LAYER,
-];
+pub const MAP_LAYER_GROUND: &'static str = "ground";
+pub const MAP_LAYER_SOLIDS: &'static str = "solids";
+pub const MAP_LAYER_BARRIERS: &'static str = "barriers";
+pub const MAP_LAYER_ITEMS: &'static str = "items";
+pub const MAP_LAYER_SPAWN_POINTS: &'static str = "spawn_points";
 
 pub fn generate_id() -> String {
     nanoid::nanoid!()
@@ -83,11 +77,12 @@ fn generic_actor(name: &str, position: Vec2, skin_id: u32, factions: &[String], 
         None => ActorControllerKind::Computer,
     };
     let resources = get_global::<Resources>();
-    let params = resources.actors.get(&format!("generic_actor_0{}", skin_id+1)).unwrap();
-    Actor::new(position, controller_kind, ActorParams {
+    let prototype = resources.actors.get(&format!("generic_actor_0{}", skin_id+1)).unwrap();
+    let params = ActorParams::from_prototype(position, prototype.clone());
+    Actor::new(controller_kind, ActorParams {
         name: name.to_string(),
         factions: factions.to_vec(),
-        ..params.clone()
+        ..params
     })
 }
 
@@ -127,9 +122,8 @@ async fn main() {
     }
 
     {
-        set_global(LocalPlayer {
-            id: 0,
-        });
+        set_global(globals::DebugMode { color: color::RED, is_enabled: true });
+        set_global(globals::LocalPlayer { id: 0 });
 
         let player_spawn_position = vec2(64.0, 100.0);
 

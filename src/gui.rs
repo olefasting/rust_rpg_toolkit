@@ -13,7 +13,7 @@ use crate::nodes::{
 
 pub fn draw_gui() {
     let game_state = scene::find_node_by_type::<GameState>().unwrap();
-    let mut player = Actor::find_local_player().unwrap();
+    let mut player = Actor::find_local_player_actor().unwrap();
     if game_state.show_character_window {
         draw_character_window(&*player);
     }

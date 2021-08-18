@@ -24,15 +24,15 @@ pub fn draw_inventory_window(player: &mut Actor) {
                         for item in &items {
                             ui.label(None, &item.params.name);
                             if ui.button(None, "Equip") {
-                                if item.params.ability_params.action_kind == ActorAbility::PRIMARY_ABILITY.to_string() {
+                                if item.params.ability.action_kind == ActorAbility::PRIMARY_ABILITY.to_string() {
                                     player.primary_ability = Some(item.to_actor_ability());
-                                } else if item.params.ability_params.action_kind == ActorAbility::SECONDARY_ABILITY.to_string() {
+                                } else if item.params.ability.action_kind == ActorAbility::SECONDARY_ABILITY.to_string() {
                                     player.secondary_ability = Some(item.to_actor_ability());
                                 }
                             }
                             if ui.button(None, "Drop") {
                                 let position = player.body.position;
-                                player.inventory.drop_item(&item.instance_id, position);
+                                player.inventory.drop(&item.id, position);
                             }
                         }
                     });
@@ -45,15 +45,15 @@ pub fn draw_inventory_window(player: &mut Actor) {
                         for item in &items {
                             ui.label(None, &item.params.name);
                             if ui.button(None, "Equip") {
-                                if item.params.ability_params.action_kind == ActorAbility::PRIMARY_ABILITY.to_string() {
+                                if item.params.ability.action_kind == ActorAbility::PRIMARY_ABILITY.to_string() {
                                     player.primary_ability = Some(item.to_actor_ability());
-                                } else if item.params.ability_params.action_kind == ActorAbility::SECONDARY_ABILITY.to_string() {
+                                } else if item.params.ability.action_kind == ActorAbility::SECONDARY_ABILITY.to_string() {
                                     player.secondary_ability = Some(item.to_actor_ability());
                                 }
                             }
                             if ui.button(None, "Drop") {
                                 let position = player.body.position;
-                                player.inventory.drop_item(&item.instance_id, position);
+                                player.inventory.drop(&item.id, position);
                             }
                         }
                     });

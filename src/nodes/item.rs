@@ -15,43 +15,103 @@ use crate::{
     generate_id,
     render::{
         Sprite,
-        SpriteParams,
     },
 };
 
 use crate::nodes::actor::ActorAbilityParams;
 use crate::nodes::draw_buffer::{DrawBuffer, BufferedDraw, Bounds};
 
-#[derive(Clone, Serialize, Deserialize)]
-pub struct ItemParams {
+#[derive(Clone)]
+pub struct ItemPrototype {
     pub id: String,
-    pub kind: String,
     pub name: String,
     pub description: String,
+    pub kind: String,
     pub weight: f32,
-    pub ability_params: ActorAbilityParams,
-    pub sprite_params: SpriteParams,
+    pub ability: ActorAbilityParams,
+    pub sprite: Sprite,
+}
+
+impl ItemPrototype {
+    pub fn from_params(id: Option<&str>, params: ItemParams) -> Self {
+        let id = match id {
+            Some(id) => id.to_string(),
+            None => generate_id(),
+        };
+        ItemPrototype {
+            id,
+            name: params.name,
+            description: params.description,
+            kind: params.kind,
+            weight: params.weight,
+            ability: params.ability,
+            sprite: params.sprite,
+        }
+    }
+}
+
+#[derive(Clone)]
+pub struct ItemParams {
+    pub name: String,
+    pub description: String,
+    pub position: Option<Vec2>,
+    pub kind: String,
+    pub weight: f32,
+    pub ability: ActorAbilityParams,
+    pub sprite: Sprite,
+}
+
+impl From<ItemPrototype> for ItemParams {
+    fn from(prototype: ItemPrototype) -> Self {
+        ItemParams {
+            name: prototype.name,
+            description: prototype.description,
+            position: Default::default(),
+            kind: prototype.kind,
+            weight: prototype.weight,
+            ability: prototype.ability,
+            sprite: prototype.sprite,
+        }
+    }
+}
+
+impl From<&Item> for ItemParams {
+    fn from(item: &Item) -> Self {
+        ItemParams {
+            name: item.name.clone(),
+            description: item.description.clone(),
+            position: Some(item.position),
+            kind: item.kind.clone(),
+            weight: item.weight,
+            ability: item.ability.clone(),
+            sprite: item.sprite.clone(),
+        }
+    }
 }
 
 impl Default for ItemParams {
     fn default() -> Self {
         ItemParams {
-            id: generate_id(),
-            kind: Item::MISC_KIND.to_string(),
             name: "Unnamed Item".to_string(),
             description: "".to_string(),
+            position: Default::default(),
+            kind: Item::MISC_KIND.to_string(),
             weight: 0.1,
-            ability_params: Default::default(),
-            sprite_params: Default::default(),
+            ability: Default::default(),
+            sprite: Default::default(),
         }
     }
 }
 
 #[derive(Clone)]
 pub struct Item {
-    pub instance_id: String,
+    pub id: String,
+    pub name: String,
+    pub description: String,
     pub position: Vec2,
-    pub params: ItemParams,
+    pub kind: String,
+    pub weight: f32,
+    ability: ActorAbilityParams,
     sprite: Sprite,
 }
 
@@ -75,22 +135,21 @@ impl Item {
     pub const MISC_KIND: &'static str = "misc";
     pub const QUEST_KIND: &'static str = "quest";
 
-    pub fn new(position: Vec2, params: ItemParams) -> Self {
-        let id = generate_id();
-        let sprite = Sprite::new(params.sprite_params.clone());
+    pub fn new(params: ItemParams) -> Self {
         Item {
-            instance_id: id.clone(),
-            position,
-            params: ItemParams {
-                id,
-                ..params
-            },
-            sprite,
+            id: generate_id(),
+            position: params.position.unwrap_or_default(),
+            kind: params.kind,
+            name: params.name,
+            description: params.description,
+            weight: params.weight,
+            ability: params.ability,
+            sprite: params.sprite,
         }
     }
 
-    pub fn add_node(position: Vec2, params: ItemParams) -> Handle<Self> {
-        scene::add_node(Self::new(position, params))
+    pub fn add_node(params: ItemParams) -> Handle<Self> {
+        scene::add_node(Self::new(params))
     }
 }
 

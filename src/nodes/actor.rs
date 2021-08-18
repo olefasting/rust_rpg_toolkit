@@ -1,4 +1,4 @@
-use std::ops::Sub;
+use std::ops::{Sub, Deref};
 
 use serde::{
     Serialize,
@@ -45,36 +45,85 @@ use crate::{get_global, render::{
     PhysicsBody,
     PhysicsObject,
     Collider,
-}, json, generate_id, draw_aligned_text};
-use crate::nodes::Item;
+}, json, generate_id, draw_aligned_text, Resources};
+use crate::nodes::{Item, ItemParams};
 use crate::render::Viewport;
 use crate::nodes::draw_buffer::{DrawBuffer, BufferedDraw, Bounds};
+use crate::globals::DebugMode;
+use crate::nodes::actor::inventory::ActorInventoryEntry;
+use std::any::Any;
+use crate::nodes::item::ItemPrototype;
+use std::fs::read_to_string;
 
-#[derive(Clone, Serialize, Deserialize)]
-pub struct ActorParams {
+#[derive(Clone)]
+pub struct ActorPrototype {
     pub id: String,
-    pub position: Option<json::Vec2>,
     pub name: String,
-    pub stats: json::ActorStats,
+    pub stats: ActorStats,
     pub factions: Vec<String>,
-    pub collider: Option<json::Collider>,
+    pub collider: Option<Collider>,
     pub inventory: Vec<String>,
-    pub sprite_animation_params: SpriteAnimationParams,
-    pub is_prototype: Option<bool>,
+    pub sprite_animation: SpriteAnimationParams,
+}
+
+#[derive(Clone)]
+pub struct ActorParams {
+    pub position: Vec2,
+    pub name: String,
+    pub stats: ActorStats,
+    pub factions: Vec<String>,
+    pub collider: Option<Collider>,
+    pub inventory: Vec<ItemParams>,
+    pub sprite_animation: SpriteAnimationParams,
+}
+
+impl ActorParams {
+    pub fn from_prototype(position: Vec2, prototype: ActorPrototype) -> Self {
+        let resources = get_global::<Resources>();
+        let mut stats = prototype.stats;
+        stats.restore_vitals();
+        ActorParams {
+            position,
+            name: prototype.name,
+            stats,
+            factions: prototype.factions,
+            collider: prototype.collider,
+            inventory: prototype.inventory.into_iter().filter_map(|item_id| {
+                if let Some(item_prototype) = resources.items.get(&item_id) {
+                    Some(ItemParams::from(item_prototype.clone()))
+                } else {
+                    None
+                }
+            }) .collect(),
+            sprite_animation: prototype.sprite_animation,
+        }
+    }
 }
 
 impl Default for ActorParams {
     fn default() -> Self {
         ActorParams {
-            id: generate_id(),
-            position: None,
+            position: Vec2::ZERO,
             name: "Unnamed Actor".to_string(),
             stats: Default::default(),
             factions: Vec::new(),
             collider: None,
             inventory: Vec::new(),
-            sprite_animation_params: Default::default(),
-            is_prototype: None,
+            sprite_animation: Default::default(),
+        }
+    }
+}
+
+impl From<Actor> for ActorParams {
+    fn from(actor: Actor) -> Self {
+        ActorParams {
+            position: actor.body.position,
+            name: actor.name,
+            stats: actor.stats,
+            factions: actor.factions,
+            collider: actor.body.collider,
+            inventory: actor.inventory.to_params(),
+            sprite_animation: actor.sprite_animation.to_sprite_params(),
         }
     }
 }
@@ -106,48 +155,23 @@ impl Actor {
     const PICK_UP_RADIUS: f32 = 36.0;
     const INTERACT_RADIUS: f32 = 36.0;
 
-    pub fn new(position: Vec2, controller_kind: ActorControllerKind, params: ActorParams) -> Self {
-        let mut stats = ActorStats::from(params.stats);
-        stats.update_derived(params.is_prototype.unwrap_or_default());
-        let collider = match params.collider {
-            Some(collider) => Some(Collider::from(collider)),
-            None => None,
-        };
-        let body = PhysicsBody::new(position, 0.0, collider);
+    pub fn new(controller_kind: ActorControllerKind, params: ActorParams) -> Self {
         Actor {
             id: generate_id(),
             name: params.name,
-            stats,
+            stats: params.stats,
             factions: params.factions,
-            body,
-            sprite_animation: SpriteAnimationPlayer::new(params.sprite_animation_params.clone()),
-            inventory: ActorInventory::new(&params.inventory),
+            body: PhysicsBody::new(params.position, 0.0, params.collider),
+            sprite_animation: SpriteAnimationPlayer::new(params.sprite_animation.clone()),
+            inventory: ActorInventory::from(params.inventory),
             primary_ability: None,
             secondary_ability: None,
             controller: ActorController::new(controller_kind),
         }
     }
 
-    pub fn add_node(position: Vec2, controller_kind: ActorControllerKind, params: ActorParams) -> Handle<Self> {
-        scene::add_node(Self::new(position, controller_kind, params))
-    }
-
-    pub fn to_actor_params(&self) -> ActorParams {
-        let collider = match self.body.collider {
-            Some(collider) => Some(json::Collider::from(collider)),
-            None => None,
-        };
-        ActorParams {
-            id: self.id.clone(),
-            position: Some(json::Vec2::from(self.body.position)),
-            name: self.name.clone(),
-            stats: json::ActorStats::from(self.stats.clone()),
-            factions: self.factions.clone(),
-            collider,
-            inventory: self.inventory.to_item_ids(),
-            sprite_animation_params: self.sprite_animation.to_sprite_params(),
-            is_prototype: None,
-        }
+    pub fn add_node(controller_kind: ActorControllerKind, params: ActorParams) -> Handle<Self> {
+        scene::add_node(Self::new(controller_kind, params))
     }
 
     pub fn take_damage(&mut self, _actor_id: &str, damage: f32) {
@@ -168,7 +192,7 @@ impl Actor {
         None
     }
 
-    pub fn find_local_player() -> Option<RefMut<Self>> {
+    pub fn find_local_player_actor() -> Option<RefMut<Self>> {
         let local_player = get_global::<LocalPlayer>();
         if let Some(actor) = Self::find_player(local_player.id) {
             Some(actor)
@@ -207,7 +231,7 @@ impl Actor {
         }
     }
 
-    pub fn is_local_player(&self) -> bool {
+    pub fn is_local_player_actor(&self) -> bool {
         if let ActorControllerKind::Player { id } = self.controller.kind {
             let local_player = get_global::<LocalPlayer>();
             id == local_player.id
@@ -227,10 +251,13 @@ impl Node for Actor {
             node.handle().untyped(),
             node.handle().lens(|actor| &mut actor.body),
         ));
+
+        let mut draw_buffer = scene::find_node_by_type::<DrawBuffer<Self>>().unwrap();
+        draw_buffer.buffered.push(node.handle());
     }
 
     fn update(mut node: RefMut<Self>) {
-        node.stats.update_derived(false);
+        node.stats.update();
         node.sprite_animation.update();
 
         if node.stats.current_health <= 0.0 {
@@ -306,13 +333,13 @@ impl Node for Actor {
             node.stats.move_speed
         };
 
-        node.body.integrate();
+       node.body.integrate();
 
         if node.controller.is_picking_up_items {
             let collider = Collider::circle(0.0, 0.0, Self::PICK_UP_RADIUS).offset(node.body.position);
             for item in scene::find_nodes_by_type::<Item>() {
                 if collider.contains(item.position) {
-                    node.inventory.pick_up_item(item);
+                    node.inventory.pick_up(item);
                 }
             }
         }
@@ -335,21 +362,17 @@ impl Node for Actor {
         }
     }
 
-    fn draw(node: RefMut<Self>) {
-        let mut draw_buffer = scene::find_node_by_type::<DrawBuffer<Self>>().unwrap();
-        draw_buffer.buffered.push(node.handle());
+    fn draw(mut node: RefMut<Self>) {
     }
 }
 
 impl BufferedDraw for Actor {
     fn buffered_draw(&mut self) {
-        {
-            //self.body.debug_draw();
-            let (position, rotation) = (self.body.position, self.body.rotation);
-            self.sprite_animation.draw(position, rotation);
-        }
+        self.body.debug_draw();
+        let (position, rotation) = (self.body.position, self.body.rotation);
+        self.sprite_animation.draw(position, rotation);
 
-        let is_local_player = self.is_local_player();
+        let is_local_player = self.is_local_player_actor();
         let (position, offset_y, alignment, length, height, border) = if is_local_player {
             let viewport = get_global::<Viewport>();
             let height = Self::HEALTH_BAR_HEIGHT * viewport.scale;

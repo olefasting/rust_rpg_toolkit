@@ -20,27 +20,22 @@ use crate::{
 
 #[derive(Clone)]
 pub struct ActorInventoryEntry {
-    pub instance_id: String,
+    pub id: String,
     pub params: ItemParams,
-    pub sprite: Sprite,
 }
 
 impl ActorInventoryEntry {
     pub fn new(params: ItemParams) -> Self {
-        let id = generate_id();
-        let sprite = Sprite::new(params.sprite_params.clone());
         ActorInventoryEntry {
-            instance_id: id.clone(),
-            params: ItemParams {
-                id,
-                ..params
-            },
-            sprite,
+            id: generate_id(),
+            params,
         }
     }
+}
 
+impl ActorInventoryEntry {
     pub fn to_actor_ability(&self) -> ActorAbility {
-        ActorAbility::new(self.params.ability_params.clone())
+        ActorAbility::new(self.params.ability.clone())
     }
 }
 
@@ -52,13 +47,9 @@ pub struct ActorInventory {
 impl ActorInventory {
     const DROP_ALL_POSITION_VARIANCE: f32 = 15.0;
 
-    pub fn new(items: &[String]) -> Self {
+    pub fn new() -> Self {
         ActorInventory {
-            items: items.iter().map(|item_id| {
-                let resources = get_global::<Resources>();
-                let params = resources.items.get(item_id).unwrap();
-                ActorInventoryEntry::new(params.clone())
-            }).collect(),
+            items: Vec::new(),
         }
     }
 
@@ -73,23 +64,36 @@ impl ActorInventory {
         }).collect()
     }
 
-    pub fn pick_up_item(&mut self, item: RefMut<Item>) {
-        self.items.push(ActorInventoryEntry::new(item.params.clone()));
+    pub fn pick_up(&mut self, item: RefMut<Item>) {
+        self.items.push(ActorInventoryEntry::new(ItemParams::from(&*item)));
         item.delete();
     }
 
-    pub fn drop_item(&mut self, item_id: &str, position: Vec2) -> bool {
-        let items: Vec<Handle<Item>> = self.items
-            .drain_filter(|entry| entry.instance_id == item_id)
-            .map(|entry| Item::add_node(Self::randomize_drop_position(position), entry.params))
+    pub fn drop(&mut self, item_id: &str, position: Vec2) -> bool {
+        let items: Vec<ActorInventoryEntry> = self.items
+            .drain_filter(|entry| {
+                if entry.id == item_id {
+                    let params = ItemParams {
+                        position: Some(Self::randomize_drop_position(position)),
+                        ..entry.params.clone()
+                    };
+                    Item::add_node(params);
+                    return true;
+                }
+                false
+            })
             .collect();
         !items.is_empty()
     }
 
     pub fn drop_all(&mut self, position: Vec2) {
         self.items.drain_filter(|entry| {
-            Item::add_node(Self::randomize_drop_position(position), entry.params.clone());
-           true
+            let params = ItemParams {
+                position: Some(Self::randomize_drop_position(position)),
+                ..entry.params.clone()
+            };
+            Item::add_node(params);
+            true
         });
     }
 
@@ -101,12 +105,8 @@ impl ActorInventory {
         weight
     }
 
-    pub fn clone_data(&self) -> Vec<ItemParams> {
+    pub fn to_params(&self) -> Vec<ItemParams> {
         self.items.iter().map(|entry| entry.params.clone()).collect()
-    }
-
-    pub fn to_item_ids(&self) -> Vec<String> {
-        self.items.iter().map(|entry| entry.params.id.clone()).collect()
     }
 
     fn randomize_drop_position(position: Vec2) -> Vec2 {
@@ -114,5 +114,13 @@ impl ActorInventory {
             rand::gen_range(position.x - Self::DROP_ALL_POSITION_VARIANCE, position.x + Self::DROP_ALL_POSITION_VARIANCE),
             rand::gen_range(position.y - Self::DROP_ALL_POSITION_VARIANCE, position.y + Self::DROP_ALL_POSITION_VARIANCE),
         )
+    }
+}
+
+impl From<Vec<ItemParams>> for ActorInventory {
+    fn from(params_vec: Vec<ItemParams>) -> Self {
+        ActorInventory {
+            items: params_vec.into_iter().map(|params| ActorInventoryEntry::new(params)).collect(),
+        }
     }
 }

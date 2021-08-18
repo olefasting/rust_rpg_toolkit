@@ -10,13 +10,17 @@ use macroquad::{
 
 pub use tiled::{
     TiledMap,
-    TiledTileset
+    TiledTileset,
 };
 
-use crate::{get_global, Resources, Collider, generate_id};
+use crate::{get_global, Resources, Collider, generate_id, MAP_LAYER_BARRIERS, MAP_LAYER_SOLIDS, draw_aligned_text, MAP_LAYER_GROUND};
 use crate::physics::beam_collision_check;
+use crate::render::{Viewport, HorizontalAlignment};
+use crate::globals::DebugMode;
+use crate::math::URect;
+use std::thread::current;
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct Map {
     pub world_offset: Vec2,
     pub grid_size: UVec2,
@@ -34,25 +38,52 @@ impl Map {
         Self::from(map)
     }
 
-    pub fn draw(&self) {
-        let resource = get_global::<Resources>();
-        let textures: HashMap<String, Texture2D> = HashMap::from_iter(
-            self.tilesets
-                .iter()
-                .map(|(_, tileset)| {
-                    (tileset.texture_id.clone(), resource.textures.get(&tileset.texture_id)
-                        .cloned()
-                        .expect(&format!("Unable to find texture with texture id '{}'!", tileset.texture_id)))
-                }));
+    pub fn to_grid_coords(&self, rect: Rect) -> URect {
+        URect::new(
+            ((rect.x as u32 - self.world_offset.x as u32) / self.tile_size.x).clamp(0, self.grid_size.x),
+            ((rect.y as u32 - self.world_offset.y as u32) / self.tile_size.y).clamp(0, self.grid_size.y),
+            (rect.w as u32 / self.tile_size.x).clamp(0, self.grid_size.x),
+            (rect.h as u32 / self.tile_size.y).clamp(0, self.grid_size.y),
+        )
+    }
 
-        for (_, layer) in &self.layers {
-            for i in 0..layer.tiles.len() {
-                if let Some(Some(tile)) = layer.tiles.get(i) {
-                    let (x, y) = (i as u32 % self.grid_size.x, i as u32 / self.grid_size.x);
+    pub fn get_tiles(&self, layer_id: &str, rect: Option<URect>) -> MapTileIterator {
+        let rect = rect.unwrap_or(URect::new(0, 0, self.grid_size.x, self.grid_size.y));
+        let layer = self.layers.get(layer_id)
+            .expect(&format!("No layer with id '{}'!", layer_id));
+        MapTileIterator::new(layer, rect)
+    }
+
+    pub fn get_tile(&self, layer_id: &str, x: u32, y: u32) -> &Option<MapTile> {
+        let layer = self.layers
+            .get(layer_id)
+            .expect(&format!("No layer with id '{}'!", layer_id));
+        if x >= self.grid_size.x || y >= self.grid_size.y {
+            return &None;
+        };
+        let i = (y * self.grid_size.x + x) as usize;
+        &layer.tiles[i]
+    }
+
+    pub fn draw(&self, layer_ids: &[&str], rect: Option<URect>) {
+        let resources = get_global::<Resources>();
+        for layer_id in layer_ids {
+            for (x, y, tile) in self.get_tiles(layer_id, rect) {
+                if let Some(tile) = tile {
+                    let texture = resources.textures
+                        .get(&tile.texture_id)
+                        .cloned()
+                        .expect(&format!("No texture with id '{}'!", tile.texture_id));
+
+                    let world_position = self.world_offset + vec2(
+                        x as f32 * self.tile_size.x as f32,
+                        y as f32 * self.tile_size.y as f32,
+                    );
+
                     draw_texture_ex(
-                        textures.get(&tile.texture_id).cloned().unwrap(),
-                        self.world_offset.x + x as f32 * self.tile_size.x as f32,
-                        self.world_offset.y + y as f32 * self.tile_size.y as f32,
+                        texture,
+                        world_position.x,
+                        world_position.y,
                         color::WHITE,
                         DrawTextureParams {
                             source: Some(Rect::new(
@@ -73,87 +104,6 @@ impl Map {
         }
     }
 
-    pub fn get_tile_at_coords(&self, coords: UVec2, layer_id: &str) -> Option<MapTile> {
-        if let Some((_, layer)) = self.layers.iter().find(|(_, layer)| layer.id == layer_id) {
-            if coords.x >= self.grid_size.x
-                || coords.y >= self.grid_size.y
-                || coords.x >= self.grid_size.x
-                || coords.y >= self.grid_size.y {
-                return None;
-            }
-            let i = coords.y * self.grid_size.x + coords.x;
-            layer.tiles.get(i as usize).cloned().unwrap_or(None)
-        } else {
-            None
-        }
-    }
-
-    pub fn get_tile_at_position(&self, position: Vec2, layer_id: &str) -> Option<MapTile> {
-        let offset_position = position - self.world_offset;
-        let map_size = self.grid_size * self.tile_size;
-        if offset_position.x < 0.0 || offset_position.x >= map_size.x as f32 || offset_position.y < 0.0 || offset_position.y >= map_size.y as f32 {
-            None
-        } else {
-            self.get_tile_at_coords(uvec2(offset_position.x as u32, offset_position.y as u32) / self.tile_size, layer_id)
-        }
-    }
-
-    pub fn is_tile_at_position(&self, position: Vec2, layer_ids: &[&str]) -> bool {
-        for layer_id in layer_ids {
-            if self.get_tile_at_position(position, layer_id).is_some() {
-                return true;
-            }
-        }
-        false
-    }
-
-    pub fn is_tile_at_collider(&self, collider: Collider, layer_ids: &[&str]) -> bool {
-        let offset_position = collider.get_position() - self.world_offset;
-        let map_size = self.grid_size * self.tile_size;
-        if offset_position.x < 0.0 || offset_position.x >= map_size.x as f32 || offset_position.y < 0.0 || offset_position.y >= map_size.y as f32 {
-            false
-        } else {
-            let coords = match collider {
-                Collider::Rectangle(rect) => {
-                    (uvec2(
-                        (offset_position.x / self.tile_size.x as f32 - (rect.w / self.tile_size.x as f32) / 2.0) as u32,
-                        (offset_position.y / self.tile_size.y as f32 - (rect.w / self.tile_size.y as f32) / 2.0) as u32,
-                    ),
-                     uvec2(
-                         (offset_position.x / self.tile_size.x as f32 + (rect.h / self.tile_size.x as f32) / 2.0) as u32,
-                         (offset_position.y / self.tile_size.y as f32 + (rect.h / self.tile_size.y as f32) / 2.0) as u32,
-                     ))
-                },
-                Collider::Circle(circle) => {
-                    (uvec2(
-                        (offset_position.x / self.tile_size.x as f32 - (circle.r / self.tile_size.x as f32)) as u32,
-                        (offset_position.y / self.tile_size.y as f32 - (circle.r / self.tile_size.y as f32)) as u32,
-                    ),
-                     uvec2(
-                         (offset_position.x / self.tile_size.x as f32 + (circle.r / self.tile_size.x as f32)) as u32,
-                         (offset_position.y / self.tile_size.y as f32 + (circle.r / self.tile_size.y as f32)) as u32,
-                     ))
-                }
-            };
-            if coords.0.x >= self.grid_size.x
-                || coords.0.y >= self.grid_size.y
-                || coords.1.x >= self.grid_size.x
-                || coords.1.y >= self.grid_size.y {
-                return false;
-            }
-            for x in coords.0.x..coords.1.x + 1 {
-                for y in coords.0.y..coords.1.y + 1 {
-                    for layer_id in layer_ids {
-                        if self.get_tile_at_coords(uvec2(x, y), layer_id).is_some() {
-                            return true;
-                        }
-                    }
-                }
-            }
-            false
-        }
-    }
-
     pub fn get_beam_collision_point(&self, origin: Vec2, end: Vec2, width: f32, tolerance: f32, layer_ids: &[&str]) -> Vec2 {
         let coords = (
             uvec2((origin.x + self.world_offset.x) as u32 / self.tile_size.x, (origin.y + self.world_offset.y) as u32 / self.tile_size.y),
@@ -169,7 +119,7 @@ impl Map {
                     ((y * self.tile_size.y) + self.tile_size.y / 2) as f32,
                 );
                 for layer_id in layer_ids {
-                    if self.get_tile_at_coords(uvec2(x, y), layer_id).is_some() {
+                    if self.get_tile(layer_id, x, y).is_some() {
                         if beam_collision_check(position, origin, end, width, tolerance) {
                             collisions.push(position);
                         }
@@ -248,12 +198,16 @@ impl From<TiledMap> for Map {
                 }).collect();
                 (MapLayerKind::TileLayer, tiles, Vec::new())
             };
-            (layer_id.clone(), MapLayer {
+
+            let layer = MapLayer {
                 id: layer_id.clone(),
                 kind,
+                grid_size,
                 tiles,
                 objects,
-            })
+            };
+
+            (layer_id.clone(), layer)
         }));
 
         Map {
@@ -266,21 +220,62 @@ impl From<TiledMap> for Map {
     }
 }
 
-#[derive(Clone)]
+pub struct MapTileIterator<'a> {
+    rect: URect,
+    current: (u32, u32),
+    layer: &'a MapLayer,
+}
+
+impl<'a> MapTileIterator<'a> {
+    fn new(layer: &'a MapLayer, rect: URect) -> Self {
+        let current = (rect.x, rect.y);
+        MapTileIterator {
+            layer,
+            rect,
+            current,
+        }
+    }
+}
+
+impl<'a> Iterator for MapTileIterator<'a> {
+    type Item = (u32, u32, &'a Option<MapTile>);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let next = if self.current.0 + 1 >= self.rect.x + self.rect.w {
+            (self.rect.x, self.current.1 + 1)
+        } else {
+            (self.current.0 + 1, self.current.1)
+        };
+        if self.current.1 >= self.rect.y + self.rect.h {
+            return None;
+        }
+        let i = (self.current.1 * self.layer.grid_size.x + self.current.0) as usize;
+        let res = Some((
+            self.current.0,
+            self.current.1,
+            &self.layer.tiles[i],
+        ));
+        self.current = next;
+        return res;
+    }
+}
+
+#[derive(Debug, Clone)]
 pub enum MapLayerKind {
     TileLayer,
     ObjectLayer,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct MapLayer {
     pub id: String,
     pub kind: MapLayerKind,
+    pub grid_size: UVec2,
     pub tiles: Vec<Option<MapTile>>,
     pub objects: Vec<MapObject>,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct MapTile {
     pub tile_id: u32,
     pub tileset_id: String,
@@ -288,14 +283,14 @@ pub struct MapTile {
     pub texture_coords: Vec2,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct MapObject {
     pub id: String,
     pub prototype_id: Option<String>,
     pub position: Vec2,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct MapTileset {
     pub id: String,
     pub texture_id: String,

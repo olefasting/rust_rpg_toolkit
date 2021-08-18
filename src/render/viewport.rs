@@ -24,22 +24,22 @@ pub struct Viewport {
 }
 
 impl Viewport {
-    pub const FRUSTUM_PADDING: f32 = 100.0;
+    pub const FRUSTUM_PADDING: f32 = 25.0;
 
-    pub fn to_screen_space(&self, coords: Vec2) -> Vec2 {
+    pub fn to_screen(&self, coords: Vec2) -> Vec2 {
         to_screen_space(coords,vec2(self.x, self.y), self.scale)
     }
 
-    pub fn to_world_space(&self, coords: Vec2) -> Vec2 {
+    pub fn to_world(&self, coords: Vec2) -> Vec2 {
         to_world_space(coords,vec2(self.x, self.y), self.scale)
     }
 
-    pub fn get_mouse_world_coords(&self) -> Vec2 {
+    pub fn get_mouse_in_world(&self) -> Vec2 {
         let (x, y) = mouse_position();
-        self.to_world_space(vec2(x, y))
+        self.to_world(vec2(x, y))
     }
 
-    pub fn get_view_rect(&self) -> Rect {
+    pub fn get_rect(&self) -> Rect {
         Rect::new(
             self.x,
             self.y,
@@ -48,9 +48,9 @@ impl Viewport {
         )
     }
 
-    pub fn get_frustum_rect(&self) -> Rect {
+    pub fn get_frustum(&self) -> Rect {
         let padding = Self::FRUSTUM_PADDING;
-        let mut frustum = self.get_view_rect();
+        let mut frustum = self.get_rect();
         frustum.x -= padding;
         frustum.y -= padding;
         frustum.w += padding * 2.0;

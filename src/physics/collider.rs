@@ -66,3 +66,17 @@ impl Collider {
         }
     }
 }
+
+impl From<Collider> for Rect {
+    fn from(collider: Collider) -> Self {
+        match collider {
+            Collider::Rectangle(rect) => rect,
+            Collider::Circle(circle) => Rect::new(
+                circle.x - circle.r,
+                circle.y - circle.r,
+                circle.r * 2.0,
+                circle.r * 2.0,
+            ),
+        }
+    }
+}

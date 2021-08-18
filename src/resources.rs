@@ -25,6 +25,8 @@ use crate::{
 };
 use macroquad::audio::{Sound, load_sound};
 use std::iter::FromIterator;
+use crate::nodes::actor::ActorPrototype;
+use crate::nodes::item::ItemPrototype;
 
 #[derive(Clone, Serialize, Deserialize)]
 struct TextureData {
@@ -50,8 +52,8 @@ pub struct Resources {
     pub textures: HashMap<String, Texture2D>,
     pub sound_effects: HashMap<String, Sound>,
     pub music: HashMap<String, Sound>,
-    pub actors: HashMap<String, ActorParams>,
-    pub items: HashMap<String, ItemParams>,
+    pub actors: HashMap<String, ActorPrototype>,
+    pub items: HashMap<String, ItemPrototype>,
 }
 
 impl Resources {
@@ -112,15 +114,17 @@ impl Resources {
 
         let json = std::fs::read_to_string(Self::ACTORS_FILE_PATH)
             .expect(&format!("Unable to find actors file '{}'", Self::ACTORS_FILE_PATH));
-        let actor_data: Vec<ActorParams> = serde_json::from_str(&json)
+        let actor_data: Vec<crate::json::ActorPrototype> = serde_json::from_str(&json)
             .expect(&format!("Error when parsing actors file '{}'", Self::ACTORS_FILE_PATH));
-        let mut actors = HashMap::from_iter(actor_data.into_iter().map(|actor| (actor.id.clone(), actor)));
+        let mut actors = HashMap::from_iter(
+            actor_data.into_iter().map(|prototype| (prototype.id.clone(), ActorPrototype::from(prototype))));
 
         let json = std::fs::read_to_string(Self::ITEMS_FILE_PATH)
             .expect(&format!("Unable to find items file '{}'", Self::ITEMS_FILE_PATH));
-        let items_data: Vec<ItemParams> = serde_json::from_str(&json)
+        let items_data: Vec<crate::json::ItemPrototype> = serde_json::from_str(&json)
             .expect(&format!("Error when parsing items file '{}'", Self::ITEMS_FILE_PATH));
-        let items = HashMap::from_iter(items_data.into_iter().map(|item| (item.id.clone(), item)));
+        let items = HashMap::from_iter(
+            items_data.into_iter().map(|prototype| (prototype.id.clone(), ItemPrototype::from(prototype))));
 
         Ok(Resources {
             textures,

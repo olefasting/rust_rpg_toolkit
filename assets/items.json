@@ -5,7 +5,7 @@
     "name": "Test Projectile Weapon",
     "description": "Test Ranged Weapon description",
     "weight": 10.0,
-    "ability_params": {
+    "ability": {
       "action_kind": "primary",
       "cooldown": 0.0025,
       "health_cost": 0.0,
@@ -24,7 +24,7 @@
         "a": 1.0
       }
     },
-    "sprite_params": {
+    "sprite": {
       "texture_id": "items",
       "texture_coords": {
         "x": 0,
@@ -46,7 +46,7 @@
     "name": "Test Continuous Beam Weapon",
     "description": "Test Continuous Beam Weapon description",
     "weight": 10.0,
-    "ability_params": {
+    "ability": {
       "action_kind": "primary",
       "health_cost": 0.0,
       "stamina_cost": 0.0,
@@ -64,7 +64,7 @@
         "a": 1.0
       }
     },
-    "sprite_params": {
+    "sprite": {
       "texture_id": "items",
       "texture_coords": {
         "x": 0,
@@ -86,7 +86,7 @@
     "name": "Test Beam Weapon",
     "description": "Test Beam Weapon description",
     "weight": 10.0,
-    "ability_params": {
+    "ability": {
       "action_kind": "primary",
       "health_cost": 0.0,
       "stamina_cost": 10.0,
@@ -105,7 +105,7 @@
         "a": 1.0
       }
     },
-    "sprite_params": {
+    "sprite": {
       "texture_id": "items",
       "texture_coords": {
         "x": 0,
@@ -127,7 +127,7 @@
     "name": "Test Trinket",
     "description": "Test Trinket description",
     "weight": 1.0,
-    "ability_params": {
+    "ability": {
       "action_kind": "secondary",
       "cooldown": 0.75,
       "health_cost": 0.0,
@@ -145,7 +145,7 @@
         "b": 0.95,
         "a": 1.0
       },
-      "effect_sprite_animation_params": {
+      "effect_sprite_animation": {
         "texture_id": "fireball",
         "tile_size": {
           "x": 68.0,
@@ -165,7 +165,7 @@
         ]
       }
     },
-    "sprite_params": {
+    "sprite": {
       "texture_id": "items",
       "texture_coords": {
         "x": 3,

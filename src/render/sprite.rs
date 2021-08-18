@@ -14,49 +14,18 @@ use crate::{
     json,
 };
 
-#[derive(Clone, Serialize, Deserialize)]
-pub struct SpriteParams {
-    pub offset: json::Vec2,
-    pub texture_id: String,
-    pub tile_size: json::UVec2,
-    pub texture_coords: json::UVec2,
-}
-
-impl Default for SpriteParams {
-    fn default() -> Self {
-        SpriteParams {
-            offset: json::Vec2::from(Vec2::ZERO),
-            texture_id: Resources::WHITE_TEXTURE_ID.to_string(),
-            tile_size: json::UVec2::new(16, 16),
-            texture_coords: json::UVec2::new(0, 0),
-        }
-    }
-}
-
 #[derive(Clone)]
 pub struct Sprite {
     pub offset: Vec2,
     pub rotation: f32,
     pub flip_x: bool,
     pub flip_y: bool,
-    tile_size: UVec2,
-    texture_id: String,
-    texture_coords: UVec2,
+    pub tile_size: UVec2,
+    pub texture_id: String,
+    pub texture_coords: UVec2,
 }
 
 impl Sprite {
-    pub fn new(params: SpriteParams) -> Self {
-        Sprite {
-            offset: Vec2::from(params.offset),
-            rotation: 0.0,
-            flip_x: false,
-            flip_y: false,
-            tile_size: UVec2::from(params.tile_size),
-            texture_id: params.texture_id,
-            texture_coords: UVec2::from(params.texture_coords),
-        }
-    }
-
     pub fn draw(&self, position: Vec2, rotation: f32) {
         let resources = get_global::<Resources>();
         draw_texture_ex(
@@ -81,5 +50,19 @@ impl Sprite {
                 ..Default::default()
             },
         );
+    }
+}
+
+impl Default for Sprite {
+    fn default() -> Self {
+        Sprite {
+            offset: Vec2::ZERO,
+            rotation: 0.0,
+            texture_id: Resources::WHITE_TEXTURE_ID.to_string(),
+            tile_size: uvec2(16, 16),
+            texture_coords: uvec2(0, 0),
+            flip_x: false,
+            flip_y: false,
+        }
     }
 }

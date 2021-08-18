@@ -14,12 +14,11 @@ use std::ops::Sub;
 use crate::nodes::projectiles::ProjectileKind;
 use crate::render::{SpriteAnimationParams, SpriteAnimationPlayer};
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone)]
 pub struct ActorAbilityParams {
-    pub id: Option<String>,
     pub effect_kind: String,
     pub action_kind: String,
-    pub cooldown: Option<f32>,
+    pub cooldown: f32,
     pub health_cost: f32,
     pub stamina_cost: f32,
     pub energy_cost: f32,
@@ -28,17 +27,16 @@ pub struct ActorAbilityParams {
     pub range: f32,
     pub damage: f32,
     pub effect_size: f32,
-    pub effect_color: json::Color,
-    pub effect_sprite_animation_params: Option<SpriteAnimationParams>,
+    pub effect_color: Color,
+    pub effect_sprite_animation: Option<SpriteAnimationParams>,
 }
 
 impl Default for ActorAbilityParams {
     fn default() -> Self {
         ActorAbilityParams {
-            id: Some(generate_id()),
             effect_kind: ActorAbility::PROJECTILE_EFFECT.to_string(),
             action_kind: ActorAbility::PRIMARY_ABILITY.to_string(),
-            cooldown: None,
+            cooldown: 0.0,
             health_cost: 0.0,
             stamina_cost: 0.0,
             energy_cost: 0.0,
@@ -47,15 +45,14 @@ impl Default for ActorAbilityParams {
             range: 100.0,
             damage: 0.0,
             effect_size: 5.0,
-            effect_color: json::Color::from(color::WHITE),
-            effect_sprite_animation_params: None,
+            effect_color: color::WHITE,
+            effect_sprite_animation: None,
         }
     }
 }
 
 #[derive(Clone)]
 pub struct ActorAbility {
-    pub id: String,
     pub effect_kind: String,
     pub action_kind: String,
     pub cooldown: f32,
@@ -83,21 +80,20 @@ impl ActorAbility {
 
     pub fn new(params: ActorAbilityParams) -> Self {
         ActorAbility {
-            id: generate_id(),
             effect_kind: params.effect_kind,
             action_kind: params.action_kind,
             health_cost: params.health_cost,
             stamina_cost: params.stamina_cost,
             energy_cost: params.energy_cost,
-            cooldown: params.cooldown.unwrap_or_default(),
-            cooldown_timer: params.cooldown.unwrap_or_default(),
+            cooldown: params.cooldown,
+            cooldown_timer: params.cooldown,
             speed: params.speed,
             spread: params.spread,
             range: params.range,
             damage: params.damage,
             effect_size: params.effect_size,
-            effect_color: Color::from(params.effect_color),
-            effect_sprite_animation_params: params.effect_sprite_animation_params,
+            effect_color: params.effect_color,
+            effect_sprite_animation_params: params.effect_sprite_animation,
         }
     }
 

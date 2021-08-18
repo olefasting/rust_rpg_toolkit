@@ -17,33 +17,32 @@ use serde::{
 use crate::{
     Resources,
     get_global,
-    json,
 };
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone)]
 pub struct SpriteAnimationParams {
-    pub offset: json::Vec2,
+    pub offset: Vec2,
     pub texture_id: String,
-    pub tile_size: json::Vec2,
-    pub animations: Vec<json::Animation>,
-    pub should_play: Option<bool>,
+    pub tile_size: Vec2,
+    pub animations: Vec<Animation>,
+    pub should_play: bool,
 }
 
 impl Default for SpriteAnimationParams {
     fn default() -> Self {
         SpriteAnimationParams {
-            offset: json::Vec2::new(-8.0, -8.0),
+            offset: vec2(-8.0, -8.0),
             texture_id: Resources::WHITE_TEXTURE_ID.to_string(),
-            tile_size: json::Vec2::new(16.0, 16.0),
+            tile_size: vec2(16.0, 16.0),
             animations: vec!(
-                json::Animation {
+                Animation {
                     name: "idle".to_string(),
                     row: 0,
                     frames: 1,
                     fps: 8
                 },
             ),
-            should_play: Some(false),
+            should_play: false,
         }
     }
 }
@@ -62,12 +61,11 @@ pub struct SpriteAnimationPlayer {
 
 impl SpriteAnimationPlayer {
     pub fn new(params: SpriteAnimationParams) -> Self {
-        let animations: Vec<Animation> = params.animations.iter().map(|anim| Animation::from(anim)).collect();
-        let sprite = AnimatedSprite::new(
+        let mut animated_sprite = AnimatedSprite::new(
             params.tile_size.x as u32,
             params.tile_size.y as u32,
-            &animations,
-            params.should_play.unwrap_or_default(),
+            &params.animations,
+            params.should_play,
         );
 
         SpriteAnimationPlayer {
@@ -77,8 +75,8 @@ impl SpriteAnimationPlayer {
             flip_y: false,
             texture_id: params.texture_id.to_string(),
             tile_size: Vec2::from(params.tile_size),
-            animations,
-            animated_sprite: sprite,
+            animations: params.animations,
+            animated_sprite,
         }
     }
 
@@ -113,11 +111,11 @@ impl SpriteAnimationPlayer {
 
     pub fn to_sprite_params(&self) -> SpriteAnimationParams {
         SpriteAnimationParams {
-            offset: json::Vec2::from(self.offset),
+            offset: self.offset,
             texture_id: self.texture_id.to_string(),
-            tile_size: json::Vec2::from(self.tile_size),
-            animations: self.animations.iter().map(|anim| json::Animation::from(anim)).collect(),
-            should_play: Some(self.animated_sprite.playing),
+            tile_size: self.tile_size,
+            animations: self.animations.clone(),
+            should_play: self.animated_sprite.playing,
         }
     }
 

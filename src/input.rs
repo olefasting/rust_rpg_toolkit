@@ -22,7 +22,7 @@ pub fn get_mouse_position() -> Vec2 {
 pub fn apply_local_player_input(controller: &mut ActorController) {
     let camera= scene::find_node_by_type::<Camera>().unwrap();
     let viewport = camera.get_viewport();
-    let coords = viewport.get_mouse_world_coords();
+    let coords = viewport.get_mouse_in_world();
     controller.primary_target = if is_mouse_button_down(MouseButton::Left) {
         Some(coords)
     } else {

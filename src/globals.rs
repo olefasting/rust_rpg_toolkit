@@ -3,11 +3,21 @@ use std::{
     ops::Deref,
 };
 
-use macroquad::experimental::collections::storage;
+use macroquad::{
+    experimental::collections::storage,
+    color,
+    prelude::*,
+};
 
 #[derive(Copy, Clone)]
 pub struct LocalPlayer {
     pub id: u32,
+}
+
+#[derive(Copy, Clone)]
+pub struct DebugMode {
+    pub color: Color,
+    pub is_enabled: bool,
 }
 
 pub fn try_get_global<T: Any>() -> Option<impl Deref<Target = T>> {

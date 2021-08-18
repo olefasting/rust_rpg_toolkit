@@ -19,6 +19,7 @@ use crate::physics::Collider;
 use crate::math::Circle;
 use crate::render::HorizontalAlignment;
 use crate::nodes::Actor;
+use std::ops::Deref;
 
 pub enum Bounds {
     Point(Vec2),
@@ -62,14 +63,6 @@ impl<T: 'static + BufferedDraw> DrawBuffer<T> {
 
 impl<T: 'static + BufferedDraw> Node for DrawBuffer<T> {
     fn draw(mut node: RefMut<Self>) {
-        let viewport = get_global::<Viewport>();
-        let frustum = viewport.get_frustum_rect();
-        node.buffered.retain(|handle| if let Some(buffered) = scene::try_get_node(*handle) {
-            buffered.is_in_frustum(&frustum)
-        } else {
-            false
-        });
-
         node.buffered.sort_by(|a, b| {
             if let Some(a) = scene::try_get_node(*a) {
                 if let Some(b) = scene::try_get_node(*b) {
@@ -79,9 +72,16 @@ impl<T: 'static + BufferedDraw> Node for DrawBuffer<T> {
             Ordering::Equal
         });
 
-        for handle in &node.buffered {
-            let mut buffered = scene::get_node(*handle);
-            buffered.buffered_draw();
-        }
+        let viewport = get_global::<Viewport>();
+        let frustum = viewport.get_frustum();
+        node.buffered.drain_filter(|handle| {
+            if let Some(mut buffered) = scene::try_get_node(*handle) {
+                if buffered.is_in_frustum(&frustum) {
+                    buffered.buffered_draw();
+                }
+                return false;
+            }
+            true
+        });
     }
 }

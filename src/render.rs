@@ -1,5 +1,4 @@
 pub use sprite::{
-    SpriteParams,
     Sprite,
 };
 pub use sprite_animation::{

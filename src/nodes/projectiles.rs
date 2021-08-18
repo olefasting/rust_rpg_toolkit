@@ -19,7 +19,7 @@ use crate::{nodes::{
     Viewport,
     SpriteAnimationParams,
     SpriteAnimationPlayer,
-}, map::Map, MAP_SOLIDS_LAYER, MAP_BARRIERS_LAYER, MAP_SOLID_AND_BARRIER_LAYERS};
+}, map::Map, MAP_LAYER_SOLIDS, MAP_LAYER_BARRIERS};
 
 pub enum ProjectileKind {
     Bullet,
@@ -185,8 +185,13 @@ impl Node for Projectiles {
                 }
             }
             let game_state = scene::find_node_by_type::<GameState>().unwrap();
-            if game_state.map.is_tile_at_collider(collider, MAP_SOLID_AND_BARRIER_LAYERS) {
-                return false;
+            let rect = game_state.map.to_grid_coords(Rect::from(collider));
+            for layer_id in &[MAP_LAYER_SOLIDS, MAP_LAYER_BARRIERS] {
+                for (_, _, tile) in game_state.map.get_tiles(layer_id, Some(rect)) {
+                    if tile.is_some() {
+                        return false;
+                    }
+                }
             }
             return true;
         });
@@ -194,7 +199,7 @@ impl Node for Projectiles {
 
     fn draw(mut node: RefMut<Self>) {
         let viewport = get_global::<Viewport>();
-        let frustum = viewport.get_frustum_rect();
+        let frustum = viewport.get_frustum();
         for projectile in &mut node.active {
             if frustum.contains(projectile.position) {
                 if let Some(animation) = projectile.sprite_animation.as_mut() {

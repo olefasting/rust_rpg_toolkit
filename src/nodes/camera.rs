@@ -56,7 +56,7 @@ impl Camera {
         scene::add_node(Camera::new(position))
     }
 
-    pub fn get_aspect_ratio(&self) -> f32 {
+    pub fn get_ratio(&self) -> f32 {
         get_aspect_ratio()
     }
 
@@ -70,18 +70,6 @@ impl Camera {
             height,
             scale: self.scale,
         }
-    }
-
-    pub fn to_screen_space(&self, coords: Vec2) -> Vec2 {
-        to_screen_space(coords, self.get_viewport().get_view_rect().point(), self.scale)
-    }
-
-    pub fn to_world_space(&self, coords: Vec2) -> Vec2 {
-        to_world_space(coords, self.get_viewport().get_view_rect().point(), self.scale)
-    }
-
-    pub fn get_mouse_world_coords(&self) -> Vec2 {
-        self.to_world_space(get_mouse_position())
     }
 
     pub fn pan(&mut self, direction: Vec2) {
@@ -127,7 +115,7 @@ impl Node for Camera {
     }
 
     fn fixed_update(mut node: RefMut<Self>) {
-        let actor = Actor::find_local_player().unwrap();
+        let actor = Actor::find_local_player_actor().unwrap();
         let viewport = node.get_viewport();
         let mod_size = vec2(viewport.width * Self::FOLLOW_THRESHOLD, viewport.height * Self::FOLLOW_THRESHOLD);
         let bounds = Rect::new(
@@ -136,23 +124,11 @@ impl Node for Camera {
             mod_size.x,
             mod_size.y,
         );
+
         if !bounds.contains(actor.body.position) {
             let direction = actor.body.position.sub(node.position).normalize_or_zero();
             node.position += direction * actor.stats.move_speed;
         }
-    }
-
-    fn draw(node: RefMut<Self>) {
-        push_camera_state();
-        set_default_camera();
-        draw_aligned_text(
-            &format!("camera: {}", node.position.to_string()) ,
-            screen_width() - 50.0,
-            100.0,
-            HorizontalAlignment::Right,
-            Default::default(),
-        );
-        pop_camera_state();
 
         scene::set_camera_1(Camera2D {
             offset: vec2(0.0, 0.0),
