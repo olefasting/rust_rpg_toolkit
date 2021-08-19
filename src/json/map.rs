@@ -3,94 +3,97 @@ use std::{
     iter::FromIterator,
 };
 
+use macroquad::prelude::*;
+
 use serde::{
     Serialize,
     Deserialize,
 };
 
 use crate::{
+    Map,
     MapLayerKind,
-    json::{
-        Vec2Def,
-        UVec2Def,
-    }
+    MapLayer,
+    MapTile,
+    MapObject,
+    MapTileset,
 };
 
 const TILE_LAYER_KIND: &'static str = "tile_layer";
 const OBJECT_LAYER_KIND: &'static str = "object_layer";
 
 #[derive(Clone, Serialize, Deserialize)]
-pub struct Map {
-    pub world_offset: Option<Vec2Def>,
-    pub grid_size: UVec2Def,
-    pub tile_size: Vec2Def,
-    pub layers: Vec<MapLayer>,
-    pub tilesets: Vec<MapTileset>,
+pub struct MapDef {
+    #[serde(with = "super::def_vec2", default)]
+    pub world_offset: Vec2,
+    #[serde(with = "super::def_uvec2")]
+    pub grid_size: UVec2,
+    #[serde(with = "super::def_vec2")]
+    pub tile_size: Vec2,
+    pub layers: Vec<MapLayerDef>,
+    pub tilesets: Vec<MapTilesetDef>,
 }
 
-impl From<crate::Map> for Map {
-    fn from(other: crate::Map) -> Self {
-        let layers = other.layers.iter().map(|(_, layer)|  {
-            let (kind, tiles, objects) = match layer.kind {
+impl Into<MapDef> for Map {
+    fn into(self) -> MapDef {
+        let layers = self.layers.iter().map(|(_, layer)|  {
+            let (tiles, objects) = match layer.kind {
                 crate::MapLayerKind::TileLayer => {
-                    (TILE_LAYER_KIND.to_string(),
-                     Some(layer.tiles.iter().map(|opt| match opt {
-                         Some(tile) => {
-                             let tileset = other.tilesets.get(&tile.tileset_id)
-                                 .expect(&format!("Unable to find tileset with id '{}'!", tile.tileset_id));
-                             tile.tile_id + tileset.first_tile_id
-                         },
-                         _ => 0,
-                     }).collect()),
+                    println!("save layer_id: {}, vec_len: {}", layer.id, layer.tiles.len());
+                    (Some(layer.tiles.iter().map(|opt| match opt {
+                        Some(tile) => {
+                            let tileset = self.tilesets.get(&tile.tileset_id)
+                                .expect(&format!("Unable to find tileset with id '{}'!", tile.tileset_id));
+                            tile.tile_id + tileset.first_tile_id
+                        },
+                        _ => 0,
+                    }).collect()),
                      None)
-                }
-                crate::MapLayerKind::ObjectLayer => {
-                    (OBJECT_LAYER_KIND.to_string(),
-                     None,
-                     Some(layer.objects.iter().map(|object| MapObject::from(object.clone())).collect()))
-                }
+                },
+                MapLayerKind::ObjectLayer => (None, Some(layer.objects.clone())),
             };
-            MapLayer {
+            MapLayerDef {
                 id: layer.id.clone(),
-                kind,
+                kind: layer.kind.clone(),
                 objects,
                 tiles,
             }
         }).collect();
 
-        Map {
-            world_offset: if other.world_offset != macroquad::prelude::Vec2::ZERO { Some(Vec2Def::from(other.world_offset)) } else { None },
-            grid_size: UVec2Def::from(other.grid_size),
-            tile_size: Vec2Def::from(other.tile_size),
+        MapDef {
+            world_offset: self.world_offset,
+            grid_size: self.grid_size,
+            tile_size: self.tile_size,
             layers,
-            tilesets: other.tilesets.into_iter().map(|(_, tileset)| MapTileset::from(tileset)).collect(),
+            tilesets: self.tilesets.into_iter().map(|(_, tileset)| MapTilesetDef::from(tileset)).collect(),
         }
     }
 }
 
-impl From<Map> for crate::Map {
-    fn from(other: Map) -> Self {
+impl From<MapDef> for Map {
+    fn from(def: MapDef) -> Self {
         let tilesets = HashMap::from_iter(
-            other.tilesets
+            def.tilesets
+                .clone()
                 .into_iter()
                 .map(|tileset| (tileset.id.clone(), crate::MapTileset::from(tileset))));
 
-        let world_offset = macroquad::prelude::Vec2::from(other.world_offset.unwrap_or_default());
-        let grid_size = macroquad::prelude::UVec2::from(other.grid_size);
-        let tile_size = macroquad::prelude::Vec2::from(other.tile_size);
-
         let layers = HashMap::from_iter(
-            other.layers
-                .into_iter()
+            def.layers
+                .iter()
                 .map(|layer| {
+                    if let Some(tiles) = &layer.tiles {
+                        println!("load: layer_id: {}, vec_len: {}", layer.id, tiles.len());
+                    }
                     let tiles = layer.tiles
+                        .clone()
                         .unwrap_or_default()
                         .into_iter()
                         .map(|tile_id| if tile_id == 0 { None } else {
                             match tilesets
                                 .iter()
                                 .find(|(_, tileset)| tile_id >= tileset.first_tile_id
-                                    && tile_id <= tileset.first_tile_id + tileset.grid_size.x * tileset.grid_size.y) {
+                                    && tile_id < tileset.first_tile_id + tileset.tile_cnt) {
                                 Some((_, tileset)) => Some(crate::MapTile {
                                     tile_id: tile_id - tileset.first_tile_id,
                                     tileset_id: tileset.id.clone(),
@@ -104,24 +107,20 @@ impl From<Map> for crate::Map {
                             }
                         }).collect();
 
-                    let layer = crate::MapLayer {
+                    let layer = MapLayer {
                         id: layer.id.clone(),
-                        kind: MapLayerKind::from(&*layer.kind),
-                        grid_size,
+                        kind: layer.kind.clone(),
+                        grid_size: def.grid_size,
                         tiles,
-                        objects: layer.objects
-                            .unwrap_or_default()
-                            .into_iter()
-                            .map(|object| crate::MapObject::from(object))
-                            .collect(),
+                        objects: layer.objects.clone().unwrap_or(Vec::new()),
                     };
                     (layer.id.clone(), layer)
                 }));
 
-        crate::Map {
-            world_offset,
-            grid_size,
-            tile_size,
+        Map {
+            world_offset: def.world_offset,
+            grid_size: def.grid_size,
+            tile_size: def.tile_size,
             layers,
             tilesets,
         }
@@ -129,10 +128,12 @@ impl From<Map> for crate::Map {
 }
 
 #[derive(Clone, Serialize, Deserialize)]
-pub struct MapLayer {
+pub struct MapLayerDef {
     pub id: String,
-    pub kind: String,
+    pub kind: MapLayerKind,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub tiles: Option<Vec<u32>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub objects: Option<Vec<MapObject>>,
 }
 
@@ -150,66 +151,71 @@ impl From<&str> for crate::MapLayerKind {
 }
 
 #[derive(Clone, Serialize, Deserialize)]
-pub struct MapObject {
+pub struct MapObjectDef {
     pub id: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub prototype_id: Option<String>,
-    pub position: Vec2Def,
+    #[serde(with = "super::def_vec2")]
+    pub position: Vec2,
 }
 
-impl From<crate::MapObject> for MapObject {
+impl From<crate::MapObject> for MapObjectDef {
     fn from(other: crate::MapObject) -> Self {
-        MapObject {
+        MapObjectDef {
             id: other.id.clone(),
             prototype_id: other.prototype_id.clone(),
-            position: Vec2Def::from(other.position),
+            position: other.position,
         }
     }
 }
 
 
-impl From<MapObject> for crate::MapObject {
-    fn from(other: MapObject) -> Self {
+impl From<MapObjectDef> for crate::MapObject {
+    fn from(other: MapObjectDef) -> Self {
         crate::MapObject {
             id: other.id.clone(),
             prototype_id: other.prototype_id.clone(),
-            position: macroquad::prelude::Vec2::from(other.position),
+            position: other.position,
         }
     }
 }
 
 #[derive(Clone, Serialize, Deserialize)]
-pub struct MapTileset {
+pub struct MapTilesetDef {
     pub id: String,
     pub texture_id: String,
-    pub texture_size: UVec2Def,
-    pub tile_size: UVec2Def,
-    pub grid_size: UVec2Def,
+    #[serde(with = "super::def_uvec2")]
+    pub texture_size: UVec2,
+    #[serde(with = "super::def_uvec2")]
+    pub tile_size: UVec2,
+    #[serde(with = "super::def_uvec2")]
+    pub grid_size: UVec2,
     pub first_tile_id: u32,
     pub tile_cnt: u32,
 }
 
-impl From<crate::MapTileset> for MapTileset {
+impl From<crate::MapTileset> for MapTilesetDef {
     fn from(other: crate::MapTileset) -> Self {
-        MapTileset {
+        MapTilesetDef {
             id: other.id.clone(),
             texture_id: other.texture_id.clone(),
-            texture_size: UVec2Def::from(other.texture_size),
-            tile_size: UVec2Def::from(other.tile_size),
-            grid_size: UVec2Def::from(other.grid_size),
+            texture_size: other.texture_size,
+            tile_size: other.tile_size,
+            grid_size: other.grid_size,
             first_tile_id: other.first_tile_id,
             tile_cnt: other.tile_cnt,
         }
     }
 }
 
-impl From<MapTileset> for crate::MapTileset {
-    fn from(other: MapTileset) -> Self {
+impl From<MapTilesetDef> for crate::MapTileset {
+    fn from(other: MapTilesetDef) -> Self {
         crate::MapTileset {
             id: other.id.clone(),
             texture_id: other.texture_id.clone(),
-            texture_size: crate::UVec2::from(other.texture_size),
-            tile_size: crate::UVec2::from(other.tile_size),
-            grid_size: crate::UVec2::from(other.grid_size),
+            texture_size: other.texture_size,
+            tile_size: other.tile_size,
+            grid_size: other.grid_size,
             first_tile_id: other.first_tile_id,
             tile_cnt: other.tile_cnt,
         }

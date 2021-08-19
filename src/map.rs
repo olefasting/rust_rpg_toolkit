@@ -1,11 +1,19 @@
 mod tiled;
 
-use std::collections::HashMap;
-use std::iter::FromIterator;
+use std::{
+    collections::HashMap,
+    iter::FromIterator,
+    io,
+};
 
 use macroquad::{
     color,
     prelude::*,
+};
+
+use serde::{
+    Serialize,
+    Deserialize,
 };
 
 pub use tiled::{
@@ -22,39 +30,52 @@ use crate::{
     draw_aligned_text,
     MAP_LAYER_GROUND,
     get_global,
+    json,
 };
 use crate::physics::beam_collision_check;
 use crate::render::{Viewport, HorizontalAlignment};
 use crate::math::URect;
+use crate::json::MapDef;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(into = "json::MapDef", from = "json::MapDef")]
 pub struct Map {
+    #[serde(with = "json::def_vec2")]
     pub world_offset: Vec2,
+    #[serde(with = "json::def_uvec2")]
     pub grid_size: UVec2,
+    #[serde(with = "json::def_vec2")]
     pub tile_size: Vec2,
     pub layers: HashMap<String, MapLayer>,
     pub tilesets: HashMap<String, MapTileset>,
 }
 
 impl Map {
-    pub fn new(path: &str) -> Self {
-        let json = std::fs::read_to_string(path)
-            .expect(&format!("Unable to find map file '{}'", path));
-        let map: crate::json::Map = serde_json::from_str(&json)
-            .expect(&format!("Error when parsing map file '{}'", path));
-        Self::from(map)
+    pub fn load(path: &str) -> io::Result<Self> {
+        let json = std::fs::read_to_string(path)?;
+        let map = serde_json::from_str(&json)?;
+        Ok(map)
+    }
+
+    pub fn load_tiled(path: &str, export_path: Option<&str>, tiled_tilesets: &[(&str, &str, &str)]) -> io::Result<Self> {
+        let map = Map::from(TiledMap::new(path, tiled_tilesets));
+        if let Some(export_path) = export_path {
+           let json = serde_json::to_string_pretty(&map)?;
+            std::fs::write(export_path, json)?;
+        }
+        Ok(map)
     }
 
     pub fn to_map_grid(&self, rect: Rect) -> URect {
             let p = self.to_map_point(rect.point());
-            let w = ((rect.w / self.tile_size.x) as u32).clamp(0, self.grid_size.x);
-            let h = ((rect.h / self.tile_size.y) as u32).clamp(0, self.grid_size.y);
+            let w = ((rect.w / self.tile_size.x) as u32).clamp(0, self.grid_size.x - p.x);
+            let h = ((rect.h / self.tile_size.y) as u32).clamp(0, self.grid_size.y - p.y);
         URect::new(p.x, p.y, w, h)
     }
 
     pub fn to_map_point(&self, position: Vec2) -> UVec2 {
-        let x = ((position.x - self.world_offset.x) as u32 / self.tile_size.x as u32).clamp(0, self.grid_size.x);
-        let y = ((position.y - self.world_offset.y) as u32 / self.tile_size.y as u32).clamp(0, self.grid_size.y);
+        let x = ((position.x - self.world_offset.x) as u32 / self.tile_size.x as u32).clamp(0, self.grid_size.x - 1);
+        let y = ((position.y - self.world_offset.y) as u32 / self.tile_size.y as u32).clamp(0, self.grid_size.y - 1);
         uvec2(x, y)
     }
 
@@ -119,104 +140,6 @@ impl Map {
     }
 }
 
-impl From<TiledMap> for Map {
-    fn from(other: TiledMap) -> Self {
-        let raw_tiled_map = &other.tiled_map.raw_tiled_map;
-        let tile_size = vec2(raw_tiled_map.tilewidth as f32, raw_tiled_map.tileheight as f32);
-        let grid_size = uvec2(raw_tiled_map.width, raw_tiled_map.height);
-
-        let mut tileset_ids = Vec::new();
-        let tilesets = HashMap::from_iter(
-            raw_tiled_map.tilesets
-                .iter()
-                .map(|raw_tiled_tileset| {
-            let tiled_tileset = other.tiled_tilesets
-                .get(&raw_tiled_tileset.name)
-                .expect(&format!("Unable to find definition for tileset with image '{}'! Did you remember to define all the tilesets when importing the TiledMap?", raw_tiled_tileset.image));
-
-            let id = if tileset_ids.contains(&raw_tiled_tileset.name) {
-                format!("{}_{}", raw_tiled_tileset.name, generate_id())
-            } else {
-                tileset_ids.push(raw_tiled_tileset.name.clone());
-                raw_tiled_tileset.name.clone()
-            };
-
-            let tileset = MapTileset {
-                id: id.clone(),
-                texture_id: tiled_tileset.texture_id.clone(),
-                texture_size: uvec2(raw_tiled_tileset.imagewidth as u32, raw_tiled_tileset.imageheight as u32),
-                tile_size: uvec2(raw_tiled_tileset.tilewidth as u32, raw_tiled_tileset.tileheight as u32),
-                grid_size: uvec2(raw_tiled_tileset.columns as u32, raw_tiled_tileset.tilecount / raw_tiled_tileset.columns as u32),
-                first_tile_id: raw_tiled_tileset.firstgid,
-                tile_cnt: raw_tiled_tileset.tilecount,
-            };
-
-            (id, tileset)
-        }));
-
-        let layers = HashMap::from_iter(
-            other.tiled_map.layers.iter().map(|(layer_id, tiled_layer)| {
-            let (kind, tiles, objects) = if tiled_layer.objects.len() > 0 {
-                let mut object_ids = Vec::new();
-                let objects = tiled_layer.objects.iter().map(|tiled_object| {
-                    let id = if object_ids.contains(&tiled_object.name) {
-                        format!("{}_{}", tiled_object.name, generate_id())
-                    } else {
-                        object_ids.push(tiled_object.name.clone());
-                        tiled_object.name.clone()
-                    };
-
-                    MapObject {
-                        id,
-                        prototype_id: None,
-                        position: vec2(tiled_object.world_x, tiled_object.world_y),
-                    }
-                }).collect();
-
-                (MapLayerKind::ObjectLayer, Vec::new(), objects)
-            } else {
-                let tiles = tiled_layer.data.iter().map(|tiled_tile| {
-                    if let Some(tiled_tile) = tiled_tile {
-                        let tileset = tilesets.get(&tiled_tile.tileset)
-                            .expect(&format!("Unable to find tiled tileset '{}'! Are you sure you defined all the tilesets when importing the map?", tiled_tile.tileset));
-
-                        let tile = MapTile {
-                            tile_id: tiled_tile.id.clone(),
-                            tileset_id: tileset.id.clone(),
-                            texture_id: tileset.texture_id.clone(),
-                            texture_coords: tileset.get_texture_coords(tiled_tile.id),
-                        };
-
-                        Some(tile)
-                    } else {
-                        None
-                    }
-                }).collect();
-
-                (MapLayerKind::TileLayer, tiles, Vec::new())
-            };
-
-            let layer = MapLayer {
-                id: layer_id.clone(),
-                kind,
-                grid_size,
-                tiles,
-                objects,
-            };
-
-            (layer_id.clone(), layer)
-        }));
-
-        Map {
-            world_offset: Vec2::ZERO,
-            grid_size,
-            tile_size,
-            layers,
-            tilesets,
-        }
-    }
-}
-
 pub struct MapTileIterator<'a> {
     rect: URect,
     current: (u32, u32),
@@ -238,13 +161,13 @@ impl<'a> Iterator for MapTileIterator<'a> {
     type Item = (u32, u32, &'a Option<MapTile>);
 
     fn next(&mut self) -> Option<Self::Item> {
-        let next = if self.current.0 + 1 > self.rect.x + self.rect.w {
+        let next = if self.current.0 + 1 >= self.rect.x + self.rect.w {
             (self.rect.x, self.current.1 + 1)
         } else {
             (self.current.0 + 1, self.current.1)
         };
 
-        if self.current.1 > self.rect.y + self.rect.h {
+        if self.current.1 >= self.rect.y + self.rect.h {
             return None;
         }
 
@@ -260,42 +183,51 @@ impl<'a> Iterator for MapTileIterator<'a> {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum MapLayerKind {
+    #[serde(alias = "tile_layer")]
     TileLayer,
+    #[serde(alias = "object_layer")]
     ObjectLayer,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MapLayer {
     pub id: String,
     pub kind: MapLayerKind,
+    #[serde(with = "json::def_uvec2")]
     pub grid_size: UVec2,
     pub tiles: Vec<Option<MapTile>>,
     pub objects: Vec<MapObject>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MapTile {
     pub tile_id: u32,
     pub tileset_id: String,
     pub texture_id: String,
+    #[serde(with = "json::def_vec2")]
     pub texture_coords: Vec2,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MapObject {
     pub id: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub prototype_id: Option<String>,
+    #[serde(with = "json::def_vec2")]
     pub position: Vec2,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MapTileset {
     pub id: String,
     pub texture_id: String,
+    #[serde(with = "json::def_uvec2")]
     pub texture_size: UVec2,
+    #[serde(with = "json::def_uvec2")]
     pub tile_size: UVec2,
+    #[serde(with = "json::def_uvec2")]
     pub grid_size: UVec2,
     pub first_tile_id: u32,
     pub tile_cnt: u32,

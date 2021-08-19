@@ -83,7 +83,7 @@ fn generic_actor(name: &str, position: Vec2, skin_id: u32, factions: &[String], 
         None => ActorControllerKind::Computer,
     };
     let resources = get_global::<Resources>();
-    let params = resources.actors.get(&format!("generic_actor_0{}", skin_id+1)).cloned().unwrap();
+    let params = resources.actors.get(&format!("generic_actor_0{}", skin_id + 1)).cloned().unwrap();
     let mut actor = Actor::new(controller_kind, ActorParams {
         position: Some(position),
         name: name.to_string(),
@@ -124,7 +124,7 @@ async fn main() {
                 font_size: 40,
                 color: color::WHITE,
                 ..Default::default()
-            }
+            },
         );
 
         next_frame().await;
@@ -132,14 +132,19 @@ async fn main() {
 
     {
         let player_id = generate_id();
-        let player_spawn_position = vec2(64.0, 100.0);
+        let player_spawn_position = vec2(32.0, 100.0);
 
-        let map = Map::from(map::TiledMap::new("assets/maps/test_tiled_map.json", &[
-            ("neo_zero_tiles", "../textures/neo_zero_tiles.png", "tiles"),
-            ("neo_zero_props", "../textures/neo_zero_props.png", "props"),
-            ("items", "../textures/items.png", "items"),
-        ]));
-        // let map = Map::new("assets/maps/capstone_map.json");
+        // let map = Map::load_tiled(
+        //     "assets/maps/test_tiled_map.json",
+        //     Some("assets/maps/converted_tiled_map.json"),
+        //     &[
+        //         ("neo_zero_tiles", "../textures/neo_zero_tiles.png", "tiles"),
+        //         ("neo_zero_props", "../textures/neo_zero_props.png", "props"),
+        //         ("items", "../textures/items.png", "items"),
+        //     ]).unwrap();
+
+        let map = Map::load("assets/maps/test_capstone_map.json").unwrap();
+        // let map = Map::load("assets/maps/converted_tiled_map.json").unwrap();
 
         GameState::add_node(map, &player_id);
 
