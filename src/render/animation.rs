@@ -17,14 +17,19 @@ use serde::{
 use crate::{
     get_global,
     Resources,
+    json,
 };
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SpriteAnimationParams {
+    #[serde(with = "json::def_vec2")]
     pub offset: Vec2,
     pub texture_id: String,
+    #[serde(with = "json::def_vec2")]
     pub tile_size: Vec2,
+    #[serde(with = "json::vec_animation")]
     pub animations: Vec<Animation>,
+    #[serde(skip)]
     pub should_play: bool,
 }
 
@@ -43,6 +48,18 @@ impl Default for SpriteAnimationParams {
                 },
             ),
             should_play: false,
+        }
+    }
+}
+
+impl From<SpriteAnimationPlayer> for SpriteAnimationParams {
+    fn from(player: SpriteAnimationPlayer) -> Self {
+        SpriteAnimationParams {
+            offset: player.offset,
+            texture_id: player.texture_id,
+            tile_size: player.tile_size,
+            animations: player.animations,
+            should_play: player.animated_sprite.playing,
         }
     }
 }
@@ -107,16 +124,6 @@ impl SpriteAnimationPlayer {
 
     pub fn stop(&mut self) {
         self.animated_sprite.playing = false;
-    }
-
-    pub fn to_sprite_params(&self) -> SpriteAnimationParams {
-        SpriteAnimationParams {
-            offset: self.offset,
-            texture_id: self.texture_id.to_string(),
-            tile_size: self.tile_size,
-            animations: self.animations.clone(),
-            should_play: self.animated_sprite.playing,
-        }
     }
 
     pub fn update(&mut self) {

@@ -1,10 +1,12 @@
+use macroquad::prelude::*;
+
 use serde::{
     Serialize,
     Deserialize,
 };
 
 use crate::json::{
-    Color,
+    ColorDef,
     SpriteAnimationParams,
 };
 
@@ -21,6 +23,7 @@ pub struct AbilityParams {
     pub range: f32,
     pub damage: f32,
     pub effect_size: f32,
+    #[serde(with = "ColorDef")]
     pub effect_color: Color,
     pub effect_sprite_animation: Option<SpriteAnimationParams>,
 }
@@ -45,7 +48,7 @@ impl From<crate::ability::AbilityParams> for AbilityParams {
             range: other.range,
             damage: other.damage,
             effect_size: other.effect_size,
-            effect_color: Color::from(other.effect_color),
+            effect_color: other.effect_color,
             effect_sprite_animation,
         }
     }

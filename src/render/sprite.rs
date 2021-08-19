@@ -14,14 +14,20 @@ use crate::{
     json,
 };
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Sprite {
+    #[serde(with = "json::def_vec2")]
     pub offset: Vec2,
+    #[serde(default)]
     pub rotation: f32,
+    #[serde(default)]
     pub flip_x: bool,
+    #[serde(default)]
     pub flip_y: bool,
+    #[serde(with = "json::def_uvec2")]
     pub tile_size: UVec2,
     pub texture_id: String,
+    #[serde(with = "json::def_uvec2")]
     pub texture_coords: UVec2,
 }
 

@@ -4,6 +4,10 @@
     "kind": "one_handed_weapon",
     "name": "Test Projectile Weapon",
     "description": "Test Ranged Weapon description",
+    "position": {
+      "x": 0.0,
+      "y": 0.0
+    },
     "weight": 10.0,
     "ability": {
       "action_kind": "primary",
@@ -45,6 +49,10 @@
     "kind": "one_handed_weapon",
     "name": "Test Continuous Beam Weapon",
     "description": "Test Continuous Beam Weapon description",
+    "position": {
+      "x": 0.0,
+      "y": 0.0
+    },
     "weight": 10.0,
     "ability": {
       "action_kind": "primary",
@@ -85,6 +93,10 @@
     "kind": "one_handed_weapon",
     "name": "Test Beam Weapon",
     "description": "Test Beam Weapon description",
+    "position": {
+      "x": 0.0,
+      "y": 0.0
+    },
     "weight": 10.0,
     "ability": {
       "action_kind": "primary",
@@ -126,6 +138,10 @@
     "kind": "misc",
     "name": "Test Trinket",
     "description": "Test Trinket description",
+    "position": {
+      "x": 0.0,
+      "y": 0.0
+    },
     "weight": 1.0,
     "ability": {
       "action_kind": "secondary",

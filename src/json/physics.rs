@@ -3,12 +3,12 @@ use serde::{
     Deserialize,
 };
 
-use crate::json::Vec2;
+use crate::json::Vec2Def;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Collider {
     kind: String,
-    offset: Vec2,
+    offset: Vec2Def,
     radius: Option<f32>,
     width: Option<f32>,
     height: Option<f32>,
@@ -22,14 +22,14 @@ impl Collider {
         match other {
             crate::Collider::Circle(circle) => Collider {
                 kind: Self::CIRCLE_KIND.to_string(),
-                offset: Vec2::new(circle.x, circle.y),
+                offset: Vec2Def::new(circle.x, circle.y),
                 radius: Some(circle.r),
                 width: None,
                 height: None,
             },
             crate::Collider::Rectangle(rect) => Collider {
                 kind: Self::RECTANGLE_KIND.to_string(),
-                offset: Vec2::new(rect.x, rect.y),
+                offset: Vec2Def::new(rect.x, rect.y),
                 radius: None,
                 width: Some(rect.w),
                 height: Some(rect.h),

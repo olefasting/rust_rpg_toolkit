@@ -83,13 +83,16 @@ fn generic_actor(name: &str, position: Vec2, skin_id: u32, factions: &[String], 
         None => ActorControllerKind::Computer,
     };
     let resources = get_global::<Resources>();
-    let prototype = resources.actors.get(&format!("generic_actor_0{}", skin_id+1)).unwrap();
-    let params = ActorParams::from_prototype(position, prototype.clone());
-    Actor::new(controller_kind, ActorParams {
+    let params = resources.actors.get(&format!("generic_actor_0{}", skin_id+1)).cloned().unwrap();
+    let mut actor = Actor::new(controller_kind, ActorParams {
+        position: Some(position),
         name: name.to_string(),
         factions: factions.to_vec(),
         ..params
-    })
+    });
+    actor.stats.recalculate_derived();
+    actor.stats.restore_vitals();
+    actor
 }
 
 fn window_conf() -> Conf {

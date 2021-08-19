@@ -92,7 +92,6 @@ dependencies = [
  "macroquad-profiler",
  "macroquad-tiled",
  "nanoid",
- "nanoserde",
  "serde",
  "serde_json",
 ]

@@ -1,4 +1,5 @@
 use macroquad::prelude::*;
+use crate::nodes::ActorParams;
 
 #[derive(Clone)]
 pub struct ActorStats {
@@ -20,7 +21,6 @@ pub struct ActorStats {
     pub energy_regen: f32,
     pub carry_capacity: f32,
     pub move_speed: f32,
-    pub is_static: bool,
 }
 
 impl ActorStats {
@@ -34,6 +34,9 @@ impl ActorStats {
         willpower: u32,
         perception: u32,
         charisma: u32,
+        current_health: f32,
+        current_stamina: f32,
+        current_energy: f32,
     ) -> Self {
         let mut stats = ActorStats {
             strength,
@@ -43,48 +46,24 @@ impl ActorStats {
             willpower,
             perception,
             charisma,
-            is_static: false,
+            current_health,
+            current_stamina,
+            current_energy,
             ..Default::default()
         };
         stats.update();
         stats
     }
 
-    pub fn new_static(
-        current_health: f32,
-        max_health: f32,
-        current_energy: f32,
-        max_stamina: f32,
-        current_stamina: f32,
-        max_energy: f32,
-        carry_capacity: f32,
-        move_speed: f32,
-    ) -> Self {
-        ActorStats {
-            current_health,
-            max_health,
-            current_stamina,
-            max_stamina,
-            current_energy,
-            max_energy,
-            carry_capacity,
-            move_speed,
-            is_static: true,
-            ..Default::default()
-        }
-    }
-
     pub fn recalculate_derived(&mut self) {
-        if !self.is_static {
-            self.max_health = (self.constitution + self.strength / 4 + self.willpower / 4) as f32 * 100.0;
-            self.max_stamina = (self.constitution + self.dexterity / 4 + self.willpower / 4) as f32 * 100.0;
-            self.max_energy = (self.willpower + self.constitution / 2) as f32 * 100.0;
-            self.health_regen = (self.constitution + self.strength / 4 + self.willpower / 4) as f32 * 0.1;
-            self.stamina_regen = (self.constitution + self.dexterity / 4 + self.willpower / 4) as f32 * 8.0;
-            self.energy_regen = (self.willpower + self.constitution / 2) as f32 * 0.5;
-            self.move_speed = (self.dexterity + self.strength / 4 + self.willpower / 4) as f32 * 0.1;
-            self.carry_capacity = (self.strength + self.constitution / 4 + self.willpower / 4) as f32 * 50.0;
-        }
+        self.max_health = (self.constitution + self.strength / 4 + self.willpower / 4) as f32 * 100.0;
+        self.max_stamina = (self.constitution + self.dexterity / 4 + self.willpower / 4) as f32 * 100.0;
+        self.max_energy = (self.willpower + self.constitution / 2) as f32 * 100.0;
+        self.health_regen = (self.constitution + self.strength / 4 + self.willpower / 4) as f32 * 0.1;
+        self.stamina_regen = (self.constitution + self.dexterity / 4 + self.willpower / 4) as f32 * 8.0;
+        self.energy_regen = (self.willpower + self.constitution / 2) as f32 * 0.5;
+        self.move_speed = (self.dexterity + self.strength / 4 + self.willpower / 4) as f32 * 0.1;
+        self.carry_capacity = (self.strength + self.constitution / 4 + self.willpower / 4) as f32 * 50.0;
     }
 
     pub fn update(&mut self) {
@@ -150,7 +129,24 @@ impl Default for ActorStats {
             energy_regen: 0.0,
             carry_capacity: 0.0,
             move_speed: 0.0,
-            is_static: true,
+        }
+    }
+}
+
+impl From<&ActorParams> for ActorStats {
+    fn from(params: &ActorParams) -> Self {
+        ActorStats {
+            strength: params.strength,
+            dexterity: params.dexterity,
+            constitution: params.constitution,
+            intelligence: params.intelligence,
+            willpower: params.willpower,
+            perception: params.perception,
+            charisma: params.charisma,
+            current_health: params.current_health,
+            current_stamina: params.current_stamina,
+            current_energy: params.current_energy,
+            ..Default::default()
         }
     }
 }

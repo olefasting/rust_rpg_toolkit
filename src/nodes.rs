@@ -4,7 +4,6 @@ pub use actor::{
     ActorControllerKind,
     ActorInventory,
     ActorParams,
-    ActorPrototype,
     ActorStats,
 };
 pub use camera::Camera;
@@ -12,7 +11,6 @@ pub use game_state::GameState;
 pub use projectiles::Projectiles;
 pub use continuous_beams::ContinuousBeams;
 pub use item::{
-    ItemPrototype,
     ItemParams,
     Item,
 };

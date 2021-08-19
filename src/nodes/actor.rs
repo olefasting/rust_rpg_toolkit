@@ -17,6 +17,8 @@ use macroquad::{
 use serde::{
     Deserialize,
     Serialize,
+    Serializer,
+    Deserializer,
 };
 
 pub use controller::{
@@ -24,7 +26,10 @@ pub use controller::{
     ActorControllerKind,
 };
 
-pub use inventory::ActorInventory;
+pub use inventory::{
+    ActorInventory,
+    ActorInventoryEntry,
+};
 pub use stats::ActorStats;
 
 use crate::{
@@ -41,76 +46,110 @@ use crate::{
         HorizontalAlignment,
         SpriteAnimationParams,
         SpriteAnimationPlayer,
+        Viewport,
     },
     ability::{
         Ability,
         AbilityParams,
     },
     Resources,
+    input::apply_local_input,
+    nodes::{
+        Item,
+        ItemParams,
+        draw_buffer::{
+            Bounds,
+            BufferedDraw,
+            DrawBuffer,
+        },
+    },
+    json,
 };
-
-use crate::input::apply_local_input;
-use crate::nodes::{Item, ItemParams};
-use crate::nodes::actor::inventory::ActorInventoryEntry;
-use crate::nodes::draw_buffer::{Bounds, BufferedDraw, DrawBuffer};
-use crate::nodes::item::ItemPrototype;
-use crate::render::Viewport;
 
 mod controller;
 mod inventory;
 mod stats;
+//
+// #[derive(Clone)]
+// pub struct ActorPrototype {
+//     pub id: String,
+//     pub name: String,
+//     pub stats: ActorStats,
+//     pub factions: Vec<String>,
+//     pub collider: Option<Collider>,
+//     pub inventory: Vec<String>,
+//     pub sprite_animation: SpriteAnimationParams,
+// }
 
-#[derive(Clone)]
-pub struct ActorPrototype {
-    pub id: String,
+#[derive(Clone, Serialize, Deserialize)]
+pub struct ActorParams {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(alias = "id")]
+    pub prototype_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(with = "json::opt_vec2")]
+    pub position: Option<Vec2>,
     pub name: String,
-    pub stats: ActorStats,
+    pub strength: u32,
+    pub dexterity: u32,
+    pub constitution: u32,
+    pub intelligence: u32,
+    pub willpower: u32,
+    pub perception: u32,
+    pub charisma: u32,
+    #[serde(default)]
+    pub current_health: f32,
+    #[serde(default)]
+    pub current_stamina: f32,
+    #[serde(default)]
+    pub current_energy: f32,
     pub factions: Vec<String>,
-    pub collider: Option<Collider>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(with = "json::opt_rect")]
+    pub collider: Option<Rect>,
     pub inventory: Vec<String>,
     pub sprite_animation: SpriteAnimationParams,
 }
 
-#[derive(Clone)]
-pub struct ActorParams {
-    pub position: Vec2,
-    pub name: String,
-    pub stats: ActorStats,
-    pub factions: Vec<String>,
-    pub collider: Option<Collider>,
-    pub inventory: Vec<ItemParams>,
-    pub sprite_animation: SpriteAnimationParams,
-}
-
-impl ActorParams {
-    pub fn from_prototype(position: Vec2, prototype: ActorPrototype) -> Self {
-        let resources = get_global::<Resources>();
-        let mut stats = prototype.stats;
-        stats.restore_vitals();
-        ActorParams {
-            position,
-            name: prototype.name,
-            stats,
-            factions: prototype.factions,
-            collider: prototype.collider,
-            inventory: prototype.inventory.into_iter().filter_map(|item_id| {
-                if let Some(item_prototype) = resources.items.get(&item_id) {
-                    Some(ItemParams::from(item_prototype.clone()))
-                } else {
-                    None
-                }
-            }).collect(),
-            sprite_animation: prototype.sprite_animation,
-        }
-    }
-}
+// impl ActorParams {
+//     pub fn from_prototype(position: Vec2, prototype: ActorPrototype) -> Self {
+//         let resources = get_global::<Resources>();
+//         let mut stats = prototype.stats;
+//         stats.restore_vitals();
+//         ActorParams {
+//             position,
+//             name: prototype.name,
+//             stats,
+//             factions: prototype.factions,
+//             collider: prototype.collider,
+//             inventory: prototype.inventory.into_iter().filter_map(|item_id| {
+//                 if let Some(item_prototype) = resources.items.get(&item_id) {
+//                     Some(ItemParams::from(item_prototype.clone()))
+//                 } else {
+//                     None
+//                 }
+//             }).collect(),
+//             sprite_animation: prototype.sprite_animation,
+//         }
+//     }
+// }
 
 impl Default for ActorParams {
     fn default() -> Self {
         ActorParams {
-            position: Vec2::ZERO,
+            prototype_id: None,
+            position: None,
             name: "Unnamed Actor".to_string(),
-            stats: Default::default(),
+            strength: 8,
+            dexterity: 8,
+            constitution: 8,
+            intelligence: 8,
+            willpower: 8,
+            perception: 8,
+            charisma: 8,
+            current_health: 0.0,
+            current_stamina: 0.0,
+            current_energy: 0.0,
             factions: Vec::new(),
             collider: None,
             inventory: Vec::new(),
@@ -122,13 +161,30 @@ impl Default for ActorParams {
 impl From<Actor> for ActorParams {
     fn from(actor: Actor) -> Self {
         ActorParams {
-            position: actor.body.position,
+            prototype_id: None,
+            position: Some(actor.body.position),
             name: actor.name,
-            stats: actor.stats,
+            strength: actor.stats.strength,
+            dexterity: actor.stats.dexterity,
+            constitution: actor.stats.constitution,
+            intelligence: actor.stats.intelligence,
+            willpower: actor.stats.willpower,
+            perception: actor.stats.perception,
+            charisma: actor.stats.charisma,
+            current_health: actor.stats.current_health,
+            current_stamina: actor.stats.current_stamina,
+            current_energy: actor.stats.current_energy,
             factions: actor.factions,
-            collider: actor.body.collider,
-            inventory: actor.inventory.to_params(),
-            sprite_animation: actor.sprite_animation.to_sprite_params(),
+            collider: match actor.body.collider {
+                Some(collider) => Some(Rect::from(collider)),
+                _ => None,
+            },
+            inventory: actor.inventory
+                .to_params()
+                .into_iter()
+                .filter_map(|params| if let Some(id) = params.prototype_id { Some(id) } else { None })
+                .collect(),
+            sprite_animation: SpriteAnimationParams::from(actor.sprite_animation),
         }
     }
 }
@@ -140,11 +196,11 @@ pub struct Actor {
     pub stats: ActorStats,
     pub factions: Vec<String>,
     pub body: PhysicsBody,
-    sprite_animation: SpriteAnimationPlayer,
     pub inventory: ActorInventory,
     pub primary_ability: Option<Ability>,
     pub secondary_ability: Option<Ability>,
     pub controller: ActorController,
+    sprite_animation: SpriteAnimationPlayer,
 }
 
 impl Actor {
@@ -161,17 +217,30 @@ impl Actor {
     const INTERACT_RADIUS: f32 = 36.0;
 
     pub fn new(controller_kind: ActorControllerKind, params: ActorParams) -> Self {
+        let collider = match params.collider {
+            Some(rect) => Some(Collider::Rectangle(rect)),
+            _ => None,
+        };
+
+        let resources = get_global::<Resources>();
+        let item_params: Vec<ItemParams> = params.inventory
+            .iter()
+            .map(|prototype_id| resources.items.get(prototype_id)
+                .cloned()
+                .expect(&format!("Unable to load item prototype with id '{}'!", prototype_id)))
+            .collect();
+
         Actor {
             id: generate_id(),
-            name: params.name,
-            stats: params.stats,
+            name: params.name.clone(),
+            stats: ActorStats::from(&params),
             factions: params.factions,
-            body: PhysicsBody::new(params.position, 0.0, params.collider),
-            sprite_animation: SpriteAnimationPlayer::new(params.sprite_animation.clone()),
-            inventory: ActorInventory::from(params.inventory),
+            body: PhysicsBody::new(params.position.unwrap_or_default(), 0.0, collider),
+            inventory: ActorInventory::from(item_params),
             primary_ability: None,
             secondary_ability: None,
             controller: ActorController::new(controller_kind),
+            sprite_animation: SpriteAnimationPlayer::new(params.sprite_animation.clone()),
         }
     }
 

@@ -11,8 +11,8 @@ use serde::{
 use crate::{
     MapLayerKind,
     json::{
-        Vec2,
-        UVec2,
+        Vec2Def,
+        UVec2Def,
     }
 };
 
@@ -21,9 +21,9 @@ const OBJECT_LAYER_KIND: &'static str = "object_layer";
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Map {
-    pub world_offset: Option<Vec2>,
-    pub grid_size: UVec2,
-    pub tile_size: Vec2,
+    pub world_offset: Option<Vec2Def>,
+    pub grid_size: UVec2Def,
+    pub tile_size: Vec2Def,
     pub layers: Vec<MapLayer>,
     pub tilesets: Vec<MapTileset>,
 }
@@ -59,9 +59,9 @@ impl From<crate::Map> for Map {
         }).collect();
 
         Map {
-            world_offset: if other.world_offset != macroquad::prelude::Vec2::ZERO { Some(Vec2::from(other.world_offset)) } else { None },
-            grid_size: UVec2::from(other.grid_size),
-            tile_size: Vec2::from(other.tile_size),
+            world_offset: if other.world_offset != macroquad::prelude::Vec2::ZERO { Some(Vec2Def::from(other.world_offset)) } else { None },
+            grid_size: UVec2Def::from(other.grid_size),
+            tile_size: Vec2Def::from(other.tile_size),
             layers,
             tilesets: other.tilesets.into_iter().map(|(_, tileset)| MapTileset::from(tileset)).collect(),
         }
@@ -153,7 +153,7 @@ impl From<&str> for crate::MapLayerKind {
 pub struct MapObject {
     pub id: String,
     pub prototype_id: Option<String>,
-    pub position: Vec2,
+    pub position: Vec2Def,
 }
 
 impl From<crate::MapObject> for MapObject {
@@ -161,7 +161,7 @@ impl From<crate::MapObject> for MapObject {
         MapObject {
             id: other.id.clone(),
             prototype_id: other.prototype_id.clone(),
-            position: Vec2::from(other.position),
+            position: Vec2Def::from(other.position),
         }
     }
 }
@@ -181,9 +181,9 @@ impl From<MapObject> for crate::MapObject {
 pub struct MapTileset {
     pub id: String,
     pub texture_id: String,
-    pub texture_size: UVec2,
-    pub tile_size: UVec2,
-    pub grid_size: UVec2,
+    pub texture_size: UVec2Def,
+    pub tile_size: UVec2Def,
+    pub grid_size: UVec2Def,
     pub first_tile_id: u32,
     pub tile_cnt: u32,
 }
@@ -193,9 +193,9 @@ impl From<crate::MapTileset> for MapTileset {
         MapTileset {
             id: other.id.clone(),
             texture_id: other.texture_id.clone(),
-            texture_size: UVec2::from(other.texture_size),
-            tile_size: UVec2::from(other.tile_size),
-            grid_size: UVec2::from(other.grid_size),
+            texture_size: UVec2Def::from(other.texture_size),
+            tile_size: UVec2Def::from(other.tile_size),
+            grid_size: UVec2Def::from(other.grid_size),
             first_tile_id: other.first_tile_id,
             tile_cnt: other.tile_cnt,
         }

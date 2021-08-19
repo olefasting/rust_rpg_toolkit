@@ -22,22 +22,29 @@ use crate::{
         SpriteAnimationParams,
         SpriteAnimationPlayer,
     },
+    json,
 };
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct AbilityParams {
     pub effect_kind: String,
     pub action_kind: String,
+    #[serde(default)]
     pub cooldown: f32,
+    #[serde(default)]
     pub health_cost: f32,
+    #[serde(default)]
     pub stamina_cost: f32,
+    #[serde(default)]
     pub energy_cost: f32,
     pub speed: f32,
     pub spread: f32,
     pub range: f32,
     pub damage: f32,
     pub effect_size: f32,
+    #[serde(with = "json::ColorDef")]
     pub effect_color: Color,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub effect_sprite_animation: Option<SpriteAnimationParams>,
 }
 

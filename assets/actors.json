@@ -2,17 +2,18 @@
   {
     "id": "generic_actor_01",
     "name": "Generic Actor",
-    "is_prototype": true,
     "factions": [],
-    "stats": {
-      "strength": 8,
-      "dexterity": 8,
-      "constitution": 8,
-      "intelligence": 8,
-      "willpower": 8,
-      "perception": 8,
-      "charisma": 8
+    "position": {
+      "x": 0.0,
+      "y": 0.0
     },
+    "strength": 8,
+    "dexterity": 8,
+    "constitution": 8,
+    "intelligence": 8,
+    "willpower": 8,
+    "perception": 8,
+    "charisma": 8,
     "inventory": [
       "test_beam_weapon",
       "test_continuous_beam_weapon",
@@ -20,11 +21,8 @@
       "test_trinket"
     ],
     "collider": {
-      "kind": "rectangle",
-      "offset": {
-        "x": -8.0,
-        "y": 0.0
-      },
+      "x": -8.0,
+      "y": 0.0,
       "width": 16.0,
       "height": 16.0
     },
@@ -63,17 +61,18 @@
   {
     "id": "generic_actor_02",
     "name": "Generic Actor",
-    "is_prototype": true,
-    "factions": [],
-    "stats": {
-      "strength": 8,
-      "dexterity": 8,
-      "constitution": 8,
-      "intelligence": 8,
-      "willpower": 8,
-      "perception": 8,
-      "charisma": 8
+    "position": {
+      "x": 0.0,
+      "y": 0.0
     },
+    "factions": [],
+    "strength": 8,
+    "dexterity": 8,
+    "constitution": 8,
+    "intelligence": 8,
+    "willpower": 8,
+    "perception": 8,
+    "charisma": 8,
     "inventory": [
       "test_beam_weapon",
       "test_continuous_beam_weapon",
@@ -81,11 +80,8 @@
       "test_trinket"
     ],
     "collider": {
-      "kind": "rectangle",
-      "offset": {
-        "x": -8.0,
-        "y": 0.0
-      },
+      "x": -8.0,
+      "y": 0.0,
       "width": 16.0,
       "height": 16.0
     },
@@ -124,17 +120,18 @@
   {
     "id": "generic_actor_03",
     "name": "Generic Actor",
-    "is_prototype": true,
-    "factions": [],
-    "stats": {
-      "strength": 8,
-      "dexterity": 8,
-      "constitution": 8,
-      "intelligence": 8,
-      "willpower": 8,
-      "perception": 8,
-      "charisma": 8
+    "position": {
+      "x": 0.0,
+      "y": 0.0
     },
+    "factions": [],
+    "strength": 8,
+    "dexterity": 8,
+    "constitution": 8,
+    "intelligence": 8,
+    "willpower": 8,
+    "perception": 8,
+    "charisma": 8,
     "inventory": [
       "test_beam_weapon",
       "test_continuous_beam_weapon",
@@ -142,11 +139,8 @@
       "test_trinket"
     ],
     "collider": {
-      "kind": "rectangle",
-      "offset": {
-        "x": -8.0,
-        "y": 0.0
-      },
+      "x": -8.0,
+      "y": 0.0,
       "width": 16.0,
       "height": 16.0
     },
