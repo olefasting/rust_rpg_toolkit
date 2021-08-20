@@ -7,6 +7,7 @@ use macroquad::{
             Handle,
             RefMut,
         },
+        collections::storage,
     },
     color,
     prelude::*,
@@ -14,7 +15,6 @@ use macroquad::{
 
 use crate::{
     GameState,
-    set_global,
     Viewport,
     Actor,
     get_mouse_position,
@@ -63,11 +63,11 @@ impl Camera {
 
 impl Node for Camera {
     fn ready(node: RefMut<Self>) {
-        set_global(node.get_viewport());
+        storage::store(node.get_viewport());
     }
 
     fn update(node: RefMut<Self>) {
-        set_global(node.get_viewport());
+        storage::store(node.get_viewport());
     }
 
     fn fixed_update(mut node: RefMut<Self>) {

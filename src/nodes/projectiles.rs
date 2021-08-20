@@ -7,12 +7,12 @@ use macroquad::{
             Handle,
             RefMut,
         },
+        collections::storage,
     },
     prelude::*,
 };
 
 use crate::{
-    get_global,
     nodes::{
         Camera,
         Actor,
@@ -180,7 +180,7 @@ impl Node for Projectiles {
             let collider = Collider::circle(0.0, 0.0, projectile.size / 2.0).offset(projectile.position);
             'outer: for mut other_actor in scene::find_nodes_by_type::<Actor>() {
                 if let Some(other_collider) = other_actor.body.get_offset_collider() {
-                    if collider.overlaps(&other_collider) {
+                    if collider.overlaps(other_collider) {
                         if projectile.actor_id != other_actor.id {
                             for faction in &projectile.factions {
                                 if other_actor.factions.contains(&faction) {
@@ -194,7 +194,7 @@ impl Node for Projectiles {
                 }
             }
             let game_state = scene::find_node_by_type::<GameState>().unwrap();
-            let rect = game_state.map.to_map_grid(Rect::from(collider));
+            let rect = game_state.map.to_grid(collider.into());
             for layer_id in &[MAP_LAYER_SOLIDS, MAP_LAYER_BARRIERS] {
                 for (_, _, tile) in game_state.map.get_tiles(layer_id, Some(rect)) {
                     if tile.is_some() {
@@ -207,7 +207,7 @@ impl Node for Projectiles {
     }
 
     fn draw(mut node: RefMut<Self>) {
-        let viewport = get_global::<Viewport>();
+        let viewport = storage::get::<Viewport>();
         let frustum = viewport.get_frustum();
         for projectile in &mut node.active {
             if frustum.contains(projectile.position) {

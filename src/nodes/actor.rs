@@ -10,6 +10,7 @@ use macroquad::{
             Node,
             RefMut,
         },
+        collections::storage,
     },
     prelude::*,
 };
@@ -33,7 +34,6 @@ pub use inventory::{
 pub use stats::ActorStats;
 
 use crate::{
-    get_global,
     draw_aligned_text,
     generate_id,
     physics::{
@@ -83,11 +83,9 @@ mod stats;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct ActorParams {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[serde(alias = "id")]
+    #[serde(default, alias = "id", skip_serializing_if = "Option::is_none")]
     pub prototype_id: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[serde(with = "json::opt_vec2")]
+    #[serde(default, with = "json::opt_vec2", skip_serializing_if = "Option::is_none")]
     pub position: Option<Vec2>,
     pub name: String,
     pub strength: u32,
@@ -104,35 +102,11 @@ pub struct ActorParams {
     #[serde(default)]
     pub current_energy: f32,
     pub factions: Vec<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[serde(with = "json::opt_rect")]
-    pub collider: Option<Rect>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub collider: Option<Collider>,
     pub inventory: Vec<String>,
     pub sprite_animation: SpriteAnimationParams,
 }
-
-// impl ActorParams {
-//     pub fn from_prototype(position: Vec2, prototype: ActorPrototype) -> Self {
-//         let resources = get_global::<Resources>();
-//         let mut stats = prototype.stats;
-//         stats.restore_vitals();
-//         ActorParams {
-//             position,
-//             name: prototype.name,
-//             stats,
-//             factions: prototype.factions,
-//             collider: prototype.collider,
-//             inventory: prototype.inventory.into_iter().filter_map(|item_id| {
-//                 if let Some(item_prototype) = resources.items.get(&item_id) {
-//                     Some(ItemParams::from(item_prototype.clone()))
-//                 } else {
-//                     None
-//                 }
-//             }).collect(),
-//             sprite_animation: prototype.sprite_animation,
-//         }
-//     }
-// }
 
 impl Default for ActorParams {
     fn default() -> Self {
@@ -154,37 +128,6 @@ impl Default for ActorParams {
             collider: None,
             inventory: Vec::new(),
             sprite_animation: Default::default(),
-        }
-    }
-}
-
-impl From<Actor> for ActorParams {
-    fn from(actor: Actor) -> Self {
-        ActorParams {
-            prototype_id: None,
-            position: Some(actor.body.position),
-            name: actor.name,
-            strength: actor.stats.strength,
-            dexterity: actor.stats.dexterity,
-            constitution: actor.stats.constitution,
-            intelligence: actor.stats.intelligence,
-            willpower: actor.stats.willpower,
-            perception: actor.stats.perception,
-            charisma: actor.stats.charisma,
-            current_health: actor.stats.current_health,
-            current_stamina: actor.stats.current_stamina,
-            current_energy: actor.stats.current_energy,
-            factions: actor.factions,
-            collider: match actor.body.collider {
-                Some(collider) => Some(Rect::from(collider)),
-                _ => None,
-            },
-            inventory: actor.inventory
-                .to_params()
-                .into_iter()
-                .filter_map(|params| if let Some(id) = params.prototype_id { Some(id) } else { None })
-                .collect(),
-            sprite_animation: SpriteAnimationParams::from(actor.sprite_animation),
         }
     }
 }
@@ -217,12 +160,7 @@ impl Actor {
     const INTERACT_RADIUS: f32 = 36.0;
 
     pub fn new(controller_kind: ActorControllerKind, params: ActorParams) -> Self {
-        let collider = match params.collider {
-            Some(rect) => Some(Collider::Rectangle(rect)),
-            _ => None,
-        };
-
-        let resources = get_global::<Resources>();
+        let resources = storage::get::<Resources>();
         let item_params: Vec<ItemParams> = params.inventory
             .iter()
             .map(|prototype_id| resources.items.get(prototype_id)
@@ -235,7 +173,7 @@ impl Actor {
             name: params.name.clone(),
             stats: ActorStats::from(&params),
             factions: params.factions,
-            body: PhysicsBody::new(params.position.unwrap_or_default(), 0.0, collider),
+            body: PhysicsBody::new(params.position.unwrap_or_default(), 0.0, params.collider),
             inventory: ActorInventory::from(item_params),
             primary_ability: None,
             secondary_ability: None,
@@ -310,6 +248,34 @@ impl Actor {
 
     pub fn interact(&self, other: &mut Actor) {
         println!("INTERACTION between '{}' and '{}'", self.name, other.name);
+    }
+}
+
+impl Into<ActorParams> for Actor {
+    fn into(self) -> ActorParams {
+        ActorParams {
+            prototype_id: None,
+            position: Some(self.body.position),
+            name: self.name,
+            strength: self.stats.strength,
+            dexterity: self.stats.dexterity,
+            constitution: self.stats.constitution,
+            intelligence: self.stats.intelligence,
+            willpower: self.stats.willpower,
+            perception: self.stats.perception,
+            charisma: self.stats.charisma,
+            current_health: self.stats.current_health,
+            current_stamina: self.stats.current_stamina,
+            current_energy: self.stats.current_energy,
+            factions: self.factions,
+            collider: self.body.collider,
+            inventory: self.inventory
+                .to_params()
+                .into_iter()
+                .filter_map(|params| params.prototype_id)
+                .collect(),
+            sprite_animation: SpriteAnimationParams::from(self.sprite_animation),
+        }
     }
 }
 
@@ -415,7 +381,7 @@ impl Node for Actor {
             let collider = Collider::circle(0.0, 0.0, Self::INTERACT_RADIUS).offset(node.body.position);
             for actor in scene::find_nodes_by_type::<Actor>() {
                 if let Some(other_collider) = actor.body.get_offset_collider() {
-                    if collider.overlaps(&other_collider) {
+                    if collider.overlaps(other_collider) {
                         for faction in &node.factions {
                             if actor.factions.contains(faction) {
                                 actor.interact(&mut *node);
@@ -440,7 +406,7 @@ impl BufferedDraw for Actor {
 
         let is_local_player = self.is_local_player();
         let (position, offset_y, alignment, length, height, border) = if is_local_player {
-            let viewport = get_global::<Viewport>();
+            let viewport = storage::get::<Viewport>();
             let height = Self::HEALTH_BAR_HEIGHT * viewport.scale;
             (vec2(10.0, 10.0), height / 2.0, HorizontalAlignment::Left, Self::HEALTH_BAR_LENGTH * viewport.scale, height, viewport.scale)
         } else {

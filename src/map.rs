@@ -8,6 +8,9 @@ use std::{
 
 use macroquad::{
     color,
+    experimental::{
+        collections::storage,
+    },
     prelude::*,
 };
 
@@ -29,13 +32,13 @@ use crate::{
     MAP_LAYER_SOLIDS,
     draw_aligned_text,
     MAP_LAYER_GROUND,
-    get_global,
     json,
 };
 use crate::physics::beam_collision_check;
 use crate::render::{Viewport, HorizontalAlignment};
 use crate::math::URect;
 use crate::json::MapDef;
+use crate::map::MapCollisionKind::Solid;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(into = "json::MapDef", from = "json::MapDef")]
@@ -57,26 +60,57 @@ impl Map {
         Ok(map)
     }
 
-    pub fn load_tiled(path: &str, export_path: Option<&str>, tiled_tilesets: &[(&str, &str, &str)]) -> io::Result<Self> {
-        let map = Map::from(TiledMap::new(path, tiled_tilesets));
+    pub fn load_tiled(
+        path: &str,
+        export_path: Option<&str>,
+        collisions: Option<&[(&str, MapCollisionKind)]>,
+        tiled_tilesets: &[(&str, &str, &str)],
+    ) -> io::Result<Self> {
+        let mut map = TiledMap::load(path, collisions, tiled_tilesets).into();
         if let Some(export_path) = export_path {
-           let json = serde_json::to_string_pretty(&map)?;
+            let json = serde_json::to_string_pretty(&map)?;
             std::fs::write(export_path, json)?;
         }
         Ok(map)
     }
 
-    pub fn to_map_grid(&self, rect: Rect) -> URect {
-            let p = self.to_map_point(rect.point());
-            let w = ((rect.w / self.tile_size.x) as u32).clamp(0, self.grid_size.x - p.x);
-            let h = ((rect.h / self.tile_size.y) as u32).clamp(0, self.grid_size.y - p.y);
+    pub fn to_grid(&self, rect: Rect) -> URect {
+        let p = self.to_coords(rect.point());
+        let w = ((rect.w / self.tile_size.x) as u32).clamp(0, self.grid_size.x - p.x);
+        let h = ((rect.h / self.tile_size.y) as u32).clamp(0, self.grid_size.y - p.y);
         URect::new(p.x, p.y, w, h)
     }
 
-    pub fn to_map_point(&self, position: Vec2) -> UVec2 {
+    pub fn to_coords(&self, position: Vec2) -> UVec2 {
         let x = ((position.x - self.world_offset.x) as u32 / self.tile_size.x as u32).clamp(0, self.grid_size.x - 1);
         let y = ((position.y - self.world_offset.y) as u32 / self.tile_size.y as u32).clamp(0, self.grid_size.y - 1);
         uvec2(x, y)
+    }
+
+    pub fn to_position(&self, point: UVec2) -> Vec2 {
+        vec2(
+            point.x as f32 * self.tile_size.x + self.world_offset.x,
+            point.y as f32 * self.tile_size.y + self.world_offset.y,
+        )
+    }
+
+    pub fn get_collisions(&self, collider: Collider) -> Vec<(Vec2, MapCollisionKind)> {
+        let rect = self.to_grid(collider.into());
+        let mut collisions = Vec::new();
+        'layers: for (_, layer) in &self.layers {
+            match layer.collision {
+                MapCollisionKind::None => continue 'layers,
+                _ => for (x, y, tile) in self.get_tiles(&layer.id, Some(rect)) {
+                    if tile.is_some() {
+                        collisions.push((
+                            self.to_position(uvec2(x, y)),
+                            layer.collision.clone(),
+                        ));
+                    }
+                }
+            }
+        }
+        collisions
     }
 
     pub fn get_tile(&self, layer_id: &str, x: u32, y: u32) -> &Option<MapTile> {
@@ -101,7 +135,7 @@ impl Map {
     }
 
     pub fn draw(&mut self, layer_ids: &[&str], rect: Option<URect>) {
-        let resources = get_global::<Resources>();
+        let resources = storage::get::<Resources>();
         for layer_id in layer_ids {
             for (x, y, tile) in self.get_tiles(layer_id, rect) {
                 if let Some(tile) = tile {
@@ -184,17 +218,50 @@ impl<'a> Iterator for MapTileIterator<'a> {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(from = "String", into = "String")]
 pub enum MapLayerKind {
-    #[serde(alias = "tile_layer")]
     TileLayer,
-    #[serde(alias = "object_layer")]
     ObjectLayer,
+}
+
+impl MapLayerKind {
+    pub const TILE_LAYER_STRING: &'static str = "tile_layer";
+    pub const OBJECT_LAYER_STRING: &'static str = "object_layer";
+}
+
+impl Default for MapLayerKind {
+    fn default() -> Self {
+        MapLayerKind::TileLayer
+    }
+}
+
+impl From<String> for MapLayerKind {
+    fn from(string: String) -> Self {
+        if string == Self::TILE_LAYER_STRING {
+            Self::TileLayer
+        } else if string == Self::OBJECT_LAYER_STRING {
+            Self::ObjectLayer
+        } else {
+            Self::default()
+        }
+    }
+}
+
+impl Into<String> for MapLayerKind {
+    fn into(self) -> String {
+        match self {
+            Self::TileLayer => Self::TILE_LAYER_STRING.to_string(),
+            Self::ObjectLayer => Self::OBJECT_LAYER_STRING.to_string(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MapLayer {
     pub id: String,
     pub kind: MapLayerKind,
+    #[serde(default, skip_serializing_if = "MapCollisionKind::is_none")]
+    pub collision: MapCollisionKind,
     #[serde(with = "json::def_uvec2")]
     pub grid_size: UVec2,
     pub tiles: Vec<Option<MapTile>>,
@@ -238,5 +305,54 @@ impl MapTileset {
         let x = ((tile_id % self.grid_size.x) * self.tile_size.x) as f32;
         let y = ((tile_id / self.grid_size.x) * self.tile_size.y) as f32;
         vec2(x, y)
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(from = "String", into = "String")]
+pub enum MapCollisionKind {
+    None,
+    Barrier,
+    Solid,
+}
+
+impl MapCollisionKind {
+    pub const NO_COLLISION_STRING: &'static str = "none";
+    pub const SOLID_COLLISION_STRING: &'static str = "solid";
+    pub const BARRIER_COLLISION_STRING: &'static str = "barrier";
+
+    pub fn is_none(&self) -> bool {
+        match self {
+            Self::None => true,
+            _ => false,
+        }
+    }
+}
+
+impl Default for MapCollisionKind {
+    fn default() -> Self {
+        MapCollisionKind::None
+    }
+}
+
+impl From<String> for MapCollisionKind {
+    fn from(string: String) -> Self {
+        if string == Self::BARRIER_COLLISION_STRING {
+            Self::Barrier
+        } else if string == Self::SOLID_COLLISION_STRING {
+            Self::Solid
+        } else {
+            Self::None
+        }
+    }
+}
+
+impl Into<String> for MapCollisionKind {
+    fn into(self) -> String {
+        match self {
+            Self::None => Self::NO_COLLISION_STRING.to_string(),
+            Self::Barrier => Self::BARRIER_COLLISION_STRING.to_string(),
+            Self::Solid => Self::SOLID_COLLISION_STRING.to_string(),
+        }
     }
 }

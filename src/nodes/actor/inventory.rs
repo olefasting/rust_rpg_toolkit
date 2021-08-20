@@ -4,11 +4,19 @@ use macroquad::{
             Handle,
             RefMut,
         },
+        collections::storage,
     },
     prelude::*,
 };
 
-use crate::{ItemParams, Item, render::Sprite, nodes::actor::Ability, generate_id, Resources, get_global};
+use crate::{
+    ItemParams,
+    Item,
+    render::Sprite,
+    nodes::actor::Ability,
+    generate_id,
+    Resources,
+};
 
 #[derive(Clone)]
 pub struct ActorInventoryEntry {
@@ -111,7 +119,7 @@ impl ActorInventory {
 
 impl From<Vec<ItemParams>> for ActorInventory {
     fn from(params_vec: Vec<ItemParams>) -> Self {
-        let resources = get_global::<Resources>();
+        let resources = storage::get::<Resources>();
         ActorInventory {
             items: params_vec.into_iter().map(|params| ActorInventoryEntry::new(params)).collect(),
         }

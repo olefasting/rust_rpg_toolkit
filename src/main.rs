@@ -7,6 +7,7 @@ use macroquad::{
     experimental::{
         coroutines::start_coroutine,
         scene,
+        collections::storage,
     },
     prelude::*,
 };
@@ -47,17 +48,12 @@ pub use ability::{
     AbilityParams,
     Ability,
 };
-pub use global::{
-    try_get_global,
-    get_global,
-    set_global,
-};
+use crate::map::MapCollisionKind;
 
 mod resources;
 mod map;
 mod ability;
 
-pub mod global;
 pub mod nodes;
 pub mod render;
 pub mod input;
@@ -82,7 +78,7 @@ fn generic_actor(name: &str, position: Vec2, skin_id: u32, factions: &[String], 
         Some(player_id) => ActorControllerKind::LocalPlayer { player_id },
         None => ActorControllerKind::Computer,
     };
-    let resources = get_global::<Resources>();
+    let resources = storage::get::<Resources>();
     let params = resources.actors.get(&format!("generic_actor_0{}", skin_id + 1)).cloned().unwrap();
     let mut actor = Actor::new(controller_kind, ActorParams {
         position: Some(position),
@@ -110,7 +106,7 @@ fn window_conf() -> Conf {
 async fn main() {
     let load_resources = start_coroutine(async move {
         let resources = Resources::new().await.unwrap();
-        set_global(resources);
+        storage::store(resources);
     });
 
     while load_resources.is_done() == false {
@@ -134,19 +130,27 @@ async fn main() {
         let player_id = generate_id();
         let player_spawn_position = vec2(32.0, 100.0);
 
-        // let map = Map::load_tiled(
-        //     "assets/maps/test_tiled_map.json",
-        //     Some("assets/maps/converted_tiled_map.json"),
-        //     &[
-        //         ("neo_zero_tiles", "../textures/neo_zero_tiles.png", "tiles"),
-        //         ("neo_zero_props", "../textures/neo_zero_props.png", "props"),
-        //         ("items", "../textures/items.png", "items"),
-        //     ]).unwrap();
+        let t = Collider::Rectangle { x: 0.0, y: 0.0, w: 10.0, h: 10.0 };
+        let json = serde_json::to_string_pretty(&t).unwrap();
+        std::fs::write("assets/test.json", json).unwrap();
 
-        let map = Map::load("assets/maps/test_capstone_map.json").unwrap();
+        let map = Map::load_tiled(
+            "assets/maps/test_tiled_map.json",
+            Some("assets/maps/converted_tiled_map.json"),
+            Some(&[
+                ("barriers", MapCollisionKind::Barrier),
+                ("solids", MapCollisionKind::Solid),
+            ]),
+            &[
+                ("neo_zero_tiles", "../textures/neo_zero_tiles.png", "tiles"),
+                ("neo_zero_props", "../textures/neo_zero_props.png", "props"),
+                ("items", "../textures/items.png", "items"),
+            ]).unwrap();
+
         // let map = Map::load("assets/maps/converted_tiled_map.json").unwrap();
+        // let map = Map::load("assets/maps/test_capstone_map.json").unwrap();
 
-        GameState::add_node(map, &player_id);
+        GameState::add_node(map, &player_id, true);
 
         Camera::add_node(player_spawn_position);
 

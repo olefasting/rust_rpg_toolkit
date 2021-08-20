@@ -4,14 +4,14 @@ use macroquad::{
             Node,
             Handle,
             RefMut,
-        }
+        },
+        collections::storage,
     },
     color,
     prelude::*,
 };
 
 use crate::{
-    get_global,
     Map,
     Viewport,
     MAP_LAYER_GROUND,
@@ -33,19 +33,19 @@ pub struct GameState {
 }
 
 impl GameState {
-    pub fn new(map: Map, local_player_id: &str) -> GameState {
+    pub fn new(map: Map, local_player_id: &str, in_debug_mode: bool) -> GameState {
         GameState {
             map,
             local_player_id: local_player_id.to_string(),
             show_character_window: false,
             show_inventory_window: false,
-            in_debug_mode: false,
+            in_debug_mode,
             should_quit: false,
         }
     }
 
-    pub fn add_node(map: Map, local_player_id: &str) -> Handle<Self> {
-        scene::add_node(Self::new(map, local_player_id))
+    pub fn add_node(map: Map, local_player_id: &str, in_debug_mode: bool) -> Handle<Self> {
+        scene::add_node(Self::new(map, local_player_id, in_debug_mode))
     }
 }
 
@@ -54,8 +54,8 @@ impl Node for GameState {
     }
 
     fn draw(mut node: RefMut<Self>) {
-        let viewport = get_global::<Viewport>();
-        let rect = node.map.to_map_grid(viewport.get_frustum());
+        let viewport = storage::get::<Viewport>();
+        let rect = node.map.to_grid(viewport.get_frustum());
         node.map.draw(&[MAP_LAYER_GROUND, MAP_LAYER_BARRIERS, MAP_LAYER_SOLIDS], Some(rect));
     }
 }

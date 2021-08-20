@@ -14,7 +14,7 @@ pub fn get_beam_end(origin: Vec2, end: Vec2, width: f32, tolerance: f32, layer_i
     let game_state = scene::find_node_by_type::<GameState>().unwrap();
     let tile_size = game_state.map.tile_size;
     let rect = {
-        let (origin, end) = (game_state.map.to_map_point(origin), game_state.map.to_map_point(end));
+        let (origin, end) = (game_state.map.to_coords(origin), game_state.map.to_coords(end));
         let ((x, w), (y, h)) = (
             if origin.x > end.x { (end.x, origin.x) } else { (origin.x, end.x) },
             if origin.y > end.y { (end.y, origin.y) } else { (origin.y, end.y) });

@@ -4,6 +4,7 @@ use macroquad::{
             AnimatedSprite,
             Animation,
         },
+        collections::storage,
     },
     color,
     prelude::*,
@@ -15,7 +16,6 @@ use serde::{
 };
 
 use crate::{
-    get_global,
     Resources,
     json,
 };
@@ -131,7 +131,7 @@ impl SpriteAnimationPlayer {
     }
 
     pub fn draw(&mut self, position: Vec2, rotation: f32) {
-        let resources = get_global::<Resources>();
+        let resources = storage::get::<Resources>();
         draw_texture_ex(
             resources.textures.get(&self.texture_id).cloned().unwrap(),
             position.x + self.offset.x,

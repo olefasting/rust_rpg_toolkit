@@ -1,4 +1,9 @@
-use macroquad::prelude::*;
+use macroquad::{
+    experimental::{
+        collections::storage,
+    },
+    prelude::*,
+};
 use macroquad_tiled as tiled;
 
 use std::{
@@ -9,7 +14,6 @@ use std::{
 
 use crate::{
     generate_id,
-    get_global,
     Resources,
     Map,
     MapLayerKind,
@@ -18,6 +22,7 @@ use crate::{
     MapObject,
     MapTileset,
 };
+use crate::map::MapCollisionKind;
 
 pub struct TiledTileset {
     pub relative_path: String,
@@ -27,17 +32,22 @@ pub struct TiledTileset {
 pub struct TiledMap {
     pub tiled_map: tiled::Map,
     pub tiled_tilesets: HashMap<String, TiledTileset>,
+    pub collisions: HashMap<String, MapCollisionKind>,
 }
 
 impl TiledMap {
-    pub fn new(path: &str, tiled_tilesets: &[(&str, &str, &str)]) -> Self {
+    pub fn load(
+        path: &str,
+        collisions: Option<&[(&str, MapCollisionKind)]>,
+        tiled_tilesets: &[(&str, &str, &str)],
+    ) -> Self {
         let tiled_tilesets = HashMap::from_iter(tiled_tilesets
                 .iter()
                 .map(|(name, relative_path, texture_id)| (name.to_string(), TiledTileset {
                     relative_path: relative_path.to_string(),
                     texture_id: texture_id.to_string(),
                 })));
-        let resources = get_global::<Resources>();
+        let resources = storage::get::<Resources>();
         let mut tileset_textures = Vec::new();
         for (_, tileset) in &tiled_tilesets {
             let texture = resources.textures
@@ -50,16 +60,24 @@ impl TiledMap {
         let tiled_map = tiled::load_map(&json, tileset_textures.deref(), &[])
             .expect(&format!("Error parsing tiled map '{}'!", path));
 
+        let collisions = match collisions {
+            Some(collisions) => HashMap::from_iter(collisions
+                .into_iter()
+                .map(|(layer_id, kind)| (layer_id.to_string(), kind.clone()))),
+            _ => HashMap::new(),
+        };
+
         TiledMap {
             tiled_map,
             tiled_tilesets,
+            collisions,
         }
     }
 }
 
-impl From<TiledMap> for Map {
-    fn from(other: TiledMap) -> Self {
-        let raw_tiled_map = &other.tiled_map.raw_tiled_map;
+impl Into<Map> for TiledMap {
+    fn into(self) -> Map {
+        let raw_tiled_map = &self.tiled_map.raw_tiled_map;
         let tile_size = vec2(raw_tiled_map.tilewidth as f32, raw_tiled_map.tileheight as f32);
         let grid_size = uvec2(raw_tiled_map.width, raw_tiled_map.height);
 
@@ -68,7 +86,7 @@ impl From<TiledMap> for Map {
             raw_tiled_map.tilesets
                 .iter()
                 .map(|raw_tiled_tileset| {
-                    let tiled_tileset = other.tiled_tilesets
+                    let tiled_tileset = self.tiled_tilesets
                         .get(&raw_tiled_tileset.name)
                         .expect(&format!("Unable to find definition for tileset with image '{}'! Did you remember to define all the tilesets when importing the TiledMap?", raw_tiled_tileset.image));
 
@@ -93,7 +111,7 @@ impl From<TiledMap> for Map {
                 }));
 
         let layers = HashMap::from_iter(
-            other.tiled_map.layers
+            self.tiled_map.layers
                 .iter()
                 .map(|(layer_id, tiled_layer)| {
                 let (kind, tiles, objects) = if tiled_layer.objects.len() > 0 {
@@ -140,9 +158,15 @@ impl From<TiledMap> for Map {
                     (MapLayerKind::TileLayer, tiles, Vec::new())
                 };
 
+                let collision = match self.collisions.get(layer_id) {
+                    Some(collision) => collision.clone(),
+                    _ => MapCollisionKind::None,
+                };
+
                 let layer = MapLayer {
                     id: layer_id.clone(),
                     kind,
+                    collision,
                     grid_size,
                     tiles,
                     objects,

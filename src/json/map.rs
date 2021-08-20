@@ -18,9 +18,7 @@ use crate::{
     MapObject,
     MapTileset,
 };
-
-const TILE_LAYER_KIND: &'static str = "tile_layer";
-const OBJECT_LAYER_KIND: &'static str = "object_layer";
+use crate::map::MapCollisionKind;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct MapDef {
@@ -55,6 +53,7 @@ impl Into<MapDef> for Map {
             MapLayerDef {
                 id: layer.id.clone(),
                 kind: layer.kind.clone(),
+                collision: layer.collision.clone(),
                 objects,
                 tiles,
             }
@@ -110,6 +109,7 @@ impl From<MapDef> for Map {
                     let layer = MapLayer {
                         id: layer.id.clone(),
                         kind: layer.kind.clone(),
+                        collision: layer.collision.clone(),
                         grid_size: def.grid_size,
                         tiles,
                         objects: layer.objects.clone().unwrap_or(Vec::new()),
@@ -130,6 +130,8 @@ impl From<MapDef> for Map {
 #[derive(Clone, Serialize, Deserialize)]
 pub struct MapLayerDef {
     pub id: String,
+    #[serde(default, skip_serializing_if = "MapCollisionKind::is_none")]
+    pub collision: MapCollisionKind,
     pub kind: MapLayerKind,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tiles: Option<Vec<u32>>,

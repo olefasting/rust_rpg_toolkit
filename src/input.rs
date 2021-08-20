@@ -1,9 +1,11 @@
 use macroquad::{
+    experimental::{
+        collections::storage,
+    },
     prelude::*,
 };
 
 use crate::{
-    get_global,
     Viewport,
     GameState,
 };
@@ -18,7 +20,7 @@ pub fn get_mouse_position() -> Vec2 {
 }
 
 pub fn get_mouse_in_world_space() -> Vec2 {
-    let viewport = get_global::<Viewport>();
+    let viewport = storage::get::<Viewport>();
     viewport.to_world_space(get_mouse_position())
 }
 

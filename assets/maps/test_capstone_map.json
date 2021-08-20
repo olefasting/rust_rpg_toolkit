@@ -37,6 +37,7 @@
     {
       "id": "barriers",
       "kind": "tile_layer",
+      "collision": "barrier",
       "tiles": [
         242, 0, 0, 240, 0, 0, 0, 0, 0, 0,
         242, 0, 0, 240, 0, 0, 0, 0, 0, 0,
@@ -63,6 +64,7 @@
     {
       "id": "solids",
       "kind": "tile_layer",
+      "collision": "solid",
       "tiles": [
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0,

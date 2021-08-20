@@ -9,13 +9,13 @@ use macroquad::{
             Handle,
             RefMut,
         },
+        collections::storage,
     },
     color,
     prelude::*,
 };
 
 use crate::{
-    get_global,
     Camera,
     Resources,
     Viewport,
@@ -77,7 +77,7 @@ impl<T: 'static + BufferedDraw> Node for DrawBuffer<T> {
             Ordering::Equal
         });
 
-        let viewport = get_global::<Viewport>();
+        let viewport = storage::get::<Viewport>();
         let frustum = viewport.get_frustum();
         node.buffered.drain_filter(|handle| {
             if let Some(mut buffered) = scene::try_get_node(*handle) {

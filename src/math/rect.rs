@@ -134,27 +134,13 @@ impl From<(UVec2, UVec2)> for URect {
     }
 }
 
-impl From<URect> for Rect {
-    fn from(rect: URect) -> Self {
+impl Into<Rect> for URect {
+    fn into(self) -> Rect {
         Rect {
-            x: rect.x as f32,
-            y: rect.y as f32,
-            w: rect.w as f32,
-            h: rect.h as f32,
-        }
-    }
-}
-
-impl From<Collider> for Rect {
-    fn from(collider: Collider) -> Self {
-        match collider {
-            Collider::Rectangle(rect) => rect,
-            Collider::Circle(circle) => Rect::new(
-                circle.x - circle.r,
-                circle.y - circle.r,
-                circle.r / 2.0,
-                circle.r / 2.0,
-            )
+            x: self.x as f32,
+            y: self.y as f32,
+            w: self.w as f32,
+            h: self.h as f32,
         }
     }
 }
