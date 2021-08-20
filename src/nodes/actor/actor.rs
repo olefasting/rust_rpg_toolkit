@@ -1,6 +1,4 @@
-use std::any::Any;
-use std::fs::read_to_string;
-use std::ops::{Deref, Sub};
+use std::ops::Sub;
 
 use macroquad::{
     color,
@@ -18,8 +16,6 @@ use macroquad::{
 use serde::{
     Deserialize,
     Serialize,
-    Serializer,
-    Deserializer,
 };
 
 use crate::{
@@ -37,10 +33,7 @@ use crate::{
         SpriteAnimationPlayer,
         Viewport,
     },
-    ability::{
-        Ability,
-        AbilityParams,
-    },
+    ability::Ability,
     Resources,
     input::apply_local_input,
     nodes::{
@@ -85,7 +78,7 @@ pub struct ActorParams {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub collider: Option<Collider>,
     pub inventory: Vec<String>,
-    pub sprite_animation: SpriteAnimationParams,
+    pub animation_player: SpriteAnimationParams,
 }
 
 impl Default for ActorParams {
@@ -107,7 +100,7 @@ impl Default for ActorParams {
             factions: Vec::new(),
             collider: None,
             inventory: Vec::new(),
-            sprite_animation: Default::default(),
+            animation_player: Default::default(),
         }
     }
 }
@@ -123,7 +116,7 @@ pub struct Actor {
     pub primary_ability: Option<Ability>,
     pub secondary_ability: Option<Ability>,
     pub controller: ActorController,
-    sprite_animation: SpriteAnimationPlayer,
+    animation_player: SpriteAnimationPlayer,
 }
 
 impl Actor {
@@ -158,7 +151,7 @@ impl Actor {
             primary_ability: None,
             secondary_ability: None,
             controller: ActorController::new(controller_kind),
-            sprite_animation: SpriteAnimationPlayer::new(params.sprite_animation.clone()),
+            animation_player: SpriteAnimationPlayer::new(params.animation_player.clone()),
         }
     }
 
@@ -200,28 +193,28 @@ impl Actor {
 
     pub fn set_animation(&mut self, direction: Vec2, is_stationary: bool) {
         if direction.x > 0.0 && direction.x.abs() > direction.y.abs() {
-            self.sprite_animation.start_animation(2);
-            self.sprite_animation.flip_x = false;
+            self.animation_player.start_animation(2);
+            self.animation_player.flip_x = false;
         } else if direction.x < 0.0 {
-            self.sprite_animation.start_animation(2);
-            self.sprite_animation.flip_x = true;
+            self.animation_player.start_animation(2);
+            self.animation_player.flip_x = true;
         } else if direction.y > 0.0 && direction.y.abs() > direction.x.abs() {
-            self.sprite_animation.start_animation(0);
+            self.animation_player.start_animation(0);
         } else if direction.y < 0.0 {
-            self.sprite_animation.start_animation(1);
+            self.animation_player.start_animation(1);
         } else {
-            self.sprite_animation.set_frame(1);
-            self.sprite_animation.stop();
+            self.animation_player.set_frame(1);
+            self.animation_player.stop();
         }
         if is_stationary {
-            self.sprite_animation.set_frame(1);
-            self.sprite_animation.stop();
+            self.animation_player.set_frame(1);
+            self.animation_player.stop();
         }
     }
 
     pub fn is_local_player(&self) -> bool {
         match &self.controller.kind {
-            ActorControllerKind::LocalPlayer { player_id } => true,
+            ActorControllerKind::LocalPlayer { player_id: _ } => true,
             _ => false,
         }
     }
@@ -254,7 +247,7 @@ impl Into<ActorParams> for Actor {
                 .into_iter()
                 .filter_map(|params| params.prototype_id)
                 .collect(),
-            sprite_animation: SpriteAnimationParams::from(self.sprite_animation),
+            animation_player: SpriteAnimationParams::from(self.animation_player),
         }
     }
 }
@@ -272,7 +265,7 @@ impl Node for Actor {
 
     fn update(mut node: RefMut<Self>) {
         node.stats.update();
-        node.sprite_animation.update();
+        node.animation_player.update();
 
         if node.stats.current_health <= 0.0 {
             let position = node.body.position;
@@ -294,7 +287,7 @@ impl Node for Actor {
             ActorControllerKind::LocalPlayer { player_id } => {
                 apply_local_input(&player_id, &mut node.controller);
             }
-            ActorControllerKind::RemotePlayer { player_id } => {
+            ActorControllerKind::RemotePlayer { player_id: _ } => {
 
             }
             ActorControllerKind::Computer => {
@@ -374,15 +367,13 @@ impl Node for Actor {
             }
         }
     }
-
-    fn draw(mut node: RefMut<Self>) {}
 }
 
 impl BufferedDraw for Actor {
     fn buffered_draw(&mut self) {
         self.body.debug_draw();
         let (position, rotation) = (self.body.position, self.body.rotation);
-        self.sprite_animation.draw(position, rotation);
+        self.animation_player.draw(position, rotation);
 
         let is_local_player = self.is_local_player();
         let (position, offset_y, alignment, length, height, border) = if is_local_player {

@@ -1,10 +1,6 @@
 use macroquad::{
     experimental::{
-        scene::{
-            Handle,
-            RefMut,
-        },
-        collections::storage,
+        scene::RefMut,
     },
     prelude::*,
 };
@@ -14,10 +10,8 @@ use crate::{
         ItemParams,
         Item,
     },
-    render::Sprite,
     ability::Ability,
     generate_id,
-    Resources,
 };
 
 #[derive(Clone)]
@@ -121,7 +115,6 @@ impl ActorInventory {
 
 impl From<Vec<ItemParams>> for ActorInventory {
     fn from(params_vec: Vec<ItemParams>) -> Self {
-        let resources = storage::get::<Resources>();
         ActorInventory {
             items: params_vec.into_iter().map(|params| ActorInventoryEntry::new(params)).collect(),
         }

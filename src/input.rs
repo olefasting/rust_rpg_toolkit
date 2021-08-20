@@ -10,7 +10,6 @@ use crate::{
     nodes::{
         ActorController,
         GameState,
-        Camera,
     },
 };
 
@@ -24,7 +23,7 @@ pub fn get_mouse_in_world_space() -> Vec2 {
     viewport.to_world_space(get_mouse_position())
 }
 
-pub fn apply_local_input(player_id: &str, controller: &mut ActorController) {
+pub fn apply_local_input(_player_id: &str, controller: &mut ActorController) {
     let coords = get_mouse_in_world_space();
     controller.primary_target = if is_mouse_button_down(MouseButton::Left) {
         Some(coords)
@@ -61,6 +60,9 @@ pub fn apply_local_input(player_id: &str, controller: &mut ActorController) {
     }
     if is_key_released(KeyCode::I) {
         game_state.show_inventory_window = !game_state.show_inventory_window;
+    }
+    if is_key_released(KeyCode::P) {
+        game_state.in_debug_mode = !game_state.in_debug_mode;
     }
     game_state.should_quit = is_key_released(KeyCode::Escape) || is_key_pressed(KeyCode::Q);
 }

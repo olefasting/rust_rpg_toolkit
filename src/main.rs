@@ -19,18 +19,15 @@ use nodes::{
     Camera,
     GameState,
     Item,
-    ItemParams,
     Projectiles,
     ContinuousBeams,
     DrawBuffer,
-    ActorStats,
 };
 
 use resources::Resources;
 use physics::Collider;
 use map::{
     Map,
-    MapCollisionKind,
 };
 use render::{
     HorizontalAlignment,
@@ -130,7 +127,7 @@ async fn main() {
         // let map = Map::load("assets/maps/converted_tiled_map.json").unwrap();
         let map = Map::load("assets/maps/test_capstone_map.json").unwrap();
 
-        GameState::add_node(map, &player_id, true);
+        GameState::add_node(map, &player_id);
 
         Camera::add_node(player_spawn_position);
 

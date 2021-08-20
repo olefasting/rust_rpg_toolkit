@@ -13,9 +13,7 @@ use macroquad::{
 use crate::{
     nodes::Actor,
     physics::beam_collision_check,
-    map::Map,
 };
-use crate::nodes::GameState;
 use crate::physics::get_beam_end;
 
 pub struct ContinuousBeam {

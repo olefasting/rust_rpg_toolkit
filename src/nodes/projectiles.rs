@@ -1,4 +1,7 @@
-use std::ops::{Sub, Mul, Add};
+use std::ops::{
+    Sub,
+    Mul,
+};
 
 use macroquad::{
     experimental::{
@@ -14,21 +17,14 @@ use macroquad::{
 
 use crate::{
     nodes::{
-        Camera,
         Actor,
         GameState,
     },
     physics::Collider,
-    input::get_mouse_position,
     render::{
         Viewport,
         SpriteAnimationParams,
         SpriteAnimationPlayer,
-    },
-    map::{
-        Map,
-        MAP_LAYER_SOLIDS,
-        MAP_LAYER_BARRIERS,
     },
 };
 

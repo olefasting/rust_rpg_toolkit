@@ -22,7 +22,7 @@
       "width": 16.0,
       "height": 16.0
     },
-    "sprite_animation": {
+    "animation_player": {
       "texture_id": "characters",
       "tile_size": {
         "x": 32.0,
@@ -77,7 +77,7 @@
       "width": 16.0,
       "height": 16.0
     },
-    "sprite_animation": {
+    "animation_player": {
       "texture_id": "characters",
       "tile_size": {
         "x": 32.0,
@@ -132,7 +132,7 @@
       "width": 16.0,
       "height": 16.0
     },
-    "sprite_animation": {
+    "animation_player": {
       "texture_id": "characters",
       "tile_size": {
         "x": 32.0,

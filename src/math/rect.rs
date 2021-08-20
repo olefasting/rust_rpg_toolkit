@@ -4,7 +4,6 @@ use serde::{
     Serialize,
     Deserialize,
 };
-use crate::physics::Collider;
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub struct URect {

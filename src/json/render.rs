@@ -8,11 +8,6 @@ use serde::{
     Deserialize,
 };
 
-use crate::json::{
-    Vec2Def,
-    UVec2Def,
-};
-
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(remote = "Color")]
 pub struct ColorDef {

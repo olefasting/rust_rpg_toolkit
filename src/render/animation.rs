@@ -78,7 +78,7 @@ pub struct SpriteAnimationPlayer {
 
 impl SpriteAnimationPlayer {
     pub fn new(params: SpriteAnimationParams) -> Self {
-        let mut animated_sprite = AnimatedSprite::new(
+        let animated_sprite = AnimatedSprite::new(
             params.tile_size.x as u32,
             params.tile_size.y as u32,
             &params.animations,

@@ -22,7 +22,6 @@ use crate::{
         item::ItemParams,
         actor::ActorParams,
     },
-    map::Map,
     render::{
         LINEAR_FILTER_MODE,
         NEAREST_FILTER_MODE,
@@ -71,7 +70,7 @@ impl Resources {
     const TEXTURES_FOLDER_PATH: &'static str = "assets/textures";
     const SOUND_EFFECTS_FOLDER_PATH: &'static str = "assets/sound_effects";
     const MUSIC_FOLDER_PATH: &'static str = "assets/music";
-    const MAPS_FOLDER_PATH: &'static str = "assets/maps";
+    //const MAPS_FOLDER_PATH: &'static str = "assets/maps";
 
     const ITEMS_FILE_PATH: &'static str = "assets/items.json";
     const ACTORS_FILE_PATH: &'static str = "assets/actors.json";
@@ -118,7 +117,7 @@ impl Resources {
             .expect(&format!("Unable to find actors file '{}'", Self::ACTORS_FILE_PATH));
         let actor_data: Vec<ActorParams> = serde_json::from_str(&json)
             .expect(&format!("Error when parsing actors file '{}'", Self::ACTORS_FILE_PATH));
-        let mut actors = HashMap::from_iter(
+        let actors = HashMap::from_iter(
             actor_data.into_iter().map(|params| (params.prototype_id.clone().unwrap_or(generate_id()), params)));
 
         let json = std::fs::read_to_string(Self::ITEMS_FILE_PATH)

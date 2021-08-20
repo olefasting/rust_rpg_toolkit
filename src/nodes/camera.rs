@@ -9,21 +9,15 @@ use macroquad::{
         },
         collections::storage,
     },
-    color,
     prelude::*,
 };
 
 use crate::{
-    render::{
-        Viewport,
-        draw_aligned_text,
-        HorizontalAlignment,
-    },
+    render::Viewport,
     nodes::{
         GameState,
         Actor,
     },
-    input::get_mouse_position,
 };
 
 pub struct Camera {
@@ -75,7 +69,7 @@ impl Node for Camera {
 
     fn fixed_update(mut node: RefMut<Self>) {
         let game_state = scene::find_node_by_type::<GameState>().unwrap();
-        if let Some(mut player) = Actor::find_by_player_id(&game_state.local_player_id) {
+        if let Some(player) = Actor::find_by_player_id(&game_state.local_player_id) {
             let viewport = node.get_viewport();
             let bounds = {
                 let size = viewport.size * Self::FOLLOW_THRESHOLD_FRACTION;

@@ -1,6 +1,5 @@
 use std::{
     collections::HashMap,
-    iter::FromIterator,
     io,
 };
 
@@ -20,21 +19,11 @@ use serde::{
 use crate::{
     resources::Resources,
     physics::Collider,
-    generate_id,
-    render::draw_aligned_text,
     math::URect,
     json,
 };
 
-use super::{
-    MAP_LAYER_BARRIERS,
-    MAP_LAYER_SOLIDS,
-    MAP_LAYER_GROUND,
-    TiledMap,
-};
-
-use crate::physics::beam_collision_check;
-use crate::render::{Viewport, HorizontalAlignment};
+use super::TiledMap;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(into = "json::MapDef", from = "json::MapDef")]
@@ -62,7 +51,7 @@ impl Map {
         collisions: Option<&[(&str, MapCollisionKind)]>,
         tiled_tilesets: &[(&str, &str, &str)],
     ) -> io::Result<Self> {
-        let mut map = TiledMap::load(path, collisions, tiled_tilesets).into();
+        let map = TiledMap::load(path, collisions, tiled_tilesets).into();
         if let Some(export_path) = export_path {
             let json = serde_json::to_string_pretty(&map)?;
             std::fs::write(export_path, json)?;
@@ -130,7 +119,7 @@ impl Map {
         MapTileIterator::new(layer, rect)
     }
 
-    pub fn draw(&mut self, rect: Option<URect>) {
+    pub fn draw(&self, rect: Option<URect>) {
         let resources = storage::get::<Resources>();
         for (layer_id, layer) in &self.layers {
             match layer.kind {

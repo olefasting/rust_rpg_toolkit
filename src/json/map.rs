@@ -89,7 +89,7 @@ impl From<MapDef> for Map {
                         .unwrap_or_default()
                         .into_iter()
                         .map(|tile_id| if tile_id == 0 { None } else {
-                            match tilesets
+                            let tile = match tilesets
                                 .iter()
                                 .find(|(_, tileset)| tile_id >= tileset.first_tile_id
                                     && tile_id < tileset.first_tile_id + tileset.tile_cnt) {
@@ -100,10 +100,11 @@ impl From<MapDef> for Map {
                                     texture_coords: tileset.get_texture_coords(tile_id),
                                 }),
                                 _ => {
-                                    panic!("Unable to determine tileset from tile_id '{}'", tile_id);
                                     None
                                 }
-                            }
+                            };
+                            assert!(tile.is_some(), "Unable to determine tileset from tile_id '{}'", tile_id);
+                            tile
                         }).collect();
 
                     let layer = MapLayer {

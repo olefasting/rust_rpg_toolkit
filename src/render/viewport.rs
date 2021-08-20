@@ -1,9 +1,5 @@
 use macroquad::prelude::*;
 
-use crate::{
-    Camera,
-};
-
 #[derive(Debug, Copy, Clone)]
 pub struct Viewport {
     pub position: Vec2,

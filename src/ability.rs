@@ -12,7 +12,6 @@ use serde::{
 
 use crate::{
     Actor,
-    generate_id,
     nodes::{
         Projectiles,
         ContinuousBeams,
@@ -20,7 +19,6 @@ use crate::{
     },
     render::{
         SpriteAnimationParams,
-        SpriteAnimationPlayer,
     },
     json,
 };

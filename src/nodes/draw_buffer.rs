@@ -11,23 +11,13 @@ use macroquad::{
         },
         collections::storage,
     },
-    color,
     prelude::*,
 };
 
 use crate::{
-    resources::Resources,
-    render::{
-        Viewport,
-        draw_aligned_text,
-        HorizontalAlignment,
-    },
+    render::Viewport,
     physics::Collider,
     math::Circle,
-    nodes::{
-        Actor,
-        Camera,
-    },
 };
 
 pub enum Bounds {

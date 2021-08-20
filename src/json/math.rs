@@ -150,7 +150,7 @@ pub mod def_vec2 {
 }
 
 pub mod opt_vec2 {
-    use super::{Vec2, Vec2Def};
+    use super::Vec2;
     use serde::{Serialize, Serializer, Deserialize, Deserializer};
 
     pub fn serialize<S>(value: &Option<Vec2>, serializer: S) -> Result<S::Ok, S::Error>
@@ -176,7 +176,7 @@ pub mod opt_vec2 {
 }
 
 pub mod opt_uvec2 {
-    use super::{UVec2, UVec2Def};
+    use super::UVec2;
     use serde::{Serialize, Serializer, Deserialize, Deserializer};
 
     pub fn serialize<S>(value: &Option<UVec2>, serializer: S) -> Result<S::Ok, S::Error>
