@@ -2,6 +2,14 @@ mod controller;
 mod inventory;
 mod stats;
 mod actor;
+mod behavior;
+
+pub use behavior::{
+    ActorAggression,
+    ActorBehaviorParams,
+    ActorBehavior,
+    apply_actor_behavior,
+};
 
 pub use controller::{
     ActorController,

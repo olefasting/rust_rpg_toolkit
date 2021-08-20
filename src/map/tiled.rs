@@ -144,9 +144,8 @@ impl Into<Map> for TiledMap {
                         if let Some(tiled_tile) = tiled_tile {
                             let tileset = tilesets.get(&tiled_tile.tileset)
                                 .expect(&format!("Unable to find tiled tileset '{}'! Are you sure you defined all the tilesets when importing the map?", tiled_tile.tileset));
-
                             let tile = MapTile {
-                                tile_id: tiled_tile.id.clone() - 1,
+                                tile_id: tiled_tile.id - 1,
                                 tileset_id: tileset.id.clone(),
                                 texture_id: tileset.texture_id.clone(),
                                 texture_coords: tileset.get_texture_coords(tiled_tile.id),

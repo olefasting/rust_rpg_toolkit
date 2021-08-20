@@ -5,34 +5,33 @@
 use macroquad::{
     color,
     experimental::{
+        collections::storage,
         coroutines::start_coroutine,
         scene,
-        collections::storage,
     },
     prelude::*,
 };
 
+use map::{
+    Map,
+};
 use nodes::{
     Actor,
     ActorControllerKind,
     ActorParams,
     Camera,
+    ContinuousBeams,
+    DrawBuffer,
     GameState,
     Item,
     Projectiles,
-    ContinuousBeams,
-    DrawBuffer,
 };
-
-use resources::Resources;
 use physics::Collider;
-use map::{
-    Map,
-};
 use render::{
-    HorizontalAlignment,
     draw_aligned_text,
+    HorizontalAlignment,
 };
+use resources::Resources;
 
 pub mod resources;
 pub mod ability;
@@ -44,12 +43,13 @@ pub mod physics;
 pub mod math;
 pub mod gui;
 pub mod json;
+pub mod helpers;
 
 pub fn generate_id() -> String {
     nanoid::nanoid!()
 }
 
-fn generic_actor(name: &str, position: Vec2, skin_id: u32, factions: &[String], player_id: Option<String>) -> Actor {
+fn generic_actor(name: &str, behavior_id: &str, position: Vec2, skin_id: u32, factions: &[String], player_id: Option<String>) -> Actor {
     assert!(skin_id <= 2, "invalid skin id");
     let controller_kind = match player_id {
         Some(player_id) => ActorControllerKind::LocalPlayer { player_id },
@@ -58,8 +58,9 @@ fn generic_actor(name: &str, position: Vec2, skin_id: u32, factions: &[String], 
     let resources = storage::get::<Resources>();
     let params = resources.actors.get(&format!("generic_actor_0{}", skin_id + 1)).cloned().unwrap();
     let mut actor = Actor::new(controller_kind, ActorParams {
-        position: Some(position),
         name: name.to_string(),
+        behavior_id: behavior_id.to_string(),
+        position: Some(position),
         factions: factions.to_vec(),
         ..params
     });
@@ -115,8 +116,8 @@ async fn main() {
         //     "assets/maps/test_tiled_map.json",
         //     Some("assets/maps/converted_tiled_map.json"),
         //     Some(&[
-        //         ("barriers", MapCollisionKind::Barrier),
-        //         ("solids", MapCollisionKind::Solid),
+        //         ("barriers", map::MapCollisionKind::Barrier),
+        //         ("solids", map::MapCollisionKind::Solid),
         //     ]),
         //     &[
         //         ("neo_zero_tiles", "../textures/neo_zero_tiles.png", "tiles"),
@@ -124,8 +125,8 @@ async fn main() {
         //         ("items", "../textures/items.png", "items"),
         //     ]).unwrap();
 
-        // let map = Map::load("assets/maps/converted_tiled_map.json").unwrap();
-        let map = Map::load("assets/maps/test_capstone_map.json").unwrap();
+        let map = Map::load("assets/maps/converted_tiled_map.json").unwrap();
+        // let map = Map::load("assets/maps/test_capstone_map.json").unwrap();
 
         GameState::add_node(map, &player_id);
 
@@ -138,6 +139,7 @@ async fn main() {
 
         scene::add_node(generic_actor(
             "Player Actor",
+            "default_neutral",
             player_spawn_position,
             0,
             &["player_faction".to_string()],
@@ -146,7 +148,8 @@ async fn main() {
 
         scene::add_node(generic_actor(
             "Friendly Actor",
-            vec2(225.0, 375.0),
+            "default_passive",
+            vec2(225.0, 75.0),
             2,
             &["player_faction".to_string()],
             None,
@@ -154,7 +157,8 @@ async fn main() {
 
         scene::add_node(generic_actor(
             "Enemy Actor",
-            vec2(300.0, 350.0),
+            "default_aggressive",
+            vec2(300.0, 50.0),
             1,
             &[],
             None,

@@ -35,7 +35,9 @@ pub struct AbilityParams {
     pub stamina_cost: f32,
     #[serde(default)]
     pub energy_cost: f32,
+    #[serde(default)]
     pub speed: f32,
+    #[serde(default)]
     pub spread: f32,
     pub range: f32,
     pub damage: f32,
@@ -43,7 +45,7 @@ pub struct AbilityParams {
     #[serde(with = "json::ColorDef")]
     pub effect_color: Color,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub effect_sprite_animation: Option<SpriteAnimationParams>,
+    pub effect_animation_player: Option<SpriteAnimationParams>,
 }
 
 impl Default for AbilityParams {
@@ -61,7 +63,7 @@ impl Default for AbilityParams {
             damage: 0.0,
             effect_size: 5.0,
             effect_color: color::WHITE,
-            effect_sprite_animation: None,
+            effect_animation_player: None,
         }
     }
 }
@@ -81,7 +83,7 @@ pub struct Ability {
     pub damage: f32,
     pub effect_size: f32,
     pub effect_color: Color,
-    pub effect_sprite_animation_params: Option<SpriteAnimationParams>,
+    pub effect_animation_params: Option<SpriteAnimationParams>,
 }
 
 impl Ability {
@@ -108,7 +110,7 @@ impl Ability {
             damage: params.damage,
             effect_size: params.effect_size,
             effect_color: params.effect_color,
-            effect_sprite_animation_params: params.effect_sprite_animation,
+            effect_animation_params: params.effect_animation_player,
         }
     }
 
@@ -160,7 +162,7 @@ impl Ability {
                     self.speed,
                     self.spread,
                     ttl,
-                    self.effect_sprite_animation_params.clone(),
+                    self.effect_animation_params.clone(),
                 );
             }
         }

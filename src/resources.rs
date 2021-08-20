@@ -1,7 +1,7 @@
 use std::{
     collections::HashMap,
-    iter::FromIterator,
     fs,
+    iter::FromIterator,
 };
 
 use macroquad::{
@@ -11,23 +11,20 @@ use macroquad::{
     },
     prelude::*,
 };
-
 use serde::{
     Deserialize,
     Serialize,
 };
 
 use crate::{
-    nodes::{
-        item::ItemParams,
-        actor::ActorParams,
-    },
+    generate_id,
+    nodes::item::ItemParams,
     render::{
         LINEAR_FILTER_MODE,
         NEAREST_FILTER_MODE,
     },
-    generate_id,
 };
+use crate::nodes::actor::ActorParams;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct TextureData {
@@ -70,7 +67,6 @@ impl Resources {
     const TEXTURES_FOLDER_PATH: &'static str = "assets/textures";
     const SOUND_EFFECTS_FOLDER_PATH: &'static str = "assets/sound_effects";
     const MUSIC_FOLDER_PATH: &'static str = "assets/music";
-    //const MAPS_FOLDER_PATH: &'static str = "assets/maps";
 
     const ITEMS_FILE_PATH: &'static str = "assets/items.json";
     const ACTORS_FILE_PATH: &'static str = "assets/actors.json";

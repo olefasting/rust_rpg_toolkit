@@ -3,6 +3,7 @@ use macroquad::prelude::*;
 use crate::{
     nodes::GameState,
     physics::Collider,
+    helpers::sort_by_distance,
 };
 
 pub fn beam_collision_check(point: Vec2, origin: Vec2, end: Vec2, width: f32, tolerance: f32) -> bool {
@@ -36,7 +37,6 @@ pub fn get_beam_end(origin: Vec2, end: Vec2, width: f32, tolerance: f32) -> Vec2
         .collect();
 
     collisions
-        .sort_by(|a, b|
-            a.distance(origin).partial_cmp(&b.distance(origin)).unwrap());
+        .sort_by(|a, b| sort_by_distance(origin, a, b));
     collisions.first().cloned().unwrap_or(end)
 }

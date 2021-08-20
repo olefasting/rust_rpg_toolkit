@@ -3,12 +3,12 @@ use std::ops::Sub;
 use macroquad::{
     color,
     experimental::{
+        collections::storage,
         scene::{
             Handle,
             Node,
             RefMut,
         },
-        collections::storage,
     },
     prelude::*,
 };
@@ -19,8 +19,19 @@ use serde::{
 };
 
 use crate::{
-    render::draw_aligned_text,
+    ability::Ability,
     generate_id,
+    input::apply_local_input,
+    json,
+    nodes::{
+        draw_buffer::{
+            Bounds,
+            BufferedDraw,
+            DrawBuffer,
+        },
+        Item,
+        ItemParams
+    },
     physics::{
         Collider,
         PhysicsBody,
@@ -33,31 +44,26 @@ use crate::{
         SpriteAnimationPlayer,
         Viewport,
     },
-    ability::Ability,
+    render::draw_aligned_text,
     Resources,
-    input::apply_local_input,
-    nodes::{
-        Item,
-        ItemParams,
-        draw_buffer::{
-            Bounds,
-            BufferedDraw,
-            DrawBuffer,
-        },
-        actor::{
-            ActorControllerKind,
-            ActorInventory,
-            ActorStats,
-            ActorController,
-        }
-    },
-    json,
+};
+
+use super::{
+    ActorController,
+    ActorControllerKind,
+    ActorInventory,
+    ActorStats,
+    ActorBehavior,
+    ActorBehaviorParams,
+    apply_actor_behavior,
 };
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct ActorParams {
     #[serde(default, alias = "id", skip_serializing_if = "Option::is_none")]
     pub prototype_id: Option<String>,
+    #[serde(default = "ActorBehavior::default_id", alias = "behavior")]
+    pub behavior_id: String,
     #[serde(default, with = "json::opt_vec2", skip_serializing_if = "Option::is_none")]
     pub position: Option<Vec2>,
     pub name: String,
@@ -85,6 +91,7 @@ impl Default for ActorParams {
     fn default() -> Self {
         ActorParams {
             prototype_id: None,
+            behavior_id: ActorBehavior::default_id(),
             position: None,
             name: "Unnamed Actor".to_string(),
             strength: 8,
@@ -108,6 +115,7 @@ impl Default for ActorParams {
 #[derive(Clone)]
 pub struct Actor {
     pub id: String,
+    pub behavior: ActorBehavior,
     pub name: String,
     pub stats: ActorStats,
     pub factions: Vec<String>,
@@ -141,8 +149,17 @@ impl Actor {
                 .expect(&format!("Unable to load item prototype with id '{}'!", prototype_id)))
             .collect();
 
+        let behavior_params = if params.behavior_id == ActorBehavior::DEFAULT_PASSIVE_ID {
+            ActorBehaviorParams::default_passive()
+        } else if params.behavior_id == ActorBehavior::DEFAULT_AGGRESSIVE_ID {
+            ActorBehaviorParams::default_aggressive()
+        } else {
+            ActorBehaviorParams::default_neutral()
+        };
+
         Actor {
             id: generate_id(),
+            behavior: ActorBehavior::new(behavior_params),
             name: params.name.clone(),
             stats: ActorStats::from(&params),
             factions: params.factions,
@@ -222,6 +239,10 @@ impl Actor {
     pub fn interact(&self, other: &mut Actor) {
         println!("INTERACTION between '{}' and '{}'", self.name, other.name);
     }
+
+    fn apply_behavior(&mut self) {
+        apply_actor_behavior(self)
+    }
 }
 
 impl Into<ActorParams> for Actor {
@@ -229,6 +250,7 @@ impl Into<ActorParams> for Actor {
         ActorParams {
             prototype_id: None,
             position: Some(self.body.position),
+            behavior_id: self.behavior.id,
             name: self.name,
             strength: self.stats.strength,
             dexterity: self.stats.dexterity,
@@ -287,11 +309,9 @@ impl Node for Actor {
             ActorControllerKind::LocalPlayer { player_id } => {
                 apply_local_input(&player_id, &mut node.controller);
             }
-            ActorControllerKind::RemotePlayer { player_id: _ } => {
-
-            }
+            ActorControllerKind::RemotePlayer { player_id: _ } => {}
             ActorControllerKind::Computer => {
-                // TODO: Computer controlled
+                node.apply_behavior();
             }
             ActorControllerKind::None => {}
         }

@@ -29,17 +29,6 @@
   "sound_effects": [
   ],
   "music": [
-  ],
-  "maps": [
-    {
-      "id": "test_tiled_map",
-      "type": "tiled",
-      "filename": "test_tiled_map.json"
-    },
-    {
-      "id": "test_capstone_map",
-      "type": "internal",
-      "filename": "test_capstone_map.json"
-    }
+
   ]
 }
