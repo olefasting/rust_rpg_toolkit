@@ -10,15 +10,15 @@ use serde::{
     Deserialize,
 };
 
-use crate::{
+use crate::map::{
     Map,
     MapLayerKind,
     MapLayer,
     MapTile,
     MapObject,
     MapTileset,
+    MapCollisionKind,
 };
-use crate::map::MapCollisionKind;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct MapDef {
@@ -29,15 +29,14 @@ pub struct MapDef {
     #[serde(with = "super::def_vec2")]
     pub tile_size: Vec2,
     pub layers: Vec<MapLayerDef>,
-    pub tilesets: Vec<MapTilesetDef>,
+    pub tilesets: Vec<MapTileset>,
 }
 
 impl Into<MapDef> for Map {
     fn into(self) -> MapDef {
         let layers = self.layers.iter().map(|(_, layer)|  {
             let (tiles, objects) = match layer.kind {
-                crate::MapLayerKind::TileLayer => {
-                    println!("save layer_id: {}, vec_len: {}", layer.id, layer.tiles.len());
+                MapLayerKind::TileLayer => {
                     (Some(layer.tiles.iter().map(|opt| match opt {
                         Some(tile) => {
                             let tileset = self.tilesets.get(&tile.tileset_id)
@@ -50,6 +49,7 @@ impl Into<MapDef> for Map {
                 },
                 MapLayerKind::ObjectLayer => (None, Some(layer.objects.clone())),
             };
+
             MapLayerDef {
                 id: layer.id.clone(),
                 kind: layer.kind.clone(),
@@ -64,7 +64,10 @@ impl Into<MapDef> for Map {
             grid_size: self.grid_size,
             tile_size: self.tile_size,
             layers,
-            tilesets: self.tilesets.into_iter().map(|(_, tileset)| MapTilesetDef::from(tileset)).collect(),
+            tilesets: self.tilesets
+                .into_iter()
+                .map(|(_, tileset)| tileset)
+                .collect(),
         }
     }
 }
@@ -75,15 +78,12 @@ impl From<MapDef> for Map {
             def.tilesets
                 .clone()
                 .into_iter()
-                .map(|tileset| (tileset.id.clone(), crate::MapTileset::from(tileset))));
+                .map(|tileset| (tileset.id.clone(), tileset)));
 
         let layers = HashMap::from_iter(
             def.layers
                 .iter()
                 .map(|layer| {
-                    if let Some(tiles) = &layer.tiles {
-                        println!("load: layer_id: {}, vec_len: {}", layer.id, tiles.len());
-                    }
                     let tiles = layer.tiles
                         .clone()
                         .unwrap_or_default()
@@ -93,7 +93,7 @@ impl From<MapDef> for Map {
                                 .iter()
                                 .find(|(_, tileset)| tile_id >= tileset.first_tile_id
                                     && tile_id < tileset.first_tile_id + tileset.tile_cnt) {
-                                Some((_, tileset)) => Some(crate::MapTile {
+                                Some((_, tileset)) => Some(MapTile {
                                     tile_id: tile_id - tileset.first_tile_id,
                                     tileset_id: tileset.id.clone(),
                                     texture_id: tileset.texture_id.clone(),
@@ -137,89 +137,4 @@ pub struct MapLayerDef {
     pub tiles: Option<Vec<u32>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub objects: Option<Vec<MapObject>>,
-}
-
-impl From<&str> for crate::MapLayerKind {
-    fn from(other: &str) -> Self {
-        match other {
-            TILE_LAYER_KIND => MapLayerKind::TileLayer,
-            OBJECT_LAYER_KIND => MapLayerKind::ObjectLayer,
-            _ => {
-                panic!("Invalid map layer kind '{}'!", other);
-                MapLayerKind::TileLayer
-            }
-        }
-    }
-}
-
-#[derive(Clone, Serialize, Deserialize)]
-pub struct MapObjectDef {
-    pub id: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub prototype_id: Option<String>,
-    #[serde(with = "super::def_vec2")]
-    pub position: Vec2,
-}
-
-impl From<crate::MapObject> for MapObjectDef {
-    fn from(other: crate::MapObject) -> Self {
-        MapObjectDef {
-            id: other.id.clone(),
-            prototype_id: other.prototype_id.clone(),
-            position: other.position,
-        }
-    }
-}
-
-
-impl From<MapObjectDef> for crate::MapObject {
-    fn from(other: MapObjectDef) -> Self {
-        crate::MapObject {
-            id: other.id.clone(),
-            prototype_id: other.prototype_id.clone(),
-            position: other.position,
-        }
-    }
-}
-
-#[derive(Clone, Serialize, Deserialize)]
-pub struct MapTilesetDef {
-    pub id: String,
-    pub texture_id: String,
-    #[serde(with = "super::def_uvec2")]
-    pub texture_size: UVec2,
-    #[serde(with = "super::def_uvec2")]
-    pub tile_size: UVec2,
-    #[serde(with = "super::def_uvec2")]
-    pub grid_size: UVec2,
-    pub first_tile_id: u32,
-    pub tile_cnt: u32,
-}
-
-impl From<crate::MapTileset> for MapTilesetDef {
-    fn from(other: crate::MapTileset) -> Self {
-        MapTilesetDef {
-            id: other.id.clone(),
-            texture_id: other.texture_id.clone(),
-            texture_size: other.texture_size,
-            tile_size: other.tile_size,
-            grid_size: other.grid_size,
-            first_tile_id: other.first_tile_id,
-            tile_cnt: other.tile_cnt,
-        }
-    }
-}
-
-impl From<MapTilesetDef> for crate::MapTileset {
-    fn from(other: MapTilesetDef) -> Self {
-        crate::MapTileset {
-            id: other.id.clone(),
-            texture_id: other.texture_id.clone(),
-            texture_size: other.texture_size,
-            tile_size: other.tile_size,
-            grid_size: other.grid_size,
-            first_tile_id: other.first_tile_id,
-            tile_cnt: other.tile_cnt,
-        }
-    }
 }

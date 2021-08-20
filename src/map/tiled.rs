@@ -14,15 +14,18 @@ use std::{
 
 use crate::{
     generate_id,
-    Resources,
+    resources::Resources,
+};
+
+use super::map::{
     Map,
     MapLayerKind,
     MapLayer,
     MapTile,
     MapObject,
     MapTileset,
+    MapCollisionKind,
 };
-use crate::map::MapCollisionKind;
 
 pub struct TiledTileset {
     pub relative_path: String,

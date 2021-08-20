@@ -7,9 +7,11 @@ use macroquad::{
 };
 
 use crate::{
-    nodes::Actor,
-    Item,
-    Ability,
+    nodes::{
+        Actor,
+        Item,
+    },
+    ability::Ability,
 };
 
 pub fn draw_inventory_window(player: &mut Actor) {

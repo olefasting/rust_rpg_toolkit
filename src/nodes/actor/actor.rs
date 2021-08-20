@@ -22,19 +22,8 @@ use serde::{
     Deserializer,
 };
 
-pub use controller::{
-    ActorController,
-    ActorControllerKind,
-};
-
-pub use inventory::{
-    ActorInventory,
-    ActorInventoryEntry,
-};
-pub use stats::ActorStats;
-
 use crate::{
-    draw_aligned_text,
+    render::draw_aligned_text,
     generate_id,
     physics::{
         Collider,
@@ -62,24 +51,15 @@ use crate::{
             BufferedDraw,
             DrawBuffer,
         },
+        actor::{
+            ActorControllerKind,
+            ActorInventory,
+            ActorStats,
+            ActorController,
+        }
     },
     json,
 };
-
-mod controller;
-mod inventory;
-mod stats;
-//
-// #[derive(Clone)]
-// pub struct ActorPrototype {
-//     pub id: String,
-//     pub name: String,
-//     pub stats: ActorStats,
-//     pub factions: Vec<String>,
-//     pub collider: Option<Collider>,
-//     pub inventory: Vec<String>,
-//     pub sprite_animation: SpriteAnimationParams,
-// }
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct ActorParams {
@@ -199,9 +179,9 @@ impl Actor {
                     }
                 },
                 ActorControllerKind::RemotePlayer { player_id } => {
-                   if player_id == id {
-                       return Some(actor)
-                   }
+                    if player_id == id {
+                        return Some(actor)
+                    }
                 },
                 _ => {}
             }

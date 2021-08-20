@@ -16,14 +16,18 @@ use macroquad::{
 };
 
 use crate::{
-    Camera,
-    Resources,
-    Viewport,
-    draw_aligned_text,
-    HorizontalAlignment,
+    resources::Resources,
+    render::{
+        Viewport,
+        draw_aligned_text,
+        HorizontalAlignment,
+    },
     physics::Collider,
     math::Circle,
-    Actor,
+    nodes::{
+        Actor,
+        Camera,
+    },
 };
 
 pub enum Bounds {

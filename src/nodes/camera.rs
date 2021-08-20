@@ -14,14 +14,17 @@ use macroquad::{
 };
 
 use crate::{
-    GameState,
-    Viewport,
-    Actor,
-    get_mouse_position,
-    draw_aligned_text,
+    render::{
+        Viewport,
+        draw_aligned_text,
+        HorizontalAlignment,
+    },
+    nodes::{
+        GameState,
+        Actor,
+    },
+    input::get_mouse_position,
 };
-
-use crate::render::HorizontalAlignment;
 
 pub struct Camera {
     pub position: Vec2,

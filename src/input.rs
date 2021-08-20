@@ -6,12 +6,12 @@ use macroquad::{
 };
 
 use crate::{
-    Viewport,
-    GameState,
-};
-use crate::nodes::{
-    ActorController,
-    Camera,
+    render::Viewport,
+    nodes::{
+        ActorController,
+        GameState,
+        Camera,
+    },
 };
 
 pub fn get_mouse_position() -> Vec2 {

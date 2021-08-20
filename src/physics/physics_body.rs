@@ -11,10 +11,8 @@ use macroquad::{
 
 use crate::{
     physics::Collider,
-    GameState,
-    Map,
-    MAP_LAYER_SOLIDS,
-    MAP_LAYER_BARRIERS,
+    nodes::GameState,
+    map::Map,
 };
 
 pub type PhysicsObject = (HandleUntyped, Lens<PhysicsBody>);

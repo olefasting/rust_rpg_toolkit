@@ -1,6 +1,15 @@
 use std::{
     collections::HashMap,
+    iter::FromIterator,
     fs,
+};
+
+use macroquad::{
+    audio::{
+        load_sound,
+        Sound,
+    },
+    prelude::*,
 };
 
 use serde::{
@@ -8,20 +17,18 @@ use serde::{
     Serialize,
 };
 
-use macroquad::{
-    prelude::*,
+use crate::{
+    nodes::{
+        item::ItemParams,
+        actor::ActorParams,
+    },
+    map::Map,
+    render::{
+        LINEAR_FILTER_MODE,
+        NEAREST_FILTER_MODE,
+    },
+    generate_id,
 };
-
-use crate::{nodes::{
-    ItemParams,
-    ActorParams,
-}, Map, render::{
-    LINEAR_FILTER_MODE,
-    NEAREST_FILTER_MODE,
-}, generate_id};
-
-use macroquad::audio::{Sound, load_sound};
-use std::iter::FromIterator;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct TextureData {

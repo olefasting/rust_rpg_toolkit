@@ -12,11 +12,8 @@ use macroquad::{
 };
 
 use crate::{
-    Map,
-    Viewport,
-    MAP_LAYER_GROUND,
-    MAP_LAYER_BARRIERS,
-    MAP_LAYER_SOLIDS,
+    map::Map,
+    render::Viewport,
 };
 
 #[derive(Debug, Clone)]
@@ -56,6 +53,6 @@ impl Node for GameState {
     fn draw(mut node: RefMut<Self>) {
         let viewport = storage::get::<Viewport>();
         let rect = node.map.to_grid(viewport.get_frustum());
-        node.map.draw(&[MAP_LAYER_GROUND, MAP_LAYER_BARRIERS, MAP_LAYER_SOLIDS], Some(rect));
+        node.map.draw( Some(rect));
     }
 }

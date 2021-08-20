@@ -1,5 +1,3 @@
-mod tiled;
-
 use std::{
     collections::HashMap,
     iter::FromIterator,
@@ -19,26 +17,24 @@ use serde::{
     Deserialize,
 };
 
-pub use tiled::{
-    TiledMap,
-    TiledTileset,
-};
-
 use crate::{
-    Resources,
-    Collider,
+    resources::Resources,
+    physics::Collider,
     generate_id,
-    MAP_LAYER_BARRIERS,
-    MAP_LAYER_SOLIDS,
-    draw_aligned_text,
-    MAP_LAYER_GROUND,
+    render::draw_aligned_text,
+    math::URect,
     json,
 };
+
+use super::{
+    MAP_LAYER_BARRIERS,
+    MAP_LAYER_SOLIDS,
+    MAP_LAYER_GROUND,
+    TiledMap,
+};
+
 use crate::physics::beam_collision_check;
 use crate::render::{Viewport, HorizontalAlignment};
-use crate::math::URect;
-use crate::json::MapDef;
-use crate::map::MapCollisionKind::Solid;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(into = "json::MapDef", from = "json::MapDef")]
@@ -134,41 +130,46 @@ impl Map {
         MapTileIterator::new(layer, rect)
     }
 
-    pub fn draw(&mut self, layer_ids: &[&str], rect: Option<URect>) {
+    pub fn draw(&mut self, rect: Option<URect>) {
         let resources = storage::get::<Resources>();
-        for layer_id in layer_ids {
-            for (x, y, tile) in self.get_tiles(layer_id, rect) {
-                if let Some(tile) = tile {
-                    let world_position = self.world_offset + vec2(
-                        x as f32 * self.tile_size.x,
-                        y as f32 * self.tile_size.y,
-                    );
+        for (layer_id, layer) in &self.layers {
+            match layer.kind {
+                MapLayerKind::TileLayer => {
+                    for (x, y, tile) in self.get_tiles(layer_id, rect) {
+                        if let Some(tile) = tile {
+                            let world_position = self.world_offset + vec2(
+                                x as f32 * self.tile_size.x,
+                                y as f32 * self.tile_size.y,
+                            );
 
-                    let texture = resources.textures
-                        .get(&tile.texture_id)
-                        .cloned()
-                        .expect(&format!("No texture with id '{}'!", tile.texture_id));
+                            let texture = resources.textures
+                                .get(&tile.texture_id)
+                                .cloned()
+                                .expect(&format!("No texture with id '{}'!", tile.texture_id));
 
-                    draw_texture_ex(
-                        texture,
-                        world_position.x,
-                        world_position.y,
-                        color::WHITE,
-                        DrawTextureParams {
-                            source: Some(Rect::new(
-                                tile.texture_coords.x + 1.1,
-                                tile.texture_coords.y + 1.1,
-                                self.tile_size.x - 2.2,
-                                self.tile_size.y - 2.2,
-                            )),
-                            dest_size: Some(vec2(
-                                self.tile_size.x,
-                                self.tile_size.y,
-                            )),
-                            ..Default::default()
-                        },
-                    );
-                }
+                            draw_texture_ex(
+                                texture,
+                                world_position.x,
+                                world_position.y,
+                                color::WHITE,
+                                DrawTextureParams {
+                                    source: Some(Rect::new(
+                                        tile.texture_coords.x + 1.1,
+                                        tile.texture_coords.y + 1.1,
+                                        self.tile_size.x - 2.2,
+                                        self.tile_size.y - 2.2,
+                                    )),
+                                    dest_size: Some(vec2(
+                                        self.tile_size.x,
+                                        self.tile_size.y,
+                                    )),
+                                    ..Default::default()
+                                },
+                            );
+                        }
+                    }
+                },
+                _ => {}
             }
         }
     }

@@ -12,16 +12,6 @@ use macroquad::{
     prelude::*,
 };
 
-pub use input::get_mouse_position;
-pub use map::{
-    Map,
-    MapLayer,
-    MapLayerKind,
-    MapObject,
-    MapTile,
-    MapTileset,
-};
-
 use nodes::{
     Actor,
     ActorControllerKind,
@@ -36,24 +26,20 @@ use nodes::{
     ActorStats,
 };
 
+use resources::Resources;
 use physics::Collider;
-use render::HorizontalAlignment;
-
-pub use render::{
-    Viewport,
-    text::draw_aligned_text,
+use map::{
+    Map,
+    MapCollisionKind,
 };
-pub use resources::Resources;
-pub use ability::{
-    AbilityParams,
-    Ability,
+use render::{
+    HorizontalAlignment,
+    draw_aligned_text,
 };
-use crate::map::MapCollisionKind;
 
-mod resources;
-mod map;
-mod ability;
-
+pub mod resources;
+pub mod ability;
+pub mod map;
 pub mod nodes;
 pub mod render;
 pub mod input;
@@ -61,12 +47,6 @@ pub mod physics;
 pub mod math;
 pub mod gui;
 pub mod json;
-
-pub const MAP_LAYER_GROUND: &'static str = "ground";
-pub const MAP_LAYER_SOLIDS: &'static str = "solids";
-pub const MAP_LAYER_BARRIERS: &'static str = "barriers";
-pub const MAP_LAYER_ITEMS: &'static str = "items";
-pub const MAP_LAYER_SPAWN_POINTS: &'static str = "spawn_points";
 
 pub fn generate_id() -> String {
     nanoid::nanoid!()

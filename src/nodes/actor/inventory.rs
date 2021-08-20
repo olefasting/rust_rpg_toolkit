@@ -10,10 +10,12 @@ use macroquad::{
 };
 
 use crate::{
-    ItemParams,
-    Item,
+    nodes::item::{
+        ItemParams,
+        Item,
+    },
     render::Sprite,
-    nodes::actor::Ability,
+    ability::Ability,
     generate_id,
     Resources,
 };

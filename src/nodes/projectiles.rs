@@ -19,15 +19,17 @@ use crate::{
         GameState,
     },
     physics::Collider,
-    get_mouse_position,
+    input::get_mouse_position,
     render::{
         Viewport,
         SpriteAnimationParams,
         SpriteAnimationPlayer,
     },
-    map::Map,
-    MAP_LAYER_SOLIDS,
-    MAP_LAYER_BARRIERS,
+    map::{
+        Map,
+        MAP_LAYER_SOLIDS,
+        MAP_LAYER_BARRIERS,
+    },
 };
 
 pub enum ProjectileKind {
@@ -194,13 +196,8 @@ impl Node for Projectiles {
                 }
             }
             let game_state = scene::find_node_by_type::<GameState>().unwrap();
-            let rect = game_state.map.to_grid(collider.into());
-            for layer_id in &[MAP_LAYER_SOLIDS, MAP_LAYER_BARRIERS] {
-                for (_, _, tile) in game_state.map.get_tiles(layer_id, Some(rect)) {
-                    if tile.is_some() {
-                        return false;
-                    }
-                }
+            if game_state.map.get_collisions(collider).is_empty() == false {
+                return false;
             }
             return true;
         });

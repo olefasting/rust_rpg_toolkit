@@ -11,14 +11,13 @@ pub use viewport::{
 pub use helpers::{
     HorizontalAlignment,
     draw_progress_bar,
+    draw_aligned_text,
 };
 
 mod sprite;
 mod animation;
 mod viewport;
-
-pub mod text;
-pub mod helpers;
+mod helpers;
 
 pub const LINEAR_FILTER_MODE: &'static str = "linear";
 pub const NEAREST_FILTER_MODE: &'static str = "nearest_neighbor";
