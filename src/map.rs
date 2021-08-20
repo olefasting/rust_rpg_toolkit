@@ -76,8 +76,8 @@ impl Map {
 
     pub fn to_grid(&self, rect: Rect) -> URect {
         let p = self.to_coords(rect.point());
-        let w = ((rect.w / self.tile_size.x) as u32).clamp(0, self.grid_size.x - p.x);
-        let h = ((rect.h / self.tile_size.y) as u32).clamp(0, self.grid_size.y - p.y);
+        let w = ((rect.w / self.tile_size.x) as u32 + 1).clamp(0, self.grid_size.x - p.x);
+        let h = ((rect.h / self.tile_size.y) as u32 + 1).clamp(0, self.grid_size.y - p.y);
         URect::new(p.x, p.y, w, h)
     }
 
