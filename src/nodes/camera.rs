@@ -34,17 +34,17 @@ impl Camera {
 
     const DEFAULT_SCALE: f32 = 3.0;
 
-    pub fn new(position: Vec2) -> Self {
+    pub fn new() -> Self {
         Camera {
-            position,
+            position: Vec2::ZERO,
             rotation: 0.0,
             scale: Self::DEFAULT_SCALE,
             is_following: false,
         }
     }
 
-    pub fn add_node(position: Vec2) -> Handle<Self> {
-        scene::add_node(Camera::new(position))
+    pub fn add_node() -> Handle<Self> {
+        scene::add_node(Camera::new())
     }
 
     pub fn get_viewport(&self) -> Viewport {

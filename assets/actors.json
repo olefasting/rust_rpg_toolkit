@@ -1,28 +1,27 @@
 [
   {
-    "id": "generic_actor_01",
-    "name": "Generic Actor",
+    "id": "player",
+    "name": "Unnamed Player",
     "behavior": "default_neutral",
-    "factions": [],
-    "strength": 8,
-    "dexterity": 8,
-    "constitution": 8,
-    "intelligence": 8,
-    "willpower": 8,
-    "perception": 8,
-    "charisma": 8,
+    "factions": [
+      "player"
+    ],
+    "strength": 12,
+    "dexterity": 12,
+    "constitution": 12,
+    "intelligence": 12,
+    "willpower": 12,
+    "perception": 12,
+    "charisma": 12,
     "inventory": [
-      "test_beam_weapon",
-      "test_continuous_beam_weapon",
-      "test_projectile_weapon",
-      "test_trinket",
-      "heal_trinket"
+      "pistol",
+      "sub_machine_gun"
     ],
     "collider": {
-      "x": -8.0,
+      "x": -7.0,
       "y": 0.0,
-      "width": 16.0,
-      "height": 16.0
+      "width": 14.0,
+      "height": 14.0
     },
     "animation_player": {
       "texture_id": "characters",
@@ -37,19 +36,19 @@
       "animations": [
         {
           "name": "down",
-          "row": 0,
+          "row": 6,
           "frames": 3,
           "fps": 8
         },
         {
           "name": "up",
-          "row": 1,
+          "row": 7,
           "frames": 3,
           "fps": 8
         },
         {
           "name": "right",
-          "row": 2,
+          "row": 8,
           "frames": 3,
           "fps": 8
         }
@@ -57,28 +56,28 @@
     }
   },
   {
-    "id": "generic_actor_02",
-    "name": "Generic Actor",
+    "id": "neutral_guard",
+    "name": "Guard",
     "behavior": "default_neutral",
-    "factions": [],
-    "strength": 8,
-    "dexterity": 8,
-    "constitution": 8,
+    "factions": [
+      "player",
+      "guards"
+    ],
+    "strength": 12,
+    "dexterity": 12,
+    "constitution": 12,
     "intelligence": 8,
     "willpower": 8,
-    "perception": 8,
+    "perception": 10,
     "charisma": 8,
     "inventory": [
-      "test_beam_weapon",
-      "test_continuous_beam_weapon",
-      "test_projectile_weapon",
-      "test_trinket"
+      "sub_machine_gun"
     ],
     "collider": {
-      "x": -8.0,
+      "x": -7.0,
       "y": 0.0,
-      "width": 16.0,
-      "height": 16.0
+      "width": 14.0,
+      "height": 14.0
     },
     "animation_player": {
       "texture_id": "characters",
@@ -113,28 +112,27 @@
     }
   },
   {
-    "id": "generic_actor_03",
-    "name": "Generic Actor",
-    "behavior": "default_neutral",
-    "factions": [],
-    "strength": 8,
-    "dexterity": 8,
-    "constitution": 8,
+    "id": "enemy_thug",
+    "name": "Thug",
+    "behavior": "default_aggressive",
+    "factions": [
+      "thugs"
+    ],
+    "strength": 10,
+    "dexterity": 10,
+    "constitution": 10,
     "intelligence": 8,
     "willpower": 8,
-    "perception": 8,
+    "perception": 10,
     "charisma": 8,
     "inventory": [
-      "test_beam_weapon",
-      "test_continuous_beam_weapon",
-      "test_projectile_weapon",
-      "test_trinket"
+      "pistol"
     ],
     "collider": {
-      "x": -8.0,
+      "x": -7.0,
       "y": 0.0,
-      "width": 16.0,
-      "height": 16.0
+      "width": 14.0,
+      "height": 14.0
     },
     "animation_player": {
       "texture_id": "characters",
@@ -149,19 +147,19 @@
       "animations": [
         {
           "name": "down",
-          "row": 6,
+          "row": 0,
           "frames": 3,
           "fps": 8
         },
         {
           "name": "up",
-          "row": 7,
+          "row": 1,
           "frames": 3,
           "fps": 8
         },
         {
           "name": "right",
-          "row": 8,
+          "row": 2,
           "frames": 3,
           "fps": 8
         }

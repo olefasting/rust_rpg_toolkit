@@ -43,7 +43,7 @@ pub struct Map {
 impl Map {
     pub fn load(path: &str) -> io::Result<Self> {
         let json = std::fs::read_to_string(path)?;
-        let map = serde_json::from_str(&json)?;
+        let mut map = serde_json::from_str(&json)?;
         Ok(map)
     }
 
@@ -53,7 +53,7 @@ impl Map {
         collisions: Option<&[(&str, MapCollisionKind)]>,
         tiled_tilesets: &[(&str, &str, &str)],
     ) -> io::Result<Self> {
-        let map = TiledMap::load(path, collisions, tiled_tilesets).into();
+        let mut map = TiledMap::load(path, collisions, tiled_tilesets).into();
         if let Some(export_path) = export_path {
             let json = serde_json::to_string_pretty(&map)?;
             std::fs::write(export_path, json)?;
@@ -138,9 +138,6 @@ impl Map {
                                     .get(&tile.texture_id)
                                     .cloned()
                                     .expect(&format!("No texture with id '{}'!", tile.texture_id));
-                                // if layer_id == "solids" {
-                                //     println!("{} {}", tile.texture_id, (tile.texture_coords / self.tile_size).to_string());
-                                // }
                                 draw_texture_ex(
                                     texture,
                                     world_position.x,
@@ -148,10 +145,10 @@ impl Map {
                                     color::WHITE,
                                     DrawTextureParams {
                                         source: Some(Rect::new(
-                                            tile.texture_coords.x + 1.1,
-                                            tile.texture_coords.y + 1.1,
-                                            self.tile_size.x - 2.2,
-                                            self.tile_size.y - 2.2,
+                                            tile.texture_coords.x + 0.5,
+                                            tile.texture_coords.y + 0.5,
+                                            self.tile_size.x - 1.0,
+                                            self.tile_size.y - 1.0,
                                         )),
                                         dest_size: Some(vec2(
                                             self.tile_size.x,
@@ -250,11 +247,11 @@ pub struct MapTile {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MapObject {
-    pub id: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub prototype_id: Option<String>,
+    pub name: String,
     #[serde(with = "json::def_vec2")]
     pub position: Vec2,
+    #[serde(default, skip_serializing_if = "HashMap::is_empty")]
+    pub properties: HashMap<String, String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

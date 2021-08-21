@@ -135,8 +135,8 @@ impl Ability {
             actor.stats.current_health -= self.health_cost;
             actor.stats.current_stamina -= self.stamina_cost;
             actor.stats.current_energy -= self.energy_cost;
-            self.cooldown_timer = 0.0;
             if self.effect_kind == EffectKind::ContinuousBeam {
+                self.cooldown_timer = 0.0;
                 let mut beams = scene::find_node_by_type::<ContinuousBeams>().unwrap();
                 let end = actor.body.position + target.sub(actor.body.position).normalize_or_zero() * self.range;
                 beams.spawn(
@@ -148,7 +148,8 @@ impl Ability {
                     actor.body.position,
                     end,
                 )
-            } else {
+            } else if self.cooldown_timer >= self.cooldown {
+                self.cooldown_timer = 0.0;
                 let kind = match self.effect_kind {
                     EffectKind::Beam => ProjectileKind::Beam,
                     EffectKind::EnergySphere => ProjectileKind::EnergySphere,

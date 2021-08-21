@@ -30,7 +30,9 @@ use crate::{
             DrawBuffer,
         },
         Item,
-        ItemParams
+        ItemParams,
+        GameState,
+        Camera,
     },
     physics::{
         Collider,
@@ -43,6 +45,8 @@ use crate::{
         SpriteAnimationParams,
         SpriteAnimationPlayer,
         Viewport,
+        draw_aligned_text,
+        VerticalAlignment,
     },
     Resources,
 };
@@ -56,7 +60,6 @@ use super::{
     ActorBehaviorParams,
     apply_actor_behavior,
 };
-use crate::nodes::GameState;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct ActorParams {
@@ -283,6 +286,11 @@ impl Node for Actor {
 
         let mut draw_buffer = scene::find_node_by_type::<DrawBuffer<Self>>().unwrap();
         draw_buffer.buffered.push(node.handle());
+
+        if node.is_local_player() {
+            let mut camera = scene::find_node_by_type::<Camera>().unwrap();
+            camera.position = node.body.position;
+        }
     }
 
     fn update(mut node: RefMut<Self>) {
@@ -450,6 +458,25 @@ impl BufferedDraw for Actor {
                 None,
             );
             pop_camera_state();
+        } else {
+            let game_state = scene::find_node_by_type::<GameState>().unwrap();
+            if game_state.in_debug_mode {
+                if let Some(action) = &self.behavior.current_action {
+                    let position = if let Some(collider) = self.body.get_offset_collider() {
+                        collider.get_center()
+                    } else {
+                        self.body.position
+                    };
+                    draw_aligned_text(
+                        action,
+                        position.x,
+                        position.y + 16.0,
+                        HorizontalAlignment::Center,
+                        VerticalAlignment::Top,
+                        Default::default(),
+                    );
+                }
+            }
         }
         let game_state = scene::find_node_by_type::<GameState>().unwrap();
         if game_state.in_debug_mode {

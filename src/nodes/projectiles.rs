@@ -27,6 +27,7 @@ use crate::{
         SpriteAnimationPlayer,
     },
 };
+use crate::map::MapCollisionKind;
 
 pub enum ProjectileKind {
     Bullet,
@@ -172,7 +173,7 @@ impl Node for Projectiles {
 
         node.active.retain(|projectile| {
             // FIXME: This will allow damage from a projectile that has already hit its ttl in last update
-            if projectile.lived >= projectile.ttl {
+            if projectile.lived > projectile.ttl {
                 return false;
             }
             let collider = Collider::circle(0.0, 0.0, projectile.size / 2.0).offset(projectile.position);
@@ -192,8 +193,10 @@ impl Node for Projectiles {
                 }
             }
             let game_state = scene::find_node_by_type::<GameState>().unwrap();
-            if game_state.map.get_collisions(collider).is_empty() == false {
-                return false;
+            for (_, kind) in game_state.map.get_collisions(collider) {
+                if kind == MapCollisionKind::Solid {
+                    return false;
+                }
             }
             return true;
         });

@@ -1,13 +1,54 @@
 [
   {
-    "id": "test_projectile_weapon",
-    "kind": "one_handed_weapon",
-    "name": "Test Projectile Weapon",
-    "description": "Test Ranged Weapon description",
+    "id": "sub_machine_gun",
+    "kind": "two_handed_weapon",
+    "name": "HK-MP5",
+    "description": "A regular sub-machine gun",
     "weight": 10.0,
     "ability": {
       "action_kind": "primary",
       "cooldown": 0.0025,
+      "health_cost": 0.0,
+      "stamina_cost": 10.0,
+      "energy_cost": 0.0,
+      "speed": 15.0,
+      "spread": 10.0,
+      "range": 15.0,
+      "damage": 10.0,
+      "effect_kind": "projectile",
+      "effect_size": 1.0,
+      "effect_color": {
+        "r": 0.99,
+        "g": 0.98,
+        "b": 0.0,
+        "a": 1.0
+      }
+    },
+    "sprite": {
+      "texture_id": "items",
+      "texture_coords": {
+        "x": 0,
+        "y": 3
+      },
+      "tile_size": {
+        "x": 16,
+        "y": 16
+      },
+      "offset": {
+        "x": -8.0,
+        "y": -8.0
+      }
+    }
+  },
+  {
+    "id": "pistol",
+    "kind": "one_handed_weapon",
+    "name": "Pistol",
+    "description": "A regular pistol",
+    "weight": 10.0,
+    "ability": {
+      "action_kind": "primary",
+      "cooldown": 0.25,
       "health_cost": 0.0,
       "stamina_cost": 10.0,
       "energy_cost": 0.0,

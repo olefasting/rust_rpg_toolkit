@@ -123,21 +123,14 @@ impl Into<Map> for TiledMap {
                 .iter()
                 .map(|(layer_id, tiled_layer)| {
                     let (kind, tiles, objects) = if tiled_layer.objects.len() > 0 {
-                        let mut object_ids = Vec::new();
                         let objects = tiled_layer.objects
                             .iter()
+                            .cloned()
                             .map(|tiled_object| {
-                                let id = if object_ids.contains(&tiled_object.name) {
-                                    format!("{}_{}", tiled_object.name, generate_id())
-                                } else {
-                                    object_ids.push(tiled_object.name.clone());
-                                    tiled_object.name.clone()
-                                };
-
                                 MapObject {
-                                    id,
-                                    prototype_id: None,
+                                    name: tiled_object.name.clone(),
                                     position: vec2(tiled_object.world_x, tiled_object.world_y),
+                                    properties: tiled_object.properties,
                                 }
                             }).collect();
 

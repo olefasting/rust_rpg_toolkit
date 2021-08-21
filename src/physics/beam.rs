@@ -5,6 +5,7 @@ use crate::{
     physics::Collider,
     helpers::sort_by_distance,
 };
+use crate::map::MapCollisionKind;
 
 pub fn beam_collision_check(point: Vec2, origin: Vec2, end: Vec2, width: f32, tolerance: f32) -> bool {
     let va = origin - end;
@@ -26,9 +27,9 @@ pub fn get_beam_end(origin: Vec2, end: Vec2, width: f32, tolerance: f32) -> Vec2
     let mut collisions: Vec<Vec2> = game_state.map
         .get_collisions(collider)
         .into_iter()
-        .filter_map(|(position, _)| {
+        .filter_map(|(position, kind)| {
             let position = position + tile_size / 2.0;
-            if beam_collision_check(position, origin, end, width, tolerance) {
+            if kind == MapCollisionKind::Solid && beam_collision_check(position, origin, end, width, tolerance) {
                 Some(position)
             } else {
                 None
