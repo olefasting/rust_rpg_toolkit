@@ -55,6 +55,13 @@ impl Collider {
         }
     }
 
+    pub fn get_center(self) -> Vec2 {
+        match self {
+            Collider::Rectangle { x, y, w, h } => vec2(x + w / 2.0, y + h / 2.0),
+            Collider::Circle { x, y, r: _ } => vec2(x, y),
+        }
+    }
+
     pub fn overlaps(self, other: Collider) -> bool {
         match self {
             Collider::Rectangle { x, y, w, h } => {

@@ -25,6 +25,16 @@ use crate::{
     json,
 };
 
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum ItemKind {
+    #[serde(rename = "one_handed_weapon")]
+    OneHandedWeapon,
+    #[serde(rename = "two_handed_weapon")]
+    TwoHandedWeapon,
+    #[serde(rename = "misc")]
+    Misc,
+}
+
 #[derive(Clone, Serialize, Deserialize)]
 pub struct ItemParams {
     #[serde(rename = "id", skip_serializing_if = "Option::is_none")]
@@ -33,7 +43,7 @@ pub struct ItemParams {
     pub description: String,
     #[serde(with = "json::opt_vec2", skip_serializing_if = "Option::is_none")]
     pub position: Option<Vec2>,
-    pub kind: String,
+    pub kind: ItemKind,
     pub weight: f32,
     pub ability: AbilityParams,
     pub sprite: Sprite,
@@ -61,7 +71,7 @@ impl Default for ItemParams {
             name: "Unnamed Item".to_string(),
             description: "".to_string(),
             position: Default::default(),
-            kind: Item::MISC_KIND.to_string(),
+            kind: ItemKind::Misc,
             weight: 0.1,
             ability: Default::default(),
             sprite: Default::default(),
@@ -75,32 +85,13 @@ pub struct Item {
     pub name: String,
     pub description: String,
     pub position: Vec2,
-    pub kind: String,
+    pub kind: ItemKind,
     pub weight: f32,
     ability: AbilityParams,
     sprite: Sprite,
 }
 
 impl Item {
-    pub const BODY_ARMOR_KIND: &'static str = "body_armor";
-    pub const HEAD_ARMOR_KIND: &'static str = "body_armor";
-    pub const LEG_ARMOR_KIND: &'static str = "body_armor";
-    pub const ARMOR_KINDS: &'static [&'static str] = &[
-        Self::BODY_ARMOR_KIND,
-        Self::HEAD_ARMOR_KIND,
-        Self::LEG_ARMOR_KIND,
-    ];
-
-    pub const ONE_HANDED_WEAPON_KIND: &'static str = "one_handed_weapon";
-    pub const TWO_HANDED_WEAPON_KIND: &'static str = "two_handed_weapon";
-    pub const WEAPON_KINDS: &'static [&'static str] = &[
-        Self::ONE_HANDED_WEAPON_KIND,
-        Self::TWO_HANDED_WEAPON_KIND,
-    ];
-
-    pub const MISC_KIND: &'static str = "misc";
-    pub const QUEST_KIND: &'static str = "quest";
-
     pub fn new(params: ItemParams) -> Self {
         Item {
             id: generate_id(),

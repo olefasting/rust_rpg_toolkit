@@ -2,11 +2,18 @@ use macroquad::{
     prelude::*,
 };
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum HorizontalAlignment {
     Left,
     Right,
     Center,
+}
+
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum VerticalAlignment {
+    Top,
+    Center,
+    Bottom,
 }
 
 pub fn draw_progress_bar(
@@ -88,8 +95,9 @@ pub fn draw_progress_bar(
             draw_aligned_text(
                 text,
                 position.x,
-                position.y + border * 2.0,
+                position.y,
                 HorizontalAlignment::Center,
+                VerticalAlignment::Center,
                 text_params.unwrap_or(TextParams {
                     font_size: height as u16,
                     ..Default::default()
@@ -99,22 +107,27 @@ pub fn draw_progress_bar(
     }
 }
 
-pub fn draw_aligned_text(text: &str, x: f32, y: f32, alignment: HorizontalAlignment, params: TextParams) {
-    let x = match alignment {
+pub fn draw_aligned_text(text: &str, x: f32, y: f32, ha: HorizontalAlignment, va: VerticalAlignment, params: TextParams) {
+    let measure = measure_text(
+        text,
+        Some(params.font),
+        params.font_size,
+        params.font_scale,
+    );
+    let x = match ha {
         HorizontalAlignment::Left => x,
         _ => {
-            let measure = measure_text(
-                text,
-                Some(params.font),
-                params.font_size,
-                params.font_scale,
-            );
-            if let HorizontalAlignment::Center = alignment {
+            if ha == HorizontalAlignment::Center {
                 x - (measure.width / 2.0)
             } else {
                 x - measure.width
             }
         }
+    };
+    let y = match va {
+        VerticalAlignment::Top => y + measure.height,
+        VerticalAlignment::Center => y + measure.height / 2.0,
+        _ => y,
     };
 
     draw_text_ex(text, x, y, params);

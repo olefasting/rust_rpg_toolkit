@@ -138,7 +138,9 @@ impl Map {
                                     .get(&tile.texture_id)
                                     .cloned()
                                     .expect(&format!("No texture with id '{}'!", tile.texture_id));
-
+                                // if layer_id == "solids" {
+                                //     println!("{} {}", tile.texture_id, (tile.texture_coords / self.tile_size).to_string());
+                                // }
                                 draw_texture_ex(
                                     texture,
                                     world_position.x,
@@ -277,7 +279,7 @@ impl MapTileset {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum MapCollisionKind {
     #[serde(rename = "none")]
     None,

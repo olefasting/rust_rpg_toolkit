@@ -15,7 +15,7 @@ use crate::{
     map::Map,
     render::Viewport,
 };
-use crate::render::{draw_aligned_text, HorizontalAlignment};
+use crate::render::{draw_aligned_text, HorizontalAlignment, VerticalAlignment};
 
 #[derive(Debug, Clone)]
 pub struct GameParams {
@@ -60,6 +60,7 @@ impl Node for GameState {
                 screen_width() / 2.0,
                 50.0,
                 HorizontalAlignment::Center,
+                VerticalAlignment::Top,
                 TextParams {
                     color: color::RED,
                     font_size: 24,
@@ -71,6 +72,7 @@ impl Node for GameState {
                 screen_width() - 50.0,
                 50.0,
                 HorizontalAlignment::Right,
+                VerticalAlignment::Top,
                 Default::default(),
             );
             pop_camera_state();

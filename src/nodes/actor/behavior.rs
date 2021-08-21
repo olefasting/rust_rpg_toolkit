@@ -20,6 +20,8 @@ use crate::{
 };
 
 use super::Actor;
+use crate::nodes::item::ItemKind;
+use crate::ability::ActionKind;
 
 #[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
 pub enum ActorAggression {
@@ -109,31 +111,50 @@ pub fn apply_actor_behavior(actor: &mut Actor) {
         if actor.body.position.distance(hostile.body.position) < VIEW_DISTANCE {
             match actor.behavior.aggression {
                 ActorAggression::Passive => {
-                    let mut direction = actor.body.position.sub(hostile.body.position).normalize_or_zero();
-                    let mut i = 0;
-                    while i < 60 && actor.body.raycast( actor.body.position + direction * 32.0).is_some() {
+                    let mut direction = actor.controller.direction;
+                    if actor.body.last_collisions.len() > 0 || actor.body.raycast( actor.body.position + direction * 32.0).is_some() {
                         direction = rotate_vector(direction, deg_to_rad(6.0));
-                        i += 1;
+                    } else {
+                        let mut try_direction = actor.body.position.sub(hostile.body.position).normalize_or_zero();
+                        for _ in 0..60 {
+                            if actor.body.raycast( actor.body.position + try_direction * 32.0).is_some() {
+                                try_direction = rotate_vector(direction, deg_to_rad(6.0));
+                                continue;
+                            }
+                            direction = try_direction;
+                            break;
+                        }
                     }
                     actor.controller.direction = direction;
                     actor.controller.is_sprinting = true;
                 },
                 ActorAggression::Neutral => {},
                 ActorAggression::Aggressive => {
+                    let distance = actor.body.position.distance(hostile.body.position);
                     let mut direction = hostile.body.position.sub(actor.body.position).normalize_or_zero();
-                    let mut i = 0;
-                    while i < 60 && actor.body.raycast( actor.body.position + direction * 32.0).is_some() {
-                        direction = rotate_vector(direction, deg_to_rad(6.0));
-                        i += 1;
+                    if let Some(ability) = actor.primary_ability.as_mut() {
+                        if distance < ability.range {
+                            direction = Vec2::ZERO;
+                            actor.controller.primary_target = Some(hostile.body.position);
+                        }
+                    } else if let Some(ability) = actor.secondary_ability.as_mut() {
+                        if distance < ability.range {
+                            direction = Vec2::ZERO;
+                            actor.controller.secondary_target = Some(hostile.body.position);
+                        }
+                    } else {
+                        if let Some(weapon) = actor.inventory
+                            .get_all_of_kind(&[ItemKind::OneHandedWeapon, ItemKind::TwoHandedWeapon]).first() {
+                            match weapon.params.ability.action_kind {
+                                ActionKind::Primary =>
+                                    actor.primary_ability = Some(weapon.to_actor_ability()),
+                                ActionKind::Secondary =>
+                                    actor.secondary_ability = Some(weapon.to_actor_ability()),
+                            }
+                        }
                     }
                     actor.controller.direction = direction;
                     actor.controller.is_sprinting = true;
-                    if actor.secondary_ability.is_some() {
-                        actor.controller.secondary_target = Some(hostile.body.position);
-                    }
-                    if actor.primary_ability.is_some() {
-                        actor.controller.primary_target = Some(hostile.body.position);
-                    }
                 },
             }
             return;

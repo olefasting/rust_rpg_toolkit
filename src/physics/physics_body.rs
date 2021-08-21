@@ -19,8 +19,10 @@ use crate::{
     render::{
         draw_aligned_text,
         HorizontalAlignment,
-    }
+    },
+    map::MapCollisionKind,
 };
+use crate::render::VerticalAlignment;
 
 pub type PhysicsObject = (HandleUntyped, Lens<PhysicsBody>);
 
@@ -30,7 +32,7 @@ pub struct PhysicsBody {
     pub rotation: f32,
     pub velocity: Vec2,
     pub collider: Option<Collider>,
-    last_collisions: Option<Vec<Vec2>>,
+    pub last_collisions: Vec<(Vec2, MapCollisionKind)>,
 }
 
 impl PhysicsBody {
@@ -40,7 +42,7 @@ impl PhysicsBody {
             rotation,
             velocity: Vec2::ZERO,
             collider,
-            last_collisions: None,
+            last_collisions: Vec::new(),
         }
     }
 
@@ -55,26 +57,48 @@ impl PhysicsBody {
                         draw_circle_lines(x, y, r, 2.0, color::RED)
                 }
             }
-            if let Some(collisions) = self.last_collisions.as_ref() {
-                for collision in collisions {
-                    draw_rectangle(
-                        collision.x,
-                        collision.y,
-                        game_state.map.tile_size.x,
-                        game_state.map.tile_size.y,
-                        color::RED,
-                    );
-                }
+            for (position, kind) in self.last_collisions.clone() {
+                draw_rectangle(
+                    position.x,
+                    position.y,
+                    game_state.map.tile_size.x,
+                    game_state.map.tile_size.y,
+                    color::RED,
+                );
+                draw_aligned_text(
+                    if kind == MapCollisionKind::Solid { "S" } else { "B" },
+                    position.x + (game_state.map.tile_size.x / 2.0),
+                    position.y + (game_state.map.tile_size.y / 2.0),
+                    HorizontalAlignment::Center,
+                    VerticalAlignment::Center,
+                    TextParams {
+                        ..Default::default()
+                    },
+                );
             }
+            let begin = if let Some(collider) = self.get_offset_collider() {
+                collider.get_center()
+            } else {
+                self.position
+            };
+            let end = begin + self.velocity * 10.0;
+            draw_line(
+                begin.x,
+                begin.y,
+                end.x,
+                end.y,
+                2.0,
+                color::RED,
+            );
             draw_aligned_text(
                 &format!("position: {}", self.position.to_string()),
                 screen_width() - 50.0,
                 150.0,
                 HorizontalAlignment::Right,
+                VerticalAlignment::Top,
                 Default::default(),
             );
         }
-        self.last_collisions = None;
     }
 
     pub fn raycast(&mut self, dest: Vec2) -> Option<Vec2> {
@@ -94,8 +118,10 @@ impl PhysicsBody {
             let game_state = scene::find_node_by_type::<GameState>().unwrap();
             let collisions = game_state.map.get_collisions(collider.offset(self.velocity));
             if collisions.is_empty() == false {
-                self.last_collisions = Some(collisions.into_iter().map(|(position, _)| position).collect());
+                self.last_collisions = collisions;
                 return;
+            } else {
+                self.last_collisions = Vec::new();
             }
 
             if ACTOR_TO_ACTOR_COLLISIONS {

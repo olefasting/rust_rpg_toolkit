@@ -102,12 +102,15 @@ impl From<MapDef> for Map {
                                 .iter()
                                 .find(|(_, tileset)| tile_id >= tileset.first_tile_id
                                     && tile_id < tileset.first_tile_id + tileset.tile_cnt) {
-                                Some((_, tileset)) => Some(MapTile {
-                                    tile_id: tile_id - tileset.first_tile_id,
-                                    tileset_id: tileset.id.clone(),
-                                    texture_id: tileset.texture_id.clone(),
-                                    texture_coords: tileset.get_texture_coords(tile_id),
-                                }),
+                                Some((_, tileset)) => {
+                                    let tile_id = tile_id - tileset.first_tile_id;
+                                    Some(MapTile {
+                                        tile_id,
+                                        tileset_id: tileset.id.clone(),
+                                        texture_id: tileset.texture_id.clone(),
+                                        texture_coords: tileset.get_texture_coords(tile_id),
+                                    })
+                                },
                                 _ => {
                                     None
                                 }

@@ -45,11 +45,11 @@ impl TiledMap {
         tiled_tilesets: &[(&str, &str, &str)],
     ) -> Self {
         let tiled_tilesets = HashMap::from_iter(tiled_tilesets
-                .iter()
-                .map(|(name, relative_path, texture_id)| (name.to_string(), TiledTileset {
-                    relative_path: relative_path.to_string(),
-                    texture_id: texture_id.to_string(),
-                })));
+            .iter()
+            .map(|(name, relative_path, texture_id)| (name.to_string(), TiledTileset {
+                relative_path: relative_path.to_string(),
+                texture_id: texture_id.to_string(),
+            })));
         let resources = storage::get::<Resources>();
         let mut tileset_textures = Vec::new();
         for (_, tileset) in &tiled_tilesets {
@@ -122,66 +122,65 @@ impl Into<Map> for TiledMap {
             self.tiled_map.layers
                 .iter()
                 .map(|(layer_id, tiled_layer)| {
-                    println!("{}", layer_id);
-                let (kind, tiles, objects) = if tiled_layer.objects.len() > 0 {
-                    let mut object_ids = Vec::new();
-                    let objects = tiled_layer.objects
-                        .iter()
-                        .map(|tiled_object| {
-                        let id = if object_ids.contains(&tiled_object.name) {
-                            format!("{}_{}", tiled_object.name, generate_id())
-                        } else {
-                            object_ids.push(tiled_object.name.clone());
-                            tiled_object.name.clone()
-                        };
+                    let (kind, tiles, objects) = if tiled_layer.objects.len() > 0 {
+                        let mut object_ids = Vec::new();
+                        let objects = tiled_layer.objects
+                            .iter()
+                            .map(|tiled_object| {
+                                let id = if object_ids.contains(&tiled_object.name) {
+                                    format!("{}_{}", tiled_object.name, generate_id())
+                                } else {
+                                    object_ids.push(tiled_object.name.clone());
+                                    tiled_object.name.clone()
+                                };
 
-                        MapObject {
-                            id,
-                            prototype_id: None,
-                            position: vec2(tiled_object.world_x, tiled_object.world_y),
-                        }
-                    }).collect();
+                                MapObject {
+                                    id,
+                                    prototype_id: None,
+                                    position: vec2(tiled_object.world_x, tiled_object.world_y),
+                                }
+                            }).collect();
 
-                    (MapLayerKind::ObjectLayer, Vec::new(), objects)
-                } else {
-                    let tiles = tiled_layer.data
-                        .iter()
-                        .map(|tiled_tile| {
-                        if let Some(tiled_tile) = tiled_tile {
-                            let tileset = tilesets.get(&tiled_tile.tileset)
-                                .expect(&format!("Unable to find tiled tileset '{}'! Are you sure you defined all the tilesets when importing the map?", tiled_tile.tileset));
-                            let tile = MapTile {
-                                tile_id: tiled_tile.id - 1,
-                                tileset_id: tileset.id.clone(),
-                                texture_id: tileset.texture_id.clone(),
-                                texture_coords: tileset.get_texture_coords(tiled_tile.id),
-                            };
+                        (MapLayerKind::ObjectLayer, Vec::new(), objects)
+                    } else {
+                        let tiles = tiled_layer.data
+                            .iter()
+                            .map(|tiled_tile| {
+                                if let Some(tiled_tile) = tiled_tile {
+                                    let tileset = tilesets.get(&tiled_tile.tileset)
+                                        .expect(&format!("Unable to find tiled tileset '{}'! Are you sure you defined all the tilesets when importing the map?", tiled_tile.tileset));
+                                    let tile = MapTile {
+                                        tile_id: tiled_tile.id,
+                                        tileset_id: tileset.id.clone(),
+                                        texture_id: tileset.texture_id.clone(),
+                                        texture_coords: tileset.get_texture_coords(tiled_tile.id),
+                                    };
 
-                            Some(tile)
-                        } else {
-                            None
-                        }
-                    }).collect();
+                                    Some(tile)
+                                } else {
+                                    None
+                                }
+                            }).collect();
 
-                    (MapLayerKind::TileLayer, tiles, Vec::new())
-                };
+                        (MapLayerKind::TileLayer, tiles, Vec::new())
+                    };
 
-                let collision = match self.collisions.get(layer_id) {
-                    Some(collision) => collision.clone(),
-                    _ => MapCollisionKind::None,
-                };
+                    let collision = match self.collisions.get(layer_id) {
+                        Some(collision) => collision.clone(),
+                        _ => MapCollisionKind::None,
+                    };
 
-                let layer = MapLayer {
-                    id: layer_id.clone(),
-                    kind,
-                    collision,
-                    grid_size,
-                    tiles,
-                    objects,
-                };
+                    let layer = MapLayer {
+                        id: layer_id.clone(),
+                        kind,
+                        collision,
+                        grid_size,
+                        tiles,
+                        objects,
+                    };
 
-                (layer_id.clone(), layer)
-            }));
+                    (layer_id.clone(), layer)
+                }));
 
         Map {
             world_offset: Vec2::ZERO,

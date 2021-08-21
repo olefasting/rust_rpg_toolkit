@@ -32,6 +32,7 @@ use render::{
     HorizontalAlignment,
 };
 use resources::Resources;
+use crate::render::VerticalAlignment;
 
 pub mod resources;
 pub mod ability;
@@ -94,6 +95,7 @@ async fn main() {
             screen_width() / 2.0,
             screen_height() / 2.0,
             HorizontalAlignment::Center,
+            VerticalAlignment::Center,
             TextParams {
                 font_size: 40,
                 color: color::WHITE,
@@ -159,7 +161,7 @@ async fn main() {
         scene::add_node(generic_actor(
             "Enemy Actor",
             "default_aggressive",
-            vec2(300.0, 350.0),
+            vec2(450.0, 50.0),
             1,
             &[],
             None,

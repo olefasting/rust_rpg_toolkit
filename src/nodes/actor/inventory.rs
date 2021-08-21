@@ -13,6 +13,7 @@ use crate::{
     ability::Ability,
     generate_id,
 };
+use crate::nodes::item::ItemKind;
 
 #[derive(Clone)]
 pub struct ActorInventoryEntry {
@@ -49,12 +50,10 @@ impl ActorInventory {
         }
     }
 
-    pub fn get_all_of_kind(&self, kinds: &[&'static str]) -> Vec<ActorInventoryEntry> {
+    pub fn get_all_of_kind(&self, kinds: &[ItemKind]) -> Vec<ActorInventoryEntry> {
         self.items.clone().into_iter().filter(|item| {
-            for kind in kinds {
-                if item.params.kind == *kind {
-                    return true;
-                }
+            if kinds.contains(&item.params.kind) {
+                return true;
             }
             false
         }).collect()
