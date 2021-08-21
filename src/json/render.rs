@@ -11,13 +11,13 @@ use serde::{
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(remote = "Color")]
 pub struct ColorDef {
-    #[serde(alias = "red")]
+    #[serde(rename = "red", alias ="r")]
     pub r: f32,
-    #[serde(alias = "green")]
+    #[serde(rename = "green", alias ="g")]
     pub g: f32,
-    #[serde(alias = "blue")]
+    #[serde(rename = "blue", alias ="b")]
     pub b: f32,
-    #[serde(alias = "alpha")]
+    #[serde(rename = "alpha", alias ="a")]
     pub a: f32,
 }
 

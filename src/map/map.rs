@@ -208,41 +208,16 @@ impl<'a> Iterator for MapTileIterator<'a> {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(from = "String", into = "String")]
 pub enum MapLayerKind {
+    #[serde(rename = "tile_layer")]
     TileLayer,
+    #[serde(rename = "object_layer")]
     ObjectLayer,
-}
-
-impl MapLayerKind {
-    pub const TILE_LAYER_STRING: &'static str = "tile_layer";
-    pub const OBJECT_LAYER_STRING: &'static str = "object_layer";
 }
 
 impl Default for MapLayerKind {
     fn default() -> Self {
         MapLayerKind::TileLayer
-    }
-}
-
-impl From<String> for MapLayerKind {
-    fn from(string: String) -> Self {
-        if string == Self::TILE_LAYER_STRING {
-            Self::TileLayer
-        } else if string == Self::OBJECT_LAYER_STRING {
-            Self::ObjectLayer
-        } else {
-            Self::default()
-        }
-    }
-}
-
-impl Into<String> for MapLayerKind {
-    fn into(self) -> String {
-        match self {
-            Self::TileLayer => Self::TILE_LAYER_STRING.to_string(),
-            Self::ObjectLayer => Self::OBJECT_LAYER_STRING.to_string(),
-        }
     }
 }
 
@@ -299,18 +274,16 @@ impl MapTileset {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(from = "String", into = "String")]
 pub enum MapCollisionKind {
+    #[serde(rename = "none")]
     None,
+    #[serde(rename = "barrier")]
     Barrier,
+    #[serde(rename = "solid")]
     Solid,
 }
 
 impl MapCollisionKind {
-    pub const NO_COLLISION_STRING: &'static str = "none";
-    pub const SOLID_COLLISION_STRING: &'static str = "solid";
-    pub const BARRIER_COLLISION_STRING: &'static str = "barrier";
-
     pub fn is_none(&self) -> bool {
         match self {
             Self::None => true,
@@ -322,27 +295,5 @@ impl MapCollisionKind {
 impl Default for MapCollisionKind {
     fn default() -> Self {
         MapCollisionKind::None
-    }
-}
-
-impl From<String> for MapCollisionKind {
-    fn from(string: String) -> Self {
-        if string == Self::BARRIER_COLLISION_STRING {
-            Self::Barrier
-        } else if string == Self::SOLID_COLLISION_STRING {
-            Self::Solid
-        } else {
-            Self::None
-        }
-    }
-}
-
-impl Into<String> for MapCollisionKind {
-    fn into(self) -> String {
-        match self {
-            Self::None => Self::NO_COLLISION_STRING.to_string(),
-            Self::Barrier => Self::BARRIER_COLLISION_STRING.to_string(),
-            Self::Solid => Self::SOLID_COLLISION_STRING.to_string(),
-        }
     }
 }

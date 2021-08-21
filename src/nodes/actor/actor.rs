@@ -60,9 +60,9 @@ use super::{
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct ActorParams {
-    #[serde(default, alias = "id", skip_serializing_if = "Option::is_none")]
+    #[serde(default, rename = "id", skip_serializing_if = "Option::is_none")]
     pub prototype_id: Option<String>,
-    #[serde(default = "ActorBehavior::default_id", alias = "behavior")]
+    #[serde(default = "ActorBehavior::default_id", rename = "behavior")]
     pub behavior_id: String,
     #[serde(default, with = "json::opt_vec2", skip_serializing_if = "Option::is_none")]
     pub position: Option<Vec2>,

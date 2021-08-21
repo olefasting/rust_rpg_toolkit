@@ -25,40 +25,10 @@ use crate::{
     json,
 };
 
-//
-// #[derive(Clone)]
-// pub struct ItemPrototype {
-//     pub id: String,
-//     pub name: String,
-//     pub description: String,
-//     pub kind: String,
-//     pub weight: f32,
-//     pub ability: AbilityParams,
-//     pub sprite: Sprite,
-// }
-//
-// impl ItemPrototype {
-//     pub fn from_params(id: Option<&str>, params: ItemParams) -> Self {
-//         let id = match id {
-//             Some(id) => id.to_string(),
-//             None => generate_id(),
-//         };
-//         ItemPrototype {
-//             id,
-//             name: params.name,
-//             description: params.description,
-//             kind: params.kind,
-//             weight: params.weight,
-//             ability: params.ability,
-//             sprite: params.sprite,
-//         }
-//     }
-// }
-
 #[derive(Clone, Serialize, Deserialize)]
 pub struct ItemParams {
     #[serde(skip_serializing_if = "Option::is_none")]
-    #[serde(alias = "id")]
+    #[serde(rename = "id")]
     pub prototype_id: Option<String>,
     pub name: String,
     pub description: String,
@@ -70,20 +40,6 @@ pub struct ItemParams {
     pub ability: AbilityParams,
     pub sprite: Sprite,
 }
-//
-// impl From<ItemPrototype> for ItemParams {
-//     fn from(prototype: ItemPrototype) -> Self {
-//         ItemParams {
-//             name: prototype.name,
-//             description: prototype.description,
-//             position: Default::default(),
-//             kind: prototype.kind,
-//             weight: prototype.weight,
-//             ability: prototype.ability,
-//             sprite: prototype.sprite,
-//         }
-//     }
-// }
 
 impl From<&Item> for ItemParams {
     fn from(item: &Item) -> Self {

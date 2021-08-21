@@ -9,7 +9,7 @@ use macroquad::math::{Vec2, Rect, vec2};
 pub struct Circle {
     pub x: f32,
     pub y: f32,
-    #[serde(alias = "radius")]
+    #[serde(rename = "radius")]
     pub r: f32,
 }
 

@@ -13,6 +13,7 @@ use crate::{
     },
     ability::Ability,
 };
+use crate::ability::ActionKind;
 
 pub fn draw_inventory_window(player: &mut Actor) {
     widgets::Window::new(hash!(), vec2(50.0, 475.0), vec2(300.0, 300.0))
@@ -26,10 +27,11 @@ pub fn draw_inventory_window(player: &mut Actor) {
                         for item in &items {
                             ui.label(None, &item.params.name);
                             if ui.button(None, "Equip") {
-                                if item.params.ability.action_kind == Ability::PRIMARY_ABILITY.to_string() {
-                                    player.primary_ability = Some(item.to_actor_ability());
-                                } else if item.params.ability.action_kind == Ability::SECONDARY_ABILITY.to_string() {
-                                    player.secondary_ability = Some(item.to_actor_ability());
+                                match item.params.ability.action_kind {
+                                    ActionKind::Primary =>
+                                        player.primary_ability = Some(item.to_actor_ability()),
+                                    ActionKind::Secondary =>
+                                        player.secondary_ability = Some(item.to_actor_ability()),
                                 }
                             }
                             if ui.button(None, "Drop") {
@@ -47,10 +49,11 @@ pub fn draw_inventory_window(player: &mut Actor) {
                         for item in &items {
                             ui.label(None, &item.params.name);
                             if ui.button(None, "Equip") {
-                                if item.params.ability.action_kind == Ability::PRIMARY_ABILITY.to_string() {
-                                    player.primary_ability = Some(item.to_actor_ability());
-                                } else if item.params.ability.action_kind == Ability::SECONDARY_ABILITY.to_string() {
-                                    player.secondary_ability = Some(item.to_actor_ability());
+                                match item.params.ability.action_kind {
+                                    ActionKind::Primary =>
+                                        player.primary_ability = Some(item.to_actor_ability()),
+                                    ActionKind::Secondary =>
+                                        player.secondary_ability = Some(item.to_actor_ability()),
                                 }
                             }
                             if ui.button(None, "Drop") {

@@ -112,20 +112,20 @@ async fn main() {
         let json = serde_json::to_string_pretty(&t).unwrap();
         std::fs::write("assets/test.json", json).unwrap();
 
-        // let map = Map::load_tiled(
-        //     "assets/maps/test_tiled_map.json",
-        //     Some("assets/maps/converted_tiled_map.json"),
-        //     Some(&[
-        //         ("barriers", map::MapCollisionKind::Barrier),
-        //         ("solids", map::MapCollisionKind::Solid),
-        //     ]),
-        //     &[
-        //         ("neo_zero_tiles", "../textures/neo_zero_tiles.png", "tiles"),
-        //         ("neo_zero_props", "../textures/neo_zero_props.png", "props"),
-        //         ("items", "../textures/items.png", "items"),
-        //     ]).unwrap();
+        let map = Map::load_tiled(
+            "assets/maps/test_tiled_map.json",
+            Some("assets/maps/converted_tiled_map.json"),
+            Some(&[
+                ("barriers", map::MapCollisionKind::Barrier),
+                ("solids", map::MapCollisionKind::Solid),
+            ]),
+            &[
+                ("neo_zero_tiles", "../textures/neo_zero_tiles.png", "tiles"),
+                ("neo_zero_props", "../textures/neo_zero_props.png", "props"),
+                ("items", "../textures/items.png", "items"),
+            ]).unwrap();
 
-        let map = Map::load("assets/maps/converted_tiled_map.json").unwrap();
+        // let map = Map::load("assets/maps/converted_tiled_map.json").unwrap();
         // let map = Map::load("assets/maps/test_capstone_map.json").unwrap();
 
         GameState::add_node(map, &player_id);
@@ -158,7 +158,7 @@ async fn main() {
         scene::add_node(generic_actor(
             "Enemy Actor",
             "default_aggressive",
-            vec2(300.0, 50.0),
+            vec2(300.0, 350.0),
             1,
             &[],
             None,

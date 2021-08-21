@@ -99,9 +99,9 @@ impl From<UVec2Def> for UVec2 {
 pub struct RectDef {
     x: f32,
     y: f32,
-    #[serde(alias = "width")]
+    #[serde(rename = "width")]
     w: f32,
-    #[serde(alias = "height")]
+    #[serde(rename = "height")]
     h: f32,
 }
 
@@ -175,6 +175,55 @@ pub mod opt_vec2 {
     }
 }
 
+pub mod vec_vec2 {
+    use super::Vec2;
+    use serde::{Serialize, Serializer, Deserialize, Deserializer};
+
+    pub fn serialize<S>(value: &Vec<Vec2>, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: Serializer,
+    {
+        #[derive(Serialize)]
+        struct Helper<'a>(#[serde(with = "super::def_vec2")] &'a Vec2);
+
+        let helper: Vec<Helper> = value.iter().map(Helper).collect();
+        helper.serialize(serializer)
+    }
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Vec<Vec2>, D::Error>
+        where
+            D: Deserializer<'de>,
+    {
+        #[derive(Deserialize)]
+        struct Helper(#[serde(with = "super::def_vec2")] Vec2);
+
+        let helper = Vec::deserialize(deserializer)?;
+        Ok(helper.into_iter().map(|Helper(external)| external).collect())
+    }
+}
+
+pub mod def_uvec2 {
+    use super::{UVec2, UVec2Def};
+    use serde::{Serialize, Serializer, Deserialize, Deserializer};
+
+    pub fn serialize<S>(value: &UVec2, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: Serializer,
+    {
+
+        let helper = UVec2Def::from(*value);
+        UVec2Def::serialize(&helper, serializer)
+    }
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<UVec2, D::Error>
+        where
+            D: Deserializer<'de>,
+    {
+        let helper = UVec2Def::deserialize(deserializer)?;
+        Ok(UVec2::from(helper))
+    }
+}
+
 pub mod opt_uvec2 {
     use super::UVec2;
     use serde::{Serialize, Serializer, Deserialize, Deserializer};
@@ -200,28 +249,6 @@ pub mod opt_uvec2 {
 
         let helper = Option::deserialize(deserializer)?;
         Ok(helper.map(|Helper(external)| external))
-    }
-}
-
-pub mod def_uvec2 {
-    use super::{UVec2, UVec2Def};
-    use serde::{Serialize, Serializer, Deserialize, Deserializer};
-
-    pub fn serialize<S>(value: &UVec2, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: Serializer,
-    {
-
-        let helper = UVec2Def::from(*value);
-        UVec2Def::serialize(&helper, serializer)
-    }
-
-    pub fn deserialize<'de, D>(deserializer: D) -> Result<UVec2, D::Error>
-        where
-            D: Deserializer<'de>,
-    {
-        let helper = UVec2Def::deserialize(deserializer)?;
-        Ok(UVec2::from(helper))
     }
 }
 

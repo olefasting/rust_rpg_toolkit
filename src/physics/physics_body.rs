@@ -10,7 +10,10 @@ use macroquad::{
 };
 
 use crate::{
-    physics::Collider,
+    physics::{
+        ACTOR_TO_ACTOR_COLLISIONS,
+        Collider,
+    },
     nodes::GameState,
 };
 
@@ -74,21 +77,23 @@ impl PhysicsBody {
             let game_state = scene::find_node_by_type::<GameState>().unwrap();
             let collisions = game_state.map.get_collisions(collider.offset(self.velocity));
             if collisions.is_empty() == false {
-                // TODO: More advanced collisions
                 self.last_collisions = Some(collisions.into_iter().map(|(position, _)| position).collect());
                 return;
             }
-            self.last_collisions = None;
-            for (_, mut body_lens) in scene::find_nodes_with::<PhysicsObject>() {
-                if let Some(body) = body_lens.get() {
-                    if let Some(other_collider) = body.get_offset_collider() {
-                        if collider.offset(self.velocity).overlaps(other_collider) {
-                            return;
+
+            if ACTOR_TO_ACTOR_COLLISIONS {
+                for (_, mut body_lens) in scene::find_nodes_with::<PhysicsObject>() {
+                    if let Some(body) = body_lens.get() {
+                        if let Some(other_collider) = body.get_offset_collider() {
+                            if collider.offset(self.velocity).overlaps(other_collider) {
+                                return;
+                            }
                         }
                     }
                 }
             }
 
+            self.last_collisions = None;
             self.position += self.velocity;
         }
     }
