@@ -40026,6 +40026,32 @@
       ]
     },
     {
+      "id": "spawn_points",
+      "kind": "object_layer",
+      "objects": [
+        {
+          "id": "player_spawn",
+          "position": {
+            "x": 515.0,
+            "y": 400.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "items",
+      "kind": "object_layer",
+      "objects": [
+        {
+          "id": "test_beam_weapon",
+          "position": {
+            "x": 413.66666,
+            "y": 444.66666
+          }
+        }
+      ]
+    },
+    {
       "id": "barriers",
       "collision": "barrier",
       "kind": "tile_layer",
@@ -60031,53 +60057,9 @@
         0,
         0
       ]
-    },
-    {
-      "id": "spawn_points",
-      "kind": "object_layer",
-      "objects": [
-        {
-          "id": "player_spawn",
-          "position": {
-            "x": 515.0,
-            "y": 400.0
-          }
-        }
-      ]
-    },
-    {
-      "id": "items",
-      "kind": "object_layer",
-      "objects": [
-        {
-          "id": "test_beam_weapon",
-          "position": {
-            "x": 413.66666,
-            "y": 444.66666
-          }
-        }
-      ]
     }
   ],
   "tilesets": [
-    {
-      "id": "neo_zero_tiles",
-      "texture_id": "tiles",
-      "texture_size": {
-        "x": 320,
-        "y": 320
-      },
-      "tile_size": {
-        "x": 16,
-        "y": 16
-      },
-      "grid_size": {
-        "x": 17,
-        "y": 20
-      },
-      "first_tile_id": 1,
-      "tile_cnt": 340
-    },
     {
       "id": "neo_zero_props",
       "texture_id": "props",
@@ -60113,6 +60095,24 @@
       },
       "first_tile_id": 441,
       "tile_cnt": 16
+    },
+    {
+      "id": "neo_zero_tiles",
+      "texture_id": "tiles",
+      "texture_size": {
+        "x": 320,
+        "y": 320
+      },
+      "tile_size": {
+        "x": 16,
+        "y": 16
+      },
+      "grid_size": {
+        "x": 17,
+        "y": 20
+      },
+      "first_tile_id": 1,
+      "tile_cnt": 340
     }
   ]
 }

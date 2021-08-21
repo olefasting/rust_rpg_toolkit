@@ -99,9 +99,9 @@ impl From<UVec2Def> for UVec2 {
 pub struct RectDef {
     x: f32,
     y: f32,
-    #[serde(rename = "width")]
+    #[serde(rename = "width", alias = "w")]
     w: f32,
-    #[serde(rename = "height")]
+    #[serde(rename = "height", alias = "h")]
     h: f32,
 }
 

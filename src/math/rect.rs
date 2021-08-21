@@ -9,9 +9,9 @@ use serde::{
 pub struct URect {
     pub x: u32,
     pub y: u32,
-    #[serde(rename = "width")]
+    #[serde(rename = "width", alias ="w")]
     pub w: u32,
-    #[serde(rename = "height")]
+    #[serde(rename = "height", alias ="h")]
     pub h: u32,
 }
 

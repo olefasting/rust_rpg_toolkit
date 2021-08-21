@@ -2,7 +2,7 @@ use std::ops::Sub;
 
 use macroquad::{
     color,
-    prelude::*
+    prelude::*,
 };
 
 use serde::{
@@ -32,7 +32,7 @@ pub enum EffectKind {
     #[serde(rename = "beam")]
     Beam,
     #[serde(rename = "continuous_beam")]
-    ContinuousBeam
+    ContinuousBeam,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -130,50 +130,44 @@ impl Ability {
         if (self.health_cost == 0.0 || actor.stats.current_health >= self.health_cost)
             && (self.stamina_cost == 0.0 || actor.stats.current_stamina >= self.stamina_cost)
             && (self.energy_cost == 0.0 || actor.stats.current_energy >= self.energy_cost) {
-            match self.effect_kind {
-                EffectKind::ContinuousBeam => {
-                    actor.stats.current_health -= self.health_cost;
-                    actor.stats.current_stamina -= self.stamina_cost;
-                    actor.stats.current_energy -= self.energy_cost;
-                    let mut beams = scene::find_node_by_type::<ContinuousBeams>().unwrap();
-                    let end = actor.body.position + target.sub(actor.body.position).normalize_or_zero() * self.range;
-                    beams.spawn(
-                        &actor.id,
-                        &actor.factions,
-                        self.damage,
-                        self.effect_color,
-                        self.effect_size,
-                        actor.body.position,
-                        end,
-                    )
-                },
-                _ => {
-                    let kind = match self.effect_kind {
-                        EffectKind::Beam => ProjectileKind::Beam,
-                        EffectKind::EnergySphere => ProjectileKind::EnergySphere,
-                        _ => ProjectileKind::Bullet,
-                    };
-                    actor.stats.current_health -= self.health_cost;
-                    actor.stats.current_stamina -= self.stamina_cost;
-                    actor.stats.current_energy -= self.energy_cost;
-                    self.cooldown_timer = 0.0;
-                    let mut projectiles = scene::find_node_by_type::<Projectiles>().unwrap();
-                    let ttl = self.range / self.speed;
-                    projectiles.spawn(
-                        &actor.id,
-                        &actor.factions,
-                        kind,
-                        self.damage,
-                        self.effect_color,
-                        self.effect_size,
-                        origin,
-                        target,
-                        self.speed,
-                        self.spread,
-                        ttl,
-                        self.effect_animation_params.clone(),
-                    );
-                },
+            actor.stats.current_health -= self.health_cost;
+            actor.stats.current_stamina -= self.stamina_cost;
+            actor.stats.current_energy -= self.energy_cost;
+            self.cooldown_timer = 0.0;
+            if self.effect_kind == EffectKind::ContinuousBeam {
+                let mut beams = scene::find_node_by_type::<ContinuousBeams>().unwrap();
+                let end = actor.body.position + target.sub(actor.body.position).normalize_or_zero() * self.range;
+                beams.spawn(
+                    &actor.id,
+                    &actor.factions,
+                    self.damage,
+                    self.effect_color,
+                    self.effect_size,
+                    actor.body.position,
+                    end,
+                )
+            } else {
+                let kind = match self.effect_kind {
+                    EffectKind::Beam => ProjectileKind::Beam,
+                    EffectKind::EnergySphere => ProjectileKind::EnergySphere,
+                    _ => ProjectileKind::Bullet,
+                };
+                let mut projectiles = scene::find_node_by_type::<Projectiles>().unwrap();
+                let ttl = self.range / self.speed;
+                projectiles.spawn(
+                    &actor.id,
+                    &actor.factions,
+                    kind,
+                    self.damage,
+                    self.effect_color,
+                    self.effect_size,
+                    origin,
+                    target,
+                    self.speed,
+                    self.spread,
+                    ttl,
+                    self.effect_animation_params.clone(),
+                );
             }
         }
     }

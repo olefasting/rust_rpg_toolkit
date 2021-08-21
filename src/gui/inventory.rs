@@ -11,9 +11,8 @@ use crate::{
         Actor,
         Item,
     },
-    ability::Ability,
+    ability::ActionKind,
 };
-use crate::ability::ActionKind;
 
 pub fn draw_inventory_window(player: &mut Actor) {
     widgets::Window::new(hash!(), vec2(50.0, 475.0), vec2(300.0, 300.0))
