@@ -82,17 +82,27 @@ impl Map {
     }
 
     pub fn get_collisions(&self, collider: Collider) -> Vec<(Vec2, MapCollisionKind)> {
-        let rect = self.to_grid(collider.into());
+        let rect = {
+            let rect = self.to_grid(collider.into());
+            URect::new(rect.x - 1, rect.y -1, rect.w + 2, rect.h + 2)
+        };
         let mut collisions = Vec::new();
         'layers: for (_, layer) in &self.layers {
             match layer.collision {
                 MapCollisionKind::None => continue 'layers,
                 _ => for (x, y, tile) in self.get_tiles(&layer.id, Some(rect)) {
-                    if tile.is_some() {
-                        collisions.push((
-                            self.to_position(uvec2(x, y)),
-                            layer.collision.clone(),
-                        ));
+                    if let Some(_) = tile {
+                        if Collider::rect(
+                            x as f32 * self.tile_size.x,
+                            y as f32 * self.tile_size.y,
+                            self.tile_size.x as f32,
+                            self.tile_size.y as f32,
+                        ).overlaps(collider) {
+                            collisions.push((
+                                self.to_position(uvec2(x, y)),
+                                layer.collision.clone(),
+                            ));
+                        }
                     }
                 }
             }

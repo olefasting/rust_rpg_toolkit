@@ -18,10 +18,10 @@
       "sub_machine_gun"
     ],
     "collider": {
-      "x": -8.0,
+      "x": -7.0,
       "y": 0.0,
-      "width": 16.0,
-      "height": 16.0
+      "width": 14.0,
+      "height": 14.0
     },
     "animation_player": {
       "texture_id": "characters",
