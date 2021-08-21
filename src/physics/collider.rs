@@ -39,6 +39,15 @@ impl Collider {
         Collider::Circle { x, y, r }
     }
 
+    pub fn with_padding(self, padding: f32) -> Collider {
+        match self {
+            Collider::Rectangle { x, y, w, h } =>
+                Collider::Rectangle { x: x - padding, y: y - padding, w: w + padding * 2.0, h: h + padding * 2.0 },
+            Collider::Circle { x, y, r } =>
+                Collider::Circle { x, y, r: r + padding },
+        }
+    }
+
     pub fn offset(self, offset: Vec2) -> Collider {
         match self {
             Collider::Rectangle { x, y, w, h } =>

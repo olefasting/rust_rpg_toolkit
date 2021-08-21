@@ -82,19 +82,7 @@ impl Map {
     }
 
     pub fn get_collisions(&self, collider: Collider) -> Vec<(Vec2, MapCollisionKind)> {
-        let mut rect = self.to_grid(collider.into());
-        if rect.x > 0 {
-            rect.x -= 1;
-            rect.w = (rect.w + 2).clamp(0, self.grid_size.x - rect.x);
-        } else {
-            rect.w = (rect.w + 1).clamp(0, self.grid_size.x - rect.x);
-        }
-        if rect.y > 0 {
-            rect.y -= 1;
-            rect.h = (rect.h + 2).clamp(0, self.grid_size.y - rect.y);
-        } else {
-            rect.h = (rect.h + 1).clamp(0, self.grid_size.y - rect.y);
-        }
+        let rect = self.to_grid(collider.with_padding(self.tile_size.x).into());
         let mut collisions = Vec::new();
         'layers: for (_, layer) in &self.layers {
             match layer.collision {
