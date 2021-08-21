@@ -96,7 +96,7 @@ async fn main() {
 
         // let map = Map::load_tiled(
         //     "assets/maps/test_tiled_map.json",
-        //     Some("assets/maps/converted_tiled_map.json"),
+        //     Some("assets/maps/map_01.json"),
         //     Some(&[
         //         ("barriers_2", map::MapCollisionKind::Barrier),
         //         ("barriers_1", map::MapCollisionKind::Barrier),
@@ -109,8 +109,8 @@ async fn main() {
         //         ("items", "../textures/items.png", "items"),
         //     ]).unwrap();
 
-        let map = Map::load("assets/maps/map_01.json").unwrap();
-        // let map = Map::load("assets/maps/test_capstone_map.json").unwrap();
+        // let map = Map::load("assets/maps/map_01.json").unwrap();
+        let map = Map::load("assets/maps/test_capstone_map.json").unwrap();
 
         GameState::add_node(map, &player_id.clone());
 

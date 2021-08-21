@@ -69,8 +69,8 @@ impl Map {
     }
 
     pub fn to_coords(&self, position: Vec2) -> UVec2 {
-        let x = ((position.x - self.world_offset.x) as u32 / self.tile_size.x as u32).clamp(0, self.grid_size.x - 1);
-        let y = ((position.y - self.world_offset.y) as u32 / self.tile_size.y as u32).clamp(0, self.grid_size.y - 1);
+        let x = ((position.x - self.world_offset.x) as u32 / self.tile_size.x as u32).clamp(0, self.grid_size.x);
+        let y = ((position.y - self.world_offset.y) as u32 / self.tile_size.y as u32).clamp(0, self.grid_size.y);
         uvec2(x, y)
     }
 
@@ -82,10 +82,19 @@ impl Map {
     }
 
     pub fn get_collisions(&self, collider: Collider) -> Vec<(Vec2, MapCollisionKind)> {
-        let rect = {
-            let rect = self.to_grid(collider.into());
-            URect::new(rect.x - 1, rect.y -1, rect.w + 2, rect.h + 2)
-        };
+        let mut rect = self.to_grid(collider.into());
+        if rect.x > 0 {
+            rect.x -= 1;
+            rect.w = (rect.w + 2).clamp(0, self.grid_size.x - rect.x);
+        } else {
+            rect.w = (rect.w + 1).clamp(0, self.grid_size.x - rect.x);
+        }
+        if rect.y > 0 {
+            rect.y -= 1;
+            rect.h = (rect.h + 2).clamp(0, self.grid_size.y - rect.y);
+        } else {
+            rect.h = (rect.h + 1).clamp(0, self.grid_size.y - rect.y);
+        }
         let mut collisions = Vec::new();
         'layers: for (_, layer) in &self.layers {
             match layer.collision {
@@ -214,7 +223,6 @@ impl<'a> Iterator for MapTileIterator<'a> {
             self.current.1,
             &self.layer.tiles[i],
         ));
-
         self.current = next;
         return res;
     }
