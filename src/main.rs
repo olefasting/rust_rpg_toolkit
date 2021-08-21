@@ -152,7 +152,7 @@ async fn main() {
         scene::add_node(generic_actor(
             "Friendly Actor",
             "default_passive",
-            vec2(225.0, 75.0),
+            vec2(600.0, 75.0),
             2,
             &["player_faction".to_string()],
             None,

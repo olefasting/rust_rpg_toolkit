@@ -41,7 +41,7 @@ pub struct ItemParams {
     pub prototype_id: Option<String>,
     pub name: String,
     pub description: String,
-    #[serde(with = "json::opt_vec2", skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "json::opt_vec2", skip_serializing_if = "Option::is_none")]
     pub position: Option<Vec2>,
     pub kind: ItemKind,
     pub weight: f32,

@@ -21,7 +21,7 @@ use serde::{
 use crate::{
     ability::Ability,
     generate_id,
-    input::apply_local_input,
+    input::apply_local_player_input,
     json,
     nodes::{
         draw_buffer::{
@@ -56,6 +56,7 @@ use super::{
     ActorBehaviorParams,
     apply_actor_behavior,
 };
+use crate::nodes::GameState;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct ActorParams {
@@ -306,7 +307,7 @@ impl Node for Actor {
         let controller_kind = node.controller.kind.clone();
         match controller_kind {
             ActorControllerKind::LocalPlayer { player_id } => {
-                apply_local_input(&player_id, &mut node.controller);
+                apply_local_player_input(&player_id, &mut node.controller);
             }
             ActorControllerKind::RemotePlayer { player_id: _ } => {}
             ActorControllerKind::Computer => {
@@ -449,6 +450,16 @@ impl BufferedDraw for Actor {
                 None,
             );
             pop_camera_state();
+        }
+        let game_state = scene::find_node_by_type::<GameState>().unwrap();
+        if game_state.in_debug_mode {
+            draw_circle_lines(
+                self.body.position.x,
+                self.body.position.y,
+                self.stats.view_distance,
+                2.0,
+                color::RED,
+            )
         }
     }
 

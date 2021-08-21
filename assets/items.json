@@ -4,10 +4,6 @@
     "kind": "one_handed_weapon",
     "name": "Test Projectile Weapon",
     "description": "Test Ranged Weapon description",
-    "position": {
-      "x": 0.0,
-      "y": 0.0
-    },
     "weight": 10.0,
     "ability": {
       "action_kind": "primary",
@@ -49,10 +45,6 @@
     "kind": "one_handed_weapon",
     "name": "Test Continuous Beam Weapon",
     "description": "Test Continuous Beam Weapon description",
-    "position": {
-      "x": 0.0,
-      "y": 0.0
-    },
     "weight": 10.0,
     "ability": {
       "action_kind": "primary",
@@ -61,7 +53,7 @@
       "energy_cost": 0.0,
       "speed": 0.0,
       "spread": 10.0,
-      "range": 300.0,
+      "range": 150.0,
       "damage": 2.0,
       "effect_kind": "continuous_beam",
       "effect_size": 6.0,
@@ -93,10 +85,6 @@
     "kind": "one_handed_weapon",
     "name": "Test Beam Weapon",
     "description": "Test Beam Weapon description",
-    "position": {
-      "x": 0.0,
-      "y": 0.0
-    },
     "weight": 10.0,
     "ability": {
       "action_kind": "primary",
@@ -106,7 +94,7 @@
       "cooldown": 0.025,
       "speed": 25.0,
       "spread": 10.0,
-      "range": 300.0,
+      "range": 200.0,
       "damage": 50.0,
       "effect_kind": "beam",
       "effect_size": 2.0,
@@ -138,10 +126,6 @@
     "kind": "misc",
     "name": "Test Trinket",
     "description": "Test Trinket description",
-    "position": {
-      "x": 0.0,
-      "y": 0.0
-    },
     "weight": 1.0,
     "ability": {
       "action_kind": "secondary",
@@ -154,31 +138,53 @@
       "range": 15.0,
       "damage": 150.0,
       "effect_kind": "energy_sphere",
-      "effect_size": 4.5,
+      "effect_size": 60.0,
       "effect_color": {
         "r": 0.0,
         "g": 0.47,
         "b": 0.95,
         "a": 1.0
+      }
+    },
+    "sprite": {
+      "texture_id": "items",
+      "texture_coords": {
+        "x": 3,
+        "y": 3
       },
-      "animation_player": {
-        "texture_id": "fireball",
-        "tile_size": {
-          "x": 68.0,
-          "y": 9.0
-        },
-        "offset": {
-          "x": -34.0,
-          "y": -4.5
-        },
-        "animations": [
-          {
-            "name": "projectile",
-            "row": 1,
-            "frames": 10,
-            "fps": 8
-          }
-        ]
+      "tile_size": {
+        "x": 16,
+        "y": 16
+      },
+      "offset": {
+        "x": -8.0,
+        "y": -8.0
+      }
+    }
+  },
+  {
+    "id": "heal_trinket",
+    "kind": "misc",
+    "name": "Heal Trinket",
+    "description": "Heal Trinket description",
+    "weight": 1.0,
+    "ability": {
+      "action_kind": "secondary",
+      "cooldown": 0.75,
+      "health_cost": 0.0,
+      "stamina_cost": 10.0,
+      "energy_cost": 10.0,
+      "speed": 1.0,
+      "spread": 0.0,
+      "range": 0.0,
+      "damage": 150.0,
+      "effect_kind": "heal_self",
+      "effect_size": 64.0,
+      "effect_color": {
+        "r": 0.0,
+        "g": 0.47,
+        "b": 0.95,
+        "a": 1.0
       }
     },
     "sprite": {

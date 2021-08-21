@@ -16,6 +16,7 @@ use crate::{
     render::Viewport,
 };
 use crate::render::{draw_aligned_text, HorizontalAlignment, VerticalAlignment};
+use crate::input::apply_non_player_input;
 
 #[derive(Debug, Clone)]
 pub struct GameParams {
@@ -48,6 +49,10 @@ impl GameState {
 }
 
 impl Node for GameState {
+    fn update(node: RefMut<Self>) {
+        apply_non_player_input(node);
+    }
+
     fn draw(node: RefMut<Self>) {
         let viewport = storage::get::<Viewport>();
         let rect = node.map.to_grid(viewport.get_frustum());

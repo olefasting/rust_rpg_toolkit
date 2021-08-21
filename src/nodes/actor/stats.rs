@@ -1,7 +1,7 @@
 use macroquad::prelude::*;
 use crate::nodes::ActorParams;
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct ActorStats {
     pub strength: u32,
     pub dexterity: u32,
@@ -19,6 +19,7 @@ pub struct ActorStats {
     pub health_regen: f32,
     pub stamina_regen: f32,
     pub energy_regen: f32,
+    pub view_distance: f32,
     pub carry_capacity: f32,
     pub move_speed: f32,
 }
@@ -63,6 +64,7 @@ impl ActorStats {
         self.stamina_regen = (self.constitution + self.dexterity / 4 + self.willpower / 4) as f32 * 8.0;
         self.energy_regen = (self.willpower + self.constitution / 2) as f32 * 0.5;
         self.move_speed = (self.dexterity + self.strength / 4 + self.willpower / 4) as f32 * 0.1;
+        self.view_distance = (self.perception + self.intelligence / 2) as f32 * 20.0;
         self.carry_capacity = (self.strength + self.constitution / 4 + self.willpower / 4) as f32 * 50.0;
     }
 
@@ -128,6 +130,7 @@ impl Default for ActorStats {
             stamina_regen: 0.0,
             energy_regen: 0.0,
             carry_capacity: 0.0,
+            view_distance: 0.0,
             move_speed: 0.0,
         }
     }

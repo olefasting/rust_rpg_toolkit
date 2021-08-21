@@ -33,6 +33,8 @@ pub enum EffectKind {
     Beam,
     #[serde(rename = "continuous_beam")]
     ContinuousBeam,
+    #[serde(rename = "heal_self")]
+    HealSelf,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
