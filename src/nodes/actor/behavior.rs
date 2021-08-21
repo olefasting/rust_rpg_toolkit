@@ -75,11 +75,13 @@ impl Default for ActorBehaviorParams {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ActorBehavior {
     pub id: String,
     pub aggression: ActorAggression,
+    #[serde(default, skip_serializing_if = "Option::is_none", with = "json::opt_vec2")]
     pub home: Option<Vec2>,
+    #[serde(skip)]
     pub current_action: Option<String>,
 }
 

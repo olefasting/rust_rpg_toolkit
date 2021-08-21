@@ -51,26 +51,6 @@ pub fn generate_id() -> String {
     nanoid::nanoid!()
 }
 
-fn generic_actor(name: &str, behavior_id: &str, position: Vec2, skin_id: u32, factions: &[String], player_id: Option<String>) -> Actor {
-    assert!(skin_id <= 2, "invalid skin id");
-    let controller_kind = match player_id {
-        Some(player_id) => ActorControllerKind::LocalPlayer { player_id },
-        None => ActorControllerKind::Computer,
-    };
-    let resources = storage::get::<Resources>();
-    let params = resources.actors.get(&format!("generic_actor_0{}", skin_id + 1)).cloned().unwrap();
-    let mut actor = Actor::new(controller_kind, ActorParams {
-        name: name.to_string(),
-        behavior_id: behavior_id.to_string(),
-        position: Some(position),
-        factions: factions.to_vec(),
-        ..params
-    });
-    actor.stats.recalculate_derived();
-    actor.stats.restore_vitals();
-    actor
-}
-
 fn window_conf() -> Conf {
     Conf {
         window_title: "Capstone".to_owned(),
@@ -129,7 +109,7 @@ async fn main() {
         //         ("items", "../textures/items.png", "items"),
         //     ]).unwrap();
 
-        let map = Map::load("assets/maps/converted_tiled_map.json").unwrap();
+        let map = Map::load("assets/maps/map_01.json").unwrap();
         // let map = Map::load("assets/maps/test_capstone_map.json").unwrap();
 
         GameState::add_node(map, &player_id.clone());

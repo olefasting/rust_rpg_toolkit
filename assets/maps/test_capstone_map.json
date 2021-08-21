@@ -93,7 +93,7 @@
       "kind": "object_layer",
       "objects": [
         {
-          "id": "player_spawn",
+          "name": "player",
           "position": {
             "x": 100.0,
             "y": 100.0

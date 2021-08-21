@@ -43,7 +43,7 @@ pub struct Map {
 impl Map {
     pub fn load(path: &str) -> io::Result<Self> {
         let json = std::fs::read_to_string(path)?;
-        let mut map = serde_json::from_str(&json)?;
+        let map = serde_json::from_str(&json)?;
         Ok(map)
     }
 
@@ -53,7 +53,7 @@ impl Map {
         collisions: Option<&[(&str, MapCollisionKind)]>,
         tiled_tilesets: &[(&str, &str, &str)],
     ) -> io::Result<Self> {
-        let mut map = TiledMap::load(path, collisions, tiled_tilesets).into();
+        let map = TiledMap::load(path, collisions, tiled_tilesets).into();
         if let Some(export_path) = export_path {
             let json = serde_json::to_string_pretty(&map)?;
             std::fs::write(export_path, json)?;
