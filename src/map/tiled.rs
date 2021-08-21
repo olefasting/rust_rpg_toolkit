@@ -113,10 +113,16 @@ impl Into<Map> for TiledMap {
                     (id, tileset)
                 }));
 
+        let draw_order = raw_tiled_map.layers
+            .iter()
+            .map(|layer| layer.name.clone())
+            .collect();
+
         let layers = HashMap::from_iter(
             self.tiled_map.layers
                 .iter()
                 .map(|(layer_id, tiled_layer)| {
+                    println!("{}", layer_id);
                 let (kind, tiles, objects) = if tiled_layer.objects.len() > 0 {
                     let mut object_ids = Vec::new();
                     let objects = tiled_layer.objects
@@ -183,6 +189,7 @@ impl Into<Map> for TiledMap {
             tile_size,
             layers,
             tilesets,
+            draw_order,
         }
     }
 }

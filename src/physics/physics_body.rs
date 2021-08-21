@@ -13,8 +13,13 @@ use crate::{
     physics::{
         ACTOR_TO_ACTOR_COLLISIONS,
         Collider,
+        raycast,
     },
     nodes::GameState,
+    render::{
+        draw_aligned_text,
+        HorizontalAlignment,
+    }
 };
 
 pub type PhysicsObject = (HandleUntyped, Lens<PhysicsBody>);
@@ -39,7 +44,7 @@ impl PhysicsBody {
         }
     }
 
-    pub fn debug_draw(&self) {
+    pub fn debug_draw(&mut self) {
         let game_state  = scene::find_node_by_type::<GameState>().unwrap();
         if game_state.in_debug_mode {
             if let Some(collider) = self.get_offset_collider() {
@@ -61,7 +66,19 @@ impl PhysicsBody {
                     );
                 }
             }
+            draw_aligned_text(
+                &format!("position: {}", self.position.to_string()),
+                screen_width() - 50.0,
+                150.0,
+                HorizontalAlignment::Right,
+                Default::default(),
+            );
         }
+        self.last_collisions = None;
+    }
+
+    pub fn raycast(&mut self, dest: Vec2) -> Option<Vec2> {
+        raycast(self.position, dest)
     }
 
     pub fn get_offset_collider(&self) -> Option<Collider> {
@@ -93,7 +110,6 @@ impl PhysicsBody {
                 }
             }
 
-            self.last_collisions = None;
             self.position += self.velocity;
         }
     }

@@ -13,7 +13,6 @@ use serde::{
 
 use crate::{
     helpers::sort_by_distance,
-    physics::raycast,
     math::{
         rotate_vector,
         deg_to_rad,
@@ -111,8 +110,10 @@ pub fn apply_actor_behavior(actor: &mut Actor) {
             match actor.behavior.aggression {
                 ActorAggression::Passive => {
                     let mut direction = actor.body.position.sub(hostile.body.position).normalize_or_zero();
-                    if raycast(actor.body.position, direction * 32.0).is_some() {
-                        direction = rotate_vector(direction, deg_to_rad(90.0));
+                    let mut i = 0;
+                    while i < 60 && actor.body.raycast( actor.body.position + direction * 32.0).is_some() {
+                        direction = rotate_vector(direction, deg_to_rad(6.0));
+                        i += 1;
                     }
                     actor.controller.direction = direction;
                     actor.controller.is_sprinting = true;
@@ -120,8 +121,10 @@ pub fn apply_actor_behavior(actor: &mut Actor) {
                 ActorAggression::Neutral => {},
                 ActorAggression::Aggressive => {
                     let mut direction = hostile.body.position.sub(actor.body.position).normalize_or_zero();
-                    if raycast(actor.body.position, direction * 32.0).is_some() {
-                        direction = rotate_vector(direction, deg_to_rad(180.0));
+                    let mut i = 0;
+                    while i < 60 && actor.body.raycast( actor.body.position + direction * 32.0).is_some() {
+                        direction = rotate_vector(direction, deg_to_rad(6.0));
+                        i += 1;
                     }
                     actor.controller.direction = direction;
                     actor.controller.is_sprinting = true;

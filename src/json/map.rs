@@ -34,28 +34,32 @@ pub struct MapDef {
 
 impl Into<MapDef> for Map {
     fn into(self) -> MapDef {
-        let layers = self.layers.iter().map(|(_, layer)|  {
-            let (tiles, objects) = match layer.kind {
-                MapLayerKind::TileLayer => {
-                    (Some(layer.tiles.iter().map(|opt| match opt {
-                        Some(tile) => {
-                            let tileset = self.tilesets.get(&tile.tileset_id)
-                                .expect(&format!("Unable to find tileset with id '{}'!", tile.tileset_id));
-                            tile.tile_id + tileset.first_tile_id
-                        },
-                        _ => 0,
-                    }).collect()),
-                     None)
-                },
-                MapLayerKind::ObjectLayer => (None, Some(layer.objects.clone())),
-            };
+        let layers = self.draw_order.iter().filter_map(|layer_id|  {
+            if let Some(layer) = self.layers.get(layer_id) {
+                let (tiles, objects) = match layer.kind {
+                    MapLayerKind::TileLayer => {
+                        (Some(layer.tiles.iter().map(|opt| match opt {
+                            Some(tile) => {
+                                let tileset = self.tilesets.get(&tile.tileset_id)
+                                    .expect(&format!("Unable to find tileset with id '{}'!", tile.tileset_id));
+                                tile.tile_id + tileset.first_tile_id
+                            },
+                            _ => 0,
+                        }).collect()),
+                         None)
+                    },
+                    MapLayerKind::ObjectLayer => (None, Some(layer.objects.clone())),
+                };
 
-            MapLayerDef {
-                id: layer.id.clone(),
-                kind: layer.kind.clone(),
-                collision: layer.collision.clone(),
-                objects,
-                tiles,
+                Some(MapLayerDef {
+                    id: layer.id.clone(),
+                    kind: layer.kind.clone(),
+                    collision: layer.collision.clone(),
+                    objects,
+                    tiles,
+                })
+            } else {
+                None
             }
         }).collect();
 
@@ -79,6 +83,11 @@ impl From<MapDef> for Map {
                 .clone()
                 .into_iter()
                 .map(|tileset| (tileset.id.clone(), tileset)));
+
+        let draw_order = def.layers
+            .iter()
+            .map(|layer| layer.id.clone())
+            .collect();
 
         let layers = HashMap::from_iter(
             def.layers
@@ -124,6 +133,7 @@ impl From<MapDef> for Map {
             tile_size: def.tile_size,
             layers,
             tilesets,
+            draw_order,
         }
     }
 }

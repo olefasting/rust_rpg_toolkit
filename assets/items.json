@@ -161,7 +161,7 @@
         "b": 0.95,
         "a": 1.0
       },
-      "effect_animation_player": {
+      "animation_player": {
         "texture_id": "fireball",
         "tile_size": {
           "x": 68.0,

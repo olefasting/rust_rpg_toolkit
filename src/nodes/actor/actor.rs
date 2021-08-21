@@ -44,7 +44,6 @@ use crate::{
         SpriteAnimationPlayer,
         Viewport,
     },
-    render::draw_aligned_text,
     Resources,
 };
 
@@ -423,13 +422,6 @@ impl BufferedDraw for Actor {
             );
         }
         if is_local_player {
-            draw_aligned_text(
-                &format!("position: {}", self.body.position.to_string()),
-                screen_width() - 50.0,
-                50.0,
-                HorizontalAlignment::Right,
-                Default::default(),
-            );
             draw_progress_bar(
                 self.stats.current_stamina,
                 self.stats.max_stamina,

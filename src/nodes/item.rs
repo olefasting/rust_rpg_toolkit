@@ -27,13 +27,11 @@ use crate::{
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct ItemParams {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[serde(rename = "id")]
+    #[serde(rename = "id", skip_serializing_if = "Option::is_none")]
     pub prototype_id: Option<String>,
     pub name: String,
     pub description: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[serde(with = "json::opt_vec2")]
+    #[serde(with = "json::opt_vec2", skip_serializing_if = "Option::is_none")]
     pub position: Option<Vec2>,
     pub kind: String,
     pub weight: f32,

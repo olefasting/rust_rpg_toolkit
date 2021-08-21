@@ -64,8 +64,8 @@ pub struct AbilityParams {
     pub effect_size: f32,
     #[serde(with = "json::ColorDef")]
     pub effect_color: Color,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub effect_animation_player: Option<SpriteAnimationParams>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub animation_player: Option<SpriteAnimationParams>,
 }
 
 impl Default for AbilityParams {
@@ -83,7 +83,7 @@ impl Default for AbilityParams {
             damage: 0.0,
             effect_size: 5.0,
             effect_color: color::WHITE,
-            effect_animation_player: None,
+            animation_player: None,
         }
     }
 }
@@ -122,7 +122,7 @@ impl Ability {
             damage: params.damage,
             effect_size: params.effect_size,
             effect_color: params.effect_color,
-            effect_animation_params: params.effect_animation_player,
+            effect_animation_params: params.animation_player,
         }
     }
 

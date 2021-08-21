@@ -36,6 +36,8 @@ pub struct Map {
     pub tile_size: Vec2,
     pub layers: HashMap<String, MapLayer>,
     pub tilesets: HashMap<String, MapTileset>,
+    #[serde(skip)]
+    pub draw_order: Vec<String>,
 }
 
 impl Map {
@@ -121,44 +123,46 @@ impl Map {
 
     pub fn draw(&self, rect: Option<URect>) {
         let resources = storage::get::<Resources>();
-        for (layer_id, layer) in &self.layers {
-            match layer.kind {
-                MapLayerKind::TileLayer => {
-                    for (x, y, tile) in self.get_tiles(layer_id, rect) {
-                        if let Some(tile) = tile {
-                            let world_position = self.world_offset + vec2(
-                                x as f32 * self.tile_size.x,
-                                y as f32 * self.tile_size.y,
-                            );
+        for layer_id in &self.draw_order {
+            if let Some(layer) = self.layers.get(layer_id) {
+                match layer.kind {
+                    MapLayerKind::TileLayer => {
+                        for (x, y, tile) in self.get_tiles(layer_id, rect) {
+                            if let Some(tile) = tile {
+                                let world_position = self.world_offset + vec2(
+                                    x as f32 * self.tile_size.x,
+                                    y as f32 * self.tile_size.y,
+                                );
 
-                            let texture = resources.textures
-                                .get(&tile.texture_id)
-                                .cloned()
-                                .expect(&format!("No texture with id '{}'!", tile.texture_id));
+                                let texture = resources.textures
+                                    .get(&tile.texture_id)
+                                    .cloned()
+                                    .expect(&format!("No texture with id '{}'!", tile.texture_id));
 
-                            draw_texture_ex(
-                                texture,
-                                world_position.x,
-                                world_position.y,
-                                color::WHITE,
-                                DrawTextureParams {
-                                    source: Some(Rect::new(
-                                        tile.texture_coords.x + 1.1,
-                                        tile.texture_coords.y + 1.1,
-                                        self.tile_size.x - 2.2,
-                                        self.tile_size.y - 2.2,
-                                    )),
-                                    dest_size: Some(vec2(
-                                        self.tile_size.x,
-                                        self.tile_size.y,
-                                    )),
-                                    ..Default::default()
-                                },
-                            );
+                                draw_texture_ex(
+                                    texture,
+                                    world_position.x,
+                                    world_position.y,
+                                    color::WHITE,
+                                    DrawTextureParams {
+                                        source: Some(Rect::new(
+                                            tile.texture_coords.x + 1.1,
+                                            tile.texture_coords.y + 1.1,
+                                            self.tile_size.x - 2.2,
+                                            self.tile_size.y - 2.2,
+                                        )),
+                                        dest_size: Some(vec2(
+                                            self.tile_size.x,
+                                            self.tile_size.y,
+                                        )),
+                                        ..Default::default()
+                                    },
+                                );
+                            }
                         }
-                    }
-                },
-                _ => {}
+                    },
+                    _ => {}
+                }
             }
         }
     }

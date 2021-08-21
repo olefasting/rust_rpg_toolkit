@@ -66,6 +66,13 @@ impl Node for GameState {
                     ..Default::default()
                 },
             );
+            draw_aligned_text(
+                &format!("fps: {}", get_fps()),
+                screen_width() - 50.0,
+                50.0,
+                HorizontalAlignment::Right,
+                Default::default(),
+            );
             pop_camera_state();
         }
     }

@@ -18,7 +18,7 @@ use crate::{
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Sprite {
-    #[serde(with = "json::def_vec2")]
+    #[serde(default, with = "json::def_vec2")]
     pub offset: Vec2,
     #[serde(default)]
     pub rotation: f32,
