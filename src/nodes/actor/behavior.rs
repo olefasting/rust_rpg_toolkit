@@ -3,7 +3,6 @@ use std::{
 };
 
 use macroquad::{
-    experimental::scene::RefMut,
     prelude::*,
 };
 
@@ -64,6 +63,7 @@ pub struct ActorBehavior {
     pub current_action: Option<String>,
     pub is_stationary: bool,
     pub is_on_guard: bool,
+    pub last_attacked_by: Option<(f32, String)>,
     investigating: Option<(f32, Vec2)>,
     investigate_cooldown_timer: f32,
 }
@@ -76,13 +76,17 @@ impl ActorBehavior {
             current_action: None,
             is_stationary: params.is_stationary,
             is_on_guard: params.is_on_guard,
+            last_attacked_by: None,
             investigating: None,
             investigate_cooldown_timer: INVESTIGATE_COOLDOWN,
         }
     }
 }
 
+const ATTACK_FORGET_AFTER: f32 = 25.0;
 const GO_TO_STOP_THRESHOLD: f32 = 8.0;
+const INVESTIGATE_COOLDOWN: f32 = 15.0;
+const INVESTIGATE_FORGET_AFTER: f32 = 15.0;
 
 fn go_to(actor: &mut Actor, target: Vec2) {
     actor.behavior.current_action = Some(format!("go to {}", target.to_string()));
@@ -92,9 +96,6 @@ fn go_to(actor: &mut Actor, target: Vec2) {
         actor.controller.direction = Vec2::ZERO;
     }
 }
-
-const INVESTIGATE_COOLDOWN: f32 = 15.0;
-const INVESTIGATE_FORGET_AFTER: f32 = 15.0;
 
 fn investigate(actor: &mut Actor, target: Vec2) {
     actor.behavior.current_action = Some(format!("investigating {}", target.to_string()));
@@ -139,13 +140,13 @@ fn equip_weapon(actor: &mut Actor) {
     }
 }
 
-fn flee(actor: &mut Actor, hostile: &RefMut<Actor>) {
-    actor.behavior.current_action = Some(format!("flee from {}", hostile.name));
+fn flee(actor: &mut Actor, target: Vec2) {
+    actor.behavior.current_action = Some(format!("flee"));
     let mut direction = actor.controller.direction;
     if actor.body.last_collisions.len() > 0 || actor.body.raycast( actor.body.position + direction * 32.0, false).is_some() {
         direction = rotate_vector(direction, deg_to_rad(6.0));
     } else {
-        let mut try_direction = actor.body.position.sub(hostile.body.position).normalize_or_zero();
+        let mut try_direction = actor.body.position.sub(target).normalize_or_zero();
         let deg = if rand::gen_range(-1.0, 1.0) > 0.0 {
             6.0
         } else {
@@ -164,20 +165,20 @@ fn flee(actor: &mut Actor, hostile: &RefMut<Actor>) {
     actor.controller.is_sprinting = true;
 }
 
-fn attack(actor: &mut Actor, hostile: &RefMut<Actor>) {
-    actor.behavior.current_action = Some(format!("attack {}", hostile.name));
-    let distance = actor.body.position.distance(hostile.body.position);
-    let mut direction = hostile.body.position.sub(actor.body.position).normalize_or_zero();
+fn attack(actor: &mut Actor, target: Vec2) {
+    actor.behavior.current_action = Some(format!("attack"));
+    let distance = actor.body.position.distance(target);
+    let mut direction = target.sub(actor.body.position).normalize_or_zero();
     if distance < actor.stats.view_distance * 0.8 {
         if let Some(ability) = actor.primary_ability.as_mut() {
             if distance > ability.range * 0.8 {
                 direction = Vec2::ZERO;
-                actor.controller.primary_target = Some(hostile.body.position);
+                actor.controller.primary_target = Some(target);
             }
         } else if let Some(ability) = actor.secondary_ability.as_mut() {
             if distance > ability.range * 0.8 {
                 direction = Vec2::ZERO;
-                actor.controller.secondary_target = Some(hostile.body.position);
+                actor.controller.secondary_target = Some(target);
             }
         } else {
             equip_weapon(actor);
@@ -187,6 +188,9 @@ fn attack(actor: &mut Actor, hostile: &RefMut<Actor>) {
 }
 
 pub fn apply_actor_behavior(actor: &mut Actor) {
+    actor.controller.primary_target = None;
+    actor.controller.secondary_target = None;
+
     let dt = get_frame_time();
     actor.behavior.investigate_cooldown_timer += dt;
     if let Some((timer, target)) = actor.behavior.investigating {
@@ -195,6 +199,14 @@ pub fn apply_actor_behavior(actor: &mut Actor) {
             actor.behavior.investigating = None;
         } else {
             actor.behavior.investigating = Some((timer, target));
+        }
+    }
+    if let Some((timer, actor_id)) = actor.behavior.last_attacked_by.clone() {
+        let timer = timer + dt;
+        if timer >= ATTACK_FORGET_AFTER {
+            actor.behavior.last_attacked_by = None;
+        } else {
+            actor.behavior.last_attacked_by = Some((timer, actor_id));
         }
     }
 
@@ -228,13 +240,33 @@ pub fn apply_actor_behavior(actor: &mut Actor) {
     if let Some(hostile) = hostiles.first() {
         match actor.behavior.aggression {
             ActorAggression::Passive => {
-                flee(actor, hostile);
+                let target =
+                    if let Some((_, actor_id)) = actor.behavior.last_attacked_by.clone() {
+                        if let Some(attacker) = Actor::find_by_id(&actor_id) {
+                            attacker.body.position
+                        } else {
+                            hostile.body.position
+                        }
+                    } else {
+                        hostile.body.position
+                    };
+                flee(actor, target);
             },
             ActorAggression::Neutral | ActorAggression::Aggressive => {
                 if actor.stats.current_health > actor.stats.max_health * 0.2 {
-                    attack(actor, hostile);
+                    let target =
+                        if let Some((_, actor_id)) = actor.behavior.last_attacked_by.clone() {
+                            if let Some(attacker) = Actor::find_by_id(&actor_id) {
+                               attacker.body.position
+                            } else {
+                                hostile.body.position
+                            }
+                        } else {
+                            hostile.body.position
+                        };
+                    attack(actor, target);
                 } else {
-                    flee(actor, hostile);
+                    flee(actor, hostile.body.position);
                 }
             },
         }
@@ -247,8 +279,6 @@ pub fn apply_actor_behavior(actor: &mut Actor) {
                 investigate(actor, unknown.body.position);
             }
         } else {
-            actor.controller.primary_target = None;
-            actor.controller.secondary_target = None;
             if let Some(home) = actor.behavior.home {
                 go_to(actor, home);
             } else {

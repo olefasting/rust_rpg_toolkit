@@ -228,7 +228,7 @@ impl Actor {
     const MOVE_NOISE_LEVEL: ActorNoiseLevel = ActorNoiseLevel::Silent;
     const SPRINT_NOISE_LEVEL: ActorNoiseLevel = ActorNoiseLevel::Moderate;
 
-    const NOISE_LEVEL_COOLDOWN: f32 = 2.0;
+    const NOISE_LEVEL_COOLDOWN: f32 = 1.5;
 
     const PICK_UP_RADIUS: f32 = 36.0;
     const INTERACT_RADIUS: f32 = 36.0;
@@ -268,7 +268,8 @@ impl Actor {
         scene::add_node(Self::new(controller_kind, params))
     }
 
-    pub fn take_damage(&mut self, _actor_id: &str, damage: f32) {
+    pub fn take_damage(&mut self, actor_id: &str, damage: f32) {
+        self.behavior.last_attacked_by = Some((0.0, actor_id.to_string()));
         self.stats.current_health -= damage;
     }
 
