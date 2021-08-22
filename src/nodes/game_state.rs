@@ -127,6 +127,17 @@ impl GameState {
 }
 
 impl Node for GameState {
+    fn update(mut node: RefMut<Self>) where Self: Sized {
+        if is_key_released(KeyCode::Escape) {
+            if node.show_inventory_window || node.show_character_window {
+                node.show_inventory_window = false;
+                node.show_character_window = false;
+            } else {
+                node.should_quit = true;
+            }
+        }
+    }
+
     fn draw(node: RefMut<Self>) {
         let viewport = storage::get::<Viewport>();
         let rect = node.map.to_grid(viewport.get_frustum());

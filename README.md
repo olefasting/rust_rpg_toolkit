@@ -21,6 +21,7 @@ Currently, controls are mapped as follows:
 - `I` for inventory window
 - `C` for character window
 - `P` to toggle debug mode
+- `ESC` to quit
 
 To use the primary and secondary abilities, go to Inventory and equip a weapon and a trinket....
 

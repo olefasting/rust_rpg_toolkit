@@ -65,5 +65,4 @@ pub fn apply_local_player_input(_player_id: &str, controller: &mut ActorControll
     if is_key_released(KeyCode::P) {
         game_state.in_debug_mode = !game_state.in_debug_mode;
     }
-    game_state.should_quit = is_key_released(KeyCode::Escape) || is_key_pressed(KeyCode::Q);
 }
