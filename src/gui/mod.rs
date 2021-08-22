@@ -16,13 +16,14 @@ use crate::{
 };
 
 pub fn draw_gui() {
-    let game_state = scene::find_node_by_type::<GameState>().unwrap();
-    if let Some(mut player) = Actor::find_by_player_id(&game_state.local_player_id) {
-        if game_state.show_character_window {
-            draw_character_window(&*player);
-        }
-        if game_state.show_inventory_window {
-            draw_inventory_window(&mut *player);
+    if let Some(game_state) = scene::find_node_by_type::<GameState>() {
+        if let Some(mut player) = Actor::find_by_player_id(&game_state.local_player_id) {
+            if game_state.show_character_window {
+                draw_character_window(&*player);
+            }
+            if game_state.show_inventory_window {
+                draw_inventory_window(&mut *player);
+            }
         }
     }
 }

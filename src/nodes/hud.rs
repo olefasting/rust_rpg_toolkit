@@ -74,51 +74,52 @@ impl Node for Hud {
         }
 
         {
-            let player = Actor::find_by_player_id(&game_state.local_player_id).unwrap();
-            let viewport = storage::get::<Viewport>();
-            let height = Actor::HEALTH_BAR_HEIGHT * viewport.scale;
-            let (position, offset_y, alignment, length, height, border) =
-                (vec2(10.0, 10.0), height / 2.0, HorizontalAlignment::Left, Actor::HEALTH_BAR_LENGTH * viewport.scale, height, viewport.scale);
+            if let Some(player) = Actor::find_by_player_id(&game_state.local_player_id) {
+                let viewport = storage::get::<Viewport>();
+                let height = Actor::HEALTH_BAR_HEIGHT * viewport.scale;
+                let (position, offset_y, alignment, length, height, border) =
+                    (vec2(10.0, 10.0), height / 2.0, HorizontalAlignment::Left, Actor::HEALTH_BAR_LENGTH * viewport.scale, height, viewport.scale);
 
-            draw_progress_bar(
-                player.stats.current_health,
-                player.stats.max_health,
-                position + vec2(0.0, offset_y),
-                length,
-                height,
-                color::RED,
-                color::GRAY,
-                border,
-                alignment.clone(),
-                None, // Some(&format!("{}/{}", self.stats.current_health.round(), self.stats.max_health.round())),
-                None,
-            );
-            draw_progress_bar(
-                player.stats.current_stamina,
-                player.stats.max_stamina,
-                position + vec2(0.0, offset_y + height),
-                length,
-                height,
-                color::YELLOW,
-                color::GRAY,
-                border,
-                alignment.clone(),
-                None, // Some(&format!("{}/{}", self.stats.current_stamina.round(), self.stats.max_stamina.round())),
-                None,
-            );
-            draw_progress_bar(
-                player.stats.current_energy,
-                player.stats.max_energy,
-                position + vec2(0.0, offset_y + height * 2.0),
-                length,
-                height,
-                color::BLUE,
-                color::GRAY,
-                border,
-                alignment,
-                None, // Some(&format!("{}/{}", self.stats.current_energy.round(), self.stats.max_energy.round())),
-                None,
-            );
+                draw_progress_bar(
+                    player.stats.current_health,
+                    player.stats.max_health,
+                    position + vec2(0.0, offset_y),
+                    length,
+                    height,
+                    color::RED,
+                    color::GRAY,
+                    border,
+                    alignment.clone(),
+                    None, // Some(&format!("{}/{}", self.stats.current_health.round(), self.stats.max_health.round())),
+                    None,
+                );
+                draw_progress_bar(
+                    player.stats.current_stamina,
+                    player.stats.max_stamina,
+                    position + vec2(0.0, offset_y + height),
+                    length,
+                    height,
+                    color::YELLOW,
+                    color::GRAY,
+                    border,
+                    alignment.clone(),
+                    None, // Some(&format!("{}/{}", self.stats.current_stamina.round(), self.stats.max_stamina.round())),
+                    None,
+                );
+                draw_progress_bar(
+                    player.stats.current_energy,
+                    player.stats.max_energy,
+                    position + vec2(0.0, offset_y + height * 2.0),
+                    length,
+                    height,
+                    color::BLUE,
+                    color::GRAY,
+                    border,
+                    alignment,
+                    None, // Some(&format!("{}/{}", self.stats.current_energy.round(), self.stats.max_energy.round())),
+                    None,
+                );
+            }
         }
 
         pop_camera_state();

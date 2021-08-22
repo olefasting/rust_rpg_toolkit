@@ -152,10 +152,10 @@ impl Map {
                                     color::WHITE,
                                     DrawTextureParams {
                                         source: Some(Rect::new(
-                                            tile.texture_coords.x + 0.5,
-                                            tile.texture_coords.y + 0.5,
-                                            self.tile_size.x - 1.0,
-                                            self.tile_size.y - 1.0,
+                                            tile.texture_coords.x, // + 0.1,
+                                            tile.texture_coords.y, // + 0.1,
+                                            self.tile_size.x, // - 0.2,
+                                            self.tile_size.y, // - 0.2,
                                         )),
                                         dest_size: Some(vec2(
                                             self.tile_size.x,

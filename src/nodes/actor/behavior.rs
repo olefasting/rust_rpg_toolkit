@@ -89,7 +89,7 @@ fn wander(actor: &mut Actor) {
     if direction == Vec2::ZERO {
         direction = vec2(rand::gen_range(-1.0, 1.0), rand::gen_range(-1.0, 1.0)).normalize_or_zero();
     }
-    if actor.body.last_collisions.len() > 0 || actor.body.raycast( actor.body.position + direction * 32.0).is_some() {
+    if actor.body.last_collisions.len() > 0 || actor.body.raycast( actor.body.position + direction * 32.0, false).is_some() {
         let deg = if rand::gen_range(-1.0, 1.0) > 0.0 {
             45.0
         } else {
@@ -117,7 +117,7 @@ fn equip_weapon(actor: &mut Actor) {
 fn flee(actor: &mut Actor, hostile: &RefMut<Actor>) {
     actor.behavior.current_action = Some(format!("flee from {}", hostile.name));
     let mut direction = actor.controller.direction;
-    if actor.body.last_collisions.len() > 0 || actor.body.raycast( actor.body.position + direction * 32.0).is_some() {
+    if actor.body.last_collisions.len() > 0 || actor.body.raycast( actor.body.position + direction * 32.0, false).is_some() {
         direction = rotate_vector(direction, deg_to_rad(6.0));
     } else {
         let mut try_direction = actor.body.position.sub(hostile.body.position).normalize_or_zero();
@@ -127,7 +127,7 @@ fn flee(actor: &mut Actor, hostile: &RefMut<Actor>) {
             -6.0
         };
         for _ in 0..60 {
-            if actor.body.raycast( actor.body.position + try_direction * 32.0).is_some() {
+            if actor.body.raycast( actor.body.position + try_direction * 32.0, false).is_some() {
                 try_direction = rotate_vector(direction, deg_to_rad(deg));
                 continue;
             }
@@ -166,13 +166,15 @@ pub fn apply_actor_behavior(actor: &mut Actor) {
     let mut allies = Vec::new();
     'node: for node in scene::find_nodes_by_type::<Actor>() {
         if actor.body.position.distance(node.body.position) <= actor.stats.view_distance {
-            for faction in &actor.factions {
-                if node.factions.contains(faction) {
-                    allies.push(node);
-                    continue 'node;
+            if actor.body.raycast(node.body.position, true).is_none() {
+                for faction in &actor.factions {
+                    if node.factions.contains(faction) {
+                        allies.push(node);
+                        continue 'node;
+                    }
                 }
+                hostiles.push(node);
             }
-            hostiles.push(node);
         }
     }
 

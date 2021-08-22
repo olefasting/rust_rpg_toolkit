@@ -16,6 +16,8 @@ pub use actor::{
     ActorStats,
 };
 
+pub use light_source::LightSource;
+
 pub use post_processing::PostProcessing;
 
 pub use hud::Hud;
@@ -29,3 +31,4 @@ pub mod draw_buffer;
 pub mod actor;
 pub mod post_processing;
 pub mod hud;
+pub mod light_source;

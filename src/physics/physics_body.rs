@@ -101,8 +101,8 @@ impl PhysicsBody {
         }
     }
 
-    pub fn raycast(&mut self, dest: Vec2) -> Option<Vec2> {
-        raycast(self.position, dest)
+    pub fn raycast(&mut self, dest: Vec2, ignore_barriers: bool) -> Option<Vec2> {
+        raycast(self.position, dest, ignore_barriers)
     }
 
     pub fn get_offset_collider(&self) -> Option<Collider> {

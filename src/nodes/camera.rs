@@ -33,7 +33,7 @@ impl Camera {
     const FOLLOW_END_AT_DISTANCE: f32 = 20.0;
     const FOLLOW_LERP_FRACTION: f32 = 0.015;
 
-    const DEFAULT_SCALE: f32 = 3.0;
+    const DEFAULT_SCALE: f32 = 2.0;
 
     pub fn new() -> Self {
         let scale = Self::DEFAULT_SCALE;

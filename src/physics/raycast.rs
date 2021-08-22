@@ -4,6 +4,7 @@ use macroquad::prelude::*;
 
 use crate::{
     nodes::GameState,
+    map::MapCollisionKind,
 };
 
 use super::{
@@ -14,7 +15,7 @@ use super::{
 
 const RESOLUTION: f32 = 2.5;
 
-pub fn raycast(origin: Vec2, end: Vec2) -> Option<Vec2> {
+pub fn raycast(origin: Vec2, end: Vec2, ignore_barriers: bool) -> Option<Vec2> {
     if origin.distance(end) > RESOLUTION {
         let direction = end.sub(origin).normalize_or_zero();
         let game_state = scene::find_node_by_type::<GameState>().unwrap();
@@ -23,8 +24,10 @@ pub fn raycast(origin: Vec2, end: Vec2) -> Option<Vec2> {
         let mut current = origin;
         while current.distance(end) > RESOLUTION {
             let collider = collider.offset(current);
-            if game_state.map.get_collisions(collider).is_empty() == false {
-                return Some(current);
+            for (_, kind) in game_state.map.get_collisions(collider) {
+                if ignore_barriers == false || kind == MapCollisionKind::Solid {
+                    return Some(current);
+                }
             }
             if ACTOR_TO_ACTOR_COLLISIONS {
                 for (_, mut body) in scene::find_nodes_with::<PhysicsObject>() {
