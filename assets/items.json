@@ -6,7 +6,7 @@
     "description": "A regular pistol",
     "weight": 10.0,
     "ability": {
-      "noise_level": "moderate",
+      "noise_level": "loud",
       "action_kind": "primary",
       "cooldown": 0.25,
       "health_cost": 0.0,

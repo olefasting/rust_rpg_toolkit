@@ -24,7 +24,6 @@ use crate::{
 };
 
 use super::Actor;
-use crate::nodes::actor::ActorNoiseLevel;
 
 #[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
 pub enum ActorAggression {
@@ -65,7 +64,7 @@ pub struct ActorBehavior {
     pub current_action: Option<String>,
     pub is_stationary: bool,
     pub is_on_guard: bool,
-    investigating: Option<Vec2>,
+    investigating: Option<(f32, Vec2)>,
     investigate_cooldown_timer: f32,
 }
 
@@ -95,11 +94,12 @@ fn go_to(actor: &mut Actor, target: Vec2) {
 }
 
 const INVESTIGATE_COOLDOWN: f32 = 15.0;
+const INVESTIGATE_FORGET_AFTER: f32 = 15.0;
 
 fn investigate(actor: &mut Actor, target: Vec2) {
     actor.behavior.current_action = Some(format!("investigating {}", target.to_string()));
     let distance = actor.body.position.distance(target);
-    if distance < actor.stats.view_distance * 0.5 && actor.body.raycast(target, true).is_none() {
+    if distance < actor.stats.view_distance * 0.8 && actor.body.raycast(target, true).is_none() {
         actor.controller.direction = Vec2::ZERO;
         actor.behavior.investigate_cooldown_timer = 0.0;
         actor.behavior.investigating = None;
@@ -187,7 +187,16 @@ fn attack(actor: &mut Actor, hostile: &RefMut<Actor>) {
 }
 
 pub fn apply_actor_behavior(actor: &mut Actor) {
-    actor.behavior.investigate_cooldown_timer += get_frame_time();
+    let dt = get_frame_time();
+    actor.behavior.investigate_cooldown_timer += dt;
+    if let Some((timer, target)) = actor.behavior.investigating {
+        let timer = timer + dt;
+        if timer >= INVESTIGATE_FORGET_AFTER {
+            actor.behavior.investigating = None;
+        } else {
+            actor.behavior.investigating = Some((timer, target));
+        }
+    }
 
     let mut hostiles = Vec::new();
     let mut allies = Vec::new();
@@ -231,10 +240,10 @@ pub fn apply_actor_behavior(actor: &mut Actor) {
         }
     } else {
         if actor.behavior.is_on_guard && actor.behavior.investigate_cooldown_timer >= INVESTIGATE_COOLDOWN {
-            if let Some(target) = actor.behavior.investigating {
+            if let Some((_, target)) = actor.behavior.investigating {
                 investigate(actor, target);
             } else if let Some(unknown) = unknowns.first() {
-                actor.behavior.investigating = Some(unknown.body.position);
+                actor.behavior.investigating = Some((0.0, unknown.body.position));
                 investigate(actor, unknown.body.position);
             }
         } else {
