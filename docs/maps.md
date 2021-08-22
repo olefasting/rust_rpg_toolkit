@@ -10,3 +10,6 @@ Layers consist of a small amount of metadata, and a Vec of tiles, represented by
 There are also object layers that can be used to represent non-tile data, like spawn points, items, actors, etc.
 
 For more information, reference the data structures in the [json module](https://github.com/olefasting/capstone/blob/master/src/json.rs), which holds the intermediate data structures that are used for serializing and deserializing of files for the project.
+
+Actor spawn points can be created in an object layer named `spawn_points`, with a property named `prototype_id` that points to a prototype in the `actors.json` file. Likewise, items can be added in a layer named `items`, with a `prototype_id` property, pointing to a prototype in `items.json`.
+Light sources can also be added in an object layer named `light_sources`, with a `color` property (hex color value as `String`) and an intensity property (`f32` as a `String`). We have yet to fully implement dynamic lighting, though. 
