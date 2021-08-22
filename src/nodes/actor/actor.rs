@@ -1,4 +1,7 @@
-use std::ops::Sub;
+use std::{
+    ops::Sub,
+    cmp::Ordering,
+};
 
 use macroquad::{
     color,
@@ -60,6 +63,87 @@ use super::{
     apply_actor_behavior,
 };
 
+#[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Serialize, Deserialize)]
+pub enum ActorNoiseLevel {
+    #[serde(rename = "none")]
+    None,
+    #[serde(rename = "silent")]
+    Silent,
+    #[serde(rename = "moderate")]
+    Moderate,
+    #[serde(rename = "loud")]
+    Loud,
+    #[serde(rename = "extreme")]
+    Extreme,
+}
+
+impl ActorNoiseLevel {
+    const RADIUS_NONE: f32 = 0.0;
+    const RADIUS_SILENT: f32 = 64.0;
+    const RADIUS_MODERATE: f32 = 192.0;
+    const RADIUS_LOUD: f32 = 416.0;
+    const RADIUS_EXTREME: f32 = 1024.0;
+
+    pub fn to_range(self) -> f32 {
+        match self {
+            Self::None => Self::RADIUS_NONE,
+            Self::Silent => Self::RADIUS_SILENT,
+            Self::Moderate => Self::RADIUS_MODERATE,
+            Self::Loud => Self::RADIUS_LOUD,
+            Self::Extreme => Self::RADIUS_EXTREME,
+        }
+    }
+}
+
+impl Default for ActorNoiseLevel {
+    fn default() -> Self {
+        Self::None
+    }
+}
+
+impl ToString for ActorNoiseLevel {
+    fn to_string(&self) -> String {
+        let res = match self {
+            Self::None => "None",
+            Self::Silent => "Silent",
+            Self::Moderate => "Moderate",
+            Self::Loud => "Loud",
+            Self::Extreme => "Extreme",
+        };
+        res.to_string()
+    }
+}
+
+impl Ord for ActorNoiseLevel {
+    fn cmp(&self, other: &Self) -> Ordering {
+        match self {
+            Self::None => match other {
+                Self::None => Ordering::Equal,
+                _ => Ordering::Less,
+            },
+            Self::Silent => match other {
+                Self::None => Ordering::Greater,
+                Self::Silent => Ordering::Equal,
+                _ => Ordering::Less,
+            },
+            Self::Moderate => match other {
+                Self::None | Self::Silent => Ordering::Greater,
+                Self::Moderate => Ordering::Equal,
+                _ => Ordering::Less,
+            },
+            Self::Loud => match other {
+                Self::None | Self::Silent | Self::Moderate => Ordering::Greater,
+                Self::Loud => Ordering::Equal,
+                _ => Ordering::Less,
+            },
+            Self::Extreme => match other {
+                Self::None | Self::Silent | Self::Moderate | Self::Loud => Ordering::Greater,
+                Self::Extreme => Ordering::Equal,
+            }
+        }
+    }
+}
+
 #[derive(Clone, Serialize, Deserialize)]
 pub struct ActorParams {
     #[serde(default, rename = "id", skip_serializing_if = "Option::is_none")]
@@ -117,6 +201,7 @@ impl Default for ActorParams {
 #[derive(Clone)]
 pub struct Actor {
     pub id: String,
+    pub noise_level: ActorNoiseLevel,
     pub behavior: ActorBehavior,
     pub name: String,
     pub stats: ActorStats,
@@ -127,6 +212,7 @@ pub struct Actor {
     pub secondary_ability: Option<Ability>,
     pub controller: ActorController,
     animation_player: SpriteAnimationPlayer,
+    noise_level_timer: f32,
 }
 
 impl Actor {
@@ -138,6 +224,11 @@ impl Actor {
 
     const SPRINT_SPEED_FACTOR: f32 = 2.0;
     const SPRINT_STAMINA_COST: f32 = 10.0;
+
+    const MOVE_NOISE_LEVEL: ActorNoiseLevel = ActorNoiseLevel::Silent;
+    const SPRINT_NOISE_LEVEL: ActorNoiseLevel = ActorNoiseLevel::Moderate;
+
+    const NOISE_LEVEL_COOLDOWN: f32 = 2.0;
 
     const PICK_UP_RADIUS: f32 = 36.0;
     const INTERACT_RADIUS: f32 = 36.0;
@@ -155,6 +246,7 @@ impl Actor {
 
         Actor {
             id: generate_id(),
+            noise_level: ActorNoiseLevel::None,
             behavior: ActorBehavior::new(ActorBehaviorParams {
                 home: Some(position),
                 ..params.behavior
@@ -168,6 +260,7 @@ impl Actor {
             secondary_ability: None,
             controller: ActorController::new(controller_kind),
             animation_player: SpriteAnimationPlayer::new(params.animation_player.clone()),
+            noise_level_timer: 0.0,
         }
     }
 
@@ -232,6 +325,13 @@ impl Actor {
         if is_stationary {
             self.animation_player.set_frame(1);
             self.animation_player.stop();
+        }
+    }
+
+    pub fn set_noise_level(&mut self, level: ActorNoiseLevel) {
+        self.noise_level_timer = 0.0;
+        if self.noise_level < level {
+            self.noise_level = level;
         }
     }
 
@@ -300,16 +400,28 @@ impl BufferedDraw for Actor {
         }
         let game_state = scene::find_node_by_type::<GameState>().unwrap();
         if game_state.in_debug_mode {
+            let center_position = if let Some(collider) = self.body.get_offset_collider() {
+                collider.get_center()
+            } else {
+                self.body.position
+            };
+            if self.noise_level != ActorNoiseLevel::None {
+                draw_aligned_text(
+                    &format!("noise level: {}", self.noise_level.to_string()),
+                    center_position.x,
+                    self.body.position.y - 50.0,
+                    HorizontalAlignment::Center,
+                    VerticalAlignment::Center,
+                    TextParams {
+                        ..Default::default()
+                    }
+                )
+            }
             if let Some(action) = &self.behavior.current_action {
-                let position = if let Some(collider) = self.body.get_offset_collider() {
-                    collider.get_center()
-                } else {
-                    self.body.position
-                };
                 draw_aligned_text(
                     action,
-                    position.x,
-                    position.y + 16.0,
+                    center_position.x,
+                    center_position.y + 16.0,
                     HorizontalAlignment::Center,
                     VerticalAlignment::Top,
                     Default::default(),
@@ -321,7 +433,16 @@ impl BufferedDraw for Actor {
                 self.stats.view_distance,
                 2.0,
                 color::RED,
-            )
+            );
+            if self.noise_level != ActorNoiseLevel::None {
+                draw_circle_lines(
+                    self.body.position.x,
+                    self.body.position.y,
+                    self.noise_level.to_range(),
+                    2.0,
+                    color::YELLOW,
+                )
+            }
         }
     }
 
@@ -357,6 +478,16 @@ impl Node for Actor {
     fn update(mut node: RefMut<Self>) {
         node.stats.update();
         node.animation_player.update();
+        node.noise_level_timer += get_frame_time();
+        if node.noise_level_timer >= Self::NOISE_LEVEL_COOLDOWN {
+            node.noise_level = match node.noise_level {
+                ActorNoiseLevel::Extreme => ActorNoiseLevel::Loud,
+                ActorNoiseLevel::Loud => ActorNoiseLevel::Moderate,
+                ActorNoiseLevel::Moderate => ActorNoiseLevel::Silent,
+                _ => ActorNoiseLevel::None,
+            };
+            node.noise_level_timer = 0.0;
+        }
 
         if node.stats.current_health <= 0.0 {
             let position = node.body.position;
@@ -417,15 +548,20 @@ impl Node for Actor {
 
     fn fixed_update(mut node: RefMut<Self>) {
         let direction = node.controller.direction.normalize_or_zero();
-        node.body.velocity = direction * if node.inventory.get_total_weight() >= node.stats.carry_capacity {
-            node.stats.move_speed * Self::ENCUMBERED_SPEED_FACTOR
-        } else if node.controller.is_sprinting && node.stats.current_stamina >= Self::SPRINT_STAMINA_COST {
-            if direction != Vec2::ZERO {
+        node.body.velocity = if direction != Vec2::ZERO {
+            direction * if node.inventory.get_total_weight() >= node.stats.carry_capacity {
+                node.set_noise_level(Self::MOVE_NOISE_LEVEL);
+                node.stats.move_speed * Self::ENCUMBERED_SPEED_FACTOR
+            } else if node.controller.is_sprinting && node.stats.current_stamina >= Self::SPRINT_STAMINA_COST {
+                node.set_noise_level(Self::SPRINT_NOISE_LEVEL);
                 node.stats.current_stamina -= Self::SPRINT_STAMINA_COST;
+                node.stats.move_speed * Self::SPRINT_SPEED_FACTOR
+            } else {
+                node.set_noise_level(Self::MOVE_NOISE_LEVEL);
+                node.stats.move_speed
             }
-            node.stats.move_speed * Self::SPRINT_SPEED_FACTOR
         } else {
-            node.stats.move_speed
+            Vec2::ZERO
         };
 
         node.body.integrate();

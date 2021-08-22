@@ -26,4 +26,5 @@ pub use stats::ActorStats;
 pub use actor::{
     Actor,
     ActorParams,
+    ActorNoiseLevel,
 };

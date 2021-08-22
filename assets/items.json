@@ -6,6 +6,7 @@
     "description": "A regular pistol",
     "weight": 10.0,
     "ability": {
+      "noise_level": "moderate",
       "action_kind": "primary",
       "cooldown": 0.25,
       "health_cost": 0.0,
@@ -47,6 +48,7 @@
     "description": "A regular sub-machine gun",
     "weight": 10.0,
     "ability": {
+      "noise_level": "loud",
       "action_kind": "primary",
       "cooldown": 0.0025,
       "health_cost": 0.0,
@@ -88,6 +90,7 @@
     "description": "Test Continuous Beam Weapon description",
     "weight": 10.0,
     "ability": {
+      "noise_level": "silent",
       "action_kind": "primary",
       "health_cost": 0.0,
       "stamina_cost": 0.0,
@@ -128,6 +131,7 @@
     "description": "Test Beam Weapon description",
     "weight": 10.0,
     "ability": {
+      "noise_level": "silent",
       "action_kind": "primary",
       "health_cost": 0.0,
       "stamina_cost": 10.0,
@@ -169,6 +173,7 @@
     "description": "Test Trinket description",
     "weight": 1.0,
     "ability": {
+      "noise_level": "silent",
       "action_kind": "secondary",
       "cooldown": 0.75,
       "health_cost": 0.0,
@@ -210,6 +215,7 @@
     "description": "Heal Trinket description",
     "weight": 1.0,
     "ability": {
+      "noise_level": "silent",
       "action_kind": "secondary",
       "cooldown": 0.75,
       "health_cost": 0.0,

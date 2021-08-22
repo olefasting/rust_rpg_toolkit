@@ -19,6 +19,7 @@ use crate::{
     },
     json,
 };
+use crate::nodes::actor::ActorNoiseLevel;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum EffectKind {
@@ -44,6 +45,8 @@ pub enum ActionKind {
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct AbilityParams {
+    #[serde(default)]
+    pub noise_level: ActorNoiseLevel,
     pub effect_kind: EffectKind,
     pub action_kind: ActionKind,
     #[serde(default)]
@@ -68,6 +71,7 @@ pub struct AbilityParams {
 impl Default for AbilityParams {
     fn default() -> Self {
         AbilityParams {
+            noise_level: ActorNoiseLevel::Moderate,
             effect_kind: EffectKind::Projectile,
             action_kind: ActionKind::Primary,
             cooldown: 0.0,
@@ -86,6 +90,7 @@ impl Default for AbilityParams {
 
 #[derive(Clone)]
 pub struct Ability {
+    pub noise_level: ActorNoiseLevel,
     pub effect_kind: EffectKind,
     pub action_kind: ActionKind,
     pub cooldown: f32,
@@ -104,6 +109,7 @@ pub struct Ability {
 impl Ability {
     pub fn new(params: AbilityParams) -> Self {
         Ability {
+            noise_level: params.noise_level,
             effect_kind: params.effect_kind,
             action_kind: params.action_kind,
             health_cost: params.health_cost,
@@ -124,6 +130,7 @@ impl Ability {
         if (self.health_cost == 0.0 || actor.stats.current_health >= self.health_cost)
             && (self.stamina_cost == 0.0 || actor.stats.current_stamina >= self.stamina_cost)
             && (self.energy_cost == 0.0 || actor.stats.current_energy >= self.energy_cost) {
+            actor.set_noise_level(self.noise_level);
             actor.stats.current_health -= self.health_cost;
             actor.stats.current_stamina -= self.stamina_cost;
             actor.stats.current_energy -= self.energy_cost;

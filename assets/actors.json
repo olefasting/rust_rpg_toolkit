@@ -59,7 +59,8 @@
     "name": "Guard",
     "behavior": {
       "aggression": "neutral",
-      "is_stationary": true
+      "is_stationary": true,
+      "is_on_guard": true
     },
     "factions": [
       "player",
@@ -118,7 +119,8 @@
     "name": "Thug",
     "behavior": {
       "aggression": "aggressive",
-      "is_stationary": true
+      "is_stationary": true,
+      "is_on_guard": false
     },
     "factions": [
       "thugs"
