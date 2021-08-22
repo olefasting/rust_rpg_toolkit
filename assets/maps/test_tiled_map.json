@@ -76,6 +76,34 @@
         }, 
         {
          "draworder":"topdown",
+         "id":10,
+         "name":"light_sources",
+         "objects":[
+                {
+                 "height":4,
+                 "id":20,
+                 "name":"red_light",
+                 "properties":[
+                        {
+                         "name":"light_color",
+                         "type":"color",
+                         "value":"#ffff0000"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":8,
+                 "x":1044,
+                 "y":742.5
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "draworder":"topdown",
          "id":4,
          "name":"spawn_points",
          "objects":[
@@ -187,8 +215,8 @@
          "x":0,
          "y":0
         }],
- "nextlayerid":10,
- "nextobjectid":20,
+ "nextlayerid":11,
+ "nextobjectid":21,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.7.2",

@@ -37,67 +37,35 @@ pub enum ActorAggression {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ActorBehaviorParams {
-    pub id: String,
     pub aggression: ActorAggression,
     #[serde(default, with = "json::opt_vec2", skip_serializing_if = "Option::is_none")]
     pub home: Option<Vec2>,
-}
-
-impl ActorBehaviorParams {
-    pub fn default_passive() -> Self {
-        ActorBehaviorParams {
-            id: ActorBehavior::DEFAULT_PASSIVE_ID.to_string(),
-            aggression: ActorAggression::Passive,
-            home: None,
-        }
-    }
-
-    pub fn default_neutral() -> Self {
-        ActorBehaviorParams {
-            id: ActorBehavior::DEFAULT_NEUTRAL_ID.to_string(),
-            aggression: ActorAggression::Neutral,
-            home: None,
-        }
-    }
-
-    pub fn default_aggressive() -> Self {
-        ActorBehaviorParams {
-            id: ActorBehavior::DEFAULT_AGGRESSIVE_ID.to_string(),
-            aggression: ActorAggression::Aggressive,
-            home: None,
-        }
-    }
+    pub is_stationary: bool,
 }
 
 impl Default for ActorBehaviorParams {
     fn default() -> Self {
-        Self::default_neutral()
+        ActorBehaviorParams {
+            aggression: ActorAggression::Neutral,
+            home: None,
+            is_stationary: true,
+        }
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct ActorBehavior {
-    pub id: String,
     pub aggression: ActorAggression,
-    #[serde(default, skip_serializing_if = "Option::is_none", with = "json::opt_vec2")]
+    pub is_stationary: bool,
     pub home: Option<Vec2>,
-    #[serde(skip)]
     pub current_action: Option<String>,
 }
 
 impl ActorBehavior {
-    pub const DEFAULT_PASSIVE_ID: &'static str = "default_passive";
-    pub const DEFAULT_NEUTRAL_ID: &'static str = "default_neutral";
-    pub const DEFAULT_AGGRESSIVE_ID: &'static str = "default_aggressive";
-
-    pub fn default_id() -> String {
-        Self::DEFAULT_NEUTRAL_ID.to_string()
-    }
-
     pub fn new(params: ActorBehaviorParams) -> Self {
         ActorBehavior {
-            id: params.id,
             aggression: params.aggression,
+            is_stationary: params.is_stationary,
             home: params.home,
             current_action: None,
         }
@@ -106,7 +74,7 @@ impl ActorBehavior {
 
 const GO_TO_STOP_THRESHOLD: f32 = 8.0;
 
-fn go_to_action(actor: &mut Actor, target: Vec2) {
+fn go_to(actor: &mut Actor, target: Vec2) {
     actor.behavior.current_action = Some(format!("go to {}", target.to_string()));
     if actor.body.position.distance(target) > GO_TO_STOP_THRESHOLD {
         actor.controller.direction = target.sub(actor.body.position).normalize_or_zero();
@@ -115,7 +83,7 @@ fn go_to_action(actor: &mut Actor, target: Vec2) {
     }
 }
 
-fn wander_action(actor: &mut Actor) {
+fn wander(actor: &mut Actor) {
     actor.behavior.current_action = Some("wander".to_string());
     let mut direction = actor.controller.direction;
     if direction == Vec2::ZERO {
@@ -132,7 +100,7 @@ fn wander_action(actor: &mut Actor) {
     actor.controller.direction = direction;
 }
 
-fn equip_weapon_action(actor: &mut Actor) {
+fn equip_weapon(actor: &mut Actor) {
     actor.behavior.current_action = Some("equip weapon".to_string());
     let weapons = actor.inventory.get_all_of_kind(&[ItemKind::OneHandedWeapon, ItemKind::TwoHandedWeapon]);
     let i = rand::gen_range(0, weapons.len() - 1);
@@ -146,7 +114,7 @@ fn equip_weapon_action(actor: &mut Actor) {
     }
 }
 
-fn flee_action(actor: &mut Actor, hostile: &RefMut<Actor>) {
+fn flee(actor: &mut Actor, hostile: &RefMut<Actor>) {
     actor.behavior.current_action = Some(format!("flee from {}", hostile.name));
     let mut direction = actor.controller.direction;
     if actor.body.last_collisions.len() > 0 || actor.body.raycast( actor.body.position + direction * 32.0).is_some() {
@@ -171,25 +139,26 @@ fn flee_action(actor: &mut Actor, hostile: &RefMut<Actor>) {
     actor.controller.is_sprinting = true;
 }
 
-fn attack_action(actor: &mut Actor, hostile: &RefMut<Actor>) {
+fn attack(actor: &mut Actor, hostile: &RefMut<Actor>) {
     actor.behavior.current_action = Some(format!("attack {}", hostile.name));
     let distance = actor.body.position.distance(hostile.body.position);
     let mut direction = hostile.body.position.sub(actor.body.position).normalize_or_zero();
-    if let Some(ability) = actor.primary_ability.as_mut() {
-        if distance > ability.range {
-            direction = Vec2::ZERO;
-            actor.controller.primary_target = Some(hostile.body.position);
+    if distance < actor.stats.view_distance * 0.8 {
+        if let Some(ability) = actor.primary_ability.as_mut() {
+            if distance > ability.range * 0.8 {
+                direction = Vec2::ZERO;
+                actor.controller.primary_target = Some(hostile.body.position);
+            }
+        } else if let Some(ability) = actor.secondary_ability.as_mut() {
+            if distance > ability.range * 0.8 {
+                direction = Vec2::ZERO;
+                actor.controller.secondary_target = Some(hostile.body.position);
+            }
+        } else {
+            equip_weapon(actor);
         }
-    } else if let Some(ability) = actor.secondary_ability.as_mut() {
-        if distance > ability.range {
-            direction = Vec2::ZERO;
-            actor.controller.secondary_target = Some(hostile.body.position);
-        }
-    } else {
-        equip_weapon_action(actor);
     }
     actor.controller.direction = direction;
-    actor.controller.is_sprinting = true;
 }
 
 pub fn apply_actor_behavior(actor: &mut Actor) {
@@ -216,20 +185,20 @@ pub fn apply_actor_behavior(actor: &mut Actor) {
     if let Some(hostile) = hostiles.first() {
         match actor.behavior.aggression {
             ActorAggression::Passive => {
-                flee_action(actor, hostile);
+                flee(actor, hostile);
             },
             ActorAggression::Neutral => {
                 if actor.stats.current_health > actor.stats.max_health * 0.2 {
-                    attack_action(actor, hostile);
+                    attack(actor, hostile);
                 } else {
-                    flee_action(actor, hostile);
+                    flee(actor, hostile);
                 }
             },
             ActorAggression::Aggressive => {
                 if actor.stats.current_health > actor.stats.max_health * 0.2 {
-                    attack_action(actor, hostile);
+                    attack(actor, hostile);
                 } else {
-                    flee_action(actor, hostile);
+                    flee(actor, hostile);
                 }
             },
         }
@@ -237,9 +206,19 @@ pub fn apply_actor_behavior(actor: &mut Actor) {
         actor.controller.primary_target = None;
         actor.controller.secondary_target = None;
         if let Some(home) = actor.behavior.home {
-            go_to_action(actor, home);
+            go_to(actor, home);
         } else {
-            wander_action(actor);
+            wander(actor);
+        }
+    }
+}
+
+impl Into<ActorBehaviorParams> for ActorBehavior {
+    fn into(self) -> ActorBehaviorParams {
+        ActorBehaviorParams {
+            aggression: self.aggression,
+            home: self.home,
+            is_stationary: self.is_stationary,
         }
     }
 }

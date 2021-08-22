@@ -23,8 +23,9 @@ use crate::{
 pub struct Camera {
     pub position: Vec2,
     pub rotation: f32,
-    pub scale: f32,
     pub is_following: bool,
+    scale: f32,
+    render_target: RenderTarget,
 }
 
 impl Camera {
@@ -35,11 +36,19 @@ impl Camera {
     const DEFAULT_SCALE: f32 = 3.0;
 
     pub fn new() -> Self {
+        let scale = Self::DEFAULT_SCALE;
+        let render_target = render_target(
+            (screen_width() / scale) as u32,
+            (screen_height() / scale) as u32,
+        );
+        render_target.texture.set_filter(FilterMode::Nearest);
+
         Camera {
             position: Vec2::ZERO,
             rotation: 0.0,
-            scale: Self::DEFAULT_SCALE,
+            scale,
             is_following: false,
+            render_target,
         }
     }
 
@@ -55,6 +64,24 @@ impl Camera {
             size,
             scale: self.scale,
         }
+    }
+
+    pub fn get_scale(&self) -> f32 {
+        self.scale
+    }
+
+    pub fn set_scale(&mut self, scale: f32) {
+        let render_target = render_target(
+            (screen_width() / scale) as u32,
+            (screen_height() / scale) as u32,
+        );
+        render_target.texture.set_filter(FilterMode::Nearest);
+        self.render_target = render_target;
+        self.scale = scale;
+    }
+
+    pub fn get_render_target(&self) -> &RenderTarget {
+        &self.render_target
     }
 }
 
@@ -87,15 +114,16 @@ impl Node for Camera {
                 }
             }
         }
+    }
 
+    fn draw(node: RefMut<Self>) where Self: Sized {
         scene::set_camera_1(Camera2D {
             offset: vec2(0.0, 0.0),
             target: vec2(node.position.x, node.position.y),
-            zoom: vec2(node.scale / screen_width(), -node.scale / screen_height()) * 2.0,
+            zoom: vec2(node.scale / screen_width(), node.scale / screen_height()) * 2.0,
             rotation: node.rotation,
+            render_target: Some(node.render_target),
             ..Camera2D::default()
         });
     }
-
-    fn draw(_node: RefMut<Self>) where Self: Sized {}
 }

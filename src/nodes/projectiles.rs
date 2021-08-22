@@ -23,8 +23,6 @@ use crate::{
     physics::Collider,
     render::{
         Viewport,
-        SpriteAnimationParams,
-        SpriteAnimationPlayer,
     },
 };
 use crate::map::MapCollisionKind;
@@ -47,7 +45,6 @@ pub struct Projectile {
     speed: f32,
     lived: f32,
     ttl: f32,
-    sprite_animation: Option<SpriteAnimationPlayer>,
 }
 
 impl Projectile {
@@ -61,16 +58,7 @@ impl Projectile {
         direction: Vec2,
         speed: f32,
         ttl: f32,
-        sprite_animation_params: Option<SpriteAnimationParams>,
     ) -> Self {
-        let sprite_animation = match sprite_animation_params {
-            Some(params) => {
-                let mut anim = SpriteAnimationPlayer::new(params);
-                anim.play();
-                Some(anim)
-            }
-            None => None,
-        };
         Projectile {
             actor_id: actor_id.to_string(),
             factions: factions.to_vec(),
@@ -83,7 +71,6 @@ impl Projectile {
             speed,
             lived: 0.0,
             ttl,
-            sprite_animation,
         }
     }
 }
@@ -101,8 +88,8 @@ impl Projectiles {
 
     const SPREAD_CALCULATION_DISTANCE: f32 = 100.0;
 
-    const PROJECTILE_LENGTH_FACTOR_MIN: f32 = 6.0;
-    const PROJECTILE_LENGTH_FACTOR_MAX: f32 = 20.0;
+    const PROJECTILE_LENGTH_FACTOR_MIN: f32 = 3.0;
+    const PROJECTILE_LENGTH_FACTOR_MAX: f32 = 15.0;
 
     const BEAM_LENGTH_FACTOR_MIN: f32 = 2.0;
     const BEAM_LENGTH_FACTOR_MAX: f32 = 6.0;
@@ -130,7 +117,6 @@ impl Projectiles {
         speed: f32,
         spread: f32,
         ttl: f32,
-        sprite_animation_params: Option<SpriteAnimationParams>,
     ) {
         assert!(ttl > 0.0, "Projectile TTL must be a positive float and not 0.0");
 
@@ -150,7 +136,6 @@ impl Projectiles {
             direction,
             speed.clamp(Self::MIN_PROJECTILE_SPEED, Self::MAX_PROJECTILE_SPEED),
             ttl,
-            sprite_animation_params,
         ));
     }
 }
@@ -159,9 +144,6 @@ impl Node for Projectiles {
     fn update(mut node: RefMut<Self>) {
         for projectile in &mut node.active {
             projectile.lived += get_frame_time();
-            if let Some(animation) = projectile.sprite_animation.as_mut() {
-                animation.update();
-            }
         }
     }
 
@@ -207,64 +189,59 @@ impl Node for Projectiles {
         let frustum = viewport.get_frustum();
         for projectile in &mut node.active {
             if frustum.contains(projectile.position) {
-                if let Some(animation) = projectile.sprite_animation.as_mut() {
-                    let rotation = projectile.position.normalize().angle_between(projectile.direction) + 0.75; // WHY??
-                    animation.draw(projectile.position, rotation);
-                } else {
-                    match projectile.kind {
-                        ProjectileKind::Bullet => {
-                            let begin = projectile
-                                .position.sub(projectile.direction.mul(
-                                projectile.size * rand::gen_range(
-                                    Self::PROJECTILE_LENGTH_FACTOR_MIN,
-                                    Self::PROJECTILE_LENGTH_FACTOR_MAX,
-                                )));
-                            draw_line(
-                                begin.x,
-                                begin.y,
-                                projectile.position.x,
-                                projectile.position.y,
-                                projectile.size,
-                                projectile.color,
-                            );
-                        }
-                        ProjectileKind::Beam => {
-                            let begin = projectile
-                                .position.sub(projectile.direction.mul(
-                                projectile.size * rand::gen_range(
-                                    Self::BEAM_LENGTH_FACTOR_MIN,
-                                    Self::BEAM_LENGTH_FACTOR_MAX,
-                                )));
-                            if projectile.size > 2.0 {
-                                draw_circle(
-                                    begin.x,
-                                    begin.y,
-                                    projectile.size / 2.0,
-                                    projectile.color,
-                                );
-                                draw_circle(
-                                    projectile.position.x,
-                                    projectile.position.y,
-                                    projectile.size / 2.0,
-                                    projectile.color,
-                                );
-                            }
-                            draw_line(
-                                begin.x,
-                                begin.y,
-                                projectile.position.x,
-                                projectile.position.y,
-                                projectile.size,
-                                projectile.color,
-                            );
-                        }
-                        ProjectileKind::EnergySphere => draw_circle(
+                match projectile.kind {
+                    ProjectileKind::Bullet => {
+                        let begin = projectile
+                            .position.sub(projectile.direction.mul(
+                            projectile.size * rand::gen_range(
+                                Self::PROJECTILE_LENGTH_FACTOR_MIN,
+                                Self::PROJECTILE_LENGTH_FACTOR_MAX,
+                            )));
+                        draw_line(
+                            begin.x,
+                            begin.y,
                             projectile.position.x,
                             projectile.position.y,
-                            projectile.size / 2.0,
+                            projectile.size,
                             projectile.color,
-                        ),
+                        );
                     }
+                    ProjectileKind::Beam => {
+                        let begin = projectile
+                            .position.sub(projectile.direction.mul(
+                            projectile.size * rand::gen_range(
+                                Self::BEAM_LENGTH_FACTOR_MIN,
+                                Self::BEAM_LENGTH_FACTOR_MAX,
+                            )));
+                        if projectile.size > 2.0 {
+                            draw_circle(
+                                begin.x,
+                                begin.y,
+                                projectile.size / 2.0,
+                                projectile.color,
+                            );
+                            draw_circle(
+                                projectile.position.x,
+                                projectile.position.y,
+                                projectile.size / 2.0,
+                                projectile.color,
+                            );
+                        }
+                        draw_line(
+                            begin.x,
+                            begin.y,
+                            projectile.position.x,
+                            projectile.position.y,
+                            projectile.size,
+                            projectile.color,
+                        );
+                    }
+                    ProjectileKind::EnergySphere => draw_circle(
+                        projectile.position.x,
+                        projectile.position.y,
+                        projectile.size / 2.0,
+                        projectile.color,
+                    ),
                 }
             }
         }

@@ -127,9 +127,15 @@ impl Into<Map> for TiledMap {
                             .iter()
                             .cloned()
                             .map(|tiled_object| {
+                                let size = if tiled_object.world_w != 0.0 || tiled_object.world_h != 0.0 {
+                                    Some(vec2(tiled_object.world_w, tiled_object.world_h))
+                                } else {
+                                    None
+                                };
                                 MapObject {
                                     name: tiled_object.name.clone(),
                                     position: vec2(tiled_object.world_x, tiled_object.world_y),
+                                    size,
                                     properties: tiled_object.properties,
                                 }
                             }).collect();

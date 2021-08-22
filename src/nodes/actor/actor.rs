@@ -65,8 +65,8 @@ use super::{
 pub struct ActorParams {
     #[serde(default, rename = "id", skip_serializing_if = "Option::is_none")]
     pub prototype_id: Option<String>,
-    #[serde(default = "ActorBehavior::default_id", rename = "behavior")]
-    pub behavior_id: String,
+    #[serde(default)]
+    pub behavior: ActorBehaviorParams,
     #[serde(default, with = "json::opt_vec2", skip_serializing_if = "Option::is_none")]
     pub position: Option<Vec2>,
     pub name: String,
@@ -94,7 +94,7 @@ impl Default for ActorParams {
     fn default() -> Self {
         ActorParams {
             prototype_id: None,
-            behavior_id: ActorBehavior::default_id(),
+            behavior: Default::default(),
             position: None,
             name: "Unnamed Actor".to_string(),
             strength: 8,
@@ -144,6 +144,8 @@ impl Actor {
     const INTERACT_RADIUS: f32 = 36.0;
 
     pub fn new(controller_kind: ActorControllerKind, params: ActorParams) -> Self {
+        let position = params.position.unwrap_or_default();
+
         let resources = storage::get::<Resources>();
         let item_params: Vec<ItemParams> = params.inventory
             .iter()
@@ -152,21 +154,16 @@ impl Actor {
                 .expect(&format!("Unable to load item prototype with id '{}'!", prototype_id)))
             .collect();
 
-        let behavior_params = if params.behavior_id == ActorBehavior::DEFAULT_PASSIVE_ID {
-            ActorBehaviorParams::default_passive()
-        } else if params.behavior_id == ActorBehavior::DEFAULT_AGGRESSIVE_ID {
-            ActorBehaviorParams::default_aggressive()
-        } else {
-            ActorBehaviorParams::default_neutral()
-        };
-
         Actor {
             id: generate_id(),
-            behavior: ActorBehavior::new(behavior_params),
+            behavior: ActorBehavior::new(ActorBehaviorParams {
+                home: Some(position),
+                ..params.behavior
+            }),
             name: params.name.clone(),
             stats: ActorStats::from(&params),
             factions: params.factions,
-            body: PhysicsBody::new(params.position.unwrap_or_default(), 0.0, params.collider),
+            body: PhysicsBody::new(position, 0.0, params.collider),
             inventory: ActorInventory::from(item_params),
             primary_ability: None,
             secondary_ability: None,
@@ -253,7 +250,7 @@ impl Into<ActorParams> for Actor {
         ActorParams {
             prototype_id: None,
             position: Some(self.body.position),
-            behavior_id: self.behavior.id,
+            behavior: self.behavior.into(),
             name: self.name,
             strength: self.stats.strength,
             dexterity: self.stats.dexterity,

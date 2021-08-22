@@ -16,6 +16,8 @@ pub use actor::{
     ActorStats,
 };
 
+pub use post_processing::PostProcessing;
+
 pub mod projectiles;
 pub mod game_state;
 pub mod camera;
@@ -23,3 +25,4 @@ pub mod item;
 pub mod continuous_beams;
 pub mod draw_buffer;
 pub mod actor;
+pub mod post_processing;

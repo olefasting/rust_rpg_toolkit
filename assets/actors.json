@@ -2,7 +2,6 @@
   {
     "id": "player",
     "name": "Unnamed Player",
-    "behavior": "default_neutral",
     "factions": [
       "player"
     ],
@@ -58,7 +57,10 @@
   {
     "id": "neutral_guard",
     "name": "Guard",
-    "behavior": "default_neutral",
+    "behavior": {
+      "aggression": "neutral",
+      "is_stationary": true
+    },
     "factions": [
       "player",
       "guards"
@@ -114,17 +116,20 @@
   {
     "id": "enemy_thug",
     "name": "Thug",
-    "behavior": "default_aggressive",
+    "behavior": {
+      "aggression": "aggressive",
+      "is_stationary": true
+    },
     "factions": [
       "thugs"
     ],
-    "strength": 10,
-    "dexterity": 10,
-    "constitution": 10,
-    "intelligence": 8,
-    "willpower": 8,
-    "perception": 10,
-    "charisma": 8,
+    "strength": 8,
+    "dexterity": 8,
+    "constitution": 8,
+    "intelligence": 6,
+    "willpower": 6,
+    "perception": 8,
+    "charisma": 6,
     "inventory": [
       "pistol"
     ],

@@ -256,6 +256,8 @@ pub struct MapObject {
     pub name: String,
     #[serde(with = "json::def_vec2")]
     pub position: Vec2,
+    #[serde(default, with = "json::opt_vec2", skip_serializing_if = "Option::is_none")]
+    pub size: Option<Vec2>,
     #[serde(default, skip_serializing_if = "HashMap::is_empty")]
     pub properties: HashMap<String, String>,
 }
