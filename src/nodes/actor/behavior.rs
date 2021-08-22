@@ -43,6 +43,8 @@ pub struct ActorBehaviorParams {
     pub is_stationary: bool,
     #[serde(default)]
     pub is_on_guard: bool,
+    #[serde(default)]
+    pub flee_at_health_factor: f32,
 }
 
 impl Default for ActorBehaviorParams {
@@ -52,6 +54,7 @@ impl Default for ActorBehaviorParams {
             home: None,
             is_stationary: true,
             is_on_guard: false,
+            flee_at_health_factor: 0.0,
         }
     }
 }
@@ -63,6 +66,7 @@ pub struct ActorBehavior {
     pub current_action: Option<String>,
     pub is_stationary: bool,
     pub is_on_guard: bool,
+    pub flee_at_health_factor: f32,
     pub last_attacked_by: Option<(f32, String)>,
     investigating: Option<(f32, Vec2)>,
     investigate_cooldown_timer: f32,
@@ -76,6 +80,7 @@ impl ActorBehavior {
             current_action: None,
             is_stationary: params.is_stationary,
             is_on_guard: params.is_on_guard,
+            flee_at_health_factor: params.flee_at_health_factor,
             last_attacked_by: None,
             investigating: None,
             investigate_cooldown_timer: INVESTIGATE_COOLDOWN,
@@ -99,8 +104,7 @@ fn go_to(actor: &mut Actor, target: Vec2) {
 
 fn investigate(actor: &mut Actor, target: Vec2) {
     actor.behavior.current_action = Some(format!("investigating {}", target.to_string()));
-    let distance = actor.body.position.distance(target);
-    if distance < actor.stats.view_distance * 0.8 && actor.body.raycast(target, true).is_none() {
+    if actor.is_target_visible(target) {
         actor.controller.direction = Vec2::ZERO;
         actor.behavior.investigate_cooldown_timer = 0.0;
         actor.behavior.investigating = None;
@@ -215,8 +219,7 @@ pub fn apply_actor_behavior(actor: &mut Actor) {
     let mut unknowns = Vec::new();
     'node: for other in scene::find_nodes_by_type::<Actor>() {
         let distance = actor.body.position.distance(other.body.position);
-        if distance <= actor.stats.view_distance
-            && actor.body.raycast(other.body.position, true).is_none() {
+        if actor.is_target_visible(other.body.position) {
             for faction in &actor.factions {
                 if other.factions.contains(faction) {
                     allies.push(other);
@@ -237,53 +240,55 @@ pub fn apply_actor_behavior(actor: &mut Actor) {
 
     unknowns.sort_by(|a, b| a.noise_level.cmp(&b.noise_level));
 
-    if let Some(hostile) = hostiles.first() {
-        match actor.behavior.aggression {
-            ActorAggression::Passive => {
-                let target =
-                    if let Some((_, actor_id)) = actor.behavior.last_attacked_by.clone() {
-                        if let Some(attacker) = Actor::find_by_id(&actor_id) {
-                            attacker.body.position
-                        } else {
-                            hostile.body.position
-                        }
-                    } else {
-                        hostile.body.position
-                    };
-                flee(actor, target);
-            },
-            ActorAggression::Neutral | ActorAggression::Aggressive => {
-                if actor.stats.current_health > actor.stats.max_health * 0.2 {
-                    let target =
-                        if let Some((_, actor_id)) = actor.behavior.last_attacked_by.clone() {
-                            if let Some(attacker) = Actor::find_by_id(&actor_id) {
-                               attacker.body.position
-                            } else {
-                                hostile.body.position
-                            }
-                        } else {
-                            hostile.body.position
-                        };
-                    attack(actor, target);
-                } else {
-                    flee(actor, hostile.body.position);
+    match actor.behavior.aggression {
+        ActorAggression::Passive => {
+            if let Some((_, actor_id)) = actor.behavior.last_attacked_by.clone() {
+                if let Some(attacker) = hostiles.iter().find(|hostile| hostile.id == actor_id) {
+                    return flee(actor, attacker.body.position);
                 }
-            },
+            }
+        },
+        ActorAggression::Neutral => {
+            if let Some((_, actor_id)) = actor.behavior.last_attacked_by.clone() {
+                if let Some(attacker) = hostiles.iter().find(|hostile| hostile.id == actor_id) {
+                    if actor.stats.current_health > actor.stats.max_health * actor.behavior.flee_at_health_factor {
+                        return attack(actor, attacker.body.position);
+                    } else {
+                        return flee(actor, attacker.body.position);
+                    }
+                }
+            }
+        },
+        ActorAggression::Aggressive => {
+            if let Some((_, actor_id)) = actor.behavior.last_attacked_by.clone() {
+                if let Some(attacker) = hostiles.iter().find(|hostile| hostile.id == actor_id) {
+                    if actor.stats.current_health > actor.stats.max_health * actor.behavior.flee_at_health_factor {
+                        return attack(actor, attacker.body.position);
+                    } else {
+                        return flee(actor, attacker.body.position);
+                    }
+                }
+            }
+            if let Some(hostile) = hostiles.first() {
+                if actor.stats.current_health > actor.stats.max_health * actor.behavior.flee_at_health_factor {
+                    return attack(actor, hostile.body.position);
+                }
+            }
+        },
+    }
+
+    if actor.behavior.is_on_guard && actor.behavior.investigate_cooldown_timer >= INVESTIGATE_COOLDOWN {
+        if let Some((_, target)) = actor.behavior.investigating {
+            return investigate(actor, target);
+        } else if let Some(unknown) = unknowns.first() {
+            actor.behavior.investigating = Some((0.0, unknown.body.position));
+            return investigate(actor, unknown.body.position);
         }
     } else {
-        if actor.behavior.is_on_guard && actor.behavior.investigate_cooldown_timer >= INVESTIGATE_COOLDOWN {
-            if let Some((_, target)) = actor.behavior.investigating {
-                investigate(actor, target);
-            } else if let Some(unknown) = unknowns.first() {
-                actor.behavior.investigating = Some((0.0, unknown.body.position));
-                investigate(actor, unknown.body.position);
-            }
+        if let Some(home) = actor.behavior.home {
+            return go_to(actor, home);
         } else {
-            if let Some(home) = actor.behavior.home {
-                go_to(actor, home);
-            } else {
-                wander(actor);
-            }
+            return wander(actor);
         }
     }
 }
@@ -295,6 +300,7 @@ impl Into<ActorBehaviorParams> for ActorBehavior {
             home: self.home,
             is_stationary: self.is_stationary,
             is_on_guard: self.is_on_guard,
+            flee_at_health_factor: self.flee_at_health_factor,
         }
     }
 }

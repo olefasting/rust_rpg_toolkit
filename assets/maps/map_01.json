@@ -140073,8 +140073,8 @@
             "y": 4.0
           },
           "properties": {
-            "color": "#ffff0000",
-            "intensity": "0.1"
+            "intensity": "0.1",
+            "color": "#ffff0000"
           }
         }
       ]
@@ -140139,6 +140139,56 @@
           "properties": {
             "prototype_id": "neutral_guard"
           }
+        },
+        {
+          "name": "bystander",
+          "position": {
+            "x": 1545.5,
+            "y": 675.5
+          },
+          "properties": {
+            "prototype_id": "neutral_bystander"
+          }
+        },
+        {
+          "name": "bystander",
+          "position": {
+            "x": 1744.0,
+            "y": 566.5
+          },
+          "properties": {
+            "prototype_id": "neutral_bystander"
+          }
+        },
+        {
+          "name": "bystander",
+          "position": {
+            "x": 1807.5,
+            "y": 630.0
+          },
+          "properties": {
+            "prototype_id": "neutral_bystander"
+          }
+        },
+        {
+          "name": "bystander",
+          "position": {
+            "x": 1709.0,
+            "y": 654.5
+          },
+          "properties": {
+            "prototype_id": "neutral_bystander"
+          }
+        },
+        {
+          "name": "bystander",
+          "position": {
+            "x": 1413.5,
+            "y": 670.5
+          },
+          "properties": {
+            "prototype_id": "neutral_bystander"
+          }
         }
       ]
     }
@@ -140163,24 +140213,6 @@
       "tile_cnt": 400
     },
     {
-      "id": "neo_zero_props",
-      "texture_id": "props",
-      "texture_size": {
-        "x": 160,
-        "y": 160
-      },
-      "tile_size": {
-        "x": 16,
-        "y": 16
-      },
-      "grid_size": {
-        "x": 10,
-        "y": 10
-      },
-      "first_tile_id": 401,
-      "tile_cnt": 100
-    },
-    {
       "id": "items",
       "texture_id": "items",
       "texture_size": {
@@ -140197,6 +140229,24 @@
       },
       "first_tile_id": 501,
       "tile_cnt": 16
+    },
+    {
+      "id": "neo_zero_props",
+      "texture_id": "props",
+      "texture_size": {
+        "x": 160,
+        "y": 160
+      },
+      "tile_size": {
+        "x": 16,
+        "y": 16
+      },
+      "grid_size": {
+        "x": 10,
+        "y": 10
+      },
+      "first_tile_id": 401,
+      "tile_cnt": 100
     }
   ]
 }

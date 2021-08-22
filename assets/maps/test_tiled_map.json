@@ -225,6 +225,96 @@
                  "width":0,
                  "x":927,
                  "y":546.333333333333
+                }, 
+                {
+                 "height":0,
+                 "id":21,
+                 "name":"bystander",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"prototype_id",
+                         "type":"string",
+                         "value":"neutral_bystander"
+                        }],
+                 "rotation":0,
+                 "type":"spawn_point",
+                 "visible":true,
+                 "width":0,
+                 "x":1545.5,
+                 "y":675.5
+                }, 
+                {
+                 "height":0,
+                 "id":22,
+                 "name":"bystander",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"prototype_id",
+                         "type":"string",
+                         "value":"neutral_bystander"
+                        }],
+                 "rotation":0,
+                 "type":"spawn_point",
+                 "visible":true,
+                 "width":0,
+                 "x":1744,
+                 "y":566.5
+                }, 
+                {
+                 "height":0,
+                 "id":23,
+                 "name":"bystander",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"prototype_id",
+                         "type":"string",
+                         "value":"neutral_bystander"
+                        }],
+                 "rotation":0,
+                 "type":"spawn_point",
+                 "visible":true,
+                 "width":0,
+                 "x":1807.5,
+                 "y":630
+                }, 
+                {
+                 "height":0,
+                 "id":24,
+                 "name":"bystander",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"prototype_id",
+                         "type":"string",
+                         "value":"neutral_bystander"
+                        }],
+                 "rotation":0,
+                 "type":"spawn_point",
+                 "visible":true,
+                 "width":0,
+                 "x":1709,
+                 "y":654.5
+                }, 
+                {
+                 "height":0,
+                 "id":25,
+                 "name":"bystander",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"prototype_id",
+                         "type":"string",
+                         "value":"neutral_bystander"
+                        }],
+                 "rotation":0,
+                 "type":"spawn_point",
+                 "visible":true,
+                 "width":0,
+                 "x":1413.5,
+                 "y":670.5
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -233,7 +323,7 @@
          "y":0
         }],
  "nextlayerid":12,
- "nextobjectid":21,
+ "nextobjectid":26,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.7.2",

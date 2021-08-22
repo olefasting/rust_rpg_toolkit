@@ -101,7 +101,7 @@ impl PhysicsBody {
         }
     }
 
-    pub fn raycast(&mut self, dest: Vec2, ignore_barriers: bool) -> Option<Vec2> {
+    pub fn raycast(&self, dest: Vec2, ignore_barriers: bool) -> Option<Vec2> {
         raycast(self.position, dest, ignore_barriers)
     }
 

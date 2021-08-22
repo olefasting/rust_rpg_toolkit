@@ -336,6 +336,11 @@ impl Actor {
         }
     }
 
+    pub fn is_target_visible(&self, target: Vec2) -> bool {
+        self.body.position.distance(target) <= self.stats.view_distance
+            && self.body.raycast(target, true).is_none()
+    }
+
     pub fn interact(&self, other: &mut Actor) {
         println!("INTERACTION between '{}' and '{}'", self.name, other.name);
     }

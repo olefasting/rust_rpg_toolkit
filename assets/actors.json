@@ -63,7 +63,6 @@
       "is_on_guard": true
     },
     "factions": [
-      "player",
       "guards"
     ],
     "strength": 12,
@@ -120,7 +119,8 @@
     "behavior": {
       "aggression": "aggressive",
       "is_stationary": true,
-      "is_on_guard": false
+      "is_on_guard": false,
+      "flee_at_health_factor": 0.2
     },
     "factions": [
       "thugs"
@@ -167,6 +167,63 @@
         {
           "name": "right",
           "row": 2,
+          "frames": 3,
+          "fps": 8
+        }
+      ]
+    }
+  },
+  {
+    "id": "neutral_bystander",
+    "name": "Bystander",
+    "behavior": {
+      "aggression": "passive",
+      "is_stationary": false,
+      "is_on_guard": false
+    },
+    "factions": [
+      "player"
+    ],
+    "strength": 8,
+    "dexterity": 8,
+    "constitution": 8,
+    "intelligence": 6,
+    "willpower": 6,
+    "perception": 8,
+    "charisma": 6,
+    "inventory": [],
+    "collider": {
+      "x": -8.0,
+      "y": 0.0,
+      "width": 16.0,
+      "height": 16.0
+    },
+    "animation_player": {
+      "texture_id": "characters",
+      "tile_size": {
+        "x": 32.0,
+        "y": 32.0
+      },
+      "offset": {
+        "x": -16.0,
+        "y": -16.0
+      },
+      "animations": [
+        {
+          "name": "down",
+          "row": 6,
+          "frames": 3,
+          "fps": 8
+        },
+        {
+          "name": "up",
+          "row": 7,
+          "frames": 3,
+          "fps": 8
+        },
+        {
+          "name": "right",
+          "row": 8,
           "frames": 3,
           "fps": 8
         }
