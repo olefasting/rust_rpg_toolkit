@@ -44,7 +44,6 @@ use crate::{
         HorizontalAlignment,
         SpriteAnimationParams,
         SpriteAnimationPlayer,
-        Viewport,
         draw_aligned_text,
         VerticalAlignment,
     },
@@ -131,9 +130,9 @@ pub struct Actor {
 }
 
 impl Actor {
-    const HEALTH_BAR_LENGTH: f32 = 50.0;
-    const HEALTH_BAR_HEIGHT: f32 = 10.0;
-    const HEALTH_BAR_OFFSET_Y: f32 = 25.0;
+    pub const HEALTH_BAR_LENGTH: f32 = 50.0;
+    pub const HEALTH_BAR_HEIGHT: f32 = 10.0;
+    pub const HEALTH_BAR_OFFSET_Y: f32 = 25.0;
 
     const ENCUMBERED_SPEED_FACTOR: f32 = 0.1;
 
@@ -208,6 +207,13 @@ impl Actor {
         None
     }
 
+    pub fn is_local_player(&self) -> bool {
+        match &self.controller.kind {
+            ActorControllerKind::LocalPlayer { player_id: _ } => true,
+            _ => false,
+        }
+    }
+
     pub fn set_animation(&mut self, direction: Vec2, is_stationary: bool) {
         if direction.x > 0.0 && direction.x.abs() > direction.y.abs() {
             self.animation_player.start_animation(2);
@@ -226,13 +232,6 @@ impl Actor {
         if is_stationary {
             self.animation_player.set_frame(1);
             self.animation_player.stop();
-        }
-    }
-
-    pub fn is_local_player(&self) -> bool {
-        match &self.controller.kind {
-            ActorControllerKind::LocalPlayer { player_id: _ } => true,
-            _ => false,
         }
     }
 
@@ -270,6 +269,71 @@ impl Into<ActorParams> for Actor {
                 .filter_map(|params| params.prototype_id)
                 .collect(),
             animation_player: SpriteAnimationParams::from(self.animation_player),
+        }
+    }
+}
+
+impl BufferedDraw for Actor {
+    fn buffered_draw(&mut self) {
+        self.body.debug_draw();
+        {
+            let (position, rotation) = (self.body.position, self.body.rotation);
+            self.animation_player.draw(position, rotation);
+        }
+
+        let (position, offset_y, alignment, length, height, border) =
+            (self.body.position, Self::HEALTH_BAR_OFFSET_Y, HorizontalAlignment::Center, Self::HEALTH_BAR_LENGTH, Self::HEALTH_BAR_HEIGHT, 1.0);
+        if self.is_local_player() == false && self.stats.current_health < self.stats.max_health {
+            draw_progress_bar(
+                self.stats.current_health,
+                self.stats.max_health,
+                position + vec2(0.0, offset_y),
+                length,
+                height,
+                color::RED,
+                color::GRAY,
+                border,
+                alignment.clone(),
+                None, // Some(&format!("{}/{}", self.stats.current_health.round(), self.stats.max_health.round())),
+                None,
+            );
+        }
+        let game_state = scene::find_node_by_type::<GameState>().unwrap();
+        if game_state.in_debug_mode {
+            if let Some(action) = &self.behavior.current_action {
+                let position = if let Some(collider) = self.body.get_offset_collider() {
+                    collider.get_center()
+                } else {
+                    self.body.position
+                };
+                draw_aligned_text(
+                    action,
+                    position.x,
+                    position.y + 16.0,
+                    HorizontalAlignment::Center,
+                    VerticalAlignment::Top,
+                    Default::default(),
+                );
+            }
+            draw_circle_lines(
+                self.body.position.x,
+                self.body.position.y,
+                self.stats.view_distance,
+                2.0,
+                color::RED,
+            )
+        }
+    }
+
+    fn get_z_index(&self) -> f32 {
+        self.body.position.y
+    }
+
+    fn get_bounds(&self) -> Bounds {
+        if let Some(collider) = self.body.get_offset_collider() {
+            Bounds::Collider(collider)
+        } else {
+            Bounds::Point(self.body.position)
         }
     }
 }
@@ -390,112 +454,6 @@ impl Node for Actor {
                     }
                 }
             }
-        }
-    }
-}
-
-impl BufferedDraw for Actor {
-    fn buffered_draw(&mut self) {
-        self.body.debug_draw();
-        let (position, rotation) = (self.body.position, self.body.rotation);
-        self.animation_player.draw(position, rotation);
-
-        let is_local_player = self.is_local_player();
-        let (position, offset_y, alignment, length, height, border) = if is_local_player {
-            let viewport = storage::get::<Viewport>();
-            let height = Self::HEALTH_BAR_HEIGHT * viewport.scale;
-            (vec2(10.0, 10.0), height / 2.0, HorizontalAlignment::Left, Self::HEALTH_BAR_LENGTH * viewport.scale, height, viewport.scale)
-        } else {
-            (self.body.position, Self::HEALTH_BAR_OFFSET_Y, HorizontalAlignment::Center, Self::HEALTH_BAR_LENGTH, Self::HEALTH_BAR_HEIGHT, 1.0)
-        };
-        if is_local_player || self.stats.current_health < self.stats.max_health {
-            if is_local_player {
-                push_camera_state();
-                set_default_camera();
-            }
-            draw_progress_bar(
-                self.stats.current_health,
-                self.stats.max_health,
-                position + vec2(0.0, offset_y),
-                length,
-                height,
-                color::RED,
-                color::GRAY,
-                border,
-                alignment.clone(),
-                None, // Some(&format!("{}/{}", self.stats.current_health.round(), self.stats.max_health.round())),
-                None,
-            );
-        }
-        if is_local_player {
-            draw_progress_bar(
-                self.stats.current_stamina,
-                self.stats.max_stamina,
-                position + vec2(0.0, offset_y + height),
-                length,
-                height,
-                color::YELLOW,
-                color::GRAY,
-                border,
-                alignment.clone(),
-                None, // Some(&format!("{}/{}", self.stats.current_stamina.round(), self.stats.max_stamina.round())),
-                None,
-            );
-            draw_progress_bar(
-                self.stats.current_energy,
-                self.stats.max_energy,
-                position + vec2(0.0, offset_y + height * 2.0),
-                length,
-                height,
-                color::BLUE,
-                color::GRAY,
-                border,
-                alignment,
-                None, // Some(&format!("{}/{}", self.stats.current_energy.round(), self.stats.max_energy.round())),
-                None,
-            );
-            pop_camera_state();
-        } else {
-            let game_state = scene::find_node_by_type::<GameState>().unwrap();
-            if game_state.in_debug_mode {
-                if let Some(action) = &self.behavior.current_action {
-                    let position = if let Some(collider) = self.body.get_offset_collider() {
-                        collider.get_center()
-                    } else {
-                        self.body.position
-                    };
-                    draw_aligned_text(
-                        action,
-                        position.x,
-                        position.y + 16.0,
-                        HorizontalAlignment::Center,
-                        VerticalAlignment::Top,
-                        Default::default(),
-                    );
-                }
-            }
-        }
-        let game_state = scene::find_node_by_type::<GameState>().unwrap();
-        if game_state.in_debug_mode {
-            draw_circle_lines(
-                self.body.position.x,
-                self.body.position.y,
-                self.stats.view_distance,
-                2.0,
-                color::RED,
-            )
-        }
-    }
-
-    fn get_z_index(&self) -> f32 {
-        self.body.position.y
-    }
-
-    fn get_bounds(&self) -> Bounds {
-        if let Some(collider) = self.body.get_offset_collider() {
-            Bounds::Collider(collider)
-        } else {
-            Bounds::Point(self.body.position)
         }
     }
 }

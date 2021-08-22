@@ -27,14 +27,14 @@ use nodes::{
     Projectiles,
     ItemParams,
     PostProcessing,
+    Hud,
 };
-use physics::Collider;
 use render::{
     draw_aligned_text,
     HorizontalAlignment,
 };
 use resources::Resources;
-use crate::render::VerticalAlignment;
+use render::VerticalAlignment;
 
 pub mod resources;
 pub mod ability;
@@ -186,6 +186,8 @@ async fn main() {
         DrawBuffer::<Actor>::add_node();
 
         PostProcessing::add_node(post_processing_material);
+
+        Hud::add_node();
 
         {
             let game_state = scene::find_node_by_type::<GameState>().unwrap();

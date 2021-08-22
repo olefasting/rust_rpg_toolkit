@@ -54,15 +54,17 @@ pub fn apply_local_player_input(_player_id: &str, controller: &mut ActorControll
     controller.is_interacting = is_key_released(KeyCode::E);
 
     controller.is_picking_up_items = is_key_down(KeyCode::R);
-}
 
-pub fn apply_non_player_input(mut game_state: RefMut<GameState>) {
+    let mut game_state = scene::find_node_by_type::<GameState>().unwrap();
     if is_key_released(KeyCode::C) {
         game_state.show_character_window = !game_state.show_character_window;
     }
     if is_key_released(KeyCode::I) {
         game_state.show_inventory_window = !game_state.show_inventory_window;
     }
+}
+
+pub fn apply_non_player_input(mut game_state: RefMut<GameState>) {
     if is_key_released(KeyCode::P) {
         game_state.in_debug_mode = !game_state.in_debug_mode;
     }

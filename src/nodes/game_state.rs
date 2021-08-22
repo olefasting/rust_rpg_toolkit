@@ -7,7 +7,6 @@ use macroquad::{
         },
         collections::storage,
     },
-    color,
     prelude::*,
 };
 
@@ -15,7 +14,6 @@ use crate::{
     map::Map,
     render::Viewport,
 };
-use crate::render::{draw_aligned_text, HorizontalAlignment, VerticalAlignment};
 use crate::input::apply_non_player_input;
 
 #[derive(Debug, Clone)]
@@ -57,30 +55,5 @@ impl Node for GameState {
         let viewport = storage::get::<Viewport>();
         let rect = node.map.to_grid(viewport.get_frustum());
         node.map.draw( Some(rect));
-        if node.in_debug_mode {
-            push_camera_state();
-            set_default_camera();
-            draw_aligned_text(
-                "DEBUG MODE",
-                screen_width() / 2.0,
-                50.0,
-                HorizontalAlignment::Center,
-                VerticalAlignment::Top,
-                TextParams {
-                    color: color::RED,
-                    font_size: 24,
-                    ..Default::default()
-                },
-            );
-            draw_aligned_text(
-                &format!("fps: {}", get_fps()),
-                screen_width() - 50.0,
-                50.0,
-                HorizontalAlignment::Right,
-                VerticalAlignment::Top,
-                Default::default(),
-            );
-            pop_camera_state();
-        }
     }
 }

@@ -15,10 +15,10 @@ pub use helpers::{
     draw_aligned_text,
 };
 
-mod sprite;
-mod animation;
-mod viewport;
-mod helpers;
+pub mod sprite;
+pub mod animation;
+pub mod viewport;
+pub mod helpers;
 
 pub const LINEAR_FILTER_MODE: &'static str = "linear";
 pub const NEAREST_FILTER_MODE: &'static str = "nearest_neighbor";
