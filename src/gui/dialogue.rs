@@ -17,10 +17,10 @@ pub fn draw_dialogue_window(player: &mut Actor) {
             .label(&interaction.actor_name)
             .ui(&mut *root_ui(), |ui| {
                 for line in interaction.body.clone() {
-                    ui.label(None, &format!("{}: {}", player.name, line));
+                    ui.label(None, &format!("{}", line));
                 }
                 if let Some(response) = interaction.response.clone() {
-                    ui.label(None, &format!("{}: {}", interaction.actor_name, response));
+                    ui.label(None, &format!("{}", response));
                 }
                 let options = interaction.get_options(player);
                 if options.len() == 0 {

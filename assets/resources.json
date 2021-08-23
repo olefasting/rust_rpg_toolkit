@@ -5,6 +5,10 @@
       "filename": "neo_zero_characters.png"
     },
     {
+      "id": "player",
+      "filename": "player.png"
+    },
+    {
       "id": "props",
       "filename": "neo_zero_props.png"
     },
@@ -37,6 +41,10 @@
     {
       "id": "blaster_01",
       "filename": "external/Sci-Fi Weapon Sounds Pro/Sci Fi Blaster/Sci Fi Blaster 4.wav"
+    },
+    {
+      "id": "continuous_beam_01",
+      "filename": "external/Sci-Fi Weapon Sounds Pro/Sci Fi Beam/Sci Fi Beam 5.wav"
     }
   ],
   "music": [

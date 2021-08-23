@@ -26,7 +26,7 @@
       "height": 14.0
     },
     "animation_player": {
-      "texture_id": "characters",
+      "texture_id": "player",
       "tile_size": {
         "x": 32.0,
         "y": 32.0
@@ -38,19 +38,19 @@
       "animations": [
         {
           "name": "down",
-          "row": 6,
+          "row": 0,
           "frames": 3,
           "fps": 8
         },
         {
           "name": "up",
-          "row": 7,
+          "row": 1,
           "frames": 3,
           "fps": 8
         },
         {
           "name": "right",
-          "row": 8,
+          "row": 2,
           "frames": 3,
           "fps": 8
         }
@@ -98,19 +98,19 @@
       "animations": [
         {
           "name": "down",
-          "row": 3,
+          "row": 0,
           "frames": 3,
           "fps": 8
         },
         {
           "name": "up",
-          "row": 4,
+          "row": 1,
           "frames": 3,
           "fps": 8
         },
         {
           "name": "right",
-          "row": 5,
+          "row": 2,
           "frames": 3,
           "fps": 8
         }
@@ -159,19 +159,19 @@
       "animations": [
         {
           "name": "down",
-          "row": 3,
+          "row": 0,
           "frames": 3,
           "fps": 8
         },
         {
           "name": "up",
-          "row": 4,
+          "row": 1,
           "frames": 3,
           "fps": 8
         },
         {
           "name": "right",
-          "row": 5,
+          "row": 2,
           "frames": 3,
           "fps": 8
         }
@@ -220,19 +220,19 @@
       "animations": [
         {
           "name": "down",
-          "row": 0,
+          "row": 3,
           "frames": 3,
           "fps": 8
         },
         {
           "name": "up",
-          "row": 1,
+          "row": 4,
           "frames": 3,
           "fps": 8
         },
         {
           "name": "right",
-          "row": 2,
+          "row": 5,
           "frames": 3,
           "fps": 8
         }

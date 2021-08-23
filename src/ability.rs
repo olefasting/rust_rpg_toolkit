@@ -146,7 +146,6 @@ impl Ability {
     }
 
     pub fn activate(&mut self, actor: &mut Actor, origin: Vec2, target: Vec2) {
-        let mut was_activated = false;
         if (self.health_cost == 0.0 || actor.stats.current_health >= self.health_cost)
             && (self.stamina_cost == 0.0 || actor.stats.current_stamina >= self.stamina_cost)
             && (self.energy_cost == 0.0 || actor.stats.current_energy >= self.energy_cost) {
@@ -156,9 +155,9 @@ impl Ability {
             actor.stats.current_energy -= self.energy_cost;
             if self.effect_kind == EffectKind::ContinuousBeam {
                 self.cooldown_timer = 0.0;
-                let mut beams = scene::find_node_by_type::<ContinuousBeams>().unwrap();
+                let mut continuous_beams = scene::find_node_by_type::<ContinuousBeams>().unwrap();
                 let end = actor.body.position + target.sub(actor.body.position).normalize_or_zero() * self.range;
-                beams.spawn(
+                continuous_beams.spawn(
                     &actor.id,
                     &actor.factions,
                     self.damage,
@@ -167,7 +166,6 @@ impl Ability {
                     actor.body.position,
                     end,
                 );
-                was_activated = true;
             } else if self.cooldown_timer >= self.cooldown {
                 self.cooldown_timer = 0.0;
                 let kind = match self.effect_kind {
@@ -190,12 +188,9 @@ impl Ability {
                     self.spread,
                     ttl,
                 );
-                was_activated = true;
-            }
-        }
-        if was_activated {
-            if let Some(sound_effect) = self.sound_effect {
-                play_sound_once(sound_effect);
+                if let Some(sound_effect) = self.sound_effect {
+                    play_sound_once(sound_effect);
+                }
             }
         }
     }

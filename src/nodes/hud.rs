@@ -80,28 +80,55 @@ impl Node for Hud {
                 push_camera_state();
                 set_default_camera();
 
-                for i in 0..player.active_missions.len() {
-                    let mission = player.active_missions.get(i).unwrap();
-                    draw_aligned_text(
-                        &mission.title,
-                        screen_width() - 50.0,
-                        300.0 + i as f32 * 50.0,
-                        HorizontalAlignment::Right,
-                        VerticalAlignment::Center,
-                        Default::default()
-                    )
-                }
+                {
+                    let len = player.active_missions.len();
+                    if len > 0 {
+                        draw_aligned_text(
+                            "Active missions:",
+                            screen_width() - 50.0,
+                            250.0,
+                            HorizontalAlignment::Right,
+                            VerticalAlignment::Center,
+                            Default::default(),
+                        );
+                    }
 
-                for i in 0..player.completed_missions.len() {
-                    let mission = player.completed_missions.get(i).unwrap();
-                    draw_aligned_text(
-                        &mission.title,
-                        screen_width() - 50.0,
-                        600.0 + i as f32 * 50.0,
-                        HorizontalAlignment::Right,
-                        VerticalAlignment::Center,
-                        Default::default()
-                    )
+                    for i in 0..len {
+                        let mission = player.active_missions.get(i).unwrap();
+                        draw_aligned_text(
+                            &mission.title,
+                            screen_width() - 50.0,
+                            300.0 + i as f32 * 50.0,
+                            HorizontalAlignment::Right,
+                            VerticalAlignment::Center,
+                            Default::default(),
+                        )
+                    }
+                }
+                {
+                    let len = player.completed_missions.len();
+                    if len > 0 {
+                        draw_aligned_text(
+                            "Completed missions:",
+                            screen_width() - 50.0,
+                            500.0,
+                            HorizontalAlignment::Right,
+                            VerticalAlignment::Center,
+                            Default::default(),
+                        );
+                    }
+
+                    for i in 0..len {
+                        let mission = player.completed_missions.get(i).unwrap();
+                        draw_aligned_text(
+                            &mission.title,
+                            screen_width() - 50.0,
+                            550.0 + i as f32 * 50.0,
+                            HorizontalAlignment::Right,
+                            VerticalAlignment::Center,
+                            Default::default(),
+                        )
+                    }
                 }
 
                 pop_camera_state();

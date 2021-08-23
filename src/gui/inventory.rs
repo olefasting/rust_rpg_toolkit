@@ -34,9 +34,11 @@ pub fn draw_inventory_window(player: &mut Actor) {
                                         player.secondary_ability = Some(ability),
                                 }
                             }
-                            if ui.button(None, "Drop") {
-                                let position = player.body.position;
-                                player.inventory.drop(&item.id, position);
+                            if item.params.is_quest_item == false {
+                                if ui.button(None, "Drop") {
+                                    let position = player.body.position;
+                                    player.inventory.drop(&item.id, position);
+                                }
                             }
                         }
                     });
@@ -57,9 +59,11 @@ pub fn draw_inventory_window(player: &mut Actor) {
                                         player.secondary_ability = Some(ability),
                                 }
                             }
-                            if ui.button(None, "Drop") {
-                                let position = player.body.position;
-                                player.inventory.drop(&item.id, position);
+                            if item.params.is_quest_item == false {
+                                if ui.button(None, "Drop") {
+                                    let position = player.body.position;
+                                    player.inventory.drop(&item.id, position);
+                                }
                             }
                         }
                     });

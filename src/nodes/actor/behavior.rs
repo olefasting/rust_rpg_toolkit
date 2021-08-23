@@ -225,6 +225,12 @@ pub fn apply_actor_behavior(actor: &mut Actor) {
     let mut unknowns = Vec::new();
     'node: for other in scene::find_nodes_by_type::<Actor>() {
         let distance = actor.body.position.distance(other.body.position);
+        if let Some((_, attacker_id)) = actor.behavior.last_attacked_by.clone() {
+            if other.id == attacker_id {
+                hostiles.push(other);
+                continue 'node;
+            }
+        }
         if actor.is_target_visible(other.body.position) {
             for faction in &actor.factions {
                 if other.factions.contains(faction) {
@@ -292,8 +298,10 @@ pub fn apply_actor_behavior(actor: &mut Actor) {
         }
     }
 
-    if let Some(home) = actor.behavior.home {
-        return go_to(actor, home);
+    if actor.behavior.is_stationary {
+        if let Some(home) = actor.behavior.home {
+            return go_to(actor, home);
+        }
     } else {
         return wander(actor);
     }

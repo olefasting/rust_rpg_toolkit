@@ -46,29 +46,6 @@
     }
   },
   {
-    "id": "test_continuous_beam_weapon",
-    "kind": "one_handed_weapon",
-    "name": "Test Continuous Beam Weapon",
-    "description": "Test Continuous Beam Weapon description",
-    "weight": 10.0,
-    "ability": "continuous_beam",
-    "sprite": {
-      "texture_id": "items",
-      "texture_coords": {
-        "x": 0,
-        "y": 3
-      },
-      "tile_size": {
-        "x": 16,
-        "y": 16
-      },
-      "offset": {
-        "x": -8.0,
-        "y": -8.0
-      }
-    }
-  },
-  {
     "id": "blaster_pistol",
     "kind": "one_handed_weapon",
     "name": "Blaster Pistol",
