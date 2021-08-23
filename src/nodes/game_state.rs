@@ -33,6 +33,7 @@ pub struct GameParams {
 
 pub struct GameState {
     pub map: Map,
+    pub dead_actors: Vec<String>,
     pub local_player_id: String,
     pub show_character_window: bool,
     pub show_inventory_window: bool,
@@ -60,7 +61,7 @@ impl GameState {
                     player.stats.restore_vitals();
 
                     let mission_params = resources.missions.get("test_mission_01").cloned().unwrap();
-                    player.missions.push(Mission::new(mission_params));
+                    player.active_missions.push(Mission::new(mission_params));
                     scene::add_node(player);
                 } else if let Some(prototype_id) = object.properties.get("prototype_id") {
                     let params = resources.actors.get(prototype_id).cloned()
@@ -116,6 +117,7 @@ impl GameState {
 
         GameState {
             map,
+            dead_actors: Vec::new(),
             local_player_id: local_player_id.to_string(),
             show_character_window: false,
             show_inventory_window: false,

@@ -18,7 +18,7 @@ pub fn draw_inventory_window(player: &mut Actor) {
     widgets::Window::new(hash!(), vec2(50.0, 475.0), vec2(300.0, 300.0))
         .label("Inventory")
         .ui(&mut *root_ui(), |ui| {
-            ui.label(None, &format!("weight: {}/{}", player.inventory.get_total_weight(), player.stats.carry_capacity));
+            ui.label(None, &format!("credits: {}, weight: {}/{}", player.inventory.credits, player.inventory.get_total_weight(), player.stats.carry_capacity));
             {
                 let items = player.inventory.get_all_of_kind(&[ItemKind::OneHandedWeapon, ItemKind::TwoHandedWeapon]);
                 if items.len() > 0 {

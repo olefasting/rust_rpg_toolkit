@@ -80,12 +80,24 @@ impl Node for Hud {
                 push_camera_state();
                 set_default_camera();
 
-                for i in 0..player.missions.len() {
-                    let mission = player.missions.get(i).unwrap();
+                for i in 0..player.active_missions.len() {
+                    let mission = player.active_missions.get(i).unwrap();
                     draw_aligned_text(
                         &mission.title,
                         screen_width() - 50.0,
                         300.0 + i as f32 * 50.0,
+                        HorizontalAlignment::Right,
+                        VerticalAlignment::Center,
+                        Default::default()
+                    )
+                }
+
+                for i in 0..player.completed_missions.len() {
+                    let mission = player.completed_missions.get(i).unwrap();
+                    draw_aligned_text(
+                        &mission.title,
+                        screen_width() - 50.0,
+                        600.0 + i as f32 * 50.0,
                         HorizontalAlignment::Right,
                         VerticalAlignment::Center,
                         Default::default()

@@ -12,10 +12,11 @@
     "willpower": 12,
     "perception": 12,
     "charisma": 12,
-    "inventory": [
+    "items": [
       "pistol",
       "sub_machine_gun"
     ],
+    "credits": 100,
     "collider": {
       "x": -7.0,
       "y": 0.0,
@@ -72,9 +73,10 @@
     "willpower": 8,
     "perception": 10,
     "charisma": 8,
-    "inventory": [
+    "items": [
       "sub_machine_gun"
     ],
+    "credits": 25,
     "collider": {
       "x": -8.0,
       "y": 0.0,
@@ -132,9 +134,10 @@
     "willpower": 6,
     "perception": 8,
     "charisma": 6,
-    "inventory": [
+    "items": [
       "pistol"
     ],
+    "credits": 25,
     "collider": {
       "x": -8.0,
       "y": 0.0,
@@ -191,7 +194,8 @@
     "willpower": 6,
     "perception": 8,
     "charisma": 6,
-    "inventory": [],
+    "items": [],
+    "credits": 25,
     "collider": {
       "x": -8.0,
       "y": 0.0,

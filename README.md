@@ -11,8 +11,6 @@ You can, of course, compile the game and try it out, as long as it falls in unde
 
 ## Controls
 
-Currently, controls are mapped as follows:
-
 - `W, A, S, D` or `arrows` for movement
 - `Shift` for sprint
 - `Left Mouse Button` for primary ability (needs an equipped weapon)
@@ -43,6 +41,7 @@ This is a work in progress but current features include (not an exhaustive list 
 - Mission system and story line
 - Gamepad support
 - Dynamic lighting and post-processing
+- Online and local coop
 
 ## Credits
 

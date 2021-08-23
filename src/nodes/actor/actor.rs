@@ -65,6 +65,8 @@ use super::{
     ActorBehaviorParams,
     apply_actor_behavior,
 };
+use crate::missions::{MissionReward, MissionObjective};
+use crate::nodes::actor::inventory::ActorInventoryParams;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub enum ActorNoiseLevel {
@@ -172,8 +174,13 @@ pub struct ActorParams {
     pub factions: Vec<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub collider: Option<Collider>,
-    pub inventory: Vec<String>,
+    #[serde(default, flatten)]
+    pub inventory: ActorInventoryParams,
     pub animation_player: SpriteAnimationParams,
+    #[serde(default)]
+    pub experience: u32,
+    #[serde(default)]
+    pub can_level_up: bool,
 }
 
 impl Default for ActorParams {
@@ -195,8 +202,10 @@ impl Default for ActorParams {
             current_energy: 0.0,
             factions: Vec::new(),
             collider: None,
-            inventory: Vec::new(),
+            inventory: Default::default(),
             animation_player: Default::default(),
+            experience: 0,
+            can_level_up: false,
         }
     }
 }
@@ -205,7 +214,8 @@ impl Default for ActorParams {
 pub struct Actor {
     pub id: String,
     pub name: String,
-    pub missions: Vec<Mission>,
+    pub active_missions: Vec<Mission>,
+    pub completed_missions: Vec<Mission>,
     pub noise_level: ActorNoiseLevel,
     pub behavior: ActorBehavior,
     pub stats: ActorStats,
@@ -215,9 +225,10 @@ pub struct Actor {
     pub primary_ability: Option<Ability>,
     pub secondary_ability: Option<Ability>,
     pub controller: ActorController,
-    pub is_dead: bool,
+    pub experience: u32,
     animation_player: SpriteAnimationPlayer,
     noise_level_timer: f32,
+    can_level_up: bool,
 }
 
 impl Actor {
@@ -241,18 +252,11 @@ impl Actor {
     pub fn new(instance_id: Option<String>, controller_kind: ActorControllerKind, params: ActorParams) -> Self {
         let position = params.position.unwrap_or_default();
 
-        let resources = storage::get::<Resources>();
-        let item_params: Vec<ItemParams> = params.inventory
-            .iter()
-            .map(|prototype_id| resources.items.get(prototype_id)
-                .cloned()
-                .expect(&format!("Unable to load item prototype with id '{}'!", prototype_id)))
-            .collect();
-
         Actor {
             id: instance_id.unwrap_or(generate_id()).to_string(),
             name: params.name.clone(),
-            missions: Vec::new(),
+            active_missions: Vec::new(),
+            completed_missions: Vec::new(),
             noise_level: ActorNoiseLevel::None,
             behavior: ActorBehavior::new(ActorBehaviorParams {
                 home: Some(position),
@@ -261,13 +265,14 @@ impl Actor {
             stats: ActorStats::from(&params),
             factions: params.factions,
             body: PhysicsBody::new(position, 0.0, params.collider),
-            inventory: ActorInventory::from(item_params),
+            inventory: ActorInventory::from(params.inventory),
             primary_ability: None,
             secondary_ability: None,
             controller: ActorController::new(controller_kind),
-            is_dead: false,
+            experience: params.experience,
             animation_player: SpriteAnimationPlayer::new(params.animation_player.clone()),
             noise_level_timer: 0.0,
+            can_level_up: params.can_level_up,
         }
     }
 
@@ -352,6 +357,12 @@ impl Actor {
         println!("INTERACTION between '{}' and '{}'", self.name, other.name);
     }
 
+    pub fn add_experience(&mut self, amount: u32) {
+        if self.can_level_up {
+            self.experience += amount;
+        }
+    }
+
     fn apply_behavior(&mut self) {
         apply_actor_behavior(self)
     }
@@ -376,12 +387,10 @@ impl Into<ActorParams> for Actor {
             current_energy: self.stats.current_energy,
             factions: self.factions,
             collider: self.body.collider,
-            inventory: self.inventory
-                .to_params()
-                .into_iter()
-                .filter_map(|params| params.prototype_id)
-                .collect(),
+            inventory: self.inventory.to_params(),
             animation_player: SpriteAnimationParams::from(self.animation_player),
+            experience: self.experience,
+            can_level_up: self.can_level_up,
         }
     }
 }
@@ -490,9 +499,10 @@ impl Node for Actor {
 
     fn update(mut node: RefMut<Self>) {
         if node.stats.current_health <= 0.0 {
+            let mut game_state = scene::find_node_by_type::<GameState>().unwrap();
             let position = node.body.position;
             node.inventory.drop_all(position);
-            node.is_dead = true;
+            game_state.dead_actors.push(node.id.clone());
             node.delete();
             return;
         }
@@ -509,15 +519,61 @@ impl Node for Actor {
             };
             node.noise_level_timer = 0.0;
         }
-
-        for i in 0..node.missions.len() {
-            let mission = node.missions.get_mut(i).unwrap();
-            mission.update();
+        {
+            let mut active_missions = node.active_missions.clone();
+            for i in 0..active_missions.len() {
+                let mut mission = active_missions.get_mut(i).unwrap();
+                for objective in &mut mission.objectives {
+                    match &objective.0 {
+                        MissionObjective::Kill { instance_id } => {
+                            let game_state = scene::find_node_by_type::<GameState>().unwrap();
+                            if game_state.dead_actors.contains(instance_id) {
+                                objective.1 = true;
+                            }
+                        },
+                        MissionObjective::RetrieveItem { instance_id } => {
+                            if node.inventory.items.iter().find(|entry| entry.id.clone() == instance_id.clone()).is_some() {
+                                objective.1 = true;
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+            }
+            let mut completed_missions = active_missions.drain_filter(|mission| {
+                for (_, is_completed) in &mission.objectives {
+                    if *is_completed == false {
+                        return false;
+                    }
+                }
+                true
+            }).collect::<Vec<Mission>>();
+            let resources = storage::get::<Resources>();
+            for mission in &completed_missions {
+                for reward in &mission.rewards {
+                    match reward {
+                        MissionReward::Item { prototype_id, amount } => {
+                            let params = resources.items.get(prototype_id).unwrap();
+                            for _ in 0..*amount {
+                                node.inventory.add_item(params.clone());
+                            }
+                        },
+                        MissionReward::Credits { amount } => {
+                            node.inventory.add_credits(*amount);
+                        },
+                        MissionReward::Experience { amount } => {
+                            node.add_experience(*amount);
+                        }
+                    }
+                }
+                if let Some(next_id) = mission.next_mission_id.clone() {
+                    let params = resources.missions.get(&next_id).cloned().unwrap();
+                    active_missions.push(Mission::new(params));
+                }
+            }
+            node.active_missions = active_missions;
+            node.completed_missions.append(&mut completed_missions);
         }
-
-        node.missions.retain(|mission| {
-            mission.is_completed == false
-        });
 
         if let Some(ability) = node.primary_ability.as_mut() {
             ability.update();

@@ -140073,8 +140073,8 @@
             "y": 4.0
           },
           "properties": {
-            "intensity": "0.1",
-            "color": "#ffff0000"
+            "color": "#ffff0000",
+            "intensity": "0.1"
           }
         }
       ]
@@ -140097,6 +140097,7 @@
             "y": 484.0
           },
           "properties": {
+            "instance_id": "thug_01",
             "prototype_id": "enemy_thug"
           }
         },
@@ -140117,7 +140118,8 @@
             "y": 483.0
           },
           "properties": {
-            "prototype_id": "enemy_thug"
+            "prototype_id": "enemy_thug",
+            "instance_id": "thug_02"
           }
         },
         {
@@ -140127,6 +140129,7 @@
             "y": 478.66666
           },
           "properties": {
+            "instance_id": "thug_03",
             "prototype_id": "enemy_thug"
           }
         },
@@ -140191,6 +140194,23 @@
           }
         }
       ]
+    },
+    {
+      "id": "items",
+      "kind": "object_layer",
+      "objects": [
+        {
+          "name": "pistol",
+          "position": {
+            "x": 911.0,
+            "y": 694.0
+          },
+          "properties": {
+            "instance_id": "pistol_01",
+            "prototype_id": "pistol"
+          }
+        }
+      ]
     }
   ],
   "tilesets": [
@@ -140213,24 +140233,6 @@
       "tile_cnt": 400
     },
     {
-      "id": "items",
-      "texture_id": "items",
-      "texture_size": {
-        "x": 64,
-        "y": 64
-      },
-      "tile_size": {
-        "x": 16,
-        "y": 16
-      },
-      "grid_size": {
-        "x": 4,
-        "y": 4
-      },
-      "first_tile_id": 501,
-      "tile_cnt": 16
-    },
-    {
       "id": "neo_zero_props",
       "texture_id": "props",
       "texture_size": {
@@ -140247,6 +140249,24 @@
       },
       "first_tile_id": 401,
       "tile_cnt": 100
+    },
+    {
+      "id": "items",
+      "texture_id": "items",
+      "texture_size": {
+        "x": 64,
+        "y": 64
+      },
+      "tile_size": {
+        "x": 16,
+        "y": 16
+      },
+      "grid_size": {
+        "x": 4,
+        "y": 4
+      },
+      "first_tile_id": 501,
+      "tile_cnt": 16
     }
   ]
 }

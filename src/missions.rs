@@ -5,7 +5,7 @@ use serde::{
     Deserialize,
 };
 
-use crate::nodes::Actor;
+use crate::nodes::{Actor, GameState};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
@@ -64,25 +64,5 @@ impl Mission {
             next_mission_id: params.next_mission_id,
             is_completed: false,
         }
-    }
-
-    pub fn update(&mut self) {
-        for i in 0..self.objectives.len() {
-            let objective = self.objectives.get_mut(i).unwrap();
-            match &objective.0 {
-                MissionObjective::Kill { instance_id } => {
-                    if scene::find_nodes_with::<Actor>().find(|actor| actor.id == instance_id.clone() && actor.is_dead == false).is_none() {
-                        objective.1 = true;
-                    }
-                },
-                _ => {}
-            }
-        }
-        for (_, is_completed) in &self.objectives {
-            if *is_completed {
-                return;
-            }
-        }
-        self.is_completed = true;
     }
 }

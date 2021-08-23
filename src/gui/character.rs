@@ -29,5 +29,9 @@ pub fn draw_character_window(player: &Actor) {
                 ui.label(None, &format!("Stamina: {}", player.stats.stamina_regen));
                 ui.label(None, &format!("Energy:  {}", player.stats.energy_regen));
             });
+
+            ui.separator();
+
+            ui.label(None, &format!("XP: {}", player.experience));
         });
 }
