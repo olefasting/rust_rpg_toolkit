@@ -20,7 +20,7 @@ You can, of course, compile the game and try it out, as long as it falls in unde
 - `I` for inventory window
 - `C` for character window
 - `P` to toggle debug mode
-- `ESC` to quit
+- `ESC` to open menu
 
 To use the primary and secondary abilities, go to Inventory and equip a weapon and a trinket....
 
