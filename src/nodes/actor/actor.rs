@@ -33,7 +33,6 @@ use crate::{
             DrawBuffer,
         },
         Item,
-        ItemParams,
         GameState,
         Camera,
     },
@@ -523,7 +522,7 @@ impl Node for Actor {
         {
             let mut active_missions = node.active_missions.clone();
             for i in 0..active_missions.len() {
-                let mut mission = active_missions.get_mut(i).unwrap();
+                let mission = active_missions.get_mut(i).unwrap();
                 for objective in &mut mission.objectives {
                     match &objective.0 {
                         MissionObjective::Kill { instance_id } => {
@@ -532,8 +531,8 @@ impl Node for Actor {
                                 objective.1 = true;
                             }
                         },
-                        MissionObjective::RetrieveItem { instance_id } => {
-                            if node.inventory.items.iter().find(|entry| entry.id.clone() == instance_id.clone()).is_some() {
+                        MissionObjective::RetrieveItem { prototype_id } => {
+                            if node.inventory.items.iter().find(|entry| entry.params.prototype_id == prototype_id.clone()).is_some() {
                                 objective.1 = true;
                             }
                         }

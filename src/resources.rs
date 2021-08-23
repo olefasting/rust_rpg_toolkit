@@ -134,7 +134,7 @@ impl Resources {
         let items_data: Vec<ItemParams> = serde_json::from_str(&json)
             .expect(&format!("Error when parsing items file '{}'!", Self::ITEMS_FILE_PATH));
         let items = HashMap::from_iter(
-            items_data.into_iter().map(|params| (params.prototype_id.clone().unwrap_or(generate_id()), params)));
+            items_data.into_iter().map(|params| (params.prototype_id.clone(), params)));
 
         let json = std::fs::read_to_string(Self::MISSIONS_FILE_PATH)
             .expect(&format!("Unable to find missions file '{}'!", Self::MISSIONS_FILE_PATH));

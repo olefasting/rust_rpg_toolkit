@@ -349,14 +349,9 @@
                  "point":true,
                  "properties":[
                         {
-                         "name":"instance_id",
-                         "type":"string",
-                         "value":"pistol_01"
-                        }, 
-                        {
                          "name":"prototype_id",
                          "type":"string",
-                         "value":"pistol"
+                         "value":"quest_pistol"
                         }],
                  "rotation":0,
                  "type":"item",
@@ -364,6 +359,29 @@
                  "width":0,
                  "x":911,
                  "y":694
+                }, 
+                {
+                 "height":0,
+                 "id":28,
+                 "name":"credits",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"amount",
+                         "type":"string",
+                         "value":"500"
+                        }, 
+                        {
+                         "name":"prototype_id",
+                         "type":"string",
+                         "value":"credits"
+                        }],
+                 "rotation":0,
+                 "type":"item",
+                 "visible":true,
+                 "width":0,
+                 "x":987.5,
+                 "y":705
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -372,7 +390,7 @@
          "y":0
         }],
  "nextlayerid":13,
- "nextobjectid":28,
+ "nextobjectid":29,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.7.2",

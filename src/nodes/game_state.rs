@@ -26,6 +26,7 @@ use crate::{
     resources::Resources,
     missions::Mission,
 };
+use crate::nodes::item::Credits;
 
 #[derive(Debug, Clone)]
 pub struct GameParams {
@@ -103,14 +104,19 @@ impl GameState {
 
         if let Some(layer) = map.layers.get("items") {
             for object in &layer.objects {
-                if let Some(prototype_id) = object.properties.get("prototype_id") {
-                    let params= resources.items.get(prototype_id).cloned()
-                        .expect(&format!("Unable to find item with prototype id '{}'", prototype_id));
-                    let instance_id = object.properties.get("instance_id").cloned();
-                    Item::add_node(instance_id,ItemParams {
-                        position: Some(object.position),
-                        ..params
-                    });
+                if let Some(prototype_id) = object.properties.get("prototype_id").cloned() {
+                    if prototype_id == "credits".to_string() {
+                        let amount = object.properties.get("amount").unwrap();
+                        Credits::add_node(object.position, amount.parse::<u32>().unwrap());
+                    } else {
+                        let params = resources.items.get(&prototype_id).cloned()
+                            .expect(&format!("Unable to find item with prototype id '{}'", &prototype_id));
+                        let instance_id = object.properties.get("instance_id").cloned();
+                        Item::add_node(instance_id, ItemParams {
+                            position: Some(object.position),
+                            ..params
+                        });
+                    }
                 }
             }
         }

@@ -37,8 +37,8 @@ pub enum ItemKind {
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct ItemParams {
-    #[serde(rename = "id", skip_serializing_if = "Option::is_none")]
-    pub prototype_id: Option<String>,
+    #[serde(rename = "id")]
+    pub prototype_id: String,
     pub name: String,
     pub description: String,
     #[serde(default, with = "json::opt_vec2", skip_serializing_if = "Option::is_none")]
@@ -47,12 +47,14 @@ pub struct ItemParams {
     pub weight: f32,
     pub ability: AbilityParams,
     pub sprite: Sprite,
+    #[serde(default)]
+    pub is_quest_item: bool,
 }
 
 impl From<&Item> for ItemParams {
     fn from(item: &Item) -> Self {
         ItemParams {
-            prototype_id: None,
+            prototype_id: item.prototype_id.clone(),
             name: item.name.clone(),
             description: item.description.clone(),
             position: Some(item.position),
@@ -60,6 +62,7 @@ impl From<&Item> for ItemParams {
             weight: item.weight,
             ability: item.ability.clone(),
             sprite: item.sprite.clone(),
+            is_quest_item: item.is_quest_item,
         }
     }
 }
@@ -67,7 +70,7 @@ impl From<&Item> for ItemParams {
 impl Default for ItemParams {
     fn default() -> Self {
         ItemParams {
-            prototype_id: None,
+            prototype_id: "".to_string(),
             name: "Unnamed Item".to_string(),
             description: "".to_string(),
             position: Default::default(),
@@ -75,6 +78,7 @@ impl Default for ItemParams {
             weight: 0.1,
             ability: Default::default(),
             sprite: Default::default(),
+            is_quest_item: false,
         }
     }
 }
@@ -82,11 +86,13 @@ impl Default for ItemParams {
 #[derive(Clone)]
 pub struct Item {
     pub id: String,
+    pub prototype_id: String,
     pub name: String,
     pub description: String,
     pub position: Vec2,
     pub kind: ItemKind,
     pub weight: f32,
+    pub is_quest_item: bool,
     ability: AbilityParams,
     sprite: Sprite,
 }
@@ -95,11 +101,13 @@ impl Item {
     pub fn new(instance_id: Option<String>, params: ItemParams) -> Self {
         Item {
             id: instance_id.unwrap_or(generate_id()).to_string(),
+            prototype_id: params.prototype_id,
             position: params.position.unwrap_or_default(),
             kind: params.kind,
             name: params.name,
             description: params.description,
             weight: params.weight,
+            is_quest_item: params.is_quest_item,
             ability: params.ability,
             sprite: params.sprite,
         }

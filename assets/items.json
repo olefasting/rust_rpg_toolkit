@@ -249,5 +249,48 @@
         "y": -8.0
       }
     }
+  },
+  {
+    "id": "quest_pistol",
+    "kind": "one_handed_weapon",
+    "name": "Pistol",
+    "description": "A pistol belonging to someone",
+    "weight": 10.0,
+    "is_quest_item": true,
+    "ability": {
+      "noise_level": "loud",
+      "action_kind": "primary",
+      "cooldown": 0.25,
+      "health_cost": 0.0,
+      "stamina_cost": 10.0,
+      "energy_cost": 0.0,
+      "speed": 10.0,
+      "spread": 5.0,
+      "range": 10.0,
+      "damage": 50.0,
+      "effect_kind": "projectile",
+      "effect_size": 1.0,
+      "effect_color": {
+        "r": 0.99,
+        "g": 0.98,
+        "b": 0.0,
+        "a": 1.0
+      }
+    },
+    "sprite": {
+      "texture_id": "items",
+      "texture_coords": {
+        "x": 0,
+        "y": 3
+      },
+      "tile_size": {
+        "x": 16,
+        "y": 16
+      },
+      "offset": {
+        "x": -8.0,
+        "y": -8.0
+      }
+    }
   }
 ]

@@ -5,17 +5,15 @@ use serde::{
     Deserialize,
 };
 
-use crate::nodes::{Actor, GameState};
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum MissionObjective {
     #[serde(rename = "kill")]
     Kill { instance_id: String },
     #[serde(rename = "retrieve_item")]
-    RetrieveItem { instance_id: String },
+    RetrieveItem { prototype_id: String },
     #[serde(rename = "deliver_item")]
-    DeliverItem { instance_id: String },
+    DeliverItem { prototype_id: String },
     #[serde(rename = "go_to_location")]
     GoToWaypoint { waypoint_id: String },
 }

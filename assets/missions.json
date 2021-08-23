@@ -33,7 +33,7 @@
     "objectives": [
       {
         "type": "retrieve_item",
-        "instance_id": "pistol_01"
+        "prototype_id": "quest_pistol"
       }
     ],
     "rewards": [],
@@ -46,7 +46,7 @@
     "objectives": [
       {
         "type": "deliver_item",
-        "instance_id": "pistol_01"
+        "prototype_id": "quest_pistol"
       }
     ],
     "rewards": [

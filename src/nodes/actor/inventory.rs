@@ -101,7 +101,7 @@ impl ActorInventory {
     pub fn drop(&mut self, item_id: &str, position: Vec2) -> bool {
         let items: Vec<ActorInventoryEntry> = self.items
             .drain_filter(|entry| {
-                if entry.id == item_id {
+                if entry.id == item_id && entry.params.is_quest_item == false {
                     let params = ItemParams {
                         position: Some(Self::randomize_drop_position(position)),
                         ..entry.params.clone()
@@ -117,11 +117,13 @@ impl ActorInventory {
 
     pub fn drop_all(&mut self, position: Vec2, include_credits: bool) {
         self.items.drain_filter(|entry| {
-            let params = ItemParams {
-                position: Some(Self::randomize_drop_position(position)),
-                ..entry.params.clone()
-            };
-            Item::add_node(Some(entry.id.clone()), params);
+            if entry.params.is_quest_item == false {
+                let params = ItemParams {
+                    position: Some(Self::randomize_drop_position(position)),
+                    ..entry.params.clone()
+                };
+                Item::add_node(Some(entry.id.clone()), params);
+            }
             true
         });
         if include_credits {
