@@ -34,7 +34,14 @@ use crate::{
 struct TextureData {
     pub id: String,
     pub filename: String,
+    #[serde(default = "TextureData::default_filter_mode")]
     pub filter_mode: String,
+}
+
+impl TextureData {
+    fn default_filter_mode() -> String {
+        NEAREST_FILTER_MODE.to_string()
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

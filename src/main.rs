@@ -32,6 +32,7 @@ use render::{
 };
 use resources::Resources;
 use render::VerticalAlignment;
+use crate::nodes::item::Credits;
 
 pub mod resources;
 pub mod ability;
@@ -109,6 +110,7 @@ async fn main() {
         GameState::add_node(map, &player_id.clone());
         Camera::add_node();
         DrawBuffer::<Item>::add_node();
+        DrawBuffer::<Credits>::add_node();
         Projectiles::add_node();
         ContinuousBeams::add_node();
         DrawBuffer::<Actor>::add_node();

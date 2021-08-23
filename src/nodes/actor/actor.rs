@@ -67,6 +67,7 @@ use super::{
 };
 use crate::missions::{MissionReward, MissionObjective};
 use crate::nodes::actor::inventory::ActorInventoryParams;
+use crate::nodes::item::Credits;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub enum ActorNoiseLevel {
@@ -501,7 +502,7 @@ impl Node for Actor {
         if node.stats.current_health <= 0.0 {
             let mut game_state = scene::find_node_by_type::<GameState>().unwrap();
             let position = node.body.position;
-            node.inventory.drop_all(position);
+            node.inventory.drop_all(position, true);
             game_state.dead_actors.push(node.id.clone());
             node.delete();
             return;
@@ -650,6 +651,12 @@ impl Node for Actor {
             for item in scene::find_nodes_by_type::<Item>() {
                 if collider.contains(item.position) {
                     node.inventory.pick_up(item);
+                }
+            }
+            for credits in scene::find_nodes_by_type::<Credits>() {
+                if collider.contains(credits.position) {
+                    node.inventory.credits += credits.amount;
+                    credits.delete();
                 }
             }
         }

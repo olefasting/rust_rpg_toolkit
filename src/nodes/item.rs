@@ -130,3 +130,49 @@ impl Node for Item {
         draw_buffer.buffered.push(node.handle());
     }
 }
+
+#[derive(Debug, Clone)]
+pub struct Credits {
+    pub position: Vec2,
+    pub amount: u32,
+    pub sprite: Sprite,
+}
+
+impl Credits {
+    pub fn new(position: Vec2, amount: u32) -> Self {
+        Credits {
+            position,
+            amount,
+            sprite: Sprite {
+                texture_id: "credits".to_string(),
+                tile_size: uvec2(8, 8),
+                ..Default::default()
+            },
+        }
+    }
+
+    pub fn add_node(position: Vec2, amount: u32) -> Handle<Self> {
+        scene::add_node(Self::new(position, amount))
+    }
+}
+
+impl BufferedDraw for Credits {
+    fn buffered_draw(&mut self) {
+        self.sprite.draw(self.position, 0.0);
+    }
+
+    fn get_z_index(&self) -> f32 {
+        self.position.y
+    }
+
+    fn get_bounds(&self) -> Bounds {
+        Bounds::Point(self.position)
+    }
+}
+
+impl Node for Credits {
+    fn ready(node: RefMut<Self>) {
+        let mut draw_buffer = scene::find_node_by_type::<DrawBuffer<Credits>>().unwrap();
+        draw_buffer.buffered.push(node.handle());
+    }
+}

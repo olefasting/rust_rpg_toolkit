@@ -2,28 +2,27 @@
   "textures": [
     {
       "id": "characters",
-      "filename": "neo_zero_characters.png",
-      "filter_mode": "nearest_neighbor"
+      "filename": "neo_zero_characters.png"
     },
     {
       "id": "props",
-      "filename": "neo_zero_props.png",
-      "filter_mode": "nearest_neighbor"
+      "filename": "neo_zero_props.png"
     },
     {
       "id": "tiles",
-      "filename": "neo_zero_tiles.png",
-      "filter_mode": "nearest_neighbor"
+      "filename": "neo_zero_tiles.png"
     },
     {
       "id": "items",
-      "filename": "items.png",
-      "filter_mode": "nearest_neighbor"
+      "filename": "items.png"
     },
     {
       "id": "fireball",
-      "filename": "fireball.png",
-      "filter_mode": "nearest_neighbor"
+      "filename": "fireball.png"
+    },
+    {
+      "id": "credits",
+      "filename": "credits.png"
     }
   ],
   "sound_effects": [

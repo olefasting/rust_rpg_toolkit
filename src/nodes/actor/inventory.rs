@@ -16,6 +16,7 @@ use crate::{
         ItemKind,
         ItemParams,
         Item,
+        Credits,
     },
     ability::Ability,
     generate_id,
@@ -114,7 +115,7 @@ impl ActorInventory {
         !items.is_empty()
     }
 
-    pub fn drop_all(&mut self, position: Vec2) {
+    pub fn drop_all(&mut self, position: Vec2, include_credits: bool) {
         self.items.drain_filter(|entry| {
             let params = ItemParams {
                 position: Some(Self::randomize_drop_position(position)),
@@ -123,6 +124,22 @@ impl ActorInventory {
             Item::add_node(Some(entry.id.clone()), params);
             true
         });
+        if include_credits {
+            self.drop_all_credits(position);
+        }
+    }
+
+    pub fn drop_credits(&mut self, amount: u32, position: Vec2) -> bool {
+        if self.credits < amount {
+            return false;
+        }
+        self.credits -= amount;
+        Credits::add_node(Self::randomize_drop_position(position), amount);
+        true
+    }
+
+    pub fn drop_all_credits(&mut self, position: Vec2) {
+        self.drop_credits(self.credits, position);
     }
 
     pub fn get_total_weight(&self) -> f32 {
