@@ -3,6 +3,8 @@
 This is an action/run 'n' gun RPG, created in Rust using [macroquad](https://github.com/not-fl3/macroquad).
 The future holds huge boss fights, and a mind-nuking story line, as you progress through the world, and your own mind, to battle yourself and the archons to break free of samsara and the materialist dystopia of our not too distant future.
 
+Please note that there are some resources missing if you clone this directory, as I have purchased som external sound packs, etc. These has been excluded from the repository, so you will have to go through the various files, like `resources.json` and remove these, as well as removing the references to these resources in files like `abilities.json`
+
 ## License
 
 The game is unlicensed because it has a planned commercial release, so  the game in its entirety, the IP (as it is fleshed out in the future), is ours and not to be copied.
@@ -52,6 +54,8 @@ All assets currently used are placeholders, taken from ich.io. When writing this
 - [Cyberpunk Top Down Game Asset Pack](https://rafazcruz.itch.io/cyberpunk-top-down-game-asset-pack) (currently not used but included in the repository)
 - [Cyberpunk Items 16x16](https://jeresikstus.itch.io/cyberpunk-items-16x16) (currently used for all item graphics)
 - [Animated Fires](https://stealthix.itch.io/animated-fires) (some animated fire effects)
+- [M4A1 Single sound by Kibblesbob](https://soundbible.com/1804-M4A1-Single.html) ([Creative Commons Attribution 3.0](https://creativecommons.org/licenses/by/3.0/))
+- [9mm Glock 17 sound by JKirsch](https://soundbible.com/1382-9mm-Glock-17.html) ([Creative Commons Attribution 3.0](https://creativecommons.org/licenses/by/3.0/))
 
 
 Copyright 2021 Ole A. Sjo Fasting and [Magus](https://magus.no)

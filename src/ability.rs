@@ -1,6 +1,9 @@
 use std::ops::Sub;
 
 use macroquad::{
+    experimental::{
+        collections::storage,
+    },
     color,
     prelude::*,
 };
@@ -17,9 +20,11 @@ use crate::{
         ContinuousBeams,
         projectiles::ProjectileKind,
     },
+    Resources,
     json,
 };
 use crate::nodes::actor::ActorNoiseLevel;
+use macroquad::audio::{Sound, play_sound_once};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum EffectKind {
@@ -45,6 +50,9 @@ pub enum ActionKind {
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct AbilityParams {
+    pub id: String,
+    #[serde(default, rename = "sound_effect", skip_serializing_if = "Option::is_none")]
+    pub sound_effect_id: Option<String>,
     #[serde(default)]
     pub noise_level: ActorNoiseLevel,
     pub effect_kind: EffectKind,
@@ -71,6 +79,8 @@ pub struct AbilityParams {
 impl Default for AbilityParams {
     fn default() -> Self {
         AbilityParams {
+            id: "".to_string(),
+            sound_effect_id: None,
             noise_level: ActorNoiseLevel::Moderate,
             effect_kind: EffectKind::Projectile,
             action_kind: ActionKind::Primary,
@@ -93,6 +103,7 @@ pub struct Ability {
     pub noise_level: ActorNoiseLevel,
     pub effect_kind: EffectKind,
     pub action_kind: ActionKind,
+    pub sound_effect: Option<Sound>,
     pub cooldown: f32,
     pub cooldown_timer: f32,
     pub health_cost: f32,
@@ -108,7 +119,15 @@ pub struct Ability {
 
 impl Ability {
     pub fn new(params: AbilityParams) -> Self {
+        let sound_effect = if let Some(sound_id) = params.sound_effect_id {
+            let resources = storage::get::<Resources>();
+            resources.sound_effects.get(&sound_id).cloned()
+        } else {
+            None
+        };
+
         Ability {
+            sound_effect,
             noise_level: params.noise_level,
             effect_kind: params.effect_kind,
             action_kind: params.action_kind,
@@ -127,6 +146,7 @@ impl Ability {
     }
 
     pub fn activate(&mut self, actor: &mut Actor, origin: Vec2, target: Vec2) {
+        let mut was_activated = false;
         if (self.health_cost == 0.0 || actor.stats.current_health >= self.health_cost)
             && (self.stamina_cost == 0.0 || actor.stats.current_stamina >= self.stamina_cost)
             && (self.energy_cost == 0.0 || actor.stats.current_energy >= self.energy_cost) {
@@ -146,7 +166,8 @@ impl Ability {
                     self.effect_size,
                     actor.body.position,
                     end,
-                )
+                );
+                was_activated = true;
             } else if self.cooldown_timer >= self.cooldown {
                 self.cooldown_timer = 0.0;
                 let kind = match self.effect_kind {
@@ -169,6 +190,12 @@ impl Ability {
                     self.spread,
                     ttl,
                 );
+                was_activated = true;
+            }
+        }
+        if was_activated {
+            if let Some(sound_effect) = self.sound_effect {
+                play_sound_once(sound_effect);
             }
         }
     }

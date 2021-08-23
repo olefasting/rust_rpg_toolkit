@@ -15,7 +15,8 @@
     "charisma": 12,
     "items": [
       "pistol",
-      "sub_machine_gun"
+      "sub_machine_gun",
+      "blaster_pistol"
     ],
     "credits": 100,
     "collider": {
@@ -138,7 +139,7 @@
       "sub_machine_gun"
     ],
     "credits": 25,
-    "dialogue_id": "guard_boss_dialogue_01",
+    "dialogue": "guard_boss_dialogue_01",
     "collider": {
       "x": -8.0,
       "y": 0.0,

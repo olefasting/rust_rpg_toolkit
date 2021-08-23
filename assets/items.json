@@ -5,26 +5,7 @@
     "name": "Pistol",
     "description": "A regular pistol",
     "weight": 10.0,
-    "ability": {
-      "noise_level": "loud",
-      "action_kind": "primary",
-      "cooldown": 0.25,
-      "health_cost": 0.0,
-      "stamina_cost": 10.0,
-      "energy_cost": 0.0,
-      "speed": 10.0,
-      "spread": 5.0,
-      "range": 10.0,
-      "damage": 50.0,
-      "effect_kind": "projectile",
-      "effect_size": 1.0,
-      "effect_color": {
-        "r": 0.99,
-        "g": 0.98,
-        "b": 0.0,
-        "a": 1.0
-      }
-    },
+    "ability": "pistol",
     "sprite": {
       "texture_id": "items",
       "texture_coords": {
@@ -47,26 +28,7 @@
     "name": "HK-MP5",
     "description": "A regular sub-machine gun",
     "weight": 10.0,
-    "ability": {
-      "noise_level": "loud",
-      "action_kind": "primary",
-      "cooldown": 0.0025,
-      "health_cost": 0.0,
-      "stamina_cost": 10.0,
-      "energy_cost": 0.0,
-      "speed": 10.0,
-      "spread": 10.0,
-      "range": 10.0,
-      "damage": 50.0,
-      "effect_kind": "projectile",
-      "effect_size": 1.0,
-      "effect_color": {
-        "r": 0.99,
-        "g": 0.98,
-        "b": 0.0,
-        "a": 1.0
-      }
-    },
+    "ability": "sub_machine_gun",
     "sprite": {
       "texture_id": "items",
       "texture_coords": {
@@ -89,25 +51,7 @@
     "name": "Test Continuous Beam Weapon",
     "description": "Test Continuous Beam Weapon description",
     "weight": 10.0,
-    "ability": {
-      "noise_level": "silent",
-      "action_kind": "primary",
-      "health_cost": 0.0,
-      "stamina_cost": 0.0,
-      "energy_cost": 0.0,
-      "speed": 0.0,
-      "spread": 10.0,
-      "range": 150.0,
-      "damage": 2.0,
-      "effect_kind": "continuous_beam",
-      "effect_size": 6.0,
-      "effect_color": {
-        "r": 0.99,
-        "g": 0.0,
-        "b": 0.0,
-        "a": 1.0
-      }
-    },
+    "ability": "continuous_beam",
     "sprite": {
       "texture_id": "items",
       "texture_coords": {
@@ -125,119 +69,16 @@
     }
   },
   {
-    "id": "test_beam_weapon",
+    "id": "blaster_pistol",
     "kind": "one_handed_weapon",
-    "name": "Test Beam Weapon",
-    "description": "Test Beam Weapon description",
+    "name": "Blaster Pistol",
+    "description": "A blaster pistol",
     "weight": 10.0,
-    "ability": {
-      "noise_level": "silent",
-      "action_kind": "primary",
-      "health_cost": 0.0,
-      "stamina_cost": 10.0,
-      "energy_cost": 0.0,
-      "cooldown": 0.025,
-      "speed": 25.0,
-      "spread": 10.0,
-      "range": 200.0,
-      "damage": 50.0,
-      "effect_kind": "beam",
-      "effect_size": 2.0,
-      "effect_color": {
-        "r": 0.99,
-        "g": 0.0,
-        "b": 0.0,
-        "a": 1.0
-      }
-    },
+    "ability": "beam",
     "sprite": {
       "texture_id": "items",
       "texture_coords": {
         "x": 0,
-        "y": 3
-      },
-      "tile_size": {
-        "x": 16,
-        "y": 16
-      },
-      "offset": {
-        "x": -8.0,
-        "y": -8.0
-      }
-    }
-  },
-  {
-    "id": "test_trinket",
-    "kind": "misc",
-    "name": "Test Trinket",
-    "description": "Test Trinket description",
-    "weight": 1.0,
-    "ability": {
-      "noise_level": "silent",
-      "action_kind": "secondary",
-      "cooldown": 0.75,
-      "health_cost": 0.0,
-      "stamina_cost": 10.0,
-      "energy_cost": 10.0,
-      "speed": 1.0,
-      "spread": 0.0,
-      "range": 15.0,
-      "damage": 150.0,
-      "effect_kind": "energy_sphere",
-      "effect_size": 60.0,
-      "effect_color": {
-        "r": 0.0,
-        "g": 0.47,
-        "b": 0.95,
-        "a": 1.0
-      }
-    },
-    "sprite": {
-      "texture_id": "items",
-      "texture_coords": {
-        "x": 3,
-        "y": 3
-      },
-      "tile_size": {
-        "x": 16,
-        "y": 16
-      },
-      "offset": {
-        "x": -8.0,
-        "y": -8.0
-      }
-    }
-  },
-  {
-    "id": "heal_trinket",
-    "kind": "misc",
-    "name": "Heal Trinket",
-    "description": "Heal Trinket description",
-    "weight": 1.0,
-    "ability": {
-      "noise_level": "silent",
-      "action_kind": "secondary",
-      "cooldown": 0.75,
-      "health_cost": 0.0,
-      "stamina_cost": 10.0,
-      "energy_cost": 10.0,
-      "speed": 1.0,
-      "spread": 0.0,
-      "range": 0.0,
-      "damage": 150.0,
-      "effect_kind": "heal_self",
-      "effect_size": 64.0,
-      "effect_color": {
-        "r": 0.0,
-        "g": 0.47,
-        "b": 0.95,
-        "a": 1.0
-      }
-    },
-    "sprite": {
-      "texture_id": "items",
-      "texture_coords": {
-        "x": 3,
         "y": 3
       },
       "tile_size": {
@@ -257,26 +98,7 @@
     "description": "A pistol belonging to someone",
     "weight": 10.0,
     "is_quest_item": true,
-    "ability": {
-      "noise_level": "loud",
-      "action_kind": "primary",
-      "cooldown": 0.25,
-      "health_cost": 0.0,
-      "stamina_cost": 10.0,
-      "energy_cost": 0.0,
-      "speed": 10.0,
-      "spread": 5.0,
-      "range": 10.0,
-      "damage": 50.0,
-      "effect_kind": "projectile",
-      "effect_size": 1.0,
-      "effect_color": {
-        "r": 0.99,
-        "g": 0.98,
-        "b": 0.0,
-        "a": 1.0
-      }
-    },
+    "ability": "pistol",
     "sprite": {
       "texture_id": "items",
       "texture_coords": {

@@ -7,6 +7,7 @@ use macroquad::{
             RefMut,
             Handle,
         },
+        collections::storage,
     },
     prelude::*,
 };
@@ -22,6 +23,7 @@ use crate::{
         Bounds,
     },
     ability::AbilityParams,
+    Resources,
     json,
 };
 
@@ -45,7 +47,8 @@ pub struct ItemParams {
     pub position: Option<Vec2>,
     pub kind: ItemKind,
     pub weight: f32,
-    pub ability: AbilityParams,
+    #[serde(rename = "ability")]
+    pub ability_id: String,
     pub sprite: Sprite,
     #[serde(default)]
     pub is_quest_item: bool,
@@ -60,7 +63,7 @@ impl From<&Item> for ItemParams {
             position: Some(item.position),
             kind: item.kind.clone(),
             weight: item.weight,
-            ability: item.ability.clone(),
+            ability_id: item.ability.id.clone(),
             sprite: item.sprite.clone(),
             is_quest_item: item.is_quest_item,
         }
@@ -76,7 +79,7 @@ impl Default for ItemParams {
             position: Default::default(),
             kind: ItemKind::Misc,
             weight: 0.1,
-            ability: Default::default(),
+            ability_id: Default::default(),
             sprite: Default::default(),
             is_quest_item: false,
         }
@@ -99,6 +102,8 @@ pub struct Item {
 
 impl Item {
     pub fn new(instance_id: Option<String>, params: ItemParams) -> Self {
+        let resources = storage::get::<Resources>();
+        let ability = resources.abilities.get(&params.ability_id).cloned().unwrap();
         Item {
             id: instance_id.unwrap_or(generate_id()).to_string(),
             prototype_id: params.prototype_id,
@@ -108,7 +113,7 @@ impl Item {
             description: params.description,
             weight: params.weight,
             is_quest_item: params.is_quest_item,
-            ability: params.ability,
+            ability,
             sprite: params.sprite,
         }
     }

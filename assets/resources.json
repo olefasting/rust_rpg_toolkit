@@ -26,6 +26,18 @@
     }
   ],
   "sound_effects": [
+    {
+      "id": "gunshot_01",
+      "filename": "M4A1_Single.wav"
+    },
+    {
+      "id": "gunshot_02",
+      "filename": "9mm_Glock_17.wav"
+    },
+    {
+      "id": "blaster_01",
+      "filename": "external/Sci-Fi Weapon Sounds Pro/Sci Fi Blaster/Sci Fi Blaster 4.wav"
+    }
   ],
   "music": [
 

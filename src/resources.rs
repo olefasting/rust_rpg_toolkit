@@ -30,6 +30,7 @@ use crate::{
     missions::MissionParams,
 };
 use crate::nodes::actor::ActorDialogue;
+use crate::ability::AbilityParams;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct TextureData {
@@ -64,6 +65,7 @@ pub struct Resources {
     pub music: HashMap<String, Sound>,
     pub actors: HashMap<String, ActorParams>,
     pub items: HashMap<String, ItemParams>,
+    pub abilities: HashMap<String, AbilityParams>,
     pub missions: HashMap<String, MissionParams>,
     pub dialogue: HashMap<String, ActorDialogue>,
 }
@@ -83,6 +85,7 @@ impl Resources {
     const MUSIC_FOLDER_PATH: &'static str = "assets/music";
 
     const ITEMS_FILE_PATH: &'static str = "assets/items.json";
+    const ABILITIES_FILE_PATH: &'static str = "assets/abilities.json";
     const ACTORS_FILE_PATH: &'static str = "assets/actors.json";
     const MISSIONS_FILE_PATH: &'static str = "assets/missions.json";
     const DIALOGUE_FILE_PATH: &'static str = "assets/dialogue.json";
@@ -112,7 +115,6 @@ impl Resources {
         }
 
         let mut sound_effects = HashMap::new();
-
         for sound_data in &resources.sound_effects {
             let sound = load_sound(&format!("{}/{}", Self::SOUND_EFFECTS_FOLDER_PATH, sound_data.filename)).await.unwrap();
             sound_effects.insert(sound_data.id.clone(), sound);
@@ -153,12 +155,20 @@ impl Resources {
         let dialogue = HashMap::from_iter(
             dialogue_data.into_iter().map(|dialogue| (dialogue.id.clone(), dialogue)));
 
+        let json = std::fs::read_to_string(Self::ABILITIES_FILE_PATH)
+            .expect(&format!("Unable to find dialogue file '{}'!", Self::ABILITIES_FILE_PATH));
+        let ability_data: Vec<AbilityParams> = serde_json::from_str(&json)
+            .expect(&format!("Error when parsing dialogue file '{}'!", Self::ABILITIES_FILE_PATH));
+        let abilities = HashMap::from_iter(
+            ability_data.into_iter().map(|ability| (ability.id.clone(), ability)));
+
         Ok(Resources {
             textures,
             sound_effects,
             music,
             actors,
             items,
+            abilities,
             missions,
             dialogue,
         })

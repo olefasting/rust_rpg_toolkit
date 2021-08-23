@@ -26,11 +26,12 @@ pub fn draw_inventory_window(player: &mut Actor) {
                         for item in &items {
                             ui.label(None, &item.params.name);
                             if ui.button(None, "Equip") {
-                                match item.params.ability.action_kind {
+                                let ability = item.to_actor_ability();
+                                match ability.action_kind {
                                     ActionKind::Primary =>
-                                        player.primary_ability = Some(item.to_actor_ability()),
+                                        player.primary_ability = Some(ability),
                                     ActionKind::Secondary =>
-                                        player.secondary_ability = Some(item.to_actor_ability()),
+                                        player.secondary_ability = Some(ability),
                                 }
                             }
                             if ui.button(None, "Drop") {
@@ -48,11 +49,12 @@ pub fn draw_inventory_window(player: &mut Actor) {
                         for item in &items {
                             ui.label(None, &item.params.name);
                             if ui.button(None, "Equip") {
-                                match item.params.ability.action_kind {
+                                let ability = item.to_actor_ability();
+                                match ability.action_kind {
                                     ActionKind::Primary =>
-                                        player.primary_ability = Some(item.to_actor_ability()),
+                                        player.primary_ability = Some(ability),
                                     ActionKind::Secondary =>
-                                        player.secondary_ability = Some(item.to_actor_ability()),
+                                        player.secondary_ability = Some(ability),
                                 }
                             }
                             if ui.button(None, "Drop") {

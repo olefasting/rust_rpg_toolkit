@@ -56,7 +56,9 @@ impl ActorInventoryEntry {
 
 impl ActorInventoryEntry {
     pub fn to_actor_ability(&self) -> Ability {
-        Ability::new(self.params.ability.clone())
+        let resources = storage::get::<Resources>();
+        let ability_params = resources.abilities.get(&self.params.ability_id).cloned().unwrap();
+        Ability::new(ability_params)
     }
 }
 

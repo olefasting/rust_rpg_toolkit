@@ -189,7 +189,7 @@ pub struct ActorParams {
     pub experience: u32,
     #[serde(default)]
     pub can_level_up: bool,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, rename = "dialogue", skip_serializing_if = "Option::is_none")]
     pub dialogue_id: Option<String>,
 }
 
@@ -385,6 +385,75 @@ impl Actor {
     fn apply_behavior(&mut self) {
         apply_actor_behavior(self)
     }
+
+    fn update_noise_level(&mut self) {
+        self.noise_level_timer += get_frame_time();
+        if self.noise_level_timer >= Self::NOISE_LEVEL_COOLDOWN {
+            self.noise_level = match self.noise_level {
+                ActorNoiseLevel::Extreme => ActorNoiseLevel::Loud,
+                ActorNoiseLevel::Loud => ActorNoiseLevel::Moderate,
+                ActorNoiseLevel::Moderate => ActorNoiseLevel::Silent,
+                _ => ActorNoiseLevel::None,
+            };
+            self.noise_level_timer = 0.0;
+        }
+    }
+
+    fn update_missions(&mut self) {
+        let mut active_missions = self.active_missions.clone();
+        for i in 0..active_missions.len() {
+            let mission = active_missions.get_mut(i).unwrap();
+            for objective in &mut mission.objectives {
+                match &objective.0 {
+                    MissionObjective::Kill { instance_id } => {
+                        let game_state = scene::find_node_by_type::<GameState>().unwrap();
+                        if game_state.dead_actors.contains(instance_id) {
+                            objective.1 = true;
+                        }
+                    },
+                    MissionObjective::FindItem { prototype_id } => {
+                        if self.inventory.items.iter().find(|entry| entry.params.prototype_id == prototype_id.clone()).is_some() {
+                            objective.1 = true;
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        }
+        let mut completed_missions = active_missions.drain_filter(|mission| {
+            for (_, is_completed) in &mission.objectives {
+                if *is_completed == false {
+                    return false;
+                }
+            }
+            true
+        }).collect::<Vec<Mission>>();
+        let resources = storage::get::<Resources>();
+        for mission in &completed_missions {
+            for reward in &mission.rewards {
+                match reward {
+                    MissionReward::Item { prototype_id, amount } => {
+                        let params = resources.items.get(prototype_id).unwrap();
+                        for _ in 0..*amount {
+                            self.inventory.add_item(params.clone());
+                        }
+                    },
+                    MissionReward::Credits { amount } => {
+                        self.inventory.add_credits(*amount);
+                    },
+                    MissionReward::Experience { amount } => {
+                        self.add_experience(*amount);
+                    }
+                }
+            }
+            if let Some(next_id) = mission.next_mission_id.clone() {
+                let params = resources.missions.get(&next_id).cloned().unwrap();
+                active_missions.push(Mission::new(params));
+            }
+        }
+        self.active_missions = active_missions;
+        self.completed_missions.append(&mut completed_missions);
+    }
 }
 
 impl Into<ActorParams> for Actor {
@@ -536,71 +605,8 @@ impl Node for Actor {
 
         node.stats.update();
         node.animation_player.update();
-        node.noise_level_timer += get_frame_time();
-        if node.noise_level_timer >= Self::NOISE_LEVEL_COOLDOWN {
-            node.noise_level = match node.noise_level {
-                ActorNoiseLevel::Extreme => ActorNoiseLevel::Loud,
-                ActorNoiseLevel::Loud => ActorNoiseLevel::Moderate,
-                ActorNoiseLevel::Moderate => ActorNoiseLevel::Silent,
-                _ => ActorNoiseLevel::None,
-            };
-            node.noise_level_timer = 0.0;
-        }
-        {
-            let mut active_missions = node.active_missions.clone();
-            for i in 0..active_missions.len() {
-                let mission = active_missions.get_mut(i).unwrap();
-                for objective in &mut mission.objectives {
-                    match &objective.0 {
-                        MissionObjective::Kill { instance_id } => {
-                            let game_state = scene::find_node_by_type::<GameState>().unwrap();
-                            if game_state.dead_actors.contains(instance_id) {
-                                objective.1 = true;
-                            }
-                        },
-                        MissionObjective::FindItem { prototype_id } => {
-                            if node.inventory.items.iter().find(|entry| entry.params.prototype_id == prototype_id.clone()).is_some() {
-                                objective.1 = true;
-                            }
-                        }
-                        _ => {}
-                    }
-                }
-            }
-            let mut completed_missions = active_missions.drain_filter(|mission| {
-                for (_, is_completed) in &mission.objectives {
-                    if *is_completed == false {
-                        return false;
-                    }
-                }
-                true
-            }).collect::<Vec<Mission>>();
-            let resources = storage::get::<Resources>();
-            for mission in &completed_missions {
-                for reward in &mission.rewards {
-                    match reward {
-                        MissionReward::Item { prototype_id, amount } => {
-                            let params = resources.items.get(prototype_id).unwrap();
-                            for _ in 0..*amount {
-                                node.inventory.add_item(params.clone());
-                            }
-                        },
-                        MissionReward::Credits { amount } => {
-                            node.inventory.add_credits(*amount);
-                        },
-                        MissionReward::Experience { amount } => {
-                            node.add_experience(*amount);
-                        }
-                    }
-                }
-                if let Some(next_id) = mission.next_mission_id.clone() {
-                    let params = resources.missions.get(&next_id).cloned().unwrap();
-                    active_missions.push(Mission::new(params));
-                }
-            }
-            node.active_missions = active_missions;
-            node.completed_missions.append(&mut completed_missions);
-        }
+        node.update_noise_level();
+        node.update_missions();
 
         if let Some(ability) = node.primary_ability.as_mut() {
             ability.update();

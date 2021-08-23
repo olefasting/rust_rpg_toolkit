@@ -137,11 +137,12 @@ fn equip_weapon(actor: &mut Actor) {
     let weapons = actor.inventory.get_all_of_kind(&[ItemKind::OneHandedWeapon, ItemKind::TwoHandedWeapon]);
     let i = rand::gen_range(0, weapons.len() - 1);
     if let Some(weapon) = weapons.get(i) {
-        match weapon.params.ability.action_kind {
+        let ability = weapon.to_actor_ability();
+        match ability.action_kind {
             ActionKind::Primary =>
-                actor.primary_ability = Some(weapon.to_actor_ability()),
+                actor.primary_ability = Some(ability),
             ActionKind::Secondary =>
-                actor.secondary_ability = Some(weapon.to_actor_ability()),
+                actor.secondary_ability = Some(ability),
         }
     }
 }
