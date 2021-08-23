@@ -232,7 +232,7 @@
                         {
                          "name":"prototype_id",
                          "type":"string",
-                         "value":"neutral_guard"
+                         "value":"guard_boss"
                         }],
                  "rotation":0,
                  "type":"spawn_point",
@@ -357,8 +357,8 @@
                  "type":"item",
                  "visible":true,
                  "width":0,
-                 "x":911,
-                 "y":694
+                 "x":2003,
+                 "y":886
                 }, 
                 {
                  "height":0,

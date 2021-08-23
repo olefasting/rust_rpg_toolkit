@@ -3,6 +3,7 @@ mod inventory;
 mod stats;
 mod actor;
 mod behavior;
+mod interaction;
 
 pub use behavior::{
     ActorAggression,
@@ -19,6 +20,7 @@ pub use controller::{
 pub use inventory::{
     ActorInventory,
     ActorInventoryEntry,
+    ActorInventoryParams,
 };
 
 pub use stats::ActorStats;
@@ -27,4 +29,10 @@ pub use actor::{
     Actor,
     ActorParams,
     ActorNoiseLevel,
+};
+
+pub use interaction::{
+    ActorInteraction,
+    ActorInteractionRequirement,
+    ActorInteractionAction,
 };

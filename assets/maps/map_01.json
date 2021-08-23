@@ -140073,8 +140073,8 @@
             "y": 4.0
           },
           "properties": {
-            "intensity": "0.1",
-            "color": "#ffff0000"
+            "color": "#ffff0000",
+            "intensity": "0.1"
           }
         }
       ]
@@ -140097,8 +140097,8 @@
             "y": 484.0
           },
           "properties": {
-            "instance_id": "thug_01",
-            "prototype_id": "enemy_thug"
+            "prototype_id": "enemy_thug",
+            "instance_id": "thug_01"
           }
         },
         {
@@ -140118,8 +140118,8 @@
             "y": 483.0
           },
           "properties": {
-            "instance_id": "thug_02",
-            "prototype_id": "enemy_thug"
+            "prototype_id": "enemy_thug",
+            "instance_id": "thug_02"
           }
         },
         {
@@ -140140,7 +140140,7 @@
             "y": 546.3333
           },
           "properties": {
-            "prototype_id": "neutral_guard"
+            "prototype_id": "guard_boss"
           }
         },
         {
@@ -140202,8 +140202,8 @@
         {
           "name": "pistol",
           "position": {
-            "x": 911.0,
-            "y": 694.0
+            "x": 2003.0,
+            "y": 886.0
           },
           "properties": {
             "prototype_id": "quest_pistol"
@@ -140216,14 +140216,32 @@
             "y": 705.0
           },
           "properties": {
-            "amount": "500",
-            "prototype_id": "credits"
+            "prototype_id": "credits",
+            "amount": "500"
           }
         }
       ]
     }
   ],
   "tilesets": [
+    {
+      "id": "neo_zero_props",
+      "texture_id": "props",
+      "texture_size": {
+        "x": 160,
+        "y": 160
+      },
+      "tile_size": {
+        "x": 16,
+        "y": 16
+      },
+      "grid_size": {
+        "x": 10,
+        "y": 10
+      },
+      "first_tile_id": 401,
+      "tile_cnt": 100
+    },
     {
       "id": "items",
       "texture_id": "items",
@@ -140259,24 +140277,6 @@
       },
       "first_tile_id": 1,
       "tile_cnt": 400
-    },
-    {
-      "id": "neo_zero_props",
-      "texture_id": "props",
-      "texture_size": {
-        "x": 160,
-        "y": 160
-      },
-      "tile_size": {
-        "x": 16,
-        "y": 16
-      },
-      "grid_size": {
-        "x": 10,
-        "y": 10
-      },
-      "first_tile_id": 401,
-      "tile_cnt": 100
     }
   ]
 }

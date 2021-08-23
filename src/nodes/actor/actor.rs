@@ -62,11 +62,19 @@ use super::{
     ActorStats,
     ActorBehavior,
     ActorBehaviorParams,
+    ActorInteraction,
+    ActorInventoryParams,
     apply_actor_behavior,
 };
-use crate::missions::{MissionReward, MissionObjective};
-use crate::nodes::actor::inventory::ActorInventoryParams;
-use crate::nodes::item::Credits;
+use crate::{
+    missions::{
+        MissionReward,
+        MissionObjective,
+    },
+    nodes::{
+        item::Credits
+    }
+};
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub enum ActorNoiseLevel {
@@ -181,6 +189,8 @@ pub struct ActorParams {
     pub experience: u32,
     #[serde(default)]
     pub can_level_up: bool,
+    #[serde(default, rename = "interaction", skip_serializing_if = "Option::is_none")]
+    pub interaction: Option<ActorInteraction>,
 }
 
 impl Default for ActorParams {
@@ -206,6 +216,7 @@ impl Default for ActorParams {
             animation_player: Default::default(),
             experience: 0,
             can_level_up: false,
+            interaction: None,
         }
     }
 }
@@ -226,6 +237,8 @@ pub struct Actor {
     pub secondary_ability: Option<Ability>,
     pub controller: ActorController,
     pub experience: u32,
+    pub interaction: Option<ActorInteraction>,
+    pub current_interaction: Option<ActorInteraction>,
     animation_player: SpriteAnimationPlayer,
     noise_level_timer: f32,
     can_level_up: bool,
@@ -270,6 +283,8 @@ impl Actor {
             secondary_ability: None,
             controller: ActorController::new(controller_kind),
             experience: params.experience,
+            interaction: params.interaction,
+            current_interaction: None,
             animation_player: SpriteAnimationPlayer::new(params.animation_player.clone()),
             noise_level_timer: 0.0,
             can_level_up: params.can_level_up,
@@ -353,10 +368,6 @@ impl Actor {
             && self.body.raycast(target, true).is_none()
     }
 
-    pub fn interact(&self, other: &mut Actor) {
-        println!("INTERACTION between '{}' and '{}'", self.name, other.name);
-    }
-
     pub fn add_experience(&mut self, amount: u32) {
         if self.can_level_up {
             self.experience += amount;
@@ -388,6 +399,7 @@ impl Into<ActorParams> for Actor {
             factions: self.factions,
             collider: self.body.collider,
             inventory: self.inventory.to_params(),
+            interaction: self.interaction,
             animation_player: SpriteAnimationParams::from(self.animation_player),
             experience: self.experience,
             can_level_up: self.can_level_up,
@@ -405,6 +417,7 @@ impl BufferedDraw for Actor {
 
         let (position, offset_y, alignment, length, height, border) =
             (self.body.position, Self::HEALTH_BAR_OFFSET_Y, HorizontalAlignment::Center, Self::HEALTH_BAR_LENGTH, Self::HEALTH_BAR_HEIGHT, 1.0);
+
         if self.is_local_player() == false && self.stats.current_health < self.stats.max_health {
             draw_progress_bar(
                 self.stats.current_health,
@@ -585,8 +598,8 @@ impl Node for Actor {
 
         let controller_kind = node.controller.kind.clone();
         match controller_kind {
-            ActorControllerKind::LocalPlayer { player_id } => {
-                apply_local_player_input(&player_id, &mut node.controller);
+            ActorControllerKind::LocalPlayer { player_id: _ } => {
+                apply_local_player_input(&mut node);
             }
             ActorControllerKind::RemotePlayer { player_id: _ } => {}
             ActorControllerKind::Computer => {
@@ -595,33 +608,54 @@ impl Node for Actor {
             ActorControllerKind::None => {}
         }
 
-        let controller_direction = node.controller.direction;
-        if let Some(target) = node.controller.primary_target {
-            let direction = target.sub(node.body.position).normalize_or_zero();
-            node.set_animation(direction, controller_direction == Vec2::ZERO);
-        } else if let Some(target) = node.controller.secondary_target {
-            let direction = target.sub(node.body.position).normalize_or_zero();
-            node.set_animation(direction, controller_direction == Vec2::ZERO);
-        } else {
-            node.set_animation(controller_direction, false);
-        }
-
         let controller = node.controller.clone();
-        if let Some(target) = controller.primary_target {
-            let mut primary_ability = node.primary_ability.clone();
-            let position = node.body.position.clone();
-            if let Some(ability) = &mut primary_ability {
-                ability.activate(&mut *node, position, target);
+        if node.current_interaction.is_none() {
+            if let Some(target) = controller.primary_target {
+                let direction = target.sub(node.body.position).normalize_or_zero();
+                node.set_animation(direction, controller.direction == Vec2::ZERO);
+            } else if let Some(target) = controller.secondary_target {
+                let direction = target.sub(node.body.position).normalize_or_zero();
+                node.set_animation(direction, controller.direction == Vec2::ZERO);
+            } else {
+                node.set_animation(controller.direction, false);
             }
-            node.primary_ability = primary_ability;
+
+            if let Some(target) = controller.primary_target {
+                let mut primary_ability = node.primary_ability.clone();
+                let position = node.body.position.clone();
+                if let Some(ability) = &mut primary_ability {
+                    ability.activate(&mut *node, position, target);
+                }
+                node.primary_ability = primary_ability;
+            }
+            if let Some(target) = controller.secondary_target {
+                let mut secondary_ability = node.secondary_ability.clone();
+                let position = node.body.position.clone();
+                if let Some(ability) = &mut secondary_ability {
+                    ability.activate(&mut *node, position, target);
+                }
+                node.secondary_ability = secondary_ability;
+            }
         }
-        if let Some(target) = controller.secondary_target {
-            let mut secondary_ability = node.secondary_ability.clone();
-            let position = node.body.position.clone();
-            if let Some(ability) = &mut secondary_ability {
-                ability.activate(&mut *node, position, target);
+        if node.controller.is_starting_interaction {
+            if node.current_interaction.is_some() {
+                node.current_interaction = None;
+            } else {
+                let collider = Collider::circle(0.0, 0.0, Self::INTERACT_RADIUS).offset(node.body.position);
+                for actor in scene::find_nodes_by_type::<Actor>() {
+                    if let Some(other_collider) = actor.body.get_offset_collider() {
+                        if collider.overlaps(other_collider) {
+                            if let ActorControllerKind::Computer = actor.controller.kind {
+                                if actor.behavior.is_in_combat == false {
+                                    node.current_interaction = actor.interaction.clone();
+                                    node.controller.is_starting_interaction = false; // stop this form firing twice
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
             }
-            node.secondary_ability = secondary_ability;
         }
     }
 
@@ -645,34 +679,17 @@ impl Node for Actor {
 
         node.body.integrate();
 
+        let collider = Collider::circle(0.0, 0.0, Self::PICK_UP_RADIUS).offset(node.body.position);
+        for credits in scene::find_nodes_by_type::<Credits>() {
+            if collider.contains(credits.position) {
+                node.inventory.credits += credits.amount;
+                credits.delete();
+            }
+        }
         if node.controller.is_picking_up_items {
-            let collider = Collider::circle(0.0, 0.0, Self::PICK_UP_RADIUS).offset(node.body.position);
             for item in scene::find_nodes_by_type::<Item>() {
                 if collider.contains(item.position) {
                     node.inventory.pick_up(item);
-                }
-            }
-            for credits in scene::find_nodes_by_type::<Credits>() {
-                if collider.contains(credits.position) {
-                    node.inventory.credits += credits.amount;
-                    credits.delete();
-                }
-            }
-        }
-
-        if node.controller.is_interacting {
-            let collider = Collider::circle(0.0, 0.0, Self::INTERACT_RADIUS).offset(node.body.position);
-            for actor in scene::find_nodes_by_type::<Actor>() {
-                if let Some(other_collider) = actor.body.get_offset_collider() {
-                    if collider.overlaps(other_collider) {
-                        for faction in &node.factions {
-                            if actor.factions.contains(faction) {
-                                actor.interact(&mut *node);
-                                node.controller.is_interacting = false; // stop this form firing twice
-                                break;
-                            }
-                        }
-                    }
                 }
             }
         }

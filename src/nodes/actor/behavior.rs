@@ -68,6 +68,7 @@ pub struct ActorBehavior {
     pub is_on_guard: bool,
     pub flee_at_health_factor: f32,
     pub last_attacked_by: Option<(f32, String)>,
+    pub is_in_combat: bool,
     investigating: Option<(f32, Vec2)>,
     investigate_cooldown_timer: f32,
 }
@@ -82,6 +83,7 @@ impl ActorBehavior {
             is_on_guard: params.is_on_guard,
             flee_at_health_factor: params.flee_at_health_factor.clamp(0.0, 1.0),
             last_attacked_by: None,
+            is_in_combat: false,
             investigating: None,
             investigate_cooldown_timer: INVESTIGATE_COOLDOWN,
         }
@@ -145,6 +147,7 @@ fn equip_weapon(actor: &mut Actor) {
 }
 
 fn flee(actor: &mut Actor, target: Vec2) {
+    actor.behavior.is_in_combat = true;
     actor.behavior.current_action = Some(format!("flee"));
     let mut direction = actor.controller.direction;
     if actor.body.last_collisions.len() > 0 || actor.body.raycast( actor.body.position + direction * 32.0, false).is_some() {
@@ -170,6 +173,7 @@ fn flee(actor: &mut Actor, target: Vec2) {
 }
 
 fn attack(actor: &mut Actor, target: Vec2) {
+    actor.behavior.is_in_combat = true;
     actor.behavior.current_action = Some(format!("attack"));
     let distance = actor.body.position.distance(target);
     let mut direction = target.sub(actor.body.position).normalize_or_zero();
@@ -192,6 +196,7 @@ fn attack(actor: &mut Actor, target: Vec2) {
 }
 
 pub fn apply_actor_behavior(actor: &mut Actor) {
+    actor.behavior.is_in_combat = false;
     actor.controller.primary_target = None;
     actor.controller.secondary_target = None;
 

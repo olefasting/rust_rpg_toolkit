@@ -2,6 +2,9 @@ use macroquad::prelude::*;
 
 mod inventory;
 mod character;
+mod interaction;
+
+use interaction::draw_interaction_window;
 
 pub mod theme;
 
@@ -24,6 +27,7 @@ pub fn draw_gui() {
             if game_state.show_inventory_window {
                 draw_inventory_window(&mut *player);
             }
+            draw_interaction_window(&mut *player);
         }
     }
 }

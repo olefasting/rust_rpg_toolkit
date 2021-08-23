@@ -15,6 +15,7 @@ You can, of course, compile the game and try it out, as long as it falls in unde
 - `Shift` for sprint
 - `Left Mouse Button` for primary ability (needs an equipped weapon)
 - `Right Mouse Button` for secondary ability (needs an equipped trinket, for now)
+- `F` to interact and pay respect
 - `R` to pick up nearby items
 - `I` for inventory window
 - `C` for character window
