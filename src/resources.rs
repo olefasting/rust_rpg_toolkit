@@ -29,6 +29,7 @@ use crate::{
     },
     missions::MissionParams,
 };
+use crate::nodes::actor::ActorDialogue;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct TextureData {
@@ -63,7 +64,8 @@ pub struct Resources {
     pub music: HashMap<String, Sound>,
     pub actors: HashMap<String, ActorParams>,
     pub items: HashMap<String, ItemParams>,
-    pub missions: HashMap<String, MissionParams>
+    pub missions: HashMap<String, MissionParams>,
+    pub dialogue: HashMap<String, ActorDialogue>,
 }
 
 impl Resources {
@@ -83,6 +85,7 @@ impl Resources {
     const ITEMS_FILE_PATH: &'static str = "assets/items.json";
     const ACTORS_FILE_PATH: &'static str = "assets/actors.json";
     const MISSIONS_FILE_PATH: &'static str = "assets/missions.json";
+    const DIALOGUE_FILE_PATH: &'static str = "assets/dialogue.json";
 
     pub async fn new() -> Result<Resources, FileError> {
         let mut textures = HashMap::new();
@@ -143,6 +146,13 @@ impl Resources {
         let missions = HashMap::from_iter(
             missions_data.into_iter().map(|mission| (mission.id.clone(), mission)));
 
+        let json = std::fs::read_to_string(Self::DIALOGUE_FILE_PATH)
+            .expect(&format!("Unable to find dialogue file '{}'!", Self::DIALOGUE_FILE_PATH));
+        let dialogue_data: Vec<ActorDialogue> = serde_json::from_str(&json)
+            .expect(&format!("Error when parsing dialogue file '{}'!", Self::DIALOGUE_FILE_PATH));
+        let dialogue = HashMap::from_iter(
+            dialogue_data.into_iter().map(|dialogue| (dialogue.id.clone(), dialogue)));
+
         Ok(Resources {
             textures,
             sound_effects,
@@ -150,6 +160,7 @@ impl Resources {
             actors,
             items,
             missions,
+            dialogue,
         })
     }
 }

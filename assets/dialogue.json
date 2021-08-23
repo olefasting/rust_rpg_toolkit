@@ -1,0 +1,30 @@
+[
+  {
+    "id": "guard_boss_dialogue_01",
+    "body": [
+      "Hello, what do you want..."
+    ],
+    "options": [
+      "guard_boss_dialogue_02"
+    ]
+  },
+  {
+    "id": "guard_boss_dialogue_02",
+    "title": "I have found your gun...",
+    "body": [
+      "I found this gun...",
+      "I believe it belongs to you..."
+    ],
+    "response": "Thank you",
+    "requirements": [
+      {
+        "type": "active_mission",
+        "mission_id": "test_mission_03"
+      }
+    ],
+    "action": {
+      "type": "complete_mission",
+      "mission_id": "test_mission_03"
+    }
+  }
+]

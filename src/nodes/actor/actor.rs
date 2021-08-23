@@ -62,7 +62,7 @@ use super::{
     ActorStats,
     ActorBehavior,
     ActorBehaviorParams,
-    ActorInteraction,
+    ActorDialogue,
     ActorInventoryParams,
     apply_actor_behavior,
 };
@@ -189,8 +189,8 @@ pub struct ActorParams {
     pub experience: u32,
     #[serde(default)]
     pub can_level_up: bool,
-    #[serde(default, rename = "interaction", skip_serializing_if = "Option::is_none")]
-    pub interaction: Option<ActorInteraction>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub dialogue_id: Option<String>,
 }
 
 impl Default for ActorParams {
@@ -216,7 +216,7 @@ impl Default for ActorParams {
             animation_player: Default::default(),
             experience: 0,
             can_level_up: false,
-            interaction: None,
+            dialogue_id: None,
         }
     }
 }
@@ -237,8 +237,8 @@ pub struct Actor {
     pub secondary_ability: Option<Ability>,
     pub controller: ActorController,
     pub experience: u32,
-    pub interaction: Option<ActorInteraction>,
-    pub current_interaction: Option<ActorInteraction>,
+    pub dialogue: Option<ActorDialogue>,
+    pub current_dialogue: Option<ActorDialogue>,
     animation_player: SpriteAnimationPlayer,
     noise_level_timer: f32,
     can_level_up: bool,
@@ -264,6 +264,14 @@ impl Actor {
 
     pub fn new(instance_id: Option<String>, controller_kind: ActorControllerKind, params: ActorParams) -> Self {
         let position = params.position.unwrap_or_default();
+        let dialogue = if let Some(dialogue_id) = params.dialogue_id.clone() {
+            let resources = storage::get::<Resources>();
+            let mut dialogue = resources.dialogue.get(&dialogue_id).cloned().unwrap();
+            dialogue.actor_name = params.name.clone();
+            Some(dialogue)
+        } else {
+            None
+        };
 
         Actor {
             id: instance_id.unwrap_or(generate_id()).to_string(),
@@ -283,8 +291,8 @@ impl Actor {
             secondary_ability: None,
             controller: ActorController::new(controller_kind),
             experience: params.experience,
-            interaction: params.interaction,
-            current_interaction: None,
+            dialogue,
+            current_dialogue: None,
             animation_player: SpriteAnimationPlayer::new(params.animation_player.clone()),
             noise_level_timer: 0.0,
             can_level_up: params.can_level_up,
@@ -381,6 +389,12 @@ impl Actor {
 
 impl Into<ActorParams> for Actor {
     fn into(self) -> ActorParams {
+        let dialogue_id = if let Some(dialogue) = self.dialogue {
+            Some(dialogue.id.clone())
+        } else {
+            None
+        };
+
         ActorParams {
             prototype_id: None,
             position: Some(self.body.position),
@@ -399,7 +413,7 @@ impl Into<ActorParams> for Actor {
             factions: self.factions,
             collider: self.body.collider,
             inventory: self.inventory.to_params(),
-            interaction: self.interaction,
+            dialogue_id,
             animation_player: SpriteAnimationParams::from(self.animation_player),
             experience: self.experience,
             can_level_up: self.can_level_up,
@@ -544,7 +558,7 @@ impl Node for Actor {
                                 objective.1 = true;
                             }
                         },
-                        MissionObjective::RetrieveItem { prototype_id } => {
+                        MissionObjective::FindItem { prototype_id } => {
                             if node.inventory.items.iter().find(|entry| entry.params.prototype_id == prototype_id.clone()).is_some() {
                                 objective.1 = true;
                             }
@@ -609,7 +623,7 @@ impl Node for Actor {
         }
 
         let controller = node.controller.clone();
-        if node.current_interaction.is_none() {
+        if node.current_dialogue.is_none() {
             if let Some(target) = controller.primary_target {
                 let direction = target.sub(node.body.position).normalize_or_zero();
                 node.set_animation(direction, controller.direction == Vec2::ZERO);
@@ -638,8 +652,8 @@ impl Node for Actor {
             }
         }
         if node.controller.is_starting_interaction {
-            if node.current_interaction.is_some() {
-                node.current_interaction = None;
+            if node.current_dialogue.is_some() {
+                node.current_dialogue = None;
             } else {
                 let collider = Collider::circle(0.0, 0.0, Self::INTERACT_RADIUS).offset(node.body.position);
                 for actor in scene::find_nodes_by_type::<Actor>() {
@@ -647,7 +661,7 @@ impl Node for Actor {
                         if collider.overlaps(other_collider) {
                             if let ActorControllerKind::Computer = actor.controller.kind {
                                 if actor.behavior.is_in_combat == false {
-                                    node.current_interaction = actor.interaction.clone();
+                                    node.current_dialogue = actor.dialogue.clone();
                                     node.controller.is_starting_interaction = false; // stop this form firing twice
                                     break;
                                 }

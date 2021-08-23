@@ -140073,8 +140073,8 @@
             "y": 4.0
           },
           "properties": {
-            "color": "#ffff0000",
-            "intensity": "0.1"
+            "intensity": "0.1",
+            "color": "#ffff0000"
           }
         }
       ]
@@ -140129,8 +140129,8 @@
             "y": 478.66666
           },
           "properties": {
-            "instance_id": "thug_03",
-            "prototype_id": "enemy_thug"
+            "prototype_id": "enemy_thug",
+            "instance_id": "thug_03"
           }
         },
         {
@@ -140216,32 +140216,14 @@
             "y": 705.0
           },
           "properties": {
-            "prototype_id": "credits",
-            "amount": "500"
+            "amount": "500",
+            "prototype_id": "credits"
           }
         }
       ]
     }
   ],
   "tilesets": [
-    {
-      "id": "neo_zero_props",
-      "texture_id": "props",
-      "texture_size": {
-        "x": 160,
-        "y": 160
-      },
-      "tile_size": {
-        "x": 16,
-        "y": 16
-      },
-      "grid_size": {
-        "x": 10,
-        "y": 10
-      },
-      "first_tile_id": 401,
-      "tile_cnt": 100
-    },
     {
       "id": "items",
       "texture_id": "items",
@@ -140259,6 +140241,24 @@
       },
       "first_tile_id": 501,
       "tile_cnt": 16
+    },
+    {
+      "id": "neo_zero_props",
+      "texture_id": "props",
+      "texture_size": {
+        "x": 160,
+        "y": 160
+      },
+      "tile_size": {
+        "x": 16,
+        "y": 16
+      },
+      "grid_size": {
+        "x": 10,
+        "y": 10
+      },
+      "first_tile_id": 401,
+      "tile_cnt": 100
     },
     {
       "id": "neo_zero_tiles",

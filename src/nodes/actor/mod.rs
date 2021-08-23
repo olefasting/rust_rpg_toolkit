@@ -3,7 +3,7 @@ mod inventory;
 mod stats;
 mod actor;
 mod behavior;
-mod interaction;
+mod dialogue;
 
 pub use behavior::{
     ActorAggression,
@@ -31,8 +31,8 @@ pub use actor::{
     ActorNoiseLevel,
 };
 
-pub use interaction::{
-    ActorInteraction,
-    ActorInteractionRequirement,
-    ActorInteractionAction,
+pub use dialogue::{
+    ActorDialogue,
+    ActorDialogueRequirement,
+    ActorDialogueAction,
 };

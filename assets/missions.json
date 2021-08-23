@@ -32,7 +32,7 @@
     "description": "Find a lost pistol",
     "objectives": [
       {
-        "type": "retrieve_item",
+        "type": "find_item",
         "prototype_id": "quest_pistol"
       }
     ],

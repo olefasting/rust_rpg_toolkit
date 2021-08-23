@@ -10,8 +10,8 @@ use serde::{
 pub enum MissionObjective {
     #[serde(rename = "kill")]
     Kill { instance_id: String },
-    #[serde(rename = "retrieve_item")]
-    RetrieveItem { prototype_id: String },
+    #[serde(rename = "find_item")]
+    FindItem { prototype_id: String },
     #[serde(rename = "deliver_item")]
     DeliverItem { prototype_id: String },
     #[serde(rename = "go_to_location")]

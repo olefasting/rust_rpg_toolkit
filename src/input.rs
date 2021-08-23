@@ -68,8 +68,8 @@ pub fn apply_local_player_input(node: &mut RefMut<Actor>) {
     }
 
     if is_key_released(KeyCode::Escape) {
-        if node.current_interaction.is_some() || game_state.show_inventory_window || game_state.show_character_window {
-            node.current_interaction = None;
+        if node.current_dialogue.is_some() || game_state.show_inventory_window || game_state.show_character_window {
+            node.current_dialogue = None;
             game_state.show_inventory_window = false;
             game_state.show_character_window = false;
         } else {

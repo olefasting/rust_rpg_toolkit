@@ -138,26 +138,7 @@
       "sub_machine_gun"
     ],
     "credits": 25,
-    "interaction": {
-      "title": "...",
-      "body": "Hello, what do you want...",
-      "response_options": [
-        {
-          "title": "I have found your gun...",
-          "body": "I found this gun. I believe it belongs to you...",
-          "requirements": [
-            {
-              "type": "active_mission",
-              "mission_id": "test_mission_03"
-            }
-          ],
-          "action": {
-            "type": "complete_mission",
-            "mission_id": "test_mission_03"
-          }
-        }
-      ]
-    },
+    "dialogue_id": "guard_boss_dialogue_01",
     "collider": {
       "x": -8.0,
       "y": 0.0,
