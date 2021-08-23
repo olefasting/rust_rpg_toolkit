@@ -68,12 +68,16 @@ pub fn apply_local_player_input(node: &mut RefMut<Actor>) {
     }
 
     if is_key_released(KeyCode::Escape) {
-        if node.current_dialogue.is_some() || game_state.show_inventory_window || game_state.show_character_window {
+        if node.current_dialogue.is_some()
+            || game_state.show_inventory_window
+            || game_state.show_character_window
+            || game_state.show_game_menu {
             node.current_dialogue = None;
             game_state.show_inventory_window = false;
             game_state.show_character_window = false;
+            game_state.show_game_menu = false;
         } else {
-            game_state.should_quit = true;
+            game_state.show_game_menu = true;
         }
     }
 }

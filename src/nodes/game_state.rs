@@ -38,6 +38,7 @@ pub struct GameState {
     pub local_player_id: String,
     pub show_character_window: bool,
     pub show_inventory_window: bool,
+    pub show_game_menu: bool,
     pub in_debug_mode: bool,
     pub should_quit: bool,
 }
@@ -127,6 +128,7 @@ impl GameState {
             local_player_id: local_player_id.to_string(),
             show_character_window: false,
             show_inventory_window: false,
+            show_game_menu: false,
             in_debug_mode: false,
             should_quit: false,
         }
