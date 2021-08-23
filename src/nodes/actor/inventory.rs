@@ -22,9 +22,9 @@ pub struct ActorInventoryEntry {
 }
 
 impl ActorInventoryEntry {
-    pub fn new(params: ItemParams) -> Self {
+    pub fn new(id: Option<String>, params: ItemParams) -> Self {
         ActorInventoryEntry {
-            id: generate_id(),
+            id: id.unwrap_or(generate_id()),
             params,
         }
     }
@@ -60,7 +60,7 @@ impl ActorInventory {
     }
 
     pub fn pick_up(&mut self, item: RefMut<Item>) {
-        self.items.push(ActorInventoryEntry::new(ItemParams::from(&*item)));
+        self.items.push(ActorInventoryEntry::new(Some(item.id.clone()),ItemParams::from(&*item)));
         item.delete();
     }
 
@@ -72,7 +72,7 @@ impl ActorInventory {
                         position: Some(Self::randomize_drop_position(position)),
                         ..entry.params.clone()
                     };
-                    Item::add_node(params);
+                    Item::add_node(Some(entry.id.clone()), params);
                     return true;
                 }
                 false
@@ -87,7 +87,7 @@ impl ActorInventory {
                 position: Some(Self::randomize_drop_position(position)),
                 ..entry.params.clone()
             };
-            Item::add_node(params);
+            Item::add_node(Some(entry.id.clone()), params);
             true
         });
     }
@@ -115,7 +115,7 @@ impl ActorInventory {
 impl From<Vec<ItemParams>> for ActorInventory {
     fn from(params_vec: Vec<ItemParams>) -> Self {
         ActorInventory {
-            items: params_vec.into_iter().map(|params| ActorInventoryEntry::new(params)).collect(),
+            items: params_vec.into_iter().map(|params| ActorInventoryEntry::new(None, params)).collect(),
         }
     }
 }

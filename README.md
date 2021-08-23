@@ -31,10 +31,18 @@ This is a work in progress but current features include (not an exhaustive list 
 
 - Composable actors, from code or by JSON [assets/actors.json](https://github.com/olefasting/capstone/blob/master/assets/actors.json)
 - Very basic AI behavior, with aggression levels that can be set on actor prototypes, through JSON or through code, that determine how they react to other actors of other factions. There are also visibility and noise levels, as factors determining how AI actors will react to their surroundings.
-- RPG mechanics, such as character stats and various abilities, currently contained in items, but a spell and feat system is in the works
+- RPG mechanics, such as character stats and various abilities
 - Composable items, from code or by JSON [assets/items.json](https://github.com/olefasting/capstone/blob/master/assets/items.json), character inventory and more
 - Dynamic resource loading, so textures can be added by editing [assets/resources.json](https://github.com/olefasting/capstone/blob/master/assets/resources.json) and referenced by `texture_id` in actors and items, both in-code and in the corresponding json-files
 - Create maps either by writing them in JSON, manually, or by importing and converting Tiled maps
+
+## In the works
+
+- Skills and abilities gained through level progression
+- Saving and loading
+- Mission system and story line
+- Gamepad support
+- Dynamic lighting and post-processing
 
 ## Credits
 

@@ -80,7 +80,7 @@ impl ActorBehavior {
             current_action: None,
             is_stationary: params.is_stationary,
             is_on_guard: params.is_on_guard,
-            flee_at_health_factor: params.flee_at_health_factor,
+            flee_at_health_factor: params.flee_at_health_factor.clamp(0.0, 1.0),
             last_attacked_by: None,
             investigating: None,
             investigate_cooldown_timer: INVESTIGATE_COOLDOWN,
@@ -284,12 +284,12 @@ pub fn apply_actor_behavior(actor: &mut Actor) {
             actor.behavior.investigating = Some((0.0, unknown.body.position));
             return investigate(actor, unknown.body.position);
         }
+    }
+
+    if let Some(home) = actor.behavior.home {
+        return go_to(actor, home);
     } else {
-        if let Some(home) = actor.behavior.home {
-            return go_to(actor, home);
-        } else {
-            return wander(actor);
-        }
+        return wander(actor);
     }
 }
 

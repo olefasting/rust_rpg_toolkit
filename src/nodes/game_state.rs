@@ -24,6 +24,7 @@ use crate::{
     map::Map,
     render::Viewport,
     resources::Resources,
+    missions::Mission,
 };
 
 #[derive(Debug, Clone)]
@@ -47,6 +48,7 @@ impl GameState {
                 if object.name == "player" {
                     let params = resources.actors.get("player").cloned().unwrap();
                     let mut player = Actor::new(
+                        None,
                         ActorControllerKind::LocalPlayer { player_id: local_player_id.to_string() },
                         ActorParams {
                             name: "Abraxas".to_string(),
@@ -56,19 +58,21 @@ impl GameState {
                     );
                     player.stats.recalculate_derived();
                     player.stats.restore_vitals();
+
+                    let mission_params = resources.missions.get("test_mission_01").cloned().unwrap();
+                    player.missions.push(Mission::new(mission_params));
                     scene::add_node(player);
                 } else if let Some(prototype_id) = object.properties.get("prototype_id") {
-                    if let Some(params) = resources.actors.get(prototype_id).cloned() {
-                        let mut actor = Actor::new(ActorControllerKind::Computer, ActorParams {
-                            position: Some(object.position),
-                            ..params
-                        });
-                        actor.stats.recalculate_derived();
-                        actor.stats.restore_vitals();
-                        scene::add_node(actor);
-                    } else {
-                        println!("actor prototype id '{}' not found!", prototype_id);
-                    }
+                    let params = resources.actors.get(prototype_id).cloned()
+                        .expect(&format!("Unable to find actor with prototype id '{}'", prototype_id));
+                    let instance_id = object.properties.get("instance_id").cloned();
+                    let mut actor = Actor::new(instance_id, ActorControllerKind::Computer, ActorParams {
+                        position: Some(object.position),
+                        ..params
+                    });
+                    actor.stats.recalculate_derived();
+                    actor.stats.restore_vitals();
+                    scene::add_node(actor);
                 }
             }
         }
@@ -99,14 +103,13 @@ impl GameState {
         if let Some(layer) = map.layers.get("items") {
             for object in &layer.objects {
                 if let Some(prototype_id) = object.properties.get("prototype_id") {
-                    if let Some(params) = resources.items.get(prototype_id).cloned() {
-                        Item::add_node(ItemParams {
-                            position: Some(object.position),
-                            ..params
-                        });
-                    } else {
-                        println!("item prototype id '{}' not found!", prototype_id);
-                    }
+                    let params= resources.items.get(prototype_id).cloned()
+                        .expect(&format!("Unable to find item with prototype id '{}'", prototype_id));
+                    let instance_id = object.properties.get("instance_id").cloned();
+                    Item::add_node(instance_id,ItemParams {
+                        position: Some(object.position),
+                        ..params
+                    });
                 }
             }
         }

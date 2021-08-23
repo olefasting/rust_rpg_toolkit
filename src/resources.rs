@@ -11,6 +11,7 @@ use macroquad::{
     },
     prelude::*,
 };
+
 use serde::{
     Deserialize,
     Serialize,
@@ -18,13 +19,16 @@ use serde::{
 
 use crate::{
     generate_id,
-    nodes::item::ItemParams,
+    nodes::{
+        item::ItemParams,
+        actor::ActorParams,
+    },
     render::{
         LINEAR_FILTER_MODE,
         NEAREST_FILTER_MODE,
     },
+    missions::MissionParams,
 };
-use crate::nodes::actor::ActorParams;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct TextureData {
@@ -52,6 +56,7 @@ pub struct Resources {
     pub music: HashMap<String, Sound>,
     pub actors: HashMap<String, ActorParams>,
     pub items: HashMap<String, ItemParams>,
+    pub missions: HashMap<String, MissionParams>
 }
 
 impl Resources {
@@ -70,6 +75,7 @@ impl Resources {
 
     const ITEMS_FILE_PATH: &'static str = "assets/items.json";
     const ACTORS_FILE_PATH: &'static str = "assets/actors.json";
+    const MISSIONS_FILE_PATH: &'static str = "assets/missions.json";
 
     pub async fn new() -> Result<Resources, FileError> {
         let mut textures = HashMap::new();
@@ -79,9 +85,9 @@ impl Resources {
         textures.insert(Self::WHITE_TEXTURE_ID.to_string(), white_texture);
 
         let json = fs::read_to_string(Self::RESOURCES_FILE_PATH)
-            .expect(&format!("Unable to find resources file '{}'", Self::RESOURCES_FILE_PATH));
+            .expect(&format!("Unable to find resources file '{}'!", Self::RESOURCES_FILE_PATH));
         let resources: ResourcesData = serde_json::from_str(&json)
-            .expect(&format!("Error when parsing resource file '{}'", Self::RESOURCES_FILE_PATH));
+            .expect(&format!("Error when parsing resource file '{}'!", Self::RESOURCES_FILE_PATH));
 
         for texture_data in &resources.textures {
             let texture = load_texture(&format!("{}/{}", Self::TEXTURES_FOLDER_PATH, &texture_data.filename)).await?;
@@ -110,18 +116,25 @@ impl Resources {
         }
 
         let json = std::fs::read_to_string(Self::ACTORS_FILE_PATH)
-            .expect(&format!("Unable to find actors file '{}'", Self::ACTORS_FILE_PATH));
+            .expect(&format!("Unable to find actors file '{}'!", Self::ACTORS_FILE_PATH));
         let actor_data: Vec<ActorParams> = serde_json::from_str(&json)
-            .expect(&format!("Error when parsing actors file '{}'", Self::ACTORS_FILE_PATH));
+            .expect(&format!("Error when parsing actors file '{}'!", Self::ACTORS_FILE_PATH));
         let actors = HashMap::from_iter(
             actor_data.into_iter().map(|params| (params.prototype_id.clone().unwrap_or(generate_id()), params)));
 
         let json = std::fs::read_to_string(Self::ITEMS_FILE_PATH)
-            .expect(&format!("Unable to find items file '{}'", Self::ITEMS_FILE_PATH));
+            .expect(&format!("Unable to find items file '{}'!", Self::ITEMS_FILE_PATH));
         let items_data: Vec<ItemParams> = serde_json::from_str(&json)
-            .expect(&format!("Error when parsing items file '{}'", Self::ITEMS_FILE_PATH));
+            .expect(&format!("Error when parsing items file '{}'!", Self::ITEMS_FILE_PATH));
         let items = HashMap::from_iter(
             items_data.into_iter().map(|params| (params.prototype_id.clone().unwrap_or(generate_id()), params)));
+
+        let json = std::fs::read_to_string(Self::MISSIONS_FILE_PATH)
+            .expect(&format!("Unable to find missions file '{}'!", Self::MISSIONS_FILE_PATH));
+        let missions_data: Vec<MissionParams> = serde_json::from_str(&json)
+            .expect(&format!("Error when parsing missions file '{}'!", Self::MISSIONS_FILE_PATH));
+        let missions = HashMap::from_iter(
+            missions_data.into_iter().map(|mission| (mission.id.clone(), mission)));
 
         Ok(Resources {
             textures,
@@ -129,6 +142,7 @@ impl Resources {
             music,
             actors,
             items,
+            missions,
         })
     }
 }

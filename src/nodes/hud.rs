@@ -76,6 +76,25 @@ impl Node for Hud {
         {
             if let Some(player) = Actor::find_by_player_id(&game_state.local_player_id) {
                 let viewport = storage::get::<Viewport>();
+
+                push_camera_state();
+                set_default_camera();
+
+                for i in 0..player.missions.len() {
+                    let mission = player.missions.get(i).unwrap();
+                    draw_aligned_text(
+                        &mission.title,
+                        screen_width() - 50.0,
+                        300.0 + i as f32 * 50.0,
+                        HorizontalAlignment::Right,
+                        VerticalAlignment::Center,
+                        Default::default()
+                    )
+                }
+
+                pop_camera_state();
+
+
                 let height = Actor::HEALTH_BAR_HEIGHT * viewport.scale;
                 let (position, offset_y, alignment, length, height, border) =
                     (vec2(10.0, 10.0), height / 2.0, HorizontalAlignment::Left, Actor::HEALTH_BAR_LENGTH * viewport.scale, height, viewport.scale);

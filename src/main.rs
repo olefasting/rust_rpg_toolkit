@@ -44,6 +44,7 @@ pub mod math;
 pub mod gui;
 pub mod json;
 pub mod helpers;
+mod missions;
 
 pub fn generate_id() -> String {
     nanoid::nanoid!()

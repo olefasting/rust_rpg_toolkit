@@ -1,0 +1,60 @@
+[
+  {
+    "id": "test_mission_01",
+    "title": "Kill 3 thugs",
+    "description": "Kill 3 thugs in the north of the plaza",
+    "objectives": [
+      {
+        "type": "kill",
+        "instance_id": "thug_01"
+      },
+      {
+        "type": "kill",
+        "instance_id": "thug_02"
+      },
+      {
+        "type": "kill",
+        "instance_id": "thug_03"
+      }
+    ],
+    "rewards": [
+      {
+        "type": "item",
+        "prototype_id": "pistol",
+        "amount": 1
+      }
+    ],
+    "next_mission_id": "test_mission_02"
+  },
+  {
+    "id": "test_mission_02",
+    "title": "Find lost pistol",
+    "description": "Find a lost pistol",
+    "objectives": [
+      {
+        "type": "retrieve_item",
+        "instance_id": "pistol_01"
+      }
+    ],
+    "rewards": [],
+    "next_mission_id": "test_mission_03"
+  },
+  {
+    "id": "test_mission_03",
+    "title": "Deliver lost pistol",
+    "description": "Deliver a lost pistol",
+    "objectives": [
+      {
+        "type": "deliver_item",
+        "instance_id": "pistol_01"
+      }
+    ],
+    "rewards": [
+      {
+        "type": "item",
+        "prototype_id": "sub_machine_gun",
+        "amount": 1
+      }
+    ]
+  }
+]

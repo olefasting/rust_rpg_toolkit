@@ -92,9 +92,9 @@ pub struct Item {
 }
 
 impl Item {
-    pub fn new(params: ItemParams) -> Self {
+    pub fn new(instance_id: Option<String>, params: ItemParams) -> Self {
         Item {
-            id: generate_id(),
+            id: instance_id.unwrap_or(generate_id()).to_string(),
             position: params.position.unwrap_or_default(),
             kind: params.kind,
             name: params.name,
@@ -105,8 +105,8 @@ impl Item {
         }
     }
 
-    pub fn add_node(params: ItemParams) -> Handle<Self> {
-        scene::add_node(Self::new(params))
+    pub fn add_node(instance_id: Option<String>, params: ItemParams) -> Handle<Self> {
+        scene::add_node(Self::new(instance_id, params))
     }
 }
 

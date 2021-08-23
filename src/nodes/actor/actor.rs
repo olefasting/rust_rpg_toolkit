@@ -50,6 +50,9 @@ use crate::{
         draw_aligned_text,
         VerticalAlignment,
     },
+    missions::{
+        Mission,
+    },
     Resources,
 };
 
@@ -201,9 +204,10 @@ impl Default for ActorParams {
 #[derive(Clone)]
 pub struct Actor {
     pub id: String,
+    pub name: String,
+    pub missions: Vec<Mission>,
     pub noise_level: ActorNoiseLevel,
     pub behavior: ActorBehavior,
-    pub name: String,
     pub stats: ActorStats,
     pub factions: Vec<String>,
     pub body: PhysicsBody,
@@ -211,6 +215,7 @@ pub struct Actor {
     pub primary_ability: Option<Ability>,
     pub secondary_ability: Option<Ability>,
     pub controller: ActorController,
+    pub is_dead: bool,
     animation_player: SpriteAnimationPlayer,
     noise_level_timer: f32,
 }
@@ -233,7 +238,7 @@ impl Actor {
     const PICK_UP_RADIUS: f32 = 36.0;
     const INTERACT_RADIUS: f32 = 36.0;
 
-    pub fn new(controller_kind: ActorControllerKind, params: ActorParams) -> Self {
+    pub fn new(instance_id: Option<String>, controller_kind: ActorControllerKind, params: ActorParams) -> Self {
         let position = params.position.unwrap_or_default();
 
         let resources = storage::get::<Resources>();
@@ -245,13 +250,14 @@ impl Actor {
             .collect();
 
         Actor {
-            id: generate_id(),
+            id: instance_id.unwrap_or(generate_id()).to_string(),
+            name: params.name.clone(),
+            missions: Vec::new(),
             noise_level: ActorNoiseLevel::None,
             behavior: ActorBehavior::new(ActorBehaviorParams {
                 home: Some(position),
                 ..params.behavior
             }),
-            name: params.name.clone(),
             stats: ActorStats::from(&params),
             factions: params.factions,
             body: PhysicsBody::new(position, 0.0, params.collider),
@@ -259,13 +265,14 @@ impl Actor {
             primary_ability: None,
             secondary_ability: None,
             controller: ActorController::new(controller_kind),
+            is_dead: false,
             animation_player: SpriteAnimationPlayer::new(params.animation_player.clone()),
             noise_level_timer: 0.0,
         }
     }
 
-    pub fn add_node(controller_kind: ActorControllerKind, params: ActorParams) -> Handle<Self> {
-        scene::add_node(Self::new(controller_kind, params))
+    pub fn add_node(instance_id: Option<String>, controller_kind: ActorControllerKind, params: ActorParams) -> Handle<Self> {
+        scene::add_node(Self::new(instance_id, controller_kind, params))
     }
 
     pub fn take_damage(&mut self, actor_id: &str, damage: f32) {
@@ -482,6 +489,14 @@ impl Node for Actor {
     }
 
     fn update(mut node: RefMut<Self>) {
+        if node.stats.current_health <= 0.0 {
+            let position = node.body.position;
+            node.inventory.drop_all(position);
+            node.is_dead = true;
+            node.delete();
+            return;
+        }
+
         node.stats.update();
         node.animation_player.update();
         node.noise_level_timer += get_frame_time();
@@ -495,12 +510,14 @@ impl Node for Actor {
             node.noise_level_timer = 0.0;
         }
 
-        if node.stats.current_health <= 0.0 {
-            let position = node.body.position;
-            node.inventory.drop_all(position);
-            node.delete();
-            return;
+        for i in 0..node.missions.len() {
+            let mission = node.missions.get_mut(i).unwrap();
+            mission.update();
         }
+
+        node.missions.retain(|mission| {
+            mission.is_completed == false
+        });
 
         if let Some(ability) = node.primary_ability.as_mut() {
             ability.update();

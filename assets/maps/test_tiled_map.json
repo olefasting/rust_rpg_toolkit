@@ -143,6 +143,11 @@
                  "point":true,
                  "properties":[
                         {
+                         "name":"instance_id",
+                         "type":"string",
+                         "value":"thug_01"
+                        }, 
+                        {
                          "name":"prototype_id",
                          "type":"string",
                          "value":"enemy_thug"
@@ -179,6 +184,11 @@
                  "point":true,
                  "properties":[
                         {
+                         "name":"instance_id",
+                         "type":"string",
+                         "value":"thug_02"
+                        }, 
+                        {
                          "name":"prototype_id",
                          "type":"string",
                          "value":"enemy_thug"
@@ -196,6 +206,11 @@
                  "name":"thug",
                  "point":true,
                  "properties":[
+                        {
+                         "name":"instance_id",
+                         "type":"string",
+                         "value":"thug_03"
+                        }, 
                         {
                          "name":"prototype_id",
                          "type":"string",
