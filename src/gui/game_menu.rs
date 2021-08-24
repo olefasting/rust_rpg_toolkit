@@ -5,14 +5,12 @@ use macroquad::{
     },
     experimental::{
         scene::RefMut,
-        collections::storage,
     },
     prelude::*,
 };
 
 use crate::{
     nodes::GameState,
-    Resources,
 };
 
 pub fn draw_game_menu(scale: f32, game_state: &mut RefMut<GameState>) {

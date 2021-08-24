@@ -113,15 +113,19 @@ impl ActorDialogue {
             let resources = storage::get::<Resources>();
             match action {
                 ActorDialogueAction::CompleteMission { mission_id } => {
-                    let mut active_missions = actor.active_missions.clone();
-                    active_missions.retain(|mission| {
+                    actor.active_missions = actor.active_missions
+                        .clone()
+                        .into_iter()
+                        .map(|mut mission| {
                         if mission.id == mission_id {
-                            actor.completed_missions.push(mission.clone());
-                            return false;
+                            mission.objectives = mission.objectives
+                                .into_iter()
+                                .map(|(objective, _)| (objective, true))
+                                .collect();
                         }
-                        true
-                    });
-                    actor.active_missions = active_missions;
+                        mission.is_completed = true;
+                        mission
+                    }).collect();
                 },
                 ActorDialogueAction::StartMission { mission_id } => {
                     let params = resources.missions.get(&mission_id).cloned().unwrap();

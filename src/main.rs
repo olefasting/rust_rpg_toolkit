@@ -37,6 +37,9 @@ use render::VerticalAlignment;
 use nodes::item::Credits;
 
 use config::Config;
+use gui::{
+    skins::GuiSkins,
+};
 
 pub mod resources;
 pub mod ability;
@@ -61,8 +64,9 @@ pub fn generate_id() -> String {
 fn window_conf() -> Conf {
     let json = fs::read_to_string(CONFIG_FILE_PATH)
         .expect(&format!("Unable to find config file '{}'!", CONFIG_FILE_PATH));
-    let config: Config = serde_json::from_str(&json)
+    let mut config: Config = serde_json::from_str(&json)
         .expect(&format!("Unable to parse config file '{}'!", CONFIG_FILE_PATH));
+    config.gui_scale = config.gui_scale.clamp(0.25, 5.0);
     storage::store(config.clone());
 
     Conf {
@@ -98,6 +102,11 @@ async fn main() {
         );
 
         next_frame().await;
+    }
+
+    {
+        let config = storage::get::<Config>();
+        storage::store(GuiSkins::new(config.gui_scale));
     }
 
     {
@@ -145,4 +154,8 @@ async fn main() {
     }
 
     scene::clear();
+
+    let config = storage::get::<Config>();
+    let json = serde_json::to_string_pretty(&*config).expect("Error parsing config!");
+    fs::write(CONFIG_FILE_PATH, &json).expect("Error saving config to file!");
 }

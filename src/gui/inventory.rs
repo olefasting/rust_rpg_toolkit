@@ -15,7 +15,7 @@ use crate::{
 };
 
 pub fn draw_inventory_window(scale: f32, player: &mut Actor) {
-    widgets::Window::new(hash!(), vec2(50.0 * scale, 475.0 * scale), vec2(300.0 * scale, 300.0 * scale))
+    widgets::Window::new(hash!(), vec2(50.0 * scale, 375.0 * scale), vec2(300.0 * scale, 300.0 * scale))
         .titlebar(false)
         .ui(&mut *root_ui(), |ui| {
             ui.label(None, &format!("credits: {}, weight: {}/{}", player.inventory.credits, player.inventory.get_total_weight(), player.stats.carry_capacity));

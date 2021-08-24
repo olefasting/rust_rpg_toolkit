@@ -1,4 +1,7 @@
-use macroquad::prelude::*;
+use macroquad::{
+    color,
+    prelude::*
+};
 
 use serde::{
     Serialize,
@@ -26,8 +29,16 @@ pub enum MissionObjective {
 }
 
 impl MissionObjective {
-    pub fn get_position(self) -> Option<Vec2> {
-        match self {
+    pub fn get_marker_color(&self) -> Option<Color> {
+        match self.clone() {
+            Self::Kill { instance_id: _ } => Some(color::RED),
+            Self::FindItem { prototype_id: _ } => Some(color::YELLOW),
+            _ => None,
+        }
+    }
+
+    pub fn get_marker_position(&self) -> Option<Vec2> {
+        match self.clone() {
             Self::Kill { instance_id } => {
                 for actor in scene::find_nodes_by_type::<Actor>() {
                     if actor.id == instance_id {
@@ -75,8 +86,16 @@ pub enum MissionMarker {
 }
 
 impl MissionMarker {
-    pub fn get_position(self) -> Option<Vec2> {
-        match self {
+    pub fn get_color(&self) -> Color {
+        match self.clone() {
+            Self::Actor { actor_id: _ } => color::YELLOW,
+            Self::Item { item_id: _ } => color::YELLOW,
+            Self::Location { target: _ } => color::YELLOW,
+        }
+    }
+
+    pub fn get_position(&self) -> Option<Vec2> {
+        match self.clone() {
             Self::Actor { actor_id } => {
                 for actor in scene::find_nodes_by_type::<Actor>() {
                     if actor.id == actor_id {

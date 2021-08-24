@@ -2,10 +2,9 @@ use macroquad::{
     experimental::{
         collections::storage,
     },
+    ui::root_ui,
     prelude::*,
 };
-
-use crate::Resources;
 
 mod inventory;
 mod character;
@@ -23,13 +22,13 @@ use crate::{
     nodes::{
         GameState,
         Actor,
-    }
+    },
 };
-use macroquad::ui::root_ui;
+
+use super::GuiSkins;
 
 pub fn draw_gui() {
-    let resources = storage::get::<Resources>();
-    let skins = resources.gui_skins.clone();
+    let skins = storage::get::<GuiSkins>();
     root_ui().push_skin(&skins.default);
     if let Some(mut game_state) = scene::find_node_by_type::<GameState>() {
         if let Some(mut player) = Actor::find_by_player_id(&game_state.local_player_id) {

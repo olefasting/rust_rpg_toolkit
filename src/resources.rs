@@ -9,7 +9,6 @@ use macroquad::{
         load_sound,
         Sound,
     },
-    experimental::collections::storage,
     prelude::*,
 };
 
@@ -31,8 +30,6 @@ use crate::{
     },
     missions::MissionParams,
     ability::AbilityParams,
-    gui::skins::GuiSkins,
-    Config,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -63,7 +60,6 @@ struct ResourcesData {
 }
 
 pub struct Resources {
-    pub gui_skins: GuiSkins,
     pub textures: HashMap<String, Texture2D>,
     pub sound_effects: HashMap<String, Sound>,
     pub music: HashMap<String, Sound>,
@@ -161,10 +157,7 @@ impl Resources {
         let abilities = HashMap::from_iter(
             ability_data.into_iter().map(|ability| (ability.id.clone(), ability)));
 
-        let config = storage::get::<Config>();
-
         Ok(Resources {
-            gui_skins: GuiSkins::new(config.gui_scale),
             textures,
             sound_effects,
             music,

@@ -88,13 +88,14 @@ impl Node for Hud {
                     for mission in &player.active_missions {
                         if let Some(marker) = mission.marker.clone() {
                             if let Some(position) = marker.get_position() {
+                                let color = marker.get_color();
                                 if frustum.contains(position) {
                                     let position = viewport.to_screen_space(position);
                                     draw_texture_ex(
                                         texture.clone(),
                                         position.x - 16.0,
                                         position.y,
-                                        color::RED,
+                                        color,
                                         Default::default(),
                                     )
                                 }
@@ -102,14 +103,15 @@ impl Node for Hud {
                         }
                         for (objective, is_completed) in mission.objectives.clone() {
                             if is_completed == false {
-                                if let Some(position) = objective.get_position() {
+                                if let Some(position) = objective.get_marker_position() {
+                                    let color = objective.get_marker_color().unwrap_or(color::YELLOW);
                                     if frustum.contains(position) {
                                         let position = viewport.to_screen_space(position);
                                         draw_texture_ex(
                                             texture.clone(),
                                             position.x - 16.0,
                                             position.y,
-                                            color::RED,
+                                            color,
                                             Default::default(),
                                         )
                                     }

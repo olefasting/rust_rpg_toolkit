@@ -1,6 +1,6 @@
 use macroquad::prelude::*;
 
-use macroquad::ui::{hash, root_ui, widgets, Skin};
+use macroquad::ui::{root_ui, Skin};
 
 #[derive(Debug, Clone)]
 pub struct GuiSkins {
@@ -27,7 +27,7 @@ impl GuiSkins {
                 // .font(include_bytes!("../../assets/gui/fonts/MinimalPixel v2.ttf"))
                 // .unwrap()
                 .text_color(Color::from_rgba(255, 255, 160, 255))
-                .font_size(16)
+                .font_size((16 as f32 * scale) as u16)
                 .build();
 
             let button_style = root_ui()
@@ -49,7 +49,7 @@ impl GuiSkins {
                 // .font(include_bytes!("../../assets/gui/fonts/MinimalPixel v2.ttf"))
                 // .unwrap()
                 .text_color(Color::from_rgba(200, 200, 160, 255))
-                .font_size(16)
+                .font_size((16 as f32 * scale) as u16)
                 .build();
 
             Skin {
