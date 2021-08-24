@@ -9,6 +9,7 @@ use macroquad::{
         load_sound,
         Sound,
     },
+    experimental::collections::storage,
     prelude::*,
 };
 
@@ -31,12 +32,13 @@ use crate::{
     missions::MissionParams,
     ability::AbilityParams,
     gui::skins::GuiSkins,
+    Config,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct TextureData {
     pub id: String,
-    pub filename: String,
+    pub path: String,
     #[serde(default = "TextureData::default_filter_mode")]
     pub filter_mode: String,
 }
@@ -50,7 +52,7 @@ impl TextureData {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct SoundData {
     pub id: String,
-    pub filename: String,
+    pub path: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -82,10 +84,6 @@ impl Resources {
 
     const RESOURCES_FILE_PATH: &'static str = "assets/resources.json";
 
-    const TEXTURES_FOLDER_PATH: &'static str = "assets/textures";
-    const SOUND_EFFECTS_FOLDER_PATH: &'static str = "assets/sound_effects";
-    const MUSIC_FOLDER_PATH: &'static str = "assets/music";
-
     const ITEMS_FILE_PATH: &'static str = "assets/items.json";
     const ABILITIES_FILE_PATH: &'static str = "assets/abilities.json";
     const ACTORS_FILE_PATH: &'static str = "assets/actors.json";
@@ -104,7 +102,7 @@ impl Resources {
             .expect(&format!("Error when parsing resource file '{}'!", Self::RESOURCES_FILE_PATH));
 
         for texture_data in &resources.textures {
-            let texture = load_texture(&format!("{}/{}", Self::TEXTURES_FOLDER_PATH, &texture_data.filename)).await?;
+            let texture = load_texture(&texture_data.path).await?;
             if texture_data.filter_mode == LINEAR_FILTER_MODE.to_string() {
                 texture.set_filter(FilterMode::Linear)
             } else if texture_data.filter_mode == NEAREST_FILTER_MODE.to_string() {
@@ -117,14 +115,14 @@ impl Resources {
 
         let mut sound_effects = HashMap::new();
         for sound_data in &resources.sound_effects {
-            let sound = load_sound(&format!("{}/{}", Self::SOUND_EFFECTS_FOLDER_PATH, sound_data.filename)).await.unwrap();
+            let sound = load_sound(&sound_data.path).await.unwrap();
             sound_effects.insert(sound_data.id.clone(), sound);
         }
 
         let mut music = HashMap::new();
 
         for music_data in &resources.music {
-            let track = load_sound(&format!("{}/{}", Self::MUSIC_FOLDER_PATH, music_data.filename)).await.unwrap();
+            let track = load_sound(&music_data.path).await.unwrap();
             music.insert(music_data.id.clone(), track);
         }
 
@@ -163,8 +161,10 @@ impl Resources {
         let abilities = HashMap::from_iter(
             ability_data.into_iter().map(|ability| (ability.id.clone(), ability)));
 
+        let config = storage::get::<Config>();
+
         Ok(Resources {
-            gui_skins: GuiSkins::new(),
+            gui_skins: GuiSkins::new(config.gui_scale),
             textures,
             sound_effects,
             music,

@@ -2,49 +2,53 @@
   "textures": [
     {
       "id": "characters",
-      "filename": "neo_zero_characters.png"
+      "path": "assets/textures/neo_zero_characters.png"
     },
     {
       "id": "player",
-      "filename": "player.png"
+      "path": "assets/textures/player.png"
     },
     {
       "id": "props",
-      "filename": "neo_zero_props.png"
+      "path": "assets/textures/neo_zero_props.png"
     },
     {
       "id": "tiles",
-      "filename": "neo_zero_tiles.png"
+      "path": "assets/textures/neo_zero_tiles.png"
     },
     {
       "id": "items",
-      "filename": "items.png"
+      "path": "assets/textures/items.png"
     },
     {
       "id": "fireball",
-      "filename": "fireball.png"
+      "path": "assets/textures/fireball.png"
     },
     {
       "id": "credits",
-      "filename": "credits.png"
+      "path": "assets/textures/credits.png"
+    },
+    {
+      "id": "mission_marker",
+      "path": "assets/textures/mission_marker.png"
     }
   ],
   "sound_effects": [
     {
       "id": "gunshot_01",
-      "filename": "M4A1_Single.wav"
+      "path": "assets/sound_effects/M4A1_Single.wav"
     },
     {
       "id": "gunshot_02",
-      "filename": "9mm_Glock_17.wav"
+      "path": "assets/sound_effects/9mm_Glock_17.wav"
     },
     {
       "id": "blaster_01",
-      "filename": "external/Sci-Fi Weapon Sounds Pro/Sci Fi Blaster/Sci Fi Blaster 4.wav"
+      "path": "assets/sound_effects/external/Sci-Fi Weapon Sounds Pro/Sci Fi Blaster/Sci Fi Blaster 4.wav"
     },
     {
       "id": "continuous_beam_01",
-      "filename": "external/Sci-Fi Weapon Sounds Pro/Sci Fi Beam/Sci Fi Beam 5.wav"
+      "path": "assets/sound_effects/external/Sci-Fi Weapon Sounds Pro/Sci Fi Beam/Sci Fi Beam 5.wav"
     }
   ],
   "music": [

@@ -29,18 +29,19 @@ use macroquad::ui::root_ui;
 
 pub fn draw_gui() {
     let resources = storage::get::<Resources>();
-    root_ui().push_skin(&resources.gui_skins.default);
+    let skins = resources.gui_skins.clone();
+    root_ui().push_skin(&skins.default);
     if let Some(mut game_state) = scene::find_node_by_type::<GameState>() {
         if let Some(mut player) = Actor::find_by_player_id(&game_state.local_player_id) {
             if game_state.show_character_window {
-                draw_character_window(&*player);
+                draw_character_window(skins.scale, &*player);
             }
             if game_state.show_inventory_window {
-                draw_inventory_window(&mut *player);
+                draw_inventory_window(skins.scale, &mut *player);
             }
-            draw_dialogue_window(&mut *player);
+            draw_dialogue_window(skins.scale, &mut *player);
             if game_state.show_game_menu {
-                draw_game_menu(&mut game_state);
+                draw_game_menu(skins.scale, &mut game_state);
             }
         }
     }

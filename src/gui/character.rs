@@ -10,8 +10,8 @@ use crate::{
     nodes::Actor,
 };
 
-pub fn draw_character_window(player: &Actor) {
-    widgets::Window::new(hash!(), vec2(50.0, 150.0), vec2(300.0, 300.0))
+pub fn draw_character_window(scale: f32, player: &Actor) {
+    widgets::Window::new(hash!(), vec2(50.0 * scale, 150.0 * scale), vec2(300.0 * scale, 300.0 * scale))
         .titlebar(false)
         .ui(&mut *root_ui(), |ui| {
             ui.label(None, &format!("STR: {}", player.stats.strength));

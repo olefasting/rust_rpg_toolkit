@@ -19,20 +19,20 @@ use crate::{
         VerticalAlignment,
         Viewport,
     },
+    Config,
 };
 
 use super::{
     Actor,
     GameState,
 };
+use crate::resources::Resources;
 
-pub struct Hud {
-}
+pub struct Hud {}
 
 impl Hud {
     pub fn new() -> Self {
-        Hud {
-        }
+        Hud {}
     }
 
     pub fn add_node() -> Handle<Self> {
@@ -42,6 +42,7 @@ impl Hud {
 
 impl Node for Hud {
     fn draw(_node: RefMut<Self>) {
+        let config = storage::get::<Config>();
         let game_state = scene::find_node_by_type::<GameState>().unwrap();
 
         push_camera_state();
@@ -53,7 +54,7 @@ impl Node for Hud {
             draw_aligned_text(
                 "DEBUG MODE",
                 screen_width() / 2.0,
-                50.0,
+                50.0 * config.gui_scale,
                 HorizontalAlignment::Center,
                 VerticalAlignment::Top,
                 TextParams {
@@ -65,7 +66,7 @@ impl Node for Hud {
             draw_aligned_text(
                 &format!("fps: {}", get_fps()),
                 screen_width() - 50.0,
-                50.0,
+                50.0 * config.gui_scale,
                 HorizontalAlignment::Right,
                 VerticalAlignment::Top,
                 Default::default(),
@@ -81,12 +82,49 @@ impl Node for Hud {
                 set_default_camera();
 
                 {
+                    let frustum = viewport.get_frustum();
+                    let resources = storage::get::<Resources>();
+                    let texture = resources.textures.get("mission_marker").unwrap();
+                    for mission in &player.active_missions {
+                        if let Some(marker) = mission.marker.clone() {
+                            if let Some(position) = marker.get_position() {
+                                if frustum.contains(position) {
+                                    let position = viewport.to_screen_space(position);
+                                    draw_texture_ex(
+                                        texture.clone(),
+                                        position.x - 16.0,
+                                        position.y,
+                                        color::RED,
+                                        Default::default(),
+                                    )
+                                }
+                            }
+                        }
+                        for (objective, is_completed) in mission.objectives.clone() {
+                            if is_completed == false {
+                                if let Some(position) = objective.get_position() {
+                                    if frustum.contains(position) {
+                                        let position = viewport.to_screen_space(position);
+                                        draw_texture_ex(
+                                            texture.clone(),
+                                            position.x - 16.0,
+                                            position.y,
+                                            color::RED,
+                                            Default::default(),
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                {
                     let len = player.active_missions.len();
                     if len > 0 {
                         draw_aligned_text(
                             "Active missions:",
-                            screen_width() - 50.0,
-                            250.0,
+                            screen_width() - 50.0 * config.gui_scale,
+                            250.0 * config.gui_scale,
                             HorizontalAlignment::Right,
                             VerticalAlignment::Center,
                             Default::default(),
@@ -97,8 +135,8 @@ impl Node for Hud {
                         let mission = player.active_missions.get(i).unwrap();
                         draw_aligned_text(
                             &mission.title,
-                            screen_width() - 50.0,
-                            300.0 + i as f32 * 50.0,
+                            screen_width() - 50.0 * config.gui_scale,
+                            (300.0 * config.gui_scale) + i as f32 * (50.0 * config.gui_scale),
                             HorizontalAlignment::Right,
                             VerticalAlignment::Center,
                             Default::default(),
@@ -110,8 +148,8 @@ impl Node for Hud {
                     if len > 0 {
                         draw_aligned_text(
                             "Completed missions:",
-                            screen_width() - 50.0,
-                            500.0,
+                            screen_width() - 50.0 * config.gui_scale,
+                            500.0 * config.gui_scale,
                             HorizontalAlignment::Right,
                             VerticalAlignment::Center,
                             Default::default(),
@@ -122,8 +160,8 @@ impl Node for Hud {
                         let mission = player.completed_missions.get(i).unwrap();
                         draw_aligned_text(
                             &mission.title,
-                            screen_width() - 50.0,
-                            550.0 + i as f32 * 50.0,
+                            screen_width() - 50.0 * config.gui_scale,
+                            550.0 * config.gui_scale + i as f32 * (50.0 * config.gui_scale),
                             HorizontalAlignment::Right,
                             VerticalAlignment::Center,
                             Default::default(),
@@ -134,9 +172,9 @@ impl Node for Hud {
                 pop_camera_state();
 
 
-                let height = Actor::HEALTH_BAR_HEIGHT * viewport.scale;
+                let height = (Actor::HEALTH_BAR_HEIGHT * viewport.scale) * config.gui_scale;
                 let (position, offset_y, alignment, length, height, border) =
-                    (vec2(10.0, 10.0), height / 2.0, HorizontalAlignment::Left, Actor::HEALTH_BAR_LENGTH * viewport.scale, height, viewport.scale);
+                    (vec2(10.0 * config.gui_scale, 10.0 * config.gui_scale), height / 2.0, HorizontalAlignment::Left, (Actor::HEALTH_BAR_LENGTH * viewport.scale) * config.gui_scale, height, viewport.scale);
 
                 draw_progress_bar(
                     player.stats.current_health,

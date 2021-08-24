@@ -25,6 +25,10 @@
     "id": "mission_kill_thugs_get_reward",
     "title": "Tell the scared woman that the thugs are dead",
     "no_autocompletion": true,
+    "marker": {
+      "type": "actor",
+      "actor_id": "scared_woman"
+    },
     "rewards": [
       {
         "type": "item",
@@ -60,6 +64,10 @@
     "id": "mission_deliver_gun",
     "title": "Deliver lost pistol",
     "description": "Deliver a lost pistol",
+    "marker": {
+      "type": "actor",
+      "actor_id": "guard_boss"
+    },
     "objectives": [
       {
         "type": "deliver_item",

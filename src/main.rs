@@ -2,6 +2,8 @@
 #![feature(drain_filter)]
 #![feature(try_find)]
 
+use std::fs;
+
 use macroquad::{
     color,
     experimental::{
@@ -32,7 +34,9 @@ use render::{
 };
 use resources::Resources;
 use render::VerticalAlignment;
-use crate::nodes::item::Credits;
+use nodes::item::Credits;
+
+use config::Config;
 
 pub mod resources;
 pub mod ability;
@@ -45,19 +49,28 @@ pub mod math;
 pub mod gui;
 pub mod json;
 pub mod helpers;
-mod missions;
+pub mod missions;
+pub mod config;
+
+const CONFIG_FILE_PATH: &'static str = "config.json";
 
 pub fn generate_id() -> String {
     nanoid::nanoid!()
 }
 
 fn window_conf() -> Conf {
+    let json = fs::read_to_string(CONFIG_FILE_PATH)
+        .expect(&format!("Unable to find config file '{}'!", CONFIG_FILE_PATH));
+    let config: Config = serde_json::from_str(&json)
+        .expect(&format!("Unable to parse config file '{}'!", CONFIG_FILE_PATH));
+    storage::store(config.clone());
+
     Conf {
         window_title: "Capstone".to_owned(),
-        high_dpi: false,
-        window_width: 1920,
-        window_height: 180,
-        fullscreen: true,
+        high_dpi: true,
+        window_width: config.resolution.x as i32,
+        window_height: config.resolution.y as i32,
+        fullscreen: config.fullscreen,
         ..Default::default()
     }
 }

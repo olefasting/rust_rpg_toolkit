@@ -8,26 +8,26 @@ use macroquad::{
 
 use crate::nodes::Actor;
 
-pub fn draw_dialogue_window(player: &mut Actor) {
+pub fn draw_dialogue_window(scale: f32, player: &mut Actor) {
     let interaction = player.current_dialogue.clone();
-    let x = screen_width() / 2.0 - 300.0;
-    let y = screen_height() / 2.0 - 225.0;
+    let x = screen_width() / 2.0 - 300.0 * scale;
+    let y = screen_height() / 2.0 - 225.0 * scale;
     if let Some(interaction) = interaction {
-        widgets::Window::new(hash!(), vec2(x, y), vec2(600.0, 450.0))
+        widgets::Window::new(hash!(), vec2(x, y), vec2(600.0 * scale, 450.0 * scale))
             .label(&interaction.actor_name)
             .ui(&mut *root_ui(), |ui| {
                 if interaction.body.len() > 0 {
                     ui.label(None, &format!("{}:", player.name));
                 }
                 for line in interaction.body.clone() {
-                    ui.label(None, &format!("{}", line));
+                    ui.label(None, &format!(" {}", line));
                 }
                 ui.separator();
                 if interaction.response.len() > 0 {
                     ui.label(None, &format!("{}:", interaction.actor_name));
                 }
                 for line in  interaction.response.clone() {
-                    ui.label(None, &format!("{}", line));
+                    ui.label(None, &format!(" {}", line));
                 }
                 ui.separator();
                 let options = interaction.get_options(player);

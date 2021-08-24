@@ -1,12 +1,15 @@
 use macroquad::prelude::*;
 
 use macroquad::ui::{hash, root_ui, widgets, Skin};
+
+#[derive(Debug, Clone)]
 pub struct GuiSkins {
+    pub scale: f32,
     pub default: Skin,
 }
 
 impl GuiSkins {
-    pub fn new() -> Self {
+    pub fn new(scale: f32) -> Self {
         let default = {
             let window_style = root_ui()
                 .style_builder()
@@ -15,7 +18,7 @@ impl GuiSkins {
                     None,
                 ))
                 //.background_margin(RectOffset::new(52.0, 52.0, 52.0, 52.0))
-                .margin(RectOffset::new(15.0, 15.0, 15.0, 15.0))
+                .margin(RectOffset::new(15.0 * scale, 15.0 * scale, 15.0 * scale, 15.0 * scale))
                 .build();
 
             let label_style = root_ui()
@@ -34,7 +37,7 @@ impl GuiSkins {
                     None,
                 ))
                 //.background_margin(RectOffset::new(15.0, 15.0, 15.0, 15.0))
-                .margin(RectOffset::new(15.0, 15.0, 5.0, 5.0))
+                .margin(RectOffset::new(15.0 * scale, 15.0 * scale, 5.0 * scale, 5.0 * scale))
                 .background_hovered(Image::from_file_with_format(
                     include_bytes!("../../assets/gui/wenrexa/Button02.png"),
                     None,
@@ -58,6 +61,7 @@ impl GuiSkins {
         };
 
         GuiSkins {
+            scale,
             default,
         }
     }

@@ -11,7 +11,7 @@ impl Viewport {
     pub const FRUSTUM_PADDING: f32 = 25.0;
 
     pub fn to_screen_space(&self, position: Vec2) -> Vec2 {
-        (position / self.scale) - self.position
+        (position - self.position) * self.scale
     }
 
     pub fn to_world_space(&self, position: Vec2) -> Vec2 {
