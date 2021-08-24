@@ -10,11 +10,12 @@ use crate::nodes::Actor;
 
 pub fn draw_dialogue_window(scale: f32, player: &mut Actor) {
     let interaction = player.current_dialogue.clone();
-    let x = screen_width() / 2.0 - 300.0 * scale;
-    let y = screen_height() / 2.0 - 225.0 * scale;
+    let x = screen_width() / 2.0 - 200.0 * scale;
+    let y = screen_height() / 2.0 - 175.0 * scale;
     if let Some(interaction) = interaction {
-        widgets::Window::new(hash!(), vec2(x, y), vec2(600.0 * scale, 450.0 * scale))
-            .label(&interaction.actor_name)
+        widgets::Window::new(hash!(), vec2(x, y), vec2(400.0 * scale, 350.0 * scale))
+            .titlebar(false)
+            //.label(&interaction.actor_name)
             .ui(&mut *root_ui(), |ui| {
                 if interaction.body.len() > 0 {
                     ui.label(None, &format!("{}:", player.name));

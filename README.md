@@ -5,6 +5,12 @@ The future holds huge boss fights, and a mind-nuking story line, as you progress
 
 Please note that there are some resources missing if you clone this directory, as I have purchased som external sound packs, etc. These has been excluded from the repository, so you will have to go through the various files, like `resources.json` and remove these, as well as removing the references to these resources in files like `abilities.json`
 
+## Screenshots
+
+![Screenshot](screenshots/screenshot_s_01.png)
+![Screenshot](screenshots/screenshot_s_02.png)
+![Screenshot](screenshots/screenshot_s_03.png)
+
 ## License
 
 The game is unlicensed because it has a planned commercial release, so  the game in its entirety, the IP (as it is fleshed out in the future), is ours and not to be copied.

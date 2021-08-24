@@ -138,7 +138,7 @@ impl GameState {
 impl Node for GameState {
     fn update(mut node: RefMut<Self>) where Self: Sized {
         if Actor::find_by_player_id(&node.local_player_id).is_none() {
-            node.should_quit = is_key_released(KeyCode::Escape);
+            node.show_game_menu = is_key_released(KeyCode::Escape);
         }
     }
 

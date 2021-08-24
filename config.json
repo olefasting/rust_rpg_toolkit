@@ -1,8 +1,8 @@
 {
   "resolution": {
-    "x": 1080,
-    "y": 720
+    "x": 1920,
+    "y": 1080
   },
   "fullscreen": true,
-  "gui_scale": 1.0
+  "gui_scale": 1.5
 }

@@ -151,7 +151,7 @@ impl Node for Hud {
                         draw_aligned_text(
                             "Completed missions:",
                             screen_width() - 50.0 * config.gui_scale,
-                            500.0 * config.gui_scale,
+                            400.0 * config.gui_scale,
                             HorizontalAlignment::Right,
                             VerticalAlignment::Center,
                             Default::default(),
@@ -163,7 +163,7 @@ impl Node for Hud {
                         draw_aligned_text(
                             &mission.title,
                             screen_width() - 50.0 * config.gui_scale,
-                            550.0 * config.gui_scale + i as f32 * (50.0 * config.gui_scale),
+                            450.0 * config.gui_scale + i as f32 * (50.0 * config.gui_scale),
                             HorizontalAlignment::Right,
                             VerticalAlignment::Center,
                             Default::default(),
