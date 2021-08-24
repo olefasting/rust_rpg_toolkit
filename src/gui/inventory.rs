@@ -3,9 +3,6 @@ use macroquad::{
         hash, root_ui,
         widgets::{self},
     },
-    experimental::{
-        collections::storage,
-    },
     prelude::*,
 };
 
@@ -15,12 +12,9 @@ use crate::{
         item::ItemKind,
     },
     ability::ActionKind,
-    Resources,
 };
 
 pub fn draw_inventory_window(player: &mut Actor) {
-    let resources = storage::get::<Resources>();
-    // root_ui().push_skin(&resources.gui_skins.main_menu);
     widgets::Window::new(hash!(), vec2(50.0, 475.0), vec2(300.0, 300.0))
         .label("Inventory")
         .ui(&mut *root_ui(), |ui| {
@@ -76,5 +70,4 @@ pub fn draw_inventory_window(player: &mut Actor) {
                 }
             }
         });
-    // root_ui().pop_skin();
 }

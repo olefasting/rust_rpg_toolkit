@@ -1,4 +1,11 @@
-use macroquad::prelude::*;
+use macroquad::{
+    experimental::{
+        collections::storage,
+    },
+    prelude::*,
+};
+
+use crate::Resources;
 
 mod inventory;
 mod character;
@@ -18,8 +25,11 @@ use crate::{
         Actor,
     }
 };
+use macroquad::ui::root_ui;
 
 pub fn draw_gui() {
+    let resources = storage::get::<Resources>();
+    root_ui().push_skin(&resources.gui_skins.default);
     if let Some(mut game_state) = scene::find_node_by_type::<GameState>() {
         if let Some(mut player) = Actor::find_by_player_id(&game_state.local_player_id) {
             if game_state.show_character_window {
@@ -34,4 +44,5 @@ pub fn draw_gui() {
             }
         }
     }
+    root_ui().pop_skin();
 }
