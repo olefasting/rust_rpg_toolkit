@@ -3,8 +3,6 @@
 This is an action/run 'n' gun RPG, created in Rust using [macroquad](https://github.com/not-fl3/macroquad).
 The future holds huge boss fights, and a mind-nuking story line, as you progress through the world, and your own mind, to battle yourself and the archons to break free of samsara and the materialist dystopia of our not too distant future.
 
-Please note that there are some resources missing if you clone this directory, as I have purchased som external sound packs, etc. These has been excluded from the repository, so you will have to go through the various files, like `resources.json` and remove these, as well as removing the references to these resources in files like `abilities.json`
-
 ## Screenshots
 
 ![Screenshot](screenshots/screenshot_s_01.png)
