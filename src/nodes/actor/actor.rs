@@ -403,24 +403,29 @@ impl Actor {
         let mut active_missions = self.active_missions.clone();
         for i in 0..active_missions.len() {
             let mission = active_missions.get_mut(i).unwrap();
-            for objective in &mut mission.objectives {
-                match &objective.0 {
-                    MissionObjective::Kill { instance_id } => {
-                        let game_state = scene::find_node_by_type::<GameState>().unwrap();
-                        if game_state.dead_actors.contains(instance_id) {
-                            objective.1 = true;
+            if mission.no_autocompletion == false {
+                for objective in &mut mission.objectives {
+                    match &objective.0 {
+                        MissionObjective::Kill { instance_id } => {
+                            let game_state = scene::find_node_by_type::<GameState>().unwrap();
+                            if game_state.dead_actors.contains(instance_id) {
+                                objective.1 = true;
+                            }
+                        },
+                        MissionObjective::FindItem { prototype_id } => {
+                            if self.inventory.items.iter().find(|entry| entry.params.prototype_id == prototype_id.clone()).is_some() {
+                                objective.1 = true;
+                            }
                         }
-                    },
-                    MissionObjective::FindItem { prototype_id } => {
-                        if self.inventory.items.iter().find(|entry| entry.params.prototype_id == prototype_id.clone()).is_some() {
-                            objective.1 = true;
-                        }
+                        _ => {}
                     }
-                    _ => {}
                 }
             }
         }
         let mut completed_missions = active_missions.drain_filter(|mission| {
+            if mission.no_autocompletion == true {
+                return false;
+            }
             for (_, is_completed) in &mission.objectives {
                 if *is_completed == false {
                     return false;
@@ -446,7 +451,7 @@ impl Actor {
                     }
                 }
             }
-            if let Some(next_id) = mission.next_mission_id.clone() {
+            for next_id in mission.next_mission_ids.clone() {
                 let params = resources.missions.get(&next_id).cloned().unwrap();
                 active_missions.push(Mission::new(params));
             }

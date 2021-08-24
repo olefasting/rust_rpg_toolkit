@@ -61,9 +61,6 @@ impl GameState {
                     );
                     player.stats.recalculate_derived();
                     player.stats.restore_vitals();
-
-                    let mission_params = resources.missions.get("test_mission_01").cloned().unwrap();
-                    player.active_missions.push(Mission::new(mission_params));
                     scene::add_node(player);
                 } else if let Some(prototype_id) = object.properties.get("prototype_id") {
                     let params = resources.actors.get(prototype_id).cloned()

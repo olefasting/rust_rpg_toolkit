@@ -16,12 +16,20 @@ pub fn draw_dialogue_window(player: &mut Actor) {
         widgets::Window::new(hash!(), vec2(x, y), vec2(600.0, 450.0))
             .label(&interaction.actor_name)
             .ui(&mut *root_ui(), |ui| {
+                if interaction.body.len() > 0 {
+                    ui.label(None, &format!("{}:", player.name));
+                }
                 for line in interaction.body.clone() {
                     ui.label(None, &format!("{}", line));
                 }
-                if let Some(response) = interaction.response.clone() {
-                    ui.label(None, &format!("{}", response));
+                ui.separator();
+                if interaction.response.len() > 0 {
+                    ui.label(None, &format!("{}:", interaction.actor_name));
                 }
+                for line in  interaction.response.clone() {
+                    ui.label(None, &format!("{}", line));
+                }
+                ui.separator();
                 let options = interaction.get_options(player);
                 if options.len() == 0 {
                     if ui.button(None, "Bye!") {

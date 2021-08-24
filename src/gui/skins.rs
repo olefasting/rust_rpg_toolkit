@@ -14,12 +14,13 @@ impl GuiSkins {
                     include_bytes!("../../assets/gui/wenrexa/MainPanel03.png"),
                     None,
                 ))
-                .background_margin(RectOffset::new(52.0, 52.0, 52.0, 52.0))
-                .margin(RectOffset::new(-30.0, 0.0, -30.0, 0.0))
+                //.background_margin(RectOffset::new(52.0, 52.0, 52.0, 52.0))
+                .margin(RectOffset::new(15.0, 15.0, 15.0, 15.0))
                 .build();
 
             let label_style = root_ui()
                 .style_builder()
+                // .margin(RectOffset::new(15.0, 15.0, 15.0, 15.0))
                 // .font(include_bytes!("../../assets/gui/fonts/MinimalPixel v2.ttf"))
                 // .unwrap()
                 .text_color(Color::from_rgba(255, 255, 160, 255))
@@ -32,7 +33,7 @@ impl GuiSkins {
                     include_bytes!("../../assets/gui/wenrexa/Button04.png"),
                     None,
                 ))
-                //.background_margin(RectOffset::new(52.0, 52.0, 52.0, 52.0))
+                //.background_margin(RectOffset::new(15.0, 15.0, 15.0, 15.0))
                 .margin(RectOffset::new(15.0, 15.0, 5.0, 5.0))
                 .background_hovered(Image::from_file_with_format(
                     include_bytes!("../../assets/gui/wenrexa/Button02.png"),

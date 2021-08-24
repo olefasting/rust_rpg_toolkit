@@ -294,6 +294,24 @@
                  "width":0,
                  "x":1372,
                  "y":875.333333333333
+                }, 
+                {
+                 "height":0,
+                 "id":30,
+                 "name":"scared_woman",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"prototype_id",
+                         "type":"string",
+                         "value":"scared_woman"
+                        }],
+                 "rotation":0,
+                 "type":"spawn_point",
+                 "visible":true,
+                 "width":0,
+                 "x":1221,
+                 "y":844.5
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -331,7 +349,7 @@
          "y":0
         }],
  "nextlayerid":13,
- "nextobjectid":30,
+ "nextobjectid":31,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.7.2",

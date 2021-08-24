@@ -12,7 +12,7 @@ use crate::{
 
 pub fn draw_character_window(player: &Actor) {
     widgets::Window::new(hash!(), vec2(50.0, 150.0), vec2(300.0, 300.0))
-        .label(&player.name)
+        .titlebar(false)
         .ui(&mut *root_ui(), |ui| {
             ui.label(None, &format!("STR: {}", player.stats.strength));
             ui.label(None, &format!("DEX: {}", player.stats.dexterity));

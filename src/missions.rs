@@ -33,11 +33,30 @@ pub enum MissionReward {
 pub struct MissionParams {
     pub id: String,
     pub title: String,
+    #[serde(default)]
     pub description: String,
+    #[serde(default)]
     pub objectives: Vec<MissionObjective>,
+    #[serde(default)]
     pub rewards: Vec<MissionReward>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub next_mission_id: Option<String>,
+    #[serde(default, rename = "next_missions")]
+    pub next_mission_ids: Vec<String>,
+    #[serde(default)]
+    pub no_autocompletion: bool,
+}
+
+impl Default for MissionParams {
+    fn default() -> Self {
+        MissionParams {
+            id: "".to_string(),
+            title: "".to_string(),
+            description: "".to_string(),
+            objectives: Vec::new(),
+            rewards: Vec::new(),
+            next_mission_ids: Vec::new(),
+            no_autocompletion: false
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -47,8 +66,9 @@ pub struct Mission {
     pub description: String,
     pub objectives: Vec<(MissionObjective, bool)>,
     pub rewards: Vec<MissionReward>,
-    pub next_mission_id: Option<String>,
+    pub next_mission_ids: Vec<String>,
     pub is_completed: bool,
+    pub no_autocompletion: bool,
 }
 
 impl Mission {
@@ -59,8 +79,9 @@ impl Mission {
             description: params.description,
             objectives: params.objectives.into_iter().map(|objective| (objective, false)).collect(),
             rewards: params.rewards,
-            next_mission_id: params.next_mission_id,
+            next_mission_ids: params.next_mission_ids,
             is_completed: false,
+            no_autocompletion: params.no_autocompletion,
         }
     }
 }

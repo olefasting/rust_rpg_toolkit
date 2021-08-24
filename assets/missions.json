@@ -1,6 +1,6 @@
 [
   {
-    "id": "test_mission_01",
+    "id": "mission_kill_thugs",
     "title": "Kill 3 thugs",
     "description": "Kill 3 thugs in the north of the plaza",
     "objectives": [
@@ -17,17 +17,32 @@
         "instance_id": "thug_03"
       }
     ],
+    "next_missions": [
+      "mission_kill_thugs_get_reward"
+    ]
+  },
+  {
+    "id": "mission_kill_thugs_get_reward",
+    "title": "Tell the scared woman that the thugs are dead",
+    "no_autocompletion": true,
     "rewards": [
       {
         "type": "item",
-        "prototype_id": "pistol",
+        "prototype_id": "sub_machine_gun",
         "amount": 1
+      },
+      {
+        "type": "credits",
+        "amount": 500
+      },
+      {
+        "type": "experience",
+        "amount": 500
       }
-    ],
-    "next_mission_id": "test_mission_02"
+    ]
   },
   {
-    "id": "test_mission_02",
+    "id": "mission_find_gun",
     "title": "Find lost pistol",
     "description": "Find a lost pistol",
     "objectives": [
@@ -37,10 +52,12 @@
       }
     ],
     "rewards": [],
-    "next_mission_id": "test_mission_03"
+    "next_missions": [
+      "mission_deliver_gun"
+    ]
   },
   {
-    "id": "test_mission_03",
+    "id": "mission_deliver_gun",
     "title": "Deliver lost pistol",
     "description": "Deliver a lost pistol",
     "objectives": [
@@ -51,9 +68,12 @@
     ],
     "rewards": [
       {
-        "type": "item",
-        "prototype_id": "sub_machine_gun",
-        "amount": 1
+        "type": "credits",
+        "amount": 500
+      },
+      {
+        "type": "experience",
+        "amount": 500
       }
     ]
   }
