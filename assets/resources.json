@@ -44,11 +44,7 @@
     },
     {
       "id": "blaster_01",
-      "path": "assets/sound_effects/external/Sci-Fi Weapon Sounds Pro/Sci Fi Blaster/Sci Fi Blaster 4.wav"
-    },
-    {
-      "id": "continuous_beam_01",
-      "path": "assets/sound_effects/external/Sci-Fi Weapon Sounds Pro/Sci Fi Beam/Sci Fi Beam 5.wav"
+      "path": "assets/sound_effects/Sci Fi Blaster 4.wav"
     }
   ],
   "music": [

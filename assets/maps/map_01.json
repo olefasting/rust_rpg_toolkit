@@ -140132,8 +140132,8 @@
             "y": 237.66667
           },
           "properties": {
-            "instance_id": "thug_02",
-            "prototype_id": "enemy_thug"
+            "prototype_id": "enemy_thug",
+            "instance_id": "thug_02"
           }
         },
         {
