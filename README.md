@@ -36,12 +36,13 @@ This is a work in progress but current features include (not an exhaustive list 
 - Composable items, from code or by JSON [assets/items.json](https://github.com/olefasting/capstone/blob/master/assets/items.json), character inventory and more
 - Dynamic resource loading, so textures can be added by editing [assets/resources.json](https://github.com/olefasting/capstone/blob/master/assets/resources.json) and referenced by `texture_id` in actors and items, both in-code and in the corresponding json-files
 - Create maps either by writing them in JSON, manually, or by importing and converting Tiled maps
+- Scriptable dialogue system (see [assets/dialogue.json](https://github.com/olefasting/capstone/blob/master/assets/dialogue.json))
+- Scriptable mission and reward system (see [assets/dialogue.json](https://github.com/olefasting/capstone/blob/master/assets/missions.json))
 
 ## In the works
 
 - Skills and abilities gained through level progression
 - Saving and loading
-- Mission system and story line
 - Gamepad support
 - Dynamic lighting and post-processing
 - Online and local coop
