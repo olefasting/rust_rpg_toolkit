@@ -132,3 +132,28 @@ pub fn draw_aligned_text(text: &str, x: f32, y: f32, ha: HorizontalAlignment, va
 
     draw_text_ex(text, x, y, params);
 }
+
+pub fn try_color_from_hex_string(str: &str) -> Option<Color> {
+    let len = str.len();
+    if len == 6 || (len == 7 && str.starts_with("#")) {
+        let str = if len == 7 {
+            str[1..7].to_string()
+        } else {
+            str.to_string()
+        };
+        let bytes = hex::decode(&str).unwrap();
+        Some(Color::new(
+            bytes[0] as f32 / 255.0,
+            bytes[1] as f32 / 255.0,
+            bytes[2] as f32 / 255.0,
+            1.0,
+        ))
+    } else {
+        None
+    }
+}
+
+pub fn color_from_hex_string(str: &str) -> Color {
+    try_color_from_hex_string(str)
+        .expect("Color hex must be prefixed by a has, if it is not six characters long!")
+}

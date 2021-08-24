@@ -5,7 +5,7 @@ mod character;
 mod dialogue;
 mod game_menu;
 
-pub mod theme;
+pub mod skins;
 
 use game_menu::draw_game_menu;
 use dialogue::draw_dialogue_window;

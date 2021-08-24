@@ -3,12 +3,17 @@ use std::{
     iter::FromIterator,
 };
 
-use macroquad::prelude::*;
+use macroquad::{
+    color,
+    prelude::*
+};
 
 use serde::{
     Serialize,
     Deserialize,
 };
+
+use crate::json;
 
 use crate::map::{
     Map,
@@ -22,6 +27,8 @@ use crate::map::{
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct MapDef {
+    #[serde(default = "MapDef::default_background_color", with = "json::ColorDef")]
+    pub background_color: Color,
     #[serde(with = "super::def_vec2", default)]
     pub world_offset: Vec2,
     #[serde(with = "super::def_uvec2")]
@@ -30,6 +37,12 @@ pub struct MapDef {
     pub tile_size: Vec2,
     pub layers: Vec<MapLayerDef>,
     pub tilesets: Vec<MapTileset>,
+}
+
+impl MapDef {
+    pub fn default_background_color() -> Color {
+        color::BLACK
+    }
 }
 
 impl Into<MapDef> for Map {
@@ -57,6 +70,7 @@ impl Into<MapDef> for Map {
                     collision: layer.collision.clone(),
                     objects,
                     tiles,
+                    is_visible: layer.is_visible,
                 })
             } else {
                 None
@@ -64,6 +78,7 @@ impl Into<MapDef> for Map {
         }).collect();
 
         MapDef {
+            background_color: self.background_color,
             world_offset: self.world_offset,
             grid_size: self.grid_size,
             tile_size: self.tile_size,
@@ -126,11 +141,13 @@ impl From<MapDef> for Map {
                         grid_size: def.grid_size,
                         tiles,
                         objects: layer.objects.clone().unwrap_or(Vec::new()),
+                        is_visible: layer.is_visible,
                     };
                     (layer.id.clone(), layer)
                 }));
 
         Map {
+            background_color: def.background_color,
             world_offset: def.world_offset,
             grid_size: def.grid_size,
             tile_size: def.tile_size,
@@ -147,8 +164,23 @@ pub struct MapLayerDef {
     #[serde(default, skip_serializing_if = "MapCollisionKind::is_none")]
     pub collision: MapCollisionKind,
     pub kind: MapLayerKind,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub tiles: Option<Vec<u32>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub objects: Option<Vec<MapObject>>,
+    #[serde(default)]
+    pub is_visible: bool,
+}
+
+impl Default for MapLayerDef {
+    fn default() -> Self {
+        MapLayerDef {
+            id: "".to_string(),
+            collision: MapCollisionKind::None,
+            kind: MapLayerKind::TileLayer,
+            tiles: Some(Vec::new()),
+            objects: None,
+            is_visible: true
+        }
+    }
 }

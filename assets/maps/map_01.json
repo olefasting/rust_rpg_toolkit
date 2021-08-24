@@ -1,4 +1,10 @@
 {
+  "background_color": {
+    "red": 0.0,
+    "green": 0.0,
+    "blue": 0.0,
+    "alpha": 1.0
+  },
   "world_offset": {
     "x": 0.0,
     "y": 0.0
@@ -20016,7 +20022,8 @@
         0,
         0,
         0
-      ]
+      ],
+      "is_visible": true
     },
     {
       "id": "ground_2",
@@ -40022,7 +40029,8 @@
         0,
         0,
         0
-      ]
+      ],
+      "is_visible": true
     },
     {
       "id": "barriers_1",
@@ -60029,7 +60037,8 @@
         0,
         0,
         0
-      ]
+      ],
+      "is_visible": true
     },
     {
       "id": "solids_1",
@@ -80036,7 +80045,8 @@
         0,
         0,
         0
-      ]
+      ],
+      "is_visible": true
     },
     {
       "id": "barriers_2",
@@ -100043,7 +100053,8 @@
         0,
         0,
         0
-      ]
+      ],
+      "is_visible": true
     },
     {
       "id": "solids_2",
@@ -120050,7 +120061,8 @@
         0,
         0,
         0
-      ]
+      ],
+      "is_visible": true
     },
     {
       "id": "decals",
@@ -140056,7 +140068,8 @@
         0,
         0,
         0
-      ]
+      ],
+      "is_visible": true
     },
     {
       "id": "light_sources",
@@ -140073,11 +140086,12 @@
             "y": 4.0
           },
           "properties": {
-            "color": "#ffff0000",
-            "intensity": "0.1"
+            "intensity": "0.1",
+            "color": "#ffff0000"
           }
         }
-      ]
+      ],
+      "is_visible": true
     },
     {
       "id": "spawn_points",
@@ -140173,7 +140187,8 @@
             "prototype_id": "neutral_bystander"
           }
         }
-      ]
+      ],
+      "is_visible": true
     },
     {
       "id": "items",
@@ -140189,10 +140204,29 @@
             "prototype_id": "quest_pistol"
           }
         }
-      ]
+      ],
+      "is_visible": true
     }
   ],
   "tilesets": [
+    {
+      "id": "neo_zero_props",
+      "texture_id": "props",
+      "texture_size": {
+        "x": 160,
+        "y": 160
+      },
+      "tile_size": {
+        "x": 16,
+        "y": 16
+      },
+      "grid_size": {
+        "x": 10,
+        "y": 10
+      },
+      "first_tile_id": 401,
+      "tile_cnt": 100
+    },
     {
       "id": "items",
       "texture_id": "items",
@@ -140228,24 +140262,6 @@
       },
       "first_tile_id": 1,
       "tile_cnt": 400
-    },
-    {
-      "id": "neo_zero_props",
-      "texture_id": "props",
-      "texture_size": {
-        "x": 160,
-        "y": 160
-      },
-      "tile_size": {
-        "x": 16,
-        "y": 16
-      },
-      "grid_size": {
-        "x": 10,
-        "y": 10
-      },
-      "first_tile_id": 401,
-      "tile_cnt": 100
     }
   ]
 }

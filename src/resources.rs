@@ -22,15 +22,16 @@ use crate::{
     nodes::{
         item::ItemParams,
         actor::ActorParams,
+        actor::ActorDialogue,
     },
     render::{
         LINEAR_FILTER_MODE,
         NEAREST_FILTER_MODE,
     },
     missions::MissionParams,
+    ability::AbilityParams,
+    gui::skins::GuiSkins,
 };
-use crate::nodes::actor::ActorDialogue;
-use crate::ability::AbilityParams;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct TextureData {
@@ -60,6 +61,7 @@ struct ResourcesData {
 }
 
 pub struct Resources {
+    pub gui_skins: GuiSkins,
     pub textures: HashMap<String, Texture2D>,
     pub sound_effects: HashMap<String, Sound>,
     pub music: HashMap<String, Sound>,
@@ -92,7 +94,6 @@ impl Resources {
 
     pub async fn new() -> Result<Resources, FileError> {
         let mut textures = HashMap::new();
-
         let white_texture = load_texture("assets/textures/white_texture.png").await?;
         white_texture.set_filter(FilterMode::Nearest);
         textures.insert(Self::WHITE_TEXTURE_ID.to_string(), white_texture);
@@ -163,6 +164,7 @@ impl Resources {
             ability_data.into_iter().map(|ability| (ability.id.clone(), ability)));
 
         Ok(Resources {
+            gui_skins: GuiSkins::new(),
             textures,
             sound_effects,
             music,

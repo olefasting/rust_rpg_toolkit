@@ -28,6 +28,8 @@ use super::TiledMap;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(into = "json::MapDef", from = "json::MapDef")]
 pub struct Map {
+    #[serde(default = "Map::default_background_color", with = "json::ColorDef")]
+    pub background_color: Color,
     #[serde(with = "json::def_vec2")]
     pub world_offset: Vec2,
     #[serde(with = "json::def_uvec2")]
@@ -85,20 +87,22 @@ impl Map {
         let rect = self.to_grid(collider.with_padding(self.tile_size.x).into());
         let mut collisions = Vec::new();
         'layers: for (_, layer) in &self.layers {
-            match layer.collision {
-                MapCollisionKind::None => continue 'layers,
-                _ => for (x, y, tile) in self.get_tiles(&layer.id, Some(rect)) {
-                    if let Some(_) = tile {
-                        if Collider::rect(
-                            x as f32 * self.tile_size.x,
-                            y as f32 * self.tile_size.y,
-                            self.tile_size.x as f32,
-                            self.tile_size.y as f32,
-                        ).overlaps(collider) {
-                            collisions.push((
-                                self.to_position(uvec2(x, y)),
-                                layer.collision.clone(),
-                            ));
+            if layer.is_visible {
+                match layer.collision {
+                    MapCollisionKind::None => continue 'layers,
+                    _ => for (x, y, tile) in self.get_tiles(&layer.id, Some(rect)) {
+                        if let Some(_) = tile {
+                            if Collider::rect(
+                                x as f32 * self.tile_size.x,
+                                y as f32 * self.tile_size.y,
+                                self.tile_size.x as f32,
+                                self.tile_size.y as f32,
+                            ).overlaps(collider) {
+                                collisions.push((
+                                    self.to_position(uvec2(x, y)),
+                                    layer.collision.clone(),
+                                ));
+                            }
                         }
                     }
                 }
@@ -129,48 +133,63 @@ impl Map {
     }
 
     pub fn draw(&self, rect: Option<URect>) {
+        let rect = rect.unwrap_or(URect::new(0, 0, self.grid_size.x, self.grid_size.y));
+        draw_rectangle(
+            self.world_offset.x + (rect.x as f32 * self.tile_size.x),
+            self.world_offset.y + (rect.y as f32 * self.tile_size.y),
+            rect.w as f32 * self.tile_size.x,
+            rect.h as f32 * self.tile_size.y,
+            self.background_color,
+        );
+
         let resources = storage::get::<Resources>();
         for layer_id in &self.draw_order {
             if let Some(layer) = self.layers.get(layer_id) {
-                match layer.kind {
-                    MapLayerKind::TileLayer => {
-                        for (x, y, tile) in self.get_tiles(layer_id, rect) {
-                            if let Some(tile) = tile {
-                                let world_position = self.world_offset + vec2(
-                                    x as f32 * self.tile_size.x,
-                                    y as f32 * self.tile_size.y,
-                                );
+                if layer.is_visible {
+                    match layer.kind {
+                        MapLayerKind::TileLayer => {
+                            for (x, y, tile) in self.get_tiles(layer_id, Some(rect)) {
+                                if let Some(tile) = tile {
+                                    let world_position = self.world_offset + vec2(
+                                        x as f32 * self.tile_size.x,
+                                        y as f32 * self.tile_size.y,
+                                    );
 
-                                let texture = resources.textures
-                                    .get(&tile.texture_id)
-                                    .cloned()
-                                    .expect(&format!("No texture with id '{}'!", tile.texture_id));
-                                draw_texture_ex(
-                                    texture,
-                                    world_position.x,
-                                    world_position.y,
-                                    color::WHITE,
-                                    DrawTextureParams {
-                                        source: Some(Rect::new(
-                                            tile.texture_coords.x, // + 0.1,
-                                            tile.texture_coords.y, // + 0.1,
-                                            self.tile_size.x, // - 0.2,
-                                            self.tile_size.y, // - 0.2,
-                                        )),
-                                        dest_size: Some(vec2(
-                                            self.tile_size.x,
-                                            self.tile_size.y,
-                                        )),
-                                        ..Default::default()
-                                    },
-                                );
+                                    let texture = resources.textures
+                                        .get(&tile.texture_id)
+                                        .cloned()
+                                        .expect(&format!("No texture with id '{}'!", tile.texture_id));
+                                    draw_texture_ex(
+                                        texture,
+                                        world_position.x,
+                                        world_position.y,
+                                        color::WHITE,
+                                        DrawTextureParams {
+                                            source: Some(Rect::new(
+                                                tile.texture_coords.x, // + 0.1,
+                                                tile.texture_coords.y, // + 0.1,
+                                                self.tile_size.x, // - 0.2,
+                                                self.tile_size.y, // - 0.2,
+                                            )),
+                                            dest_size: Some(vec2(
+                                                self.tile_size.x,
+                                                self.tile_size.y,
+                                            )),
+                                            ..Default::default()
+                                        },
+                                    );
+                                }
                             }
-                        }
-                    },
-                    _ => {}
+                        },
+                        _ => {}
+                    }
                 }
             }
         }
+    }
+
+    pub fn default_background_color() -> Color {
+        color::BLACK
     }
 }
 
@@ -240,7 +259,24 @@ pub struct MapLayer {
     pub grid_size: UVec2,
     pub tiles: Vec<Option<MapTile>>,
     pub objects: Vec<MapObject>,
+    #[serde(default)]
+    pub is_visible: bool,
 }
+
+impl Default for MapLayer {
+    fn default() -> Self {
+        MapLayer {
+            id: "".to_string(),
+            collision: MapCollisionKind::None,
+            kind: MapLayerKind::TileLayer,
+            grid_size: UVec2::ZERO,
+            tiles: Vec::new(),
+            objects: Vec::new(),
+            is_visible: true
+        }
+    }
+}
+
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MapTile {

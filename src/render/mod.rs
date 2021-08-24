@@ -13,6 +13,8 @@ pub use helpers::{
     HorizontalAlignment,
     draw_progress_bar,
     draw_aligned_text,
+    color_from_hex_string,
+    try_color_from_hex_string,
 };
 
 pub mod sprite;

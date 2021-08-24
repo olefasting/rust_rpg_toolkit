@@ -15,6 +15,7 @@ use std::{
 use crate::{
     generate_id,
     resources::Resources,
+    render::try_color_from_hex_string,
 };
 
 use super::map::{
@@ -122,6 +123,9 @@ impl Into<Map> for TiledMap {
             self.tiled_map.layers
                 .iter()
                 .map(|(layer_id, tiled_layer)| {
+                    let raw_tiled_layer = raw_tiled_map.layers.iter().find(|raw_layer| raw_layer.name == layer_id.to_string())
+                        .expect(&format!("Unable to find tiled layer '{}' in the raw tiled map!", layer_id));
+                    let is_visible = raw_tiled_layer.visible;
                     let (kind, tiles, objects) = if tiled_layer.objects.len() > 0 {
                         let objects = tiled_layer.objects
                             .iter()
@@ -176,12 +180,17 @@ impl Into<Map> for TiledMap {
                         grid_size,
                         tiles,
                         objects,
+                        is_visible,
                     };
 
                     (layer_id.clone(), layer)
                 }));
 
+        let background_color = try_color_from_hex_string(&raw_tiled_map.backgroundcolor)
+            .unwrap_or(Map::default_background_color());
+
         Map {
+            background_color,
             world_offset: Vec2::ZERO,
             grid_size,
             tile_size,
