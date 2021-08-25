@@ -1,12 +1,14 @@
 # Capstone
 
-This is an action/run 'n' gun RPG, created in Rust using [macroquad](https://github.com/not-fl3/macroquad).
+![logo](logo.png)
+
+This is a gnostic-themed action run 'n' gun RPG, created in Rust using [macroquad](https://github.com/not-fl3/macroquad).
 The future holds huge boss fights, and a mind-nuking story line, as you progress through the world, and your own mind, to battle yourself and the archons to break free of samsara and the materialist dystopia of our not too distant future.
 
 ## Screenshots
 
-![Screenshot](screenshots/screenshot_01.png)
-![Screenshot](screenshots/screenshot_02.png)
+![screenshot](screenshots/screenshot_01.png)
+![screenshot](screenshots/screenshot_02.png)
 
 ## License
 
