@@ -3,7 +3,6 @@
     "id": "pistol",
     "sound_effect": "gunshot_02",
     "noise_level": "loud",
-    "action_kind": "primary",
     "cooldown": 0.6,
     "health_cost": 0.0,
     "stamina_cost": 10.0,
@@ -24,7 +23,6 @@
   {
     "id": "sub_machine_gun",
     "noise_level": "loud",
-    "action_kind": "primary",
     "sound_effect": "gunshot_01",
     "cooldown": 0.1,
     "health_cost": 0.0,
@@ -47,7 +45,6 @@
     "id": "beam",
     "sound_effect": "blaster_01",
     "noise_level": "silent",
-    "action_kind": "primary",
     "health_cost": 0.0,
     "stamina_cost": 10.0,
     "energy_cost": 0.0,

@@ -76,8 +76,8 @@ use crate::{
     },
 };
 use crate::nodes::actor::equipped::{EquippedItems, EquipmentSlot};
-use crate::ability::ActionKind;
 use crate::nodes::actor::ActorInventoryEntry;
+use crate::nodes::item::ItemKind;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub enum ActorNoiseLevel {
@@ -471,70 +471,99 @@ impl Actor {
         self.completed_missions.append(&mut completed_missions);
     }
 
-    pub fn equip_item(&mut self, item_id: &str, slot: EquipmentSlot) {
-        self.unequip_item(slot.clone());
-        if let Some(entry) = self.inventory.items.iter_mut().find(|entry| entry.id == item_id.to_string()) {
+    pub fn equip_item(&mut self, item_id: &str) {
+        let item_id = item_id.to_string();
+        let mut found_entry = None;
+        for entry in &self.inventory.items {
+            if entry.id == item_id {
+                found_entry = Some(entry.clone());
+            }
+        }
+        if let Some(entry) = found_entry {
+            let slot = match entry.params.kind {
+                ItemKind::OneHandedWeapon => {
+                    if self.equipped_items.main_hand.is_some() && self.equipped_items.off_hand.is_none() {
+                        EquipmentSlot::OffHand
+                    } else {
+                        EquipmentSlot::MainHand
+                    }
+                },
+                ItemKind::TwoHandedWeapon => EquipmentSlot::BothHands,
+                _ => EquipmentSlot::None,
+            };
+            self.unequip_slot(slot.clone());
             match slot {
                 EquipmentSlot::MainHand => {
                     self.equipped_items.main_hand = Some(entry.id.to_string());
+                    self.primary_ability = entry.get_actor_ability();
                 }
                 EquipmentSlot::OffHand => {
                     self.equipped_items.off_hand = Some(entry.id.to_string());
+                    self.secondary_ability = entry.get_actor_ability();
                 }
                 EquipmentSlot::BothHands => {
                     self.equipped_items.main_hand = Some(entry.id.to_string());
                     self.equipped_items.off_hand = Some(entry.id.to_string());
+                    self.primary_ability = entry.get_actor_ability();
                 }
                 EquipmentSlot::None => {}
             }
+        }
+
+        if let Some(entry) = self.inventory.items.iter_mut().find(|entry| entry.id == item_id) {
             entry.is_equipped = true;
-            if let Some(ability) = entry.get_actor_ability() {
-                match ability.action_kind {
-                    ActionKind::Primary => self.primary_ability = Some(ability),
-                    ActionKind::Secondary => self.secondary_ability = Some(ability),
-                }
-            }
         }
     }
 
-    pub fn unequip_item(&mut self, slot: EquipmentSlot) {
+    pub fn unequip_slot(&mut self, slot: EquipmentSlot) {
         let item_ids = match slot {
             EquipmentSlot::MainHand => {
                 if let Some(item_id) = self.equipped_items.main_hand.clone() {
-                    self.equipped_items.main_hand = None;
-                    self.primary_ability = None;
                     vec!(item_id)
                 } else {
                     Vec::new()
                 }
-            }
+            },
             EquipmentSlot::OffHand => {
                 if let Some(item_id) = self.equipped_items.off_hand.clone() {
-                    self.equipped_items.off_hand = None;
                     vec!(item_id)
                 } else {
                     Vec::new()
                 }
-            }
+            },
             EquipmentSlot::BothHands => {
                 let mut item_ids = Vec::new();
                 if let Some(item_id) = self.equipped_items.main_hand.clone() {
-                    self.equipped_items.main_hand = None;
                     item_ids.push(item_id);
                 }
                 if let Some(item_id) = self.equipped_items.off_hand.clone() {
-                    self.equipped_items.off_hand = None;
                     item_ids.push(item_id);
                 }
-                self.primary_ability = None;
                 item_ids
-            }
+            },
             EquipmentSlot::None => Vec::new(),
         };
+
         for item_id in item_ids {
-            if let Some(entry) = self.inventory.items.iter_mut().find(|entry| entry.id == item_id.to_string()) {
-                entry.is_equipped = false;
+            self.unequip_item(&item_id);
+        }
+    }
+
+    pub fn unequip_item(&mut self, item_id: &str) {
+        if let Some(found_id) = self.equipped_items.main_hand.clone() {
+            if found_id == item_id.to_string() {
+                self.equipped_items.main_hand = None;
+                self.primary_ability = None;
             }
+        }
+        if let Some(found_id) = self.equipped_items.off_hand.clone() {
+            if found_id == item_id.to_string() {
+                self.equipped_items.off_hand = None;
+                self.secondary_ability = None;
+            }
+        }
+        if let Some(entry) = self.inventory.items.iter_mut().find(|entry| entry.id == item_id.to_string()) {
+            entry.is_equipped = false;
         }
     }
 }

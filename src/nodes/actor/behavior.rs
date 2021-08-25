@@ -18,7 +18,6 @@ use crate::{
         deg_to_rad,
     },
     json,
-    ability::ActionKind,
     nodes::item::ItemKind
 };
 
@@ -137,14 +136,7 @@ fn equip_weapon(actor: &mut Actor) {
     let weapons = actor.inventory.get_all_of_kind(&[ItemKind::OneHandedWeapon, ItemKind::TwoHandedWeapon]);
     let i = rand::gen_range(0, weapons.len() - 1);
     if let Some(weapon) = weapons.get(i) {
-        if let Some(ability) = weapon.get_actor_ability() {
-            match ability.action_kind {
-                ActionKind::Primary =>
-                    actor.primary_ability = Some(ability),
-                ActionKind::Secondary =>
-                    actor.secondary_ability = Some(ability),
-            }
-        }
+        actor.equip_item(&weapon.id);
     }
 }
 

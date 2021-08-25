@@ -40,14 +40,6 @@ pub enum EffectKind {
     HealSelf,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub enum ActionKind {
-    #[serde(rename = "primary")]
-    Primary,
-    #[serde(rename = "secondary")]
-    Secondary,
-}
-
 #[derive(Clone, Serialize, Deserialize)]
 pub struct AbilityParams {
     pub id: String,
@@ -56,7 +48,6 @@ pub struct AbilityParams {
     #[serde(default)]
     pub noise_level: ActorNoiseLevel,
     pub effect_kind: EffectKind,
-    pub action_kind: ActionKind,
     #[serde(default)]
     pub cooldown: f32,
     #[serde(default)]
@@ -83,7 +74,6 @@ impl Default for AbilityParams {
             sound_effect_id: None,
             noise_level: ActorNoiseLevel::Moderate,
             effect_kind: EffectKind::Projectile,
-            action_kind: ActionKind::Primary,
             cooldown: 0.0,
             health_cost: 0.0,
             stamina_cost: 0.0,
@@ -102,7 +92,6 @@ impl Default for AbilityParams {
 pub struct Ability {
     pub noise_level: ActorNoiseLevel,
     pub effect_kind: EffectKind,
-    pub action_kind: ActionKind,
     pub sound_effect: Option<Sound>,
     pub cooldown: f32,
     pub cooldown_timer: f32,
@@ -130,7 +119,6 @@ impl Ability {
             sound_effect,
             noise_level: params.noise_level,
             effect_kind: params.effect_kind,
-            action_kind: params.action_kind,
             health_cost: params.health_cost,
             stamina_cost: params.stamina_cost,
             energy_cost: params.energy_cost,

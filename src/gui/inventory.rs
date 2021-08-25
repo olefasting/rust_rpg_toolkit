@@ -11,7 +11,6 @@ use crate::{
         Actor,
         item::ItemKind,
     },
-    ability::ActionKind,
 };
 
 pub fn draw_inventory_window(scale: f32, player: &mut Actor) {
@@ -27,18 +26,15 @@ pub fn draw_inventory_window(scale: f32, player: &mut Actor) {
                             ui.label(None, &item.params.name);
                             if item.is_equipped {
                                 if ui.button(None, "Unequip") {
-                                    let slot = item.get_item_slot();
-                                    player.unequip_item(slot);
+                                    player.unequip_item(&item.id);
                                 }
                             } else {
                                 if ui.button(None, "Equip") {
-                                    let slot = item.get_item_slot();
-                                    player.equip_item(&item.id, slot);
+                                    player.equip_item(&item.id);
                                 }
                                 if item.params.is_quest_item == false {
                                     if ui.button(None, "Drop") {
-                                        let slot = item.get_item_slot();
-                                        player.unequip_item(slot);
+                                        player.unequip_item(&item.id);
                                         let position = player.body.position;
                                         player.inventory.drop(&item.id, position);
                                     }
@@ -56,18 +52,15 @@ pub fn draw_inventory_window(scale: f32, player: &mut Actor) {
                             ui.label(None, &item.params.name);
                             if item.is_equipped {
                                 if ui.button(None, "Unequip") {
-                                    let slot = item.get_item_slot();
-                                    player.unequip_item(slot);
+                                    player.unequip_item(&item.id);
                                 }
                             } else {
                                 if ui.button(None, "Equip") {
-                                    let slot = item.get_item_slot();
-                                    player.equip_item(&item.id, slot);
+                                    player.equip_item(&item.id);
                                 }
                                 if item.params.is_quest_item == false {
                                     if ui.button(None, "Drop") {
-                                        let slot = item.get_item_slot();
-                                        player.unequip_item(slot);
+                                        player.unequip_item(&item.id);
                                         let position = player.body.position;
                                         player.inventory.drop(&item.id, position);
                                     }
