@@ -27,7 +27,13 @@ use crate::nodes::actor::ActorNoiseLevel;
 use macroquad::audio::{Sound, play_sound_once};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub enum EffectKind {
+pub enum Effect {
+    #[serde(rename = "projectile")]
+    Damage,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum AbilityKind {
     #[serde(rename = "projectile")]
     Projectile,
     #[serde(rename = "energy_sphere")]
@@ -36,8 +42,6 @@ pub enum EffectKind {
     Beam,
     #[serde(rename = "continuous_beam")]
     ContinuousBeam,
-    #[serde(rename = "heal_self")]
-    HealSelf,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -47,7 +51,7 @@ pub struct AbilityParams {
     pub sound_effect_id: Option<String>,
     #[serde(default)]
     pub noise_level: ActorNoiseLevel,
-    pub effect_kind: EffectKind,
+    pub kind: AbilityKind,
     #[serde(default)]
     pub cooldown: f32,
     #[serde(default)]
@@ -62,9 +66,11 @@ pub struct AbilityParams {
     pub spread: f32,
     pub range: f32,
     pub damage: f32,
-    pub effect_size: f32,
-    #[serde(with = "json::ColorDef")]
-    pub effect_color: Color,
+    pub effects: Vec<Effect>,
+    #[serde(default, with = "json::ColorDef")]
+    pub color: Color,
+    #[serde(default)]
+    pub size: f32,
 }
 
 impl Default for AbilityParams {
@@ -73,7 +79,7 @@ impl Default for AbilityParams {
             id: "".to_string(),
             sound_effect_id: None,
             noise_level: ActorNoiseLevel::Moderate,
-            effect_kind: EffectKind::Projectile,
+            kind: AbilityKind::Projectile,
             cooldown: 0.0,
             health_cost: 0.0,
             stamina_cost: 0.0,
@@ -82,8 +88,9 @@ impl Default for AbilityParams {
             spread: 0.0,
             range: 100.0,
             damage: 0.0,
-            effect_size: 5.0,
-            effect_color: color::WHITE,
+            effects: Vec::new(),
+            color: Ability::DEFAULT_PROJECTILE_COLOR,
+            size: Ability::DEFAULT_PROJECTILE_SIZE,
         }
     }
 }
@@ -91,7 +98,7 @@ impl Default for AbilityParams {
 #[derive(Clone)]
 pub struct Ability {
     pub noise_level: ActorNoiseLevel,
-    pub effect_kind: EffectKind,
+    pub kind: AbilityKind,
     pub sound_effect: Option<Sound>,
     pub cooldown: f32,
     pub cooldown_timer: f32,
@@ -102,11 +109,18 @@ pub struct Ability {
     pub spread: f32,
     pub range: f32,
     pub damage: f32,
-    pub effect_size: f32,
-    pub effect_color: Color,
+    pub effects: Vec<Effect>,
+    pub color: Color,
+    pub size: f32,
 }
 
 impl Ability {
+    const DEFAULT_PROJECTILE_COLOR: Color = color::YELLOW;
+    const DEFAULT_PROJECTILE_SIZE: f32 = 1.0;
+
+    const DEFAULT_BEAM_COLOR: Color = color::RED;
+    const DEFAULT_BEAM_SIZE: f32 = 2.0;
+
     pub fn new(params: AbilityParams) -> Self {
         let sound_effect = if let Some(sound_id) = params.sound_effect_id {
             let resources = storage::get::<Resources>();
@@ -118,7 +132,7 @@ impl Ability {
         Ability {
             sound_effect,
             noise_level: params.noise_level,
-            effect_kind: params.effect_kind,
+            kind: params.kind,
             health_cost: params.health_cost,
             stamina_cost: params.stamina_cost,
             energy_cost: params.energy_cost,
@@ -128,8 +142,9 @@ impl Ability {
             spread: params.spread,
             range: params.range,
             damage: params.damage,
-            effect_size: params.effect_size,
-            effect_color: params.effect_color,
+            effects: params.effects,
+            size: params.size,
+            color: params.color,
         }
     }
 
@@ -141,7 +156,7 @@ impl Ability {
             actor.stats.current_health -= self.health_cost;
             actor.stats.current_stamina -= self.stamina_cost;
             actor.stats.current_energy -= self.energy_cost;
-            if self.effect_kind == EffectKind::ContinuousBeam {
+            if self.kind == AbilityKind::ContinuousBeam {
                 self.cooldown_timer = 0.0;
                 let mut continuous_beams = scene::find_node_by_type::<ContinuousBeams>().unwrap();
                 let end = actor.body.position + target.sub(actor.body.position).normalize_or_zero() * self.range;
@@ -149,16 +164,16 @@ impl Ability {
                     &actor.id,
                     &actor.factions,
                     self.damage,
-                    self.effect_color,
-                    self.effect_size,
+                    self.color,
+                    self.size,
                     actor.body.position,
                     end,
                 );
             } else if self.cooldown_timer >= self.cooldown {
                 self.cooldown_timer = 0.0;
-                let kind = match self.effect_kind {
-                    EffectKind::Beam => ProjectileKind::Beam,
-                    EffectKind::EnergySphere => ProjectileKind::EnergySphere,
+                let kind = match self.kind {
+                    AbilityKind::Beam => ProjectileKind::Beam,
+                    AbilityKind::EnergySphere => ProjectileKind::EnergySphere,
                     _ => ProjectileKind::Bullet,
                 };
                 let mut projectiles = scene::find_node_by_type::<Projectiles>().unwrap();
@@ -168,8 +183,8 @@ impl Ability {
                     &actor.factions,
                     kind,
                     self.damage,
-                    self.effect_color,
-                    self.effect_size,
+                    self.color,
+                    self.size,
                     origin,
                     target,
                     self.speed,

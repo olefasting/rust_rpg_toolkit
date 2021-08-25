@@ -111,7 +111,7 @@ impl Node for Hud {
                                     // }
                                     draw_texture_ex(
                                         texture.clone(),
-                                        position.x,
+                                        position.x - 16.0,
                                         position.y,
                                         color,
                                         DrawTextureParams {
@@ -148,7 +148,7 @@ impl Node for Hud {
                                         // }
                                         draw_texture_ex(
                                             texture.clone(),
-                                            position.x,
+                                            position.x - 16.0,
                                             position.y,
                                             color,
                                             DrawTextureParams {

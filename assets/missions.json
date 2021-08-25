@@ -64,6 +64,7 @@
     "id": "mission_deliver_gun",
     "title": "Deliver lost pistol",
     "description": "Deliver a lost pistol",
+    "no_autocompletion": true,
     "marker": {
       "type": "actor",
       "actor_id": "guard_boss"

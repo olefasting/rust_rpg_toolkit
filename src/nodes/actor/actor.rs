@@ -430,10 +430,7 @@ impl Actor {
             }
         }
         let mut completed_missions = active_missions.drain_filter(|mission| {
-            if mission.is_completed {
-                return true;
-            }
-            if mission.no_autocompletion {
+            if mission.no_autocompletion && mission.is_completed == false {
                 return false;
             }
             for (_, is_completed) in &mission.objectives {

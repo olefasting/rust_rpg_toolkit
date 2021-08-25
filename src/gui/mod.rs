@@ -28,19 +28,19 @@ use crate::{
 use super::GuiSkins;
 
 pub fn draw_gui() {
-    let skins = storage::get::<GuiSkins>();
-    root_ui().push_skin(&skins.default);
+    let gui_skins = storage::get::<GuiSkins>();
+    root_ui().push_skin(&gui_skins.default);
     if let Some(mut game_state) = scene::find_node_by_type::<GameState>() {
         if let Some(mut player) = Actor::find_by_player_id(&game_state.local_player_id) {
             if game_state.show_character_window {
-                draw_character_window(skins.scale, &*player);
+                draw_character_window(&*player);
             }
             if game_state.show_inventory_window {
-                draw_inventory_window(skins.scale, &mut *player);
+                draw_inventory_window(&mut *player);
             }
-            draw_dialogue_window(skins.scale, &mut *player);
+            draw_dialogue_window(&mut *player);
             if game_state.show_game_menu {
-                draw_game_menu(skins.scale, &mut game_state);
+                draw_game_menu(&mut game_state);
             }
         }
     }

@@ -3,12 +3,17 @@ use macroquad::{
         hash, root_ui,
         widgets::{self},
     },
+    experimental::collections::storage,
     prelude::*,
 };
 
 use crate::nodes::Actor;
 
-pub fn draw_dialogue_window(scale: f32, player: &mut Actor) {
+use super::GuiSkins;
+
+pub fn draw_dialogue_window(player: &mut Actor) {
+    let gui_skins = storage::get::<GuiSkins>();
+    let scale = gui_skins.scale;
     let interaction = player.current_dialogue.clone();
     let x = screen_width() / 2.0 - 200.0 * scale;
     let y = screen_height() / 2.0 - 175.0 * scale;

@@ -8,14 +8,15 @@
     "spread": 5.0,
     "range": 5.0,
     "damage": 50.0,
-    "effect_kind": "projectile",
-    "effect_size": 1.0,
-    "effect_color": {
+    "kind": "projectile",
+    "size": 1.0,
+    "color": {
       "r": 0.99,
       "g": 0.98,
       "b": 0.0,
       "a": 1.0
-    }
+    },
+    "effects": []
   },
   {
     "id": "sub_machine_gun",
@@ -26,14 +27,15 @@
     "spread": 2.0,
     "range": 5.0,
     "damage": 75.0,
-    "effect_kind": "projectile",
-    "effect_size": 1.0,
-    "effect_color": {
+    "kind": "projectile",
+    "size": 1.0,
+    "color": {
       "r": 0.99,
       "g": 0.98,
       "b": 0.0,
       "a": 1.0
-    }
+    },
+    "effects": []
   },
   {
     "id": "beam",
@@ -44,13 +46,14 @@
     "spread": 2.0,
     "range": 8.0,
     "damage": 125.0,
-    "effect_kind": "beam",
-    "effect_size": 2.0,
-    "effect_color": {
+    "kind": "beam",
+    "size": 2.0,
+    "color": {
       "r": 0.99,
       "g": 0.0,
       "b": 0.0,
       "a": 1.0
-    }
+    },
+    "effects": []
   }
 ]

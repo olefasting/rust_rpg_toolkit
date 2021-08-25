@@ -3,6 +3,7 @@ use macroquad::{
         hash, root_ui,
         widgets::{self},
     },
+    experimental::collections::storage,
     prelude::*,
 };
 
@@ -10,7 +11,11 @@ use crate::{
     nodes::Actor,
 };
 
-pub fn draw_character_window(scale: f32, player: &Actor) {
+use super::GuiSkins;
+
+pub fn draw_character_window(player: &Actor) {
+    let gui_skins = storage::get::<GuiSkins>();
+    let scale = gui_skins.scale;
     widgets::Window::new(hash!(), vec2(50.0 * scale, 150.0 * scale), vec2(300.0 * scale, 200.0 * scale))
         .titlebar(false)
         .ui(&mut *root_ui(), |ui| {
