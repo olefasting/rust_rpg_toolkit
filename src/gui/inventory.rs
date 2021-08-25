@@ -12,6 +12,7 @@ use crate::{
         item::ItemKind,
     },
 };
+use crate::nodes::actor::EquipmentSlot;
 
 pub fn draw_inventory_window(scale: f32, player: &mut Actor) {
     widgets::Window::new(hash!(), vec2(50.0 * scale, 375.0 * scale), vec2(300.0 * scale, 300.0 * scale))
@@ -24,7 +25,7 @@ pub fn draw_inventory_window(scale: f32, player: &mut Actor) {
                     ui.tree_node(hash!(), "Weapons", |ui| {
                         for item in &items {
                             ui.label(None, &item.params.name);
-                            if item.is_equipped {
+                            if item.equipped_to != EquipmentSlot::None {
                                 if ui.button(None, "Unequip") {
                                     player.unequip_item(&item.id);
                                 }
@@ -50,7 +51,7 @@ pub fn draw_inventory_window(scale: f32, player: &mut Actor) {
                     ui.tree_node(hash!(), "Miscellaneous", |ui| {
                         for item in &items {
                             ui.label(None, &item.params.name);
-                            if item.is_equipped {
+                            if item.equipped_to != EquipmentSlot::None {
                                 if ui.button(None, "Unequip") {
                                     player.unequip_item(&item.id);
                                 }

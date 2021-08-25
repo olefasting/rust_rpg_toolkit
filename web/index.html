@@ -30,4 +30,16 @@
 <script>load("./capstone.wasm");</script> <!-- Your compiled wasm file -->
 </body>
 
+<script>
+    let can = document.getElementById('glcanvas');
+    //let ctx = can.getContext('webgl');
+
+    can.addEventListener('contextmenu', function(e) {
+        if (e.button === 2) {
+            e.preventDefault();
+            return false;
+        }
+    }, false);
+</script>
+
 </html>

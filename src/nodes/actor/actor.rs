@@ -478,8 +478,9 @@ impl Actor {
                 found_entry = Some(entry.clone());
             }
         }
+        let mut slot = EquipmentSlot::None;
         if let Some(entry) = found_entry {
-            let slot = match entry.params.kind {
+            slot = match entry.params.kind {
                 ItemKind::OneHandedWeapon => {
                     if self.equipped_items.main_hand.is_some() && self.equipped_items.off_hand.is_none() {
                         EquipmentSlot::OffHand
@@ -510,7 +511,7 @@ impl Actor {
         }
 
         if let Some(entry) = self.inventory.items.iter_mut().find(|entry| entry.id == item_id) {
-            entry.is_equipped = true;
+            entry.equipped_to = slot;
         }
     }
 
@@ -562,7 +563,7 @@ impl Actor {
             }
         }
         if let Some(entry) = self.inventory.items.iter_mut().find(|entry| entry.id == item_id.to_string()) {
-            entry.is_equipped = false;
+            entry.equipped_to = EquipmentSlot::None;
         }
     }
 }

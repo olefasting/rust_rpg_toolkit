@@ -44,7 +44,7 @@ impl Default for ActorInventoryParams {
 pub struct ActorInventoryEntry {
     pub id: String,
     pub params: ItemParams,
-    pub is_equipped: bool,
+    pub equipped_to: EquipmentSlot,
 }
 
 impl ActorInventoryEntry {
@@ -52,15 +52,7 @@ impl ActorInventoryEntry {
         ActorInventoryEntry {
             id: id.unwrap_or(generate_id()),
             params,
-            is_equipped: false,
-        }
-    }
-
-    pub fn get_item_slot(&self) -> EquipmentSlot {
-        match self.params.kind {
-            ItemKind::OneHandedWeapon => EquipmentSlot::MainHand,
-            ItemKind::TwoHandedWeapon => EquipmentSlot::BothHands,
-            _ => EquipmentSlot::None,
+            equipped_to: EquipmentSlot::None,
         }
     }
 }

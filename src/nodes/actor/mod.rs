@@ -24,6 +24,11 @@ pub use inventory::{
     ActorInventoryParams,
 };
 
+pub use equipped::{
+    EquipmentSlot,
+    EquippedItems,
+};
+
 pub use stats::ActorStats;
 
 pub use actor::{
