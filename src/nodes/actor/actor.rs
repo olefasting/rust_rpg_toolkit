@@ -73,8 +73,11 @@ use crate::{
     },
     nodes::{
         item::Credits
-    }
+    },
 };
+use crate::nodes::actor::equipped::{EquippedItems, EquipmentSlot};
+use crate::ability::ActionKind;
+use crate::nodes::actor::ActorInventoryEntry;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub enum ActorNoiseLevel {
@@ -184,6 +187,8 @@ pub struct ActorParams {
     pub collider: Option<Collider>,
     #[serde(default, flatten)]
     pub inventory: ActorInventoryParams,
+    #[serde(default)]
+    pub equipped_items: EquippedItems,
     pub animation_player: SpriteAnimationParams,
     #[serde(default)]
     pub experience: u32,
@@ -213,6 +218,7 @@ impl Default for ActorParams {
             factions: Vec::new(),
             collider: None,
             inventory: Default::default(),
+            equipped_items: Default::default(),
             animation_player: Default::default(),
             experience: 0,
             can_level_up: false,
@@ -233,6 +239,7 @@ pub struct Actor {
     pub factions: Vec<String>,
     pub body: PhysicsBody,
     pub inventory: ActorInventory,
+    pub equipped_items: EquippedItems,
     pub primary_ability: Option<Ability>,
     pub secondary_ability: Option<Ability>,
     pub controller: ActorController,
@@ -287,6 +294,7 @@ impl Actor {
             factions: params.factions,
             body: PhysicsBody::new(position, 0.0, params.collider),
             inventory: ActorInventory::from(params.inventory),
+            equipped_items: params.equipped_items,
             primary_ability: None,
             secondary_ability: None,
             controller: ActorController::new(controller_kind),
@@ -315,12 +323,12 @@ impl Actor {
                     if player_id == id {
                         return Some(actor);
                     }
-                },
+                }
                 ActorControllerKind::RemotePlayer { player_id } => {
                     if player_id == id {
-                        return Some(actor)
+                        return Some(actor);
                     }
-                },
+                }
                 _ => {}
             }
         }
@@ -411,7 +419,7 @@ impl Actor {
                             if game_state.dead_actors.contains(actor_id) {
                                 objective.1 = true;
                             }
-                        },
+                        }
                         MissionObjective::FindItem { item_id } => {
                             if self.inventory.items.iter().find(|entry| entry.id == item_id.clone()).is_some() {
                                 objective.1 = true;
@@ -445,10 +453,10 @@ impl Actor {
                         for _ in 0..*amount {
                             self.inventory.add_item(params.clone());
                         }
-                    },
+                    }
                     MissionReward::Credits { amount } => {
                         self.inventory.add_credits(*amount);
-                    },
+                    }
                     MissionReward::Experience { amount } => {
                         self.add_experience(*amount);
                     }
@@ -461,6 +469,73 @@ impl Actor {
         }
         self.active_missions = active_missions;
         self.completed_missions.append(&mut completed_missions);
+    }
+
+    pub fn equip_item(&mut self, item_id: &str, slot: EquipmentSlot) {
+        self.unequip_item(slot.clone());
+        if let Some(entry) = self.inventory.items.iter_mut().find(|entry| entry.id == item_id.to_string()) {
+            match slot {
+                EquipmentSlot::MainHand => {
+                    self.equipped_items.main_hand = Some(entry.id.to_string());
+                }
+                EquipmentSlot::OffHand => {
+                    self.equipped_items.off_hand = Some(entry.id.to_string());
+                }
+                EquipmentSlot::BothHands => {
+                    self.equipped_items.main_hand = Some(entry.id.to_string());
+                    self.equipped_items.off_hand = Some(entry.id.to_string());
+                }
+                EquipmentSlot::None => {}
+            }
+            entry.is_equipped = true;
+            if let Some(ability) = entry.get_actor_ability() {
+                match ability.action_kind {
+                    ActionKind::Primary => self.primary_ability = Some(ability),
+                    ActionKind::Secondary => self.secondary_ability = Some(ability),
+                }
+            }
+        }
+    }
+
+    pub fn unequip_item(&mut self, slot: EquipmentSlot) {
+        let item_ids = match slot {
+            EquipmentSlot::MainHand => {
+                if let Some(item_id) = self.equipped_items.main_hand.clone() {
+                    self.equipped_items.main_hand = None;
+                    self.primary_ability = None;
+                    vec!(item_id)
+                } else {
+                    Vec::new()
+                }
+            }
+            EquipmentSlot::OffHand => {
+                if let Some(item_id) = self.equipped_items.off_hand.clone() {
+                    self.equipped_items.off_hand = None;
+                    vec!(item_id)
+                } else {
+                    Vec::new()
+                }
+            }
+            EquipmentSlot::BothHands => {
+                let mut item_ids = Vec::new();
+                if let Some(item_id) = self.equipped_items.main_hand.clone() {
+                    self.equipped_items.main_hand = None;
+                    item_ids.push(item_id);
+                }
+                if let Some(item_id) = self.equipped_items.off_hand.clone() {
+                    self.equipped_items.off_hand = None;
+                    item_ids.push(item_id);
+                }
+                self.primary_ability = None;
+                item_ids
+            }
+            EquipmentSlot::None => Vec::new(),
+        };
+        for item_id in item_ids {
+            if let Some(entry) = self.inventory.items.iter_mut().find(|entry| entry.id == item_id.to_string()) {
+                entry.is_equipped = false;
+            }
+        }
     }
 }
 
@@ -490,6 +565,7 @@ impl Into<ActorParams> for Actor {
             factions: self.factions,
             collider: self.body.collider,
             inventory: self.inventory.to_params(),
+            equipped_items: self.equipped_items,
             dialogue_id,
             animation_player: SpriteAnimationParams::from(self.animation_player),
             experience: self.experience,
@@ -540,7 +616,7 @@ impl BufferedDraw for Actor {
                     VerticalAlignment::Center,
                     TextParams {
                         ..Default::default()
-                    }
+                    },
                 )
             }
             if let Some(action) = &self.behavior.current_action {

@@ -22,6 +22,7 @@ use crate::{
     generate_id,
     resources::Resources,
 };
+use crate::nodes::actor::equipped::EquipmentSlot;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ActorInventoryParams {
@@ -43,6 +44,7 @@ impl Default for ActorInventoryParams {
 pub struct ActorInventoryEntry {
     pub id: String,
     pub params: ItemParams,
+    pub is_equipped: bool,
 }
 
 impl ActorInventoryEntry {
@@ -50,15 +52,28 @@ impl ActorInventoryEntry {
         ActorInventoryEntry {
             id: id.unwrap_or(generate_id()),
             params,
+            is_equipped: false,
+        }
+    }
+
+    pub fn get_item_slot(&self) -> EquipmentSlot {
+        match self.params.kind {
+            ItemKind::OneHandedWeapon => EquipmentSlot::MainHand,
+            ItemKind::TwoHandedWeapon => EquipmentSlot::BothHands,
+            _ => EquipmentSlot::None,
         }
     }
 }
 
 impl ActorInventoryEntry {
-    pub fn to_actor_ability(&self) -> Ability {
-        let resources = storage::get::<Resources>();
-        let ability_params = resources.abilities.get(&self.params.ability_id).cloned().unwrap();
-        Ability::new(ability_params)
+    pub fn get_actor_ability(&self) -> Option<Ability> {
+        if let Some(ability_id) = self.params.ability_id.clone() {
+            let resources = storage::get::<Resources>();
+            let ability_params = resources.abilities.get(&ability_id).cloned().unwrap();
+            Some(Ability::new(ability_params))
+        } else {
+            None
+        }
     }
 }
 

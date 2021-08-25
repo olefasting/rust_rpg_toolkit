@@ -27,6 +27,7 @@ use super::{
     GameState,
 };
 use crate::resources::Resources;
+use crate::math::deg_to_rad;
 
 pub struct Hud {}
 
@@ -88,15 +89,36 @@ impl Node for Hud {
                     for mission in &player.active_missions {
                         if let Some(marker) = mission.marker.clone() {
                             if let Some(position) = marker.get_position() {
-                                let color = marker.get_color();
                                 if frustum.contains(position) {
                                     let position = viewport.to_screen_space(position);
+                                    let color = marker.get_color();
+                                    let rotation = 0.0;
+                                    // let screen_height = screen_height();
+                                    // let screen_width = screen_width();
+                                    // if position.x > screen_width - 16.0 {
+                                    //     position.x = screen_width - 16.0;
+                                    //     rotation = deg_to_rad(90.0);
+                                    // } else if position.x < 16.0 {
+                                    //     position.x = 16.0;
+                                    //     rotation = deg_to_rad(-90.0);
+                                    // } else {
+                                    //     position.x -= 16.0;
+                                    // }
+                                    // if position.y > screen_height - 16.0 {
+                                    //     position.y = screen_height - 16.0;
+                                    // } else if position.y < 16.0 {
+                                    //     position.y = 16.0;
+                                    //     rotation = deg_to_rad(180.0);
+                                    // }
                                     draw_texture_ex(
                                         texture.clone(),
-                                        position.x - 16.0,
+                                        position.x,
                                         position.y,
                                         color,
-                                        Default::default(),
+                                        DrawTextureParams {
+                                            rotation,
+                                            ..Default::default()
+                                        },
                                     )
                                 }
                             }
@@ -104,15 +126,36 @@ impl Node for Hud {
                         for (objective, is_completed) in mission.objectives.clone() {
                             if is_completed == false {
                                 if let Some(position) = objective.get_marker_position() {
-                                    let color = objective.get_marker_color().unwrap_or(color::YELLOW);
                                     if frustum.contains(position) {
                                         let position = viewport.to_screen_space(position);
+                                        let color = objective.get_marker_color().unwrap_or(color::YELLOW);
+                                        let rotation = 0.0;
+                                        // let screen_height = screen_height();
+                                        // let screen_width = screen_width();
+                                        // if position.x > screen_width - 16.0 {
+                                        //     position.x = screen_width - 16.0;
+                                        //     rotation = deg_to_rad(90.0);
+                                        // } else if position.x < 16.0 {
+                                        //     position.x = 16.0;
+                                        //     rotation = deg_to_rad(-90.0);
+                                        // } else {
+                                        //     position.x -= 16.0;
+                                        // }
+                                        // if position.y > screen_height - 16.0 {
+                                        //     position.y = screen_height - 16.0;
+                                        // } else if position.y < 16.0 {
+                                        //     position.y = 16.0;
+                                        //     rotation = deg_to_rad(180.0);
+                                        // }
                                         draw_texture_ex(
                                             texture.clone(),
-                                            position.x - 16.0,
+                                            position.x,
                                             position.y,
                                             color,
-                                            Default::default(),
+                                            DrawTextureParams {
+                                                rotation,
+                                                ..Default::default()
+                                            },
                                         )
                                     }
                                 }

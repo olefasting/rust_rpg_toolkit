@@ -4,6 +4,7 @@ mod stats;
 mod actor;
 mod behavior;
 mod dialogue;
+mod equipped;
 
 pub use behavior::{
     ActorAggression,

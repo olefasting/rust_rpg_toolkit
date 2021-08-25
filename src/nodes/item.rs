@@ -47,8 +47,8 @@ pub struct ItemParams {
     pub position: Option<Vec2>,
     pub kind: ItemKind,
     pub weight: f32,
-    #[serde(rename = "ability")]
-    pub ability_id: String,
+    #[serde(default, rename = "ability", skip_serializing_if = "Option::is_none")]
+    pub ability_id: Option<String>,
     pub sprite: Sprite,
     #[serde(default)]
     pub is_quest_item: bool,
@@ -56,6 +56,12 @@ pub struct ItemParams {
 
 impl From<&Item> for ItemParams {
     fn from(item: &Item) -> Self {
+        let ability_id = if let Some(params) = &item.ability {
+            Some(params.id.clone())
+        } else {
+            None
+        };
+
         ItemParams {
             prototype_id: item.prototype_id.clone(),
             name: item.name.clone(),
@@ -63,7 +69,7 @@ impl From<&Item> for ItemParams {
             position: Some(item.position),
             kind: item.kind.clone(),
             weight: item.weight,
-            ability_id: item.ability.id.clone(),
+            ability_id,
             sprite: item.sprite.clone(),
             is_quest_item: item.is_quest_item,
         }
@@ -79,7 +85,7 @@ impl Default for ItemParams {
             position: Default::default(),
             kind: ItemKind::Misc,
             weight: 0.1,
-            ability_id: Default::default(),
+            ability_id: None,
             sprite: Default::default(),
             is_quest_item: false,
         }
@@ -96,14 +102,19 @@ pub struct Item {
     pub kind: ItemKind,
     pub weight: f32,
     pub is_quest_item: bool,
-    ability: AbilityParams,
+    ability: Option<AbilityParams>,
     sprite: Sprite,
 }
 
 impl Item {
     pub fn new(instance_id: Option<String>, params: ItemParams) -> Self {
         let resources = storage::get::<Resources>();
-        let ability = resources.abilities.get(&params.ability_id).cloned().unwrap();
+        let ability = if let Some(ability_id) = params.ability_id {
+            Some(resources.abilities.get(&ability_id).cloned().unwrap())
+        } else {
+            None
+        };
+
         Item {
             id: instance_id.unwrap_or(generate_id()).to_string(),
             prototype_id: params.prototype_id,

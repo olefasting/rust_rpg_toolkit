@@ -25,19 +25,23 @@ pub fn draw_inventory_window(scale: f32, player: &mut Actor) {
                     ui.tree_node(hash!(), "Weapons", |ui| {
                         for item in &items {
                             ui.label(None, &item.params.name);
-                            if ui.button(None, "Equip") {
-                                let ability = item.to_actor_ability();
-                                match ability.action_kind {
-                                    ActionKind::Primary =>
-                                        player.primary_ability = Some(ability),
-                                    ActionKind::Secondary =>
-                                        player.secondary_ability = Some(ability),
+                            if item.is_equipped {
+                                if ui.button(None, "Unequip") {
+                                    let slot = item.get_item_slot();
+                                    player.unequip_item(slot);
                                 }
-                            }
-                            if item.params.is_quest_item == false {
-                                if ui.button(None, "Drop") {
-                                    let position = player.body.position;
-                                    player.inventory.drop(&item.id, position);
+                            } else {
+                                if ui.button(None, "Equip") {
+                                    let slot = item.get_item_slot();
+                                    player.equip_item(&item.id, slot);
+                                }
+                                if item.params.is_quest_item == false {
+                                    if ui.button(None, "Drop") {
+                                        let slot = item.get_item_slot();
+                                        player.unequip_item(slot);
+                                        let position = player.body.position;
+                                        player.inventory.drop(&item.id, position);
+                                    }
                                 }
                             }
                         }
@@ -50,19 +54,23 @@ pub fn draw_inventory_window(scale: f32, player: &mut Actor) {
                     ui.tree_node(hash!(), "Miscellaneous", |ui| {
                         for item in &items {
                             ui.label(None, &item.params.name);
-                            if ui.button(None, "Equip") {
-                                let ability = item.to_actor_ability();
-                                match ability.action_kind {
-                                    ActionKind::Primary =>
-                                        player.primary_ability = Some(ability),
-                                    ActionKind::Secondary =>
-                                        player.secondary_ability = Some(ability),
+                            if item.is_equipped {
+                                if ui.button(None, "Unequip") {
+                                    let slot = item.get_item_slot();
+                                    player.unequip_item(slot);
                                 }
-                            }
-                            if item.params.is_quest_item == false {
-                                if ui.button(None, "Drop") {
-                                    let position = player.body.position;
-                                    player.inventory.drop(&item.id, position);
+                            } else {
+                                if ui.button(None, "Equip") {
+                                    let slot = item.get_item_slot();
+                                    player.equip_item(&item.id, slot);
+                                }
+                                if item.params.is_quest_item == false {
+                                    if ui.button(None, "Drop") {
+                                        let slot = item.get_item_slot();
+                                        player.unequip_item(slot);
+                                        let position = player.body.position;
+                                        player.inventory.drop(&item.id, position);
+                                    }
                                 }
                             }
                         }
