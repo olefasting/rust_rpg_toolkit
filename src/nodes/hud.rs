@@ -27,7 +27,6 @@ use super::{
     GameState,
 };
 use crate::resources::Resources;
-use crate::math::deg_to_rad;
 
 pub struct Hud {}
 

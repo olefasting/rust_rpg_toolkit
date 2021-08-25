@@ -57,7 +57,7 @@ impl Map {
     ) -> io::Result<Self> {
         let map: Map = TiledMap::load(path, collisions, tiled_tilesets).await.into();
         if let Some(export_path) = export_path {
-            map.save(export_path);
+            map.save(export_path)?;
         }
         Ok(map)
     }

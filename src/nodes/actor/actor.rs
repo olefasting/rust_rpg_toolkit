@@ -76,7 +76,6 @@ use crate::{
     },
 };
 use crate::nodes::actor::equipped::{EquippedItems, EquipmentSlot};
-use crate::nodes::actor::ActorInventoryEntry;
 use crate::nodes::item::ItemKind;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Serialize, Deserialize)]
@@ -742,34 +741,49 @@ impl Node for Actor {
         }
 
         let controller = node.controller.clone();
-        if node.current_dialogue.is_none() {
-            if let Some(target) = controller.primary_target {
-                let direction = target.sub(node.body.position).normalize_or_zero();
-                node.set_animation(direction, controller.direction == Vec2::ZERO);
-            } else if let Some(target) = controller.secondary_target {
-                let direction = target.sub(node.body.position).normalize_or_zero();
-                node.set_animation(direction, controller.direction == Vec2::ZERO);
-            } else {
-                node.set_animation(controller.direction, false);
-            }
 
-            if let Some(target) = controller.primary_target {
-                let mut primary_ability = node.primary_ability.clone();
-                let position = node.body.position.clone();
-                if let Some(ability) = &mut primary_ability {
-                    ability.activate(&mut *node, position, target);
-                }
-                node.primary_ability = primary_ability;
+        if let Some(target) = controller.primary_target {
+            let direction = target.sub(node.body.position).normalize_or_zero();
+            node.set_animation(direction, controller.direction == Vec2::ZERO);
+        } else if let Some(target) = controller.secondary_target {
+            let direction = target.sub(node.body.position).normalize_or_zero();
+            node.set_animation(direction, controller.direction == Vec2::ZERO);
+        } else {
+            node.set_animation(controller.direction, false);
+        }
+
+        if let Some(target) = controller.primary_target {
+            let mut primary_ability = node.primary_ability.clone();
+            let position = node.body.position.clone();
+            if let Some(ability) = &mut primary_ability {
+                ability.activate(&mut *node, position, target);
             }
-            if let Some(target) = controller.secondary_target {
-                let mut secondary_ability = node.secondary_ability.clone();
-                let position = node.body.position.clone();
-                if let Some(ability) = &mut secondary_ability {
-                    ability.activate(&mut *node, position, target);
-                }
-                node.secondary_ability = secondary_ability;
+            node.primary_ability = primary_ability;
+        }
+        if let Some(target) = controller.secondary_target {
+            let mut secondary_ability = node.secondary_ability.clone();
+            let position = node.body.position.clone();
+            if let Some(ability) = &mut secondary_ability {
+                ability.activate(&mut *node, position, target);
+            }
+            node.secondary_ability = secondary_ability;
+        }
+
+        let collider = Collider::circle(0.0, 0.0, Self::PICK_UP_RADIUS).offset(node.body.position);
+        for credits in scene::find_nodes_by_type::<Credits>() {
+            if collider.contains(credits.position) {
+                node.inventory.credits += credits.amount;
+                credits.delete();
             }
         }
+        if node.controller.is_picking_up_items {
+            for item in scene::find_nodes_by_type::<Item>() {
+                if collider.contains(item.position) {
+                    node.inventory.pick_up(item);
+                }
+            }
+        }
+
         if node.controller.is_starting_interaction {
             if node.current_dialogue.is_some() {
                 node.current_dialogue = None;
@@ -811,20 +825,5 @@ impl Node for Actor {
         };
 
         node.body.integrate();
-
-        let collider = Collider::circle(0.0, 0.0, Self::PICK_UP_RADIUS).offset(node.body.position);
-        for credits in scene::find_nodes_by_type::<Credits>() {
-            if collider.contains(credits.position) {
-                node.inventory.credits += credits.amount;
-                credits.delete();
-            }
-        }
-        if node.controller.is_picking_up_items {
-            for item in scene::find_nodes_by_type::<Item>() {
-                if collider.contains(item.position) {
-                    node.inventory.pick_up(item);
-                }
-            }
-        }
     }
 }

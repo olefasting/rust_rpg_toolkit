@@ -3,10 +3,8 @@
 #![feature(try_find)]
 
 use macroquad::{
-    color,
     experimental::{
         collections::storage,
-        coroutines::start_coroutine,
         scene,
     },
     prelude::*,
@@ -26,12 +24,7 @@ use nodes::{
     PostProcessing,
     Hud,
 };
-use render::{
-    draw_aligned_text,
-    HorizontalAlignment,
-};
 use resources::Resources;
-use render::VerticalAlignment;
 use nodes::item::Credits;
 
 use config::Config;
