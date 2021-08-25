@@ -406,14 +406,14 @@ impl Actor {
             if mission.no_autocompletion == false {
                 for objective in &mut mission.objectives {
                     match &objective.0 {
-                        MissionObjective::Kill { instance_id } => {
+                        MissionObjective::Kill { actor_id } => {
                             let game_state = scene::find_node_by_type::<GameState>().unwrap();
-                            if game_state.dead_actors.contains(instance_id) {
+                            if game_state.dead_actors.contains(actor_id) {
                                 objective.1 = true;
                             }
                         },
-                        MissionObjective::FindItem { prototype_id } => {
-                            if self.inventory.items.iter().find(|entry| entry.params.prototype_id == prototype_id.clone()).is_some() {
+                        MissionObjective::FindItem { item_id } => {
+                            if self.inventory.items.iter().find(|entry| entry.id == item_id.clone()).is_some() {
                                 objective.1 = true;
                             }
                         }

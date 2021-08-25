@@ -19,11 +19,11 @@ const MISSION_MARKER_Y_OFFSET: f32 = 16.0;
 #[serde(tag = "type")]
 pub enum MissionObjective {
     #[serde(rename = "kill")]
-    Kill { instance_id: String },
+    Kill { actor_id: String },
     #[serde(rename = "find_item")]
-    FindItem { prototype_id: String },
+    FindItem { item_id: String },
     #[serde(rename = "deliver_item")]
-    DeliverItem { prototype_id: String },
+    DeliverItem { item_id: String },
     #[serde(rename = "go_to_location")]
     GoToWaypoint { waypoint_id: String },
 }
@@ -31,25 +31,25 @@ pub enum MissionObjective {
 impl MissionObjective {
     pub fn get_marker_color(&self) -> Option<Color> {
         match self.clone() {
-            Self::Kill { instance_id: _ } => Some(color::RED),
-            Self::FindItem { prototype_id: _ } => Some(color::YELLOW),
+            Self::Kill { actor_id: _ } => Some(color::RED),
+            Self::FindItem { item_id: _ } => Some(color::YELLOW),
             _ => None,
         }
     }
 
     pub fn get_marker_position(&self) -> Option<Vec2> {
         match self.clone() {
-            Self::Kill { instance_id } => {
+            Self::Kill { actor_id } => {
                 for actor in scene::find_nodes_by_type::<Actor>() {
-                    if actor.id == instance_id {
+                    if actor.id == actor_id {
                         return Some(vec2(actor.body.position.x, actor.body.position.y - MISSION_MARKER_Y_OFFSET));
                     }
                 }
                 None
             },
-            Self::FindItem { prototype_id } => {
+            Self::FindItem { item_id } => {
                 for item in scene::find_nodes_by_type::<Item>() {
-                    if item.prototype_id == prototype_id {
+                    if item.prototype_id == item_id {
                         return Some(vec2(item.position.x, item.position.y - MISSION_MARKER_Y_OFFSET));
                     }
                 }

@@ -6,15 +6,15 @@
     "objectives": [
       {
         "type": "kill",
-        "instance_id": "thug_01"
+        "actor_id": "thug_01"
       },
       {
         "type": "kill",
-        "instance_id": "thug_02"
+        "actor_id": "thug_02"
       },
       {
         "type": "kill",
-        "instance_id": "thug_03"
+        "actor_id": "thug_03"
       }
     ],
     "next_missions": [
@@ -52,7 +52,7 @@
     "objectives": [
       {
         "type": "find_item",
-        "prototype_id": "quest_pistol"
+        "item_id": "quest_pistol"
       }
     ],
     "rewards": [],
@@ -71,7 +71,7 @@
     "objectives": [
       {
         "type": "deliver_item",
-        "prototype_id": "quest_pistol"
+        "item_id": "quest_pistol"
       }
     ],
     "rewards": [

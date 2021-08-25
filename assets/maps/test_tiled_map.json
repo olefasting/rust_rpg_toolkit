@@ -230,6 +230,11 @@
                  "point":true,
                  "properties":[
                         {
+                         "name":"instance_id",
+                         "type":"string",
+                         "value":"guard_boss"
+                        }, 
+                        {
                          "name":"prototype_id",
                          "type":"string",
                          "value":"guard_boss"
@@ -302,6 +307,11 @@
                  "point":true,
                  "properties":[
                         {
+                         "name":"instance_id",
+                         "type":"string",
+                         "value":"scared_woman"
+                        }, 
+                        {
                          "name":"prototype_id",
                          "type":"string",
                          "value":"scared_woman"
@@ -330,6 +340,11 @@
                  "name":"pistol",
                  "point":true,
                  "properties":[
+                        {
+                         "name":"instance_id",
+                         "type":"string",
+                         "value":"quest_pistol"
+                        }, 
                         {
                          "name":"prototype_id",
                          "type":"string",
