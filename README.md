@@ -5,9 +5,8 @@ The future holds huge boss fights, and a mind-nuking story line, as you progress
 
 ## Screenshots
 
-![Screenshot](screenshots/screenshot_s_01.png)
-![Screenshot](screenshots/screenshot_s_02.png)
-![Screenshot](screenshots/screenshot_s_03.png)
+![Screenshot](screenshots/screenshot_01.png)
+![Screenshot](screenshots/screenshot_02.png)
 
 ## License
 
