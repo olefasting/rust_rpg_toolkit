@@ -40,7 +40,7 @@ pub struct TiledMap {
 }
 
 impl TiledMap {
-    pub fn load(
+    pub async fn load(
         path: &str,
         collisions: Option<&[(&str, MapCollisionKind)]>,
         tiled_tilesets: &[(&str, &str, &str)],
@@ -59,9 +59,9 @@ impl TiledMap {
                 .expect(&format!("Unable to find texture with id '{}'", tileset.texture_id));
             tileset_textures.push((tileset.relative_path.deref(), texture.clone()));
         }
-        let json = std::fs::read_to_string(path)
+        let bytes = load_file(path).await
             .expect(&format!("Error loading tiled map file '{}'!", path));
-        let tiled_map = tiled::load_map(&json, tileset_textures.deref(), &[])
+        let tiled_map = tiled::load_map(&String::from_utf8(bytes).unwrap(), tileset_textures.deref(), &[])
             .expect(&format!("Error parsing tiled map '{}'!", path));
 
         let collisions = match collisions {

@@ -3,6 +3,8 @@
 This is an action run 'n' gun RPG, created in Rust using [macroquad](https://github.com/not-fl3/macroquad).
 The future holds huge boss fights, and a mind-blowing story line, as you progress through the world, and your own mind, to battle yourself and the archons to break free of samsara and the materialist dystopia of our not too distant future.
 
+There is a WASM build, which may or may not be up to date, showing the test map, [here](https://magus.no/static/web/index.html)
+
 ## Screenshots
 
 ![screenshot](screenshots/screenshot_01.png)

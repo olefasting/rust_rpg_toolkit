@@ -1,0 +1,33 @@
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Capstone - pre-alpha</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<div id="canvas-container">
+    <canvas id="glcanvas" tabindex='1'></canvas>
+</div>
+<div id="controls-container">
+    <p>Controls:</p>
+    <ul>
+        <li><b>W, A, S, D</b> or <b>arrows</b> for movement</li>
+        <li><b>Shift</b> for sprint</li>
+        <li><b>Left Mouse Button</b> for primary ability</li>
+        <li><b>Right Mouse Button</b> for secondary ability</li>
+        <li><b>F</b> to interact and pay respect</li>
+        <li><b>R</b> to pick up nearby items</li>
+        <li><b>I</b> for inventory window</li>
+        <li><b>C</b> for character window</li>
+        <li><b>P</b> to toggle debug mode</li>
+        <li><b>ESC</b> to open menu</li>
+    </ul>
+</div>
+<!-- Minified and statically hosted version of https://github.com/not-fl3/miniquad/blob/master/native/sapp-wasm/js/gl.js -->
+<script src="https://not-fl3.github.io/miniquad-samples/mq_js_bundle_0.3.8.js"></script>
+<script>load("./capstone.wasm");</script> <!-- Your compiled wasm file -->
+</body>
+
+</html>

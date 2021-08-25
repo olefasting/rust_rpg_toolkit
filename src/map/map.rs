@@ -43,22 +43,21 @@ pub struct Map {
 }
 
 impl Map {
-    pub fn load(path: &str) -> io::Result<Self> {
-        let json = std::fs::read_to_string(path)?;
-        let map = serde_json::from_str(&json)?;
+    pub async fn load(path: &str) -> io::Result<Self> {
+        let bytes = load_file(path).await.unwrap();
+        let map = serde_json::from_str(&String::from_utf8(bytes).unwrap())?;
         Ok(map)
     }
 
-    pub fn load_tiled(
+    pub async fn load_tiled(
         path: &str,
         export_path: Option<&str>,
         collisions: Option<&[(&str, MapCollisionKind)]>,
         tiled_tilesets: &[(&str, &str, &str)],
     ) -> io::Result<Self> {
-        let map = TiledMap::load(path, collisions, tiled_tilesets).into();
+        let map: Map = TiledMap::load(path, collisions, tiled_tilesets).await.into();
         if let Some(export_path) = export_path {
-            let json = serde_json::to_string_pretty(&map)?;
-            std::fs::write(export_path, json)?;
+            map.save(export_path);
         }
         Ok(map)
     }
@@ -190,6 +189,18 @@ impl Map {
 
     pub fn default_background_color() -> Color {
         color::BLACK
+    }
+
+    #[cfg(any(target_family = "unix", target_family = "windows"))]
+    pub fn save(&self, path: &str) -> io::Result<()> {
+        let json = serde_json::to_string_pretty(self)?;
+        std::fs::write(path, json)?;
+        Ok(())
+    }
+
+    #[cfg(target_family = "wasm")]
+    pub fn save(&self, _: &str) -> io::Result<()> {
+        Ok(())
     }
 }
 

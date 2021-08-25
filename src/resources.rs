@@ -1,6 +1,5 @@
 use std::{
     collections::HashMap,
-    fs,
     iter::FromIterator,
 };
 
@@ -9,6 +8,11 @@ use macroquad::{
         load_sound,
         Sound,
     },
+    experimental::{
+        collections::storage,
+        coroutines::start_coroutine,
+    },
+    color,
     prelude::*,
 };
 
@@ -27,6 +31,9 @@ use crate::{
     render::{
         LINEAR_FILTER_MODE,
         NEAREST_FILTER_MODE,
+        draw_aligned_text,
+        HorizontalAlignment,
+        VerticalAlignment,
     },
     missions::MissionParams,
     ability::AbilityParams,
@@ -92,9 +99,9 @@ impl Resources {
         white_texture.set_filter(FilterMode::Nearest);
         textures.insert(Self::WHITE_TEXTURE_ID.to_string(), white_texture);
 
-        let json = fs::read_to_string(Self::RESOURCES_FILE_PATH)
+        let bytes = load_file(Self::RESOURCES_FILE_PATH).await
             .expect(&format!("Unable to find resources file '{}'!", Self::RESOURCES_FILE_PATH));
-        let resources: ResourcesData = serde_json::from_str(&json)
+        let resources: ResourcesData = serde_json::from_str(&String::from_utf8(bytes).unwrap())
             .expect(&format!("Error when parsing resource file '{}'!", Self::RESOURCES_FILE_PATH));
 
         for texture_data in &resources.textures {
@@ -122,37 +129,37 @@ impl Resources {
             music.insert(music_data.id.clone(), track);
         }
 
-        let json = std::fs::read_to_string(Self::ACTORS_FILE_PATH)
+        let bytes = load_file(Self::ACTORS_FILE_PATH).await
             .expect(&format!("Unable to find actors file '{}'!", Self::ACTORS_FILE_PATH));
-        let actor_data: Vec<ActorParams> = serde_json::from_str(&json)
+        let actor_data: Vec<ActorParams> = serde_json::from_str(&String::from_utf8(bytes).unwrap())
             .expect(&format!("Error when parsing actors file '{}'!", Self::ACTORS_FILE_PATH));
         let actors = HashMap::from_iter(
             actor_data.into_iter().map(|params| (params.prototype_id.clone().unwrap_or(generate_id()), params)));
 
-        let json = std::fs::read_to_string(Self::ITEMS_FILE_PATH)
+        let bytes = load_file(Self::ITEMS_FILE_PATH).await
             .expect(&format!("Unable to find items file '{}'!", Self::ITEMS_FILE_PATH));
-        let items_data: Vec<ItemParams> = serde_json::from_str(&json)
+        let items_data: Vec<ItemParams> = serde_json::from_str(&String::from_utf8(bytes).unwrap())
             .expect(&format!("Error when parsing items file '{}'!", Self::ITEMS_FILE_PATH));
         let items = HashMap::from_iter(
             items_data.into_iter().map(|params| (params.prototype_id.clone(), params)));
 
-        let json = std::fs::read_to_string(Self::MISSIONS_FILE_PATH)
+        let bytes = load_file(Self::MISSIONS_FILE_PATH).await
             .expect(&format!("Unable to find missions file '{}'!", Self::MISSIONS_FILE_PATH));
-        let missions_data: Vec<MissionParams> = serde_json::from_str(&json)
+        let missions_data: Vec<MissionParams> = serde_json::from_str(&String::from_utf8(bytes).unwrap())
             .expect(&format!("Error when parsing missions file '{}'!", Self::MISSIONS_FILE_PATH));
         let missions = HashMap::from_iter(
             missions_data.into_iter().map(|mission| (mission.id.clone(), mission)));
 
-        let json = std::fs::read_to_string(Self::DIALOGUE_FILE_PATH)
+        let bytes = load_file(Self::DIALOGUE_FILE_PATH).await
             .expect(&format!("Unable to find dialogue file '{}'!", Self::DIALOGUE_FILE_PATH));
-        let dialogue_data: Vec<ActorDialogue> = serde_json::from_str(&json)
+        let dialogue_data: Vec<ActorDialogue> = serde_json::from_str(&String::from_utf8(bytes).unwrap())
             .expect(&format!("Error when parsing dialogue file '{}'!", Self::DIALOGUE_FILE_PATH));
         let dialogue = HashMap::from_iter(
             dialogue_data.into_iter().map(|dialogue| (dialogue.id.clone(), dialogue)));
 
-        let json = std::fs::read_to_string(Self::ABILITIES_FILE_PATH)
+        let bytes = load_file(Self::ABILITIES_FILE_PATH).await
             .expect(&format!("Unable to find dialogue file '{}'!", Self::ABILITIES_FILE_PATH));
-        let ability_data: Vec<AbilityParams> = serde_json::from_str(&json)
+        let ability_data: Vec<AbilityParams> = serde_json::from_str(&String::from_utf8(bytes).unwrap())
             .expect(&format!("Error when parsing dialogue file '{}'!", Self::ABILITIES_FILE_PATH));
         let abilities = HashMap::from_iter(
             ability_data.into_iter().map(|ability| (ability.id.clone(), ability)));
@@ -167,5 +174,37 @@ impl Resources {
             missions,
             dialogue,
         })
+    }
+
+    #[cfg(any(target_family = "unix", target_family = "windows"))]
+    pub async fn load() {
+        let load_resources = start_coroutine(async move {
+            let resources = Resources::new().await.unwrap();
+            storage::store(resources);
+        });
+
+        while load_resources.is_done() == false {
+            clear_background(BLACK);
+            draw_aligned_text(
+                &format!("Loading resources"),
+                screen_width() / 2.0,
+                screen_height() / 2.0,
+                HorizontalAlignment::Center,
+                VerticalAlignment::Center,
+                TextParams {
+                    font_size: 40,
+                    color: color::WHITE,
+                    ..Default::default()
+                },
+            );
+
+            next_frame().await;
+        }
+    }
+
+    #[cfg(target_family = "wasm")]
+    pub async fn load() {
+        let resources = Resources::new().await.unwrap();
+        storage::store(resources);
     }
 }
