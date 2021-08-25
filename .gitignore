@@ -1,5 +1,5 @@
 /target
 /assets/sound_effects/external/
-/web/assets/
+/web/assets/*
 /web/capstone.d
 /web/capstone.wasm
