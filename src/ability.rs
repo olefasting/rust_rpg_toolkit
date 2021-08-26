@@ -64,18 +64,9 @@ pub enum AbilityDelivery {
         speed: f32,
     },
     #[serde(rename = "melee")]
-    Melee {
-        #[serde(default = "AbilityDelivery::default_melee_hit_sound_effect", skip_serializing_if = "Option::is_none")]
-        on_hit_sound_effect: Option<String>,
-    },
+    Melee,
     #[serde(rename = "continuous_beam")]
     ContinuousBeam,
-}
-
-impl AbilityDelivery {
-    fn default_melee_hit_sound_effect() -> Option<String> {
-        None
-    }
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -83,6 +74,8 @@ pub struct AbilityParams {
     pub id: String,
     #[serde(default, rename = "sound_effect", skip_serializing_if = "Option::is_none")]
     pub sound_effect_id: Option<String>,
+    #[serde(default, rename = "on_hit_sound_effect", skip_serializing_if = "Option::is_none")]
+    pub on_hit_sound_effect_id: Option<String>,
     #[serde(default)]
     pub noise_level: ActorNoiseLevel,
     pub delivery: AbilityDelivery,
@@ -107,11 +100,12 @@ impl Default for AbilityParams {
         AbilityParams {
             id: "".to_string(),
             sound_effect_id: None,
+            on_hit_sound_effect_id: None,
             noise_level: ActorNoiseLevel::Moderate,
             delivery: AbilityDelivery::Projectile {
                 projectile_kind: ProjectileKind::Bullet,
                 speed: 8.0,
-                spread: 5.0
+                spread: 5.0,
             },
             cooldown: 0.0,
             health_cost: 0.0,
@@ -130,6 +124,7 @@ pub struct Ability {
     pub noise_level: ActorNoiseLevel,
     pub delivery: AbilityDelivery,
     pub sound_effect: Option<Sound>,
+    pub on_hit_sound_effect_id: Option<String>,
     pub cooldown: f32,
     pub cooldown_timer: f32,
     pub health_cost: f32,
@@ -152,6 +147,7 @@ impl Ability {
 
         Ability {
             sound_effect,
+            on_hit_sound_effect_id: params.on_hit_sound_effect_id,
             noise_level: params.noise_level,
             delivery: params.delivery,
             health_cost: params.health_cost,
@@ -208,12 +204,13 @@ impl Ability {
                         speed,
                         spread,
                         self.range,
+                        self.on_hit_sound_effect_id.clone(),
                     );
                     if let Some(sound_effect) = self.sound_effect {
                         play_sound_once(sound_effect);
                     }
                 },
-                AbilityDelivery::Melee { on_hit_sound_effect } => {
+                AbilityDelivery::Melee => {
                     let collider = Collider::circle(
                         actor.body.position.x,
                         actor.body.position.y,
@@ -239,9 +236,9 @@ impl Ability {
                         }
                     }
                     if hit_success {
-                        if let Some(sound_effect_id) = on_hit_sound_effect {
+                        if let Some(sound_effect_id) = &self.on_hit_sound_effect_id {
                             let resources = storage::get::<Resources>();
-                            let sound_effect = resources.sound_effects.get(&sound_effect_id).cloned().unwrap();
+                            let sound_effect = resources.sound_effects.get(sound_effect_id).cloned().unwrap();
                             play_sound_once(sound_effect);
                         } else if let Some(sound_effect) = self.sound_effect {
                             play_sound_once(sound_effect);

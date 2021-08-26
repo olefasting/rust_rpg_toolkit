@@ -33,6 +33,8 @@ use crate::{
 };
 use crate::map::MapCollisionKind;
 use crate::ability::Effect;
+use crate::resources::Resources;
+use macroquad::audio::play_sound_once;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum ProjectileKind {
@@ -54,6 +56,7 @@ pub struct Projectile {
     speed: f32,
     distance_traveled: f32,
     range: f32,
+    on_hit_sound_effect_id: Option<String>,
 }
 
 impl Projectile {
@@ -68,6 +71,7 @@ impl Projectile {
         direction: Vec2,
         speed: f32,
         range: f32,
+        on_hit_sound_effect_id: Option<String>,
     ) -> Self {
         Projectile {
             actor_id: actor_id.to_string(),
@@ -81,6 +85,15 @@ impl Projectile {
             speed,
             distance_traveled: 0.0,
             range,
+            on_hit_sound_effect_id,
+        }
+    }
+
+    pub fn play_on_hit_sound_effect(&self) {
+        if let Some(sound_effect_id) = &self.on_hit_sound_effect_id {
+            let resources = storage::get::<Resources>();
+            let sound_effect = resources.sound_effects.get(sound_effect_id).cloned().unwrap();
+            play_sound_once(sound_effect);
         }
     }
 }
@@ -133,6 +146,7 @@ impl Projectiles {
         speed: f32,
         spread: f32,
         range: f32,
+        on_hit_sound_effect_id: Option<String>,
     ) {
         let spread_target = target.sub(position).normalize_or_zero() * Self::SPREAD_CALCULATION_DISTANCE;
         let direction = vec2(
@@ -170,6 +184,7 @@ impl Projectiles {
             direction,
             speed,
             range,
+            on_hit_sound_effect_id,
         ));
     }
 }
@@ -192,6 +207,7 @@ impl Node for Projectiles {
                     if collider.overlaps(other_collider) {
                         for effect in projectile.effects.clone() {
                             if other_actor.apply_effect(&projectile.actor_id, &projectile.factions, effect) {
+                                projectile.play_on_hit_sound_effect();
                                 return false;
                             } else {
                                 continue 'outer;
@@ -203,6 +219,7 @@ impl Node for Projectiles {
             let game_state = scene::find_node_by_type::<GameState>().unwrap();
             for (_, kind) in game_state.map.get_collisions(collider) {
                 if kind == MapCollisionKind::Solid {
+                    projectile.play_on_hit_sound_effect();
                     return false;
                 }
             }

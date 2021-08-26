@@ -58,6 +58,10 @@
       "path": "sound_effects/Sci Fi Pistol 4.wav"
     },
     {
+      "id": "blaster_hit_01",
+      "path": "sound_effects/Sci Fi Blaster 9.wav"
+    },
+    {
       "id": "shock_melee_01",
       "path": "sound_effects/Sci Fi Blaster 1.wav"
     },
