@@ -40,6 +40,13 @@ use crate::{
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+struct MaterialData {
+    pub id: String,
+    pub fragment_shader_path: String,
+    pub vertex_shader_path: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 struct TextureData {
     pub id: String,
     pub path: String,
@@ -61,12 +68,14 @@ struct SoundData {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct ResourcesData {
+    materials: Vec<MaterialData>,
     textures: Vec<TextureData>,
     sound_effects: Vec<SoundData>,
     music: Vec<SoundData>,
 }
 
 pub struct Resources {
+    pub materials: HashMap<String, Material>,
     pub textures: HashMap<String, Texture2D>,
     pub sound_effects: HashMap<String, Sound>,
     pub music: HashMap<String, Sound>,
@@ -104,8 +113,24 @@ impl Resources {
         let resources: ResourcesData = serde_json::from_str(&String::from_utf8(bytes).unwrap())
             .expect(&format!("Error when parsing resource file '{}'!", Self::RESOURCES_FILE_PATH));
 
+        let mut materials = HashMap::new();
+        for material_data in &resources.materials {
+            let vertex_shader = load_file(&format!("assets/{}", material_data.vertex_shader_path)).await?;
+            let fragment_shader = load_file(&format!("assets/{}", material_data.fragment_shader_path)).await?;
+
+            let material = load_material(
+                &String::from_utf8(vertex_shader).unwrap(),
+                &String::from_utf8(fragment_shader).unwrap(),
+                MaterialParams {
+                    ..Default::default()
+                }
+            ).unwrap();
+
+            materials.insert(material_data.id.clone(), material);
+        }
+
         for texture_data in &resources.textures {
-            let texture = load_texture(&texture_data.path).await?;
+            let texture = load_texture(&format!("assets/{}", texture_data.path)).await?;
             if texture_data.filter_mode == LINEAR_FILTER_MODE.to_string() {
                 texture.set_filter(FilterMode::Linear)
             } else if texture_data.filter_mode == NEAREST_FILTER_MODE.to_string() {
@@ -118,14 +143,14 @@ impl Resources {
 
         let mut sound_effects = HashMap::new();
         for sound_data in &resources.sound_effects {
-            let sound = load_sound(&sound_data.path).await.unwrap();
+            let sound = load_sound(&format!("assets/{}", sound_data.path)).await.unwrap();
             sound_effects.insert(sound_data.id.clone(), sound);
         }
 
         let mut music = HashMap::new();
 
         for music_data in &resources.music {
-            let track = load_sound(&music_data.path).await.unwrap();
+            let track = load_sound(&format!("assets/{}", music_data.path)).await.unwrap();
             music.insert(music_data.id.clone(), track);
         }
 
@@ -165,6 +190,7 @@ impl Resources {
             ability_data.into_iter().map(|ability| (ability.id.clone(), ability)));
 
         Ok(Resources {
+            materials,
             textures,
             sound_effects,
             music,

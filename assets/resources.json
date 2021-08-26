@@ -1,50 +1,57 @@
 {
+  "materials": [
+    {
+      "id": "crt",
+      "fragment_shader_path": "materials/crt_fragment.glsl",
+      "vertex_shader_path": "materials/crt_vertex.glsl"
+    }
+  ],
   "textures": [
     {
       "id": "characters",
-      "path": "assets/textures/neo_zero_characters.png"
+      "path": "textures/neo_zero_characters.png"
     },
     {
       "id": "player",
-      "path": "assets/textures/player.png"
+      "path": "textures/player.png"
     },
     {
       "id": "props",
-      "path": "assets/textures/neo_zero_props.png"
+      "path": "textures/neo_zero_props.png"
     },
     {
       "id": "tiles",
-      "path": "assets/textures/neo_zero_tiles.png"
+      "path": "textures/neo_zero_tiles.png"
     },
     {
       "id": "items",
-      "path": "assets/textures/items.png"
+      "path": "textures/items.png"
     },
     {
       "id": "fireball",
-      "path": "assets/textures/fireball.png"
+      "path": "textures/fireball.png"
     },
     {
       "id": "credits",
-      "path": "assets/textures/credits.png"
+      "path": "textures/credits.png"
     },
     {
       "id": "mission_marker",
-      "path": "assets/textures/mission_marker.png"
+      "path": "textures/mission_marker.png"
     }
   ],
   "sound_effects": [
     {
       "id": "gunshot_01",
-      "path": "assets/sound_effects/M4A1_Single.wav"
+      "path": "sound_effects/M4A1_Single.wav"
     },
     {
       "id": "gunshot_02",
-      "path": "assets/sound_effects/9mm_Glock_17.wav"
+      "path": "sound_effects/9mm_Glock_17.wav"
     },
     {
       "id": "blaster_01",
-      "path": "assets/sound_effects/Sci Fi Blaster 4.wav"
+      "path": "sound_effects/Sci Fi Blaster 4.wav"
     }
   ],
   "music": [
