@@ -66,14 +66,14 @@ fn window_conf() -> Conf {
     }
 }
 
-pub fn load_map(chapter: u32, map: u32) {
+pub fn load_map(chapter: u32, map_id: &str) {
     let player_id = generate_id();
 
     let scenario = storage::get::<Scenario>();
     let chapter_data = scenario.chapters.get(chapter as usize)
         .expect(&format!("Unable to load chapter '{}'!", chapter));
-    let map_data = chapter_data.maps.get(map as usize)
-        .expect(&format!("Unable to load map '{}' of chapter '{}'!", map, chapter));
+    let map_data = chapter_data.maps.iter().find(|map| map.id == map_id)
+        .expect(&format!("Unable to load map '{}' of chapter '{}'!", map_id, chapter_data.title));
 
     scene::clear();
 
@@ -93,6 +93,9 @@ const TILED_MAPS_FILE_PATH: &'static str = "assets/tiled_maps.json";
 #[macroquad::main(window_conf)]
 async fn main() {
     {
+        let config = storage::get::<Config>();
+        storage::store(GuiSkins::new(config.gui_scale));
+
         let mut resources = Resources::new().await.unwrap();
         let mut scenario_params = Scenario::load_params().await.unwrap();
         load_modules(&mut resources, &mut scenario_params).await;
@@ -112,12 +115,9 @@ async fn main() {
         storage::store(scenario);
     }
 
-    {
-        let config = storage::get::<Config>();
-        storage::store(GuiSkins::new(config.gui_scale));
-    }
+    let (chapter_i, map_id) = gui::draw_chapter_select().await;
 
-    load_map(0, 0);
+    load_map(chapter_i, &map_id);
 
     loop {
         {
