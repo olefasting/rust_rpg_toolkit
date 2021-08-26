@@ -11,3 +11,7 @@ For more information, reference the data structures in the [json module](https:/
 
 Actor spawn points can be created in an object layer named `spawn_points`, with a property named `prototype_id` that points to a prototype in the `actors.json` file. Likewise, items can be added in a layer named `items`, with a `prototype_id` property, pointing to a prototype in `items.json`.
 Light sources can also be added in an object layer named `light_sources`, with a `color` property (hex color value as `String`) and an intensity property (`f32` as a `String`). We have yet to fully implement dynamic lighting, though. 
+
+## Tiled Conversion
+
+A separate CLI for converting maps will be added in the future but, for now, the maps that are to be converted, must be declared in `assets/tiled_maps.json`. After declaring them, run the game once to convert them.
