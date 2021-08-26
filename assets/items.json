@@ -25,7 +25,7 @@
   {
     "id": "sub_machine_gun",
     "kind": "two_handed_weapon",
-    "name": "HK-MP5",
+    "name": "Sub-Machine Gun",
     "description": "A regular sub-machine gun",
     "weight": 10.0,
     "ability": "sub_machine_gun",
