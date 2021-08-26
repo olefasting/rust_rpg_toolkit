@@ -38,40 +38,41 @@ use crate::{
     missions::MissionParams,
     ability::AbilityParams,
 };
+use crate::modules::load_modules;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct MaterialData {
+pub struct MaterialInfo {
     pub id: String,
     pub fragment_shader_path: String,
     pub vertex_shader_path: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct TextureData {
+pub struct TextureInfo {
     pub id: String,
     pub path: String,
-    #[serde(default = "TextureData::default_filter_mode")]
+    #[serde(default = "TextureInfo::default_filter_mode")]
     pub filter_mode: String,
 }
 
-impl TextureData {
+impl TextureInfo {
     fn default_filter_mode() -> String {
         NEAREST_FILTER_MODE.to_string()
     }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct SoundData {
+pub struct SoundInfo {
     pub id: String,
     pub path: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct ResourcesData {
-    materials: Vec<MaterialData>,
-    textures: Vec<TextureData>,
-    sound_effects: Vec<SoundData>,
-    music: Vec<SoundData>,
+pub struct ResourcesInfo {
+    materials: Vec<MaterialInfo>,
+    textures: Vec<TextureInfo>,
+    sound_effects: Vec<SoundInfo>,
+    music: Vec<SoundInfo>,
 }
 
 pub struct Resources {
@@ -110,13 +111,13 @@ impl Resources {
 
         let bytes = load_file(Self::RESOURCES_FILE_PATH).await
             .expect(&format!("Unable to find resources file '{}'!", Self::RESOURCES_FILE_PATH));
-        let resources: ResourcesData = serde_json::from_str(&String::from_utf8(bytes).unwrap())
+        let resources: ResourcesInfo = serde_json::from_slice(&bytes)
             .expect(&format!("Error when parsing resource file '{}'!", Self::RESOURCES_FILE_PATH));
 
         let mut materials = HashMap::new();
-        for material_data in &resources.materials {
-            let vertex_shader = load_file(&format!("assets/{}", material_data.vertex_shader_path)).await?;
-            let fragment_shader = load_file(&format!("assets/{}", material_data.fragment_shader_path)).await?;
+        for material_info in &resources.materials {
+            let vertex_shader = load_file(&format!("assets/{}", material_info.vertex_shader_path)).await?;
+            let fragment_shader = load_file(&format!("assets/{}", material_info.fragment_shader_path)).await?;
 
             let material = load_material(
                 &String::from_utf8(vertex_shader).unwrap(),
@@ -126,70 +127,69 @@ impl Resources {
                 }
             ).unwrap();
 
-            materials.insert(material_data.id.clone(), material);
+            materials.insert(material_info.id.clone(), material);
         }
 
-        for texture_data in &resources.textures {
-            let texture = load_texture(&format!("assets/{}", texture_data.path)).await?;
-            if texture_data.filter_mode == LINEAR_FILTER_MODE.to_string() {
+        for texture_info in &resources.textures {
+            let texture = load_texture(&format!("assets/{}", texture_info.path)).await?;
+            if texture_info.filter_mode == LINEAR_FILTER_MODE.to_string() {
                 texture.set_filter(FilterMode::Linear)
-            } else if texture_data.filter_mode == NEAREST_FILTER_MODE.to_string() {
+            } else if texture_info.filter_mode == NEAREST_FILTER_MODE.to_string() {
                 texture.set_filter(FilterMode::Nearest);
             } else {
-                assert!(false, "Invalid filter mode '{}'", texture_data.filter_mode);
+                assert!(false, "Invalid filter mode '{}'", texture_info.filter_mode);
             }
-            textures.insert(texture_data.id.clone(), texture);
+            textures.insert(texture_info.id.clone(), texture);
         }
 
         let mut sound_effects = HashMap::new();
-        for sound_data in &resources.sound_effects {
-            let sound = load_sound(&format!("assets/{}", sound_data.path)).await.unwrap();
-            sound_effects.insert(sound_data.id.clone(), sound);
+        for sound_info in &resources.sound_effects {
+            let sound = load_sound(&format!("assets/{}", sound_info.path)).await.unwrap();
+            sound_effects.insert(sound_info.id.clone(), sound);
         }
 
         let mut music = HashMap::new();
-
-        for music_data in &resources.music {
-            let track = load_sound(&format!("assets/{}", music_data.path)).await.unwrap();
-            music.insert(music_data.id.clone(), track);
+        for music_info in &resources.music {
+            let track = load_sound(&format!("assets/{}", music_info.path)).await.unwrap();
+            music.insert(music_info.id.clone(), track);
         }
 
         let bytes = load_file(Self::ACTORS_FILE_PATH).await
             .expect(&format!("Unable to find actors file '{}'!", Self::ACTORS_FILE_PATH));
-        let actor_data: Vec<ActorParams> = serde_json::from_str(&String::from_utf8(bytes).unwrap())
+        let actor_data: Vec<ActorParams> = serde_json::from_slice(&bytes)
             .expect(&format!("Error when parsing actors file '{}'!", Self::ACTORS_FILE_PATH));
-        let actors = HashMap::from_iter(
+        let mut actors = HashMap::from_iter(
             actor_data.into_iter().map(|params| (params.prototype_id.clone().unwrap_or(generate_id()), params)));
 
         let bytes = load_file(Self::ITEMS_FILE_PATH).await
             .expect(&format!("Unable to find items file '{}'!", Self::ITEMS_FILE_PATH));
-        let items_data: Vec<ItemParams> = serde_json::from_str(&String::from_utf8(bytes).unwrap())
+        let items_data: Vec<ItemParams> = serde_json::from_slice(&bytes)
             .expect(&format!("Error when parsing items file '{}'!", Self::ITEMS_FILE_PATH));
-        let items = HashMap::from_iter(
+        let mut items = HashMap::from_iter(
             items_data.into_iter().map(|params| (params.prototype_id.clone(), params)));
 
         let bytes = load_file(Self::MISSIONS_FILE_PATH).await
             .expect(&format!("Unable to find missions file '{}'!", Self::MISSIONS_FILE_PATH));
-        let missions_data: Vec<MissionParams> = serde_json::from_str(&String::from_utf8(bytes).unwrap())
+        let missions_data: Vec<MissionParams> = serde_json::from_slice(&bytes)
             .expect(&format!("Error when parsing missions file '{}'!", Self::MISSIONS_FILE_PATH));
-        let missions = HashMap::from_iter(
+        let mut missions = HashMap::from_iter(
             missions_data.into_iter().map(|mission| (mission.id.clone(), mission)));
 
         let bytes = load_file(Self::DIALOGUE_FILE_PATH).await
             .expect(&format!("Unable to find dialogue file '{}'!", Self::DIALOGUE_FILE_PATH));
-        let dialogue_data: Vec<ActorDialogue> = serde_json::from_str(&String::from_utf8(bytes).unwrap())
+        let dialogue_data: Vec<ActorDialogue> = serde_json::from_slice(&bytes)
             .expect(&format!("Error when parsing dialogue file '{}'!", Self::DIALOGUE_FILE_PATH));
-        let dialogue = HashMap::from_iter(
+        let mut dialogue = HashMap::from_iter(
             dialogue_data.into_iter().map(|dialogue| (dialogue.id.clone(), dialogue)));
 
         let bytes = load_file(Self::ABILITIES_FILE_PATH).await
             .expect(&format!("Unable to find dialogue file '{}'!", Self::ABILITIES_FILE_PATH));
-        let ability_data: Vec<AbilityParams> = serde_json::from_str(&String::from_utf8(bytes).unwrap())
+        let ability_data: Vec<AbilityParams> = serde_json::from_slice(&bytes)
             .expect(&format!("Error when parsing dialogue file '{}'!", Self::ABILITIES_FILE_PATH));
-        let abilities = HashMap::from_iter(
+        let mut abilities = HashMap::from_iter(
             ability_data.into_iter().map(|ability| (ability.id.clone(), ability)));
 
-        Ok(Resources {
+        let mut resources = Resources {
             materials,
             textures,
             sound_effects,
@@ -199,7 +199,11 @@ impl Resources {
             abilities,
             missions,
             dialogue,
-        })
+        };
+
+        load_modules(&mut resources).await;
+
+        Ok(resources)
     }
 
     #[cfg(any(target_family = "unix", target_family = "windows"))]

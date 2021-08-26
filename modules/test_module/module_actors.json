@@ -1,0 +1,62 @@
+[
+  {
+    "id": "module_actor",
+    "name": "Module Actor",
+    "behavior": {
+      "aggression": "neutral",
+      "is_stationary": true,
+      "is_on_guard": true
+    },
+    "factions": [
+      "guards"
+    ],
+    "strength": 12,
+    "dexterity": 12,
+    "constitution": 12,
+    "intelligence": 8,
+    "willpower": 8,
+    "perception": 10,
+    "charisma": 8,
+    "items": [
+      "pistol"
+    ],
+    "credits": 25,
+    "collider": {
+      "x": -8.0,
+      "y": 0.0,
+      "width": 16.0,
+      "height": 16.0
+    },
+    "animation_player": {
+      "texture_id": "characters",
+      "tile_size": {
+        "x": 32.0,
+        "y": 32.0
+      },
+      "offset": {
+        "x": -16.0,
+        "y": -16.0
+      },
+      "animations": [
+        {
+          "name": "down",
+          "row": 0,
+          "frames": 3,
+          "fps": 8
+        },
+        {
+          "name": "up",
+          "row": 1,
+          "frames": 3,
+          "fps": 8
+        },
+        {
+          "name": "right",
+          "row": 2,
+          "frames": 3,
+          "fps": 8
+        }
+      ]
+    }
+  }
+]

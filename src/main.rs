@@ -48,6 +48,7 @@ pub mod helpers;
 pub mod missions;
 pub mod config;
 pub mod uid;
+pub mod modules;
 
 fn window_conf() -> Conf {
     let config = Config::load();
