@@ -91,5 +91,28 @@
         "y": -8.0
       }
     }
+  },
+  {
+    "id": "shock_baton",
+    "kind": "one_handed_weapon",
+    "name": "Shock Baton",
+    "description": "A baton that shocks people",
+    "weight": 2.0,
+    "ability": "shock_baton",
+    "sprite": {
+      "texture_id": "items",
+      "texture_coords": {
+        "x": 2,
+        "y": 3
+      },
+      "tile_size": {
+        "x": 16,
+        "y": 16
+      },
+      "offset": {
+        "x": -8.0,
+        "y": -8.0
+      }
+    }
   }
 ]

@@ -140086,8 +140086,8 @@
             "y": 4.0
           },
           "properties": {
-            "intensity": "0.1",
-            "color": "#ffff0000"
+            "color": "#ffff0000",
+            "intensity": "0.1"
           }
         }
       ],
@@ -140111,8 +140111,8 @@
             "y": 248.0
           },
           "properties": {
-            "prototype_id": "enemy_thug_boss",
-            "instance_id": "thug_01"
+            "instance_id": "thug_01",
+            "prototype_id": "enemy_thug_boss"
           }
         },
         {
@@ -140143,8 +140143,8 @@
             "y": 253.0
           },
           "properties": {
-            "instance_id": "thug_03",
-            "prototype_id": "enemy_thug"
+            "prototype_id": "enemy_thug",
+            "instance_id": "thug_03"
           }
         },
         {
@@ -140195,8 +140195,8 @@
             "y": 844.5
           },
           "properties": {
-            "instance_id": "scared_woman",
-            "prototype_id": "scared_woman"
+            "prototype_id": "scared_woman",
+            "instance_id": "scared_woman"
           }
         }
       ],
@@ -140213,8 +140213,8 @@
             "y": 886.0
           },
           "properties": {
-            "instance_id": "quest_pistol",
-            "prototype_id": "quest_pistol"
+            "prototype_id": "quest_pistol",
+            "instance_id": "quest_pistol"
           }
         }
       ],
@@ -140222,24 +140222,6 @@
     }
   ],
   "tilesets": [
-    {
-      "id": "neo_zero_props",
-      "texture_id": "props",
-      "texture_size": {
-        "x": 160,
-        "y": 160
-      },
-      "tile_size": {
-        "x": 16,
-        "y": 16
-      },
-      "grid_size": {
-        "x": 10,
-        "y": 10
-      },
-      "first_tile_id": 401,
-      "tile_cnt": 100
-    },
     {
       "id": "neo_zero_tiles",
       "texture_id": "tiles",
@@ -140257,6 +140239,24 @@
       },
       "first_tile_id": 1,
       "tile_cnt": 400
+    },
+    {
+      "id": "neo_zero_props",
+      "texture_id": "props",
+      "texture_size": {
+        "x": 160,
+        "y": 160
+      },
+      "tile_size": {
+        "x": 16,
+        "y": 16
+      },
+      "grid_size": {
+        "x": 10,
+        "y": 10
+      },
+      "first_tile_id": 401,
+      "tile_cnt": 100
     },
     {
       "id": "items",

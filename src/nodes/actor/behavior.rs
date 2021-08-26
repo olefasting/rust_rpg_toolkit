@@ -174,12 +174,12 @@ fn attack(actor: &mut Actor, target: Vec2) {
     let mut direction = target.sub(actor.body.position).normalize_or_zero();
     if distance < actor.stats.view_distance * 0.8 {
         if let Some(ability) = actor.primary_ability.as_mut() {
-            if distance > ability.range * 0.8 {
+            if distance < ability.range * 0.9 {
                 direction = Vec2::ZERO;
                 actor.controller.primary_target = Some(target);
             }
         } else if let Some(ability) = actor.secondary_ability.as_mut() {
-            if distance > ability.range * 0.8 {
+            if distance < ability.range * 0.9 {
                 direction = Vec2::ZERO;
                 actor.controller.secondary_target = Some(target);
             }

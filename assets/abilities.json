@@ -4,7 +4,7 @@
     "sound_effect": "gunshot_02",
     "noise_level": "loud",
     "cooldown": 0.6,
-    "range": 5.0,
+    "range": 160.0,
     "delivery": {
       "type": "projectile",
       "projectile_kind": "bullet",
@@ -24,7 +24,7 @@
     "noise_level": "loud",
     "sound_effect": "gunshot_01",
     "cooldown": 0.1,
-    "range": 5.0,
+    "range": 160.0,
     "delivery": {
       "type": "projectile",
       "projectile_kind": "bullet",
@@ -44,12 +44,29 @@
     "sound_effect": "blaster_01",
     "noise_level": "silent",
     "cooldown": 0.75,
-    "range": 8.0,
+    "range": 192.0,
     "delivery": {
       "type": "projectile",
       "projectile_kind": "beam",
       "speed": 15.0,
       "spread": 2.0
+    },
+    "effects": [
+      {
+        "type": "damage",
+        "damage_type": "heat",
+        "amount": 125.0
+      }
+    ]
+  },
+  {
+    "id": "shock_baton",
+    "sound_effect": "blaster_01",
+    "noise_level": "silent",
+    "cooldown": 1.0,
+    "range": 16.0,
+    "delivery": {
+      "type": "melee"
     },
     "effects": [
       {

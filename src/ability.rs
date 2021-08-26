@@ -28,6 +28,7 @@ use crate::{
     Resources,
     json,
 };
+use crate::physics::Collider;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 
@@ -40,6 +41,8 @@ pub enum DamageType {
     Blunt,
     #[serde(rename = "energy")]
     Energy,
+    #[serde(rename = "heat")]
+    Heat,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -61,6 +64,8 @@ pub enum AbilityDelivery {
         spread: f32,
         speed: f32,
     },
+    #[serde(rename = "melee")]
+    Melee,
     #[serde(rename = "continuous_beam")]
     ContinuousBeam,
 }
@@ -183,7 +188,6 @@ impl Ability {
                     speed,
                 } => {
                     let mut projectiles = scene::find_node_by_type::<Projectiles>().unwrap();
-                    let ttl = self.range / speed;
                     projectiles.spawn(
                         &actor.id,
                         &actor.factions,
@@ -195,8 +199,36 @@ impl Ability {
                         target,
                         speed,
                         spread,
-                        ttl,
+                        self.range,
                     );
+                    if let Some(sound_effect) = self.sound_effect {
+                        play_sound_once(sound_effect);
+                    }
+                },
+                AbilityDelivery::Melee => {
+                    let collider = Collider::circle(
+                        actor.body.position.x,
+                        actor.body.position.y,
+                        self.range,
+                    );
+                    for mut other_actor in scene::find_nodes_by_type::<Actor>() {
+                        let hit_success = if let Some(other_collider) = other_actor.body.get_offset_collider() {
+                            if collider.overlaps(other_collider) {
+                                true
+                            } else {
+                                false
+                            }
+                        } else if collider.contains(other_actor.body.position) {
+                            true
+                        } else {
+                            false
+                        };
+                        if hit_success {
+                            for effect in self.effects.clone() {
+                                other_actor.apply_effect(&actor.id, &actor.factions, effect);
+                            }
+                        }
+                    }
                     if let Some(sound_effect) = self.sound_effect {
                         play_sound_once(sound_effect);
                     }

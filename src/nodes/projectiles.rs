@@ -52,8 +52,8 @@ pub struct Projectile {
     position: Vec2,
     direction: Vec2,
     speed: f32,
-    lived: f32,
-    ttl: f32,
+    distance: f32,
+    range: f32,
 }
 
 impl Projectile {
@@ -67,7 +67,7 @@ impl Projectile {
         position: Vec2,
         direction: Vec2,
         speed: f32,
-        ttl: f32,
+        range: f32,
     ) -> Self {
         Projectile {
             actor_id: actor_id.to_string(),
@@ -79,8 +79,8 @@ impl Projectile {
             position,
             direction,
             speed,
-            lived: 0.0,
-            ttl,
+            distance: 0.0,
+            range,
         }
     }
 }
@@ -132,10 +132,8 @@ impl Projectiles {
         target: Vec2,
         speed: f32,
         spread: f32,
-        ttl: f32,
+        range: f32,
     ) {
-        assert!(ttl > 0.0, "Projectile TTL must be a positive float and not 0.0");
-
         let spread_target = target.sub(position).normalize_or_zero() * Self::SPREAD_CALCULATION_DISTANCE;
         let direction = vec2(
             rand::gen_range(spread_target.x - spread, spread_target.x + spread),
@@ -159,6 +157,8 @@ impl Projectiles {
             }
         };
 
+        let speed = rand::gen_range(speed * Self::SPEED_VARIANCE_MIN, speed * Self::SPEED_VARIANCE_MAX).clamp(Self::MIN_PROJECTILE_SPEED, Self::MAX_PROJECTILE_SPEED);
+
         self.active.push(Projectile::new(
             actor_id,
             factions,
@@ -168,28 +168,22 @@ impl Projectiles {
             size,
             position,
             direction,
-            speed.clamp(Self::MIN_PROJECTILE_SPEED, Self::MAX_PROJECTILE_SPEED),
-            ttl,
+            speed,
+            range,
         ));
     }
 }
 
 impl Node for Projectiles {
-    fn update(mut node: RefMut<Self>) {
-        for projectile in &mut node.active {
-            projectile.lived += get_frame_time();
-        }
-    }
-
     fn fixed_update(mut node: RefMut<Self>) {
         for projectile in &mut node.active {
-            let speed = rand::gen_range(projectile.speed * Self::SPEED_VARIANCE_MIN, projectile.speed * Self::SPEED_VARIANCE_MAX);
-            projectile.position += projectile.direction * speed;
+            let distance = projectile.direction * projectile.speed;
+            projectile.position += distance;
+            projectile.distance += distance.length();
         }
 
         node.active.retain(|projectile| {
-            // FIXME: This will allow damage from a projectile that has already hit its ttl in last update
-            if projectile.lived > projectile.ttl {
+            if projectile.distance > projectile.range {
                 return false;
             }
             let collider = Collider::circle(0.0, 0.0, projectile.size / 2.0).offset(projectile.position);

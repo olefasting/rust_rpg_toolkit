@@ -18,7 +18,8 @@
     "items": [
       "pistol",
       "sub_machine_gun",
-      "blaster_pistol"
+      "blaster_pistol",
+      "shock_baton"
     ],
     "credits": 100,
     "collider": {
@@ -200,7 +201,7 @@
     "perception": 8,
     "charisma": 6,
     "items": [
-      "sub_machine_gun"
+      "pistol"
     ],
     "credits": 25,
     "collider": {
@@ -261,7 +262,7 @@
     "perception": 8,
     "charisma": 6,
     "items": [
-      "pistol"
+      "shock_baton"
     ],
     "credits": 25,
     "collider": {
