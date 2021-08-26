@@ -62,7 +62,6 @@ use super::{
     ActorStats,
     ActorBehavior,
     ActorBehaviorParams,
-    ActorDialogue,
     ActorInventoryParams,
     apply_actor_behavior,
 };
@@ -78,6 +77,7 @@ use crate::{
 use crate::nodes::actor::equipped::{EquippedItems, EquipmentSlot};
 use crate::nodes::item::ItemKind;
 use crate::ability::{Effect, DamageType};
+use crate::dialogue::Dialogue;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub enum ActorNoiseLevel {
@@ -244,8 +244,8 @@ pub struct Actor {
     pub secondary_ability: Option<Ability>,
     pub controller: ActorController,
     pub experience: u32,
-    pub dialogue: Option<ActorDialogue>,
-    pub current_dialogue: Option<ActorDialogue>,
+    pub dialogue: Option<Dialogue>,
+    pub current_dialogue: Option<Dialogue>,
     animation_player: SpriteAnimationPlayer,
     noise_level_timer: f32,
     can_level_up: bool,

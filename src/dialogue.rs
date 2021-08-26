@@ -11,12 +11,12 @@ use serde::{
 
 use crate::Resources;
 
-use super::Actor;
+use crate::nodes::Actor;
 use crate::missions::Mission;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
-pub enum ActorDialogueRequirement {
+pub enum DialogueRequirement {
     #[serde(rename = "active_mission")]
     ActiveMission { mission_id: String },
     #[serde(rename = "completed_mission")]
@@ -27,7 +27,7 @@ pub enum ActorDialogueRequirement {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
-pub enum ActorDialogueAction {
+pub enum DialogueAction {
     // #[serde(rename = "open_trade")]
     // OpenTrade,
     #[serde(rename = "start_mission")]
@@ -37,7 +37,7 @@ pub enum ActorDialogueAction {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ActorDialogue {
+pub struct Dialogue {
     pub id: String,
     #[serde(default)]
     pub title: String,
@@ -48,16 +48,16 @@ pub struct ActorDialogue {
     #[serde(default)]
     pub options: Vec<String>,
     #[serde(default)]
-    pub requirements: Vec<ActorDialogueRequirement>,
+    pub requirements: Vec<DialogueRequirement>,
     #[serde(default)]
-    pub exclusions: Vec<ActorDialogueRequirement>,
+    pub exclusions: Vec<DialogueRequirement>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub action: Option<ActorDialogueAction>,
+    pub action: Option<DialogueAction>,
     #[serde(skip)]
     pub actor_name: String,
 }
 
-impl ActorDialogue {
+impl Dialogue {
     pub fn get_options(&self, actor: &Actor) -> Vec<Self> {
         let resources = storage::get::<Resources>();
         let mut dialogue = Vec::new();
@@ -65,17 +65,17 @@ impl ActorDialogue {
             let option = resources.dialogue.get(option_id).unwrap();
             for requirement in &option.requirements {
                 match requirement {
-                    ActorDialogueRequirement::ActiveMission { mission_id } => {
+                    DialogueRequirement::ActiveMission { mission_id } => {
                         if actor.active_missions.iter().find(|mission| mission.id == mission_id.clone()).is_none() {
                             continue 'option;
                         }
                     },
-                    ActorDialogueRequirement::CompletedMission { mission_id } => {
+                    DialogueRequirement::CompletedMission { mission_id } => {
                         if actor.completed_missions.iter().find(|mission| mission.id == mission_id.clone()).is_none() {
                             continue 'option;
                         }
                     }
-                    ActorDialogueRequirement::IsInFaction { faction_id } => {
+                    DialogueRequirement::IsInFaction { faction_id } => {
                         if actor.factions.contains(&faction_id) == false {
                             continue 'option;
                         }
@@ -84,17 +84,17 @@ impl ActorDialogue {
             }
             for exclusion in &option.exclusions {
                 match exclusion {
-                    ActorDialogueRequirement::ActiveMission { mission_id } => {
+                    DialogueRequirement::ActiveMission { mission_id } => {
                         if actor.active_missions.iter().find(|mission| mission.id == mission_id.clone()).is_some() {
                             continue 'option;
                         }
                     },
-                    ActorDialogueRequirement::CompletedMission { mission_id } => {
+                    DialogueRequirement::CompletedMission { mission_id } => {
                         if actor.completed_missions.iter().find(|mission| mission.id == mission_id.clone()).is_some() {
                             continue 'option;
                         }
                     }
-                    ActorDialogueRequirement::IsInFaction { faction_id } => {
+                    DialogueRequirement::IsInFaction { faction_id } => {
                         if actor.factions.contains(&faction_id) {
                             continue 'option;
                         }
@@ -112,7 +112,7 @@ impl ActorDialogue {
         if let Some(action) = self.action.clone() {
             let resources = storage::get::<Resources>();
             match action {
-                ActorDialogueAction::CompleteMission { mission_id } => {
+                DialogueAction::CompleteMission { mission_id } => {
                     actor.active_missions = actor.active_missions
                         .clone()
                         .into_iter()
@@ -127,7 +127,7 @@ impl ActorDialogue {
                         mission
                     }).collect();
                 },
-                ActorDialogueAction::StartMission { mission_id } => {
+                DialogueAction::StartMission { mission_id } => {
                     let params = resources.missions.get(&mission_id).cloned().unwrap();
                     actor.active_missions.push(Mission::new(params));
                 }
@@ -136,9 +136,9 @@ impl ActorDialogue {
     }
 }
 
-impl Default for ActorDialogue {
+impl Default for Dialogue {
     fn default() -> Self {
-        ActorDialogue {
+        Dialogue {
             id: "".to_string(),
             actor_name: "".to_string(),
             title: "...".to_string(),

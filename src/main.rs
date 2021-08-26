@@ -10,28 +10,22 @@ use macroquad::{
     prelude::*,
 };
 
-use map::{
-    Map,
-};
+use config::Config;
+use gui::skins::GuiSkins;
+use map::Map;
 use nodes::{
     Actor,
     Camera,
     ContinuousBeams,
     DrawBuffer,
     GameState,
-    Item,
-    Projectiles,
-    PostProcessing,
     Hud,
+    Item,
+    PostProcessing,
+    Projectiles,
 };
-use resources::Resources;
 use nodes::item::Credits;
-
-use config::Config;
-use gui::{
-    skins::GuiSkins,
-};
-
+use resources::Resources;
 pub use uid::generate_id;
 
 pub mod resources;
@@ -49,6 +43,7 @@ pub mod missions;
 pub mod config;
 pub mod uid;
 pub mod modules;
+mod dialogue;
 
 fn window_conf() -> Conf {
     let config = Config::load();

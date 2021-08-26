@@ -1,44 +1,32 @@
-mod controller;
-mod inventory;
-mod stats;
-mod actor;
-mod behavior;
-mod dialogue;
-mod equipped;
-
+pub use actor::{
+    Actor,
+    ActorNoiseLevel,
+    ActorParams,
+};
 pub use behavior::{
     ActorAggression,
-    ActorBehaviorParams,
     ActorBehavior,
+    ActorBehaviorParams,
     apply_actor_behavior,
 };
-
 pub use controller::{
     ActorController,
     ActorControllerKind,
 };
-
+pub use equipped::{
+    EquipmentSlot,
+    EquippedItems,
+};
 pub use inventory::{
     ActorInventory,
     ActorInventoryEntry,
     ActorInventoryParams,
 };
-
-pub use equipped::{
-    EquipmentSlot,
-    EquippedItems,
-};
-
 pub use stats::ActorStats;
 
-pub use actor::{
-    Actor,
-    ActorParams,
-    ActorNoiseLevel,
-};
-
-pub use dialogue::{
-    ActorDialogue,
-    ActorDialogueRequirement,
-    ActorDialogueAction,
-};
+mod controller;
+mod inventory;
+mod stats;
+mod actor;
+mod behavior;
+mod equipped;

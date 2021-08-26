@@ -26,7 +26,6 @@ use crate::{
     nodes::{
         item::ItemParams,
         actor::ActorParams,
-        actor::ActorDialogue,
     },
     render::{
         LINEAR_FILTER_MODE,
@@ -39,6 +38,7 @@ use crate::{
     ability::AbilityParams,
 };
 use crate::modules::load_modules;
+use crate::dialogue::Dialogue;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MaterialInfo {
@@ -84,7 +84,7 @@ pub struct Resources {
     pub items: HashMap<String, ItemParams>,
     pub abilities: HashMap<String, AbilityParams>,
     pub missions: HashMap<String, MissionParams>,
-    pub dialogue: HashMap<String, ActorDialogue>,
+    pub dialogue: HashMap<String, Dialogue>,
 }
 
 impl Resources {
@@ -177,7 +177,7 @@ impl Resources {
 
         let bytes = load_file(Self::DIALOGUE_FILE_PATH).await
             .expect(&format!("Unable to find dialogue file '{}'!", Self::DIALOGUE_FILE_PATH));
-        let dialogue_data: Vec<ActorDialogue> = serde_json::from_slice(&bytes)
+        let dialogue_data: Vec<Dialogue> = serde_json::from_slice(&bytes)
             .expect(&format!("Error when parsing dialogue file '{}'!", Self::DIALOGUE_FILE_PATH));
         let mut dialogue = HashMap::from_iter(
             dialogue_data.into_iter().map(|dialogue| (dialogue.id.clone(), dialogue)));

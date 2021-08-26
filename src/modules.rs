@@ -16,7 +16,6 @@ use crate::{
     nodes::{
         ActorParams,
         ItemParams,
-        actor::ActorDialogue
     },
     missions::MissionParams,
     ability::AbilityParams,
@@ -26,6 +25,7 @@ use crate::{
 use crate::resources::{MaterialInfo, TextureInfo, SoundInfo};
 use crate::render::{LINEAR_FILTER_MODE, NEAREST_FILTER_MODE};
 use macroquad::audio::load_sound;
+use crate::dialogue::Dialogue;
 
 const ACTIVE_MODULES_FILE_PATH: &'static str = "modules/active_modules.json";
 
@@ -166,7 +166,7 @@ pub async fn load_modules(resources: &mut Resources) {
                     }
                 },
                 ModuleDataFileKind::Dialogue => {
-                    let dialogue: Vec<ActorDialogue> = serde_json::from_slice(&bytes)
+                    let dialogue: Vec<Dialogue> = serde_json::from_slice(&bytes)
                         .expect(&format!("Unable to parse module dialogue data file '{}'!", data.path));
                     match data.integration {
                         ModuleIntegration::Extend => {
@@ -179,7 +179,7 @@ pub async fn load_modules(resources: &mut Resources) {
                                 dialogue
                                     .into_iter()
                                     .map(|params| (params.id.clone(), params))
-                                    .collect::<Vec<(String, ActorDialogue)>>()
+                                    .collect::<Vec<(String, Dialogue)>>()
                             );
                             resources.dialogue = hash_map;
                         }
