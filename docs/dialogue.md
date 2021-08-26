@@ -35,6 +35,7 @@ The `actor_name` field is set and used internally to display the name of the act
 The `requirements` field holds a set of requirements that must be met for this option to show up in the list of available options. The options in `ActorDialogueRequirements` are self-explanatory:
 
 ```rust
+#[serde(tag = "type")]
 enum ActorDialogueRequirement {
     #[serde(rename = "active_mission")]
     ActiveMission { mission_id: String },
@@ -50,6 +51,7 @@ The `exclusions` field holds a set of exclusive `ActorDialogueRequirement` entri
 In the `action` field we define an optional action that will be applied on the `player` when the dialogue fires:
 
 ```rust
+#[serde(tag = "type")]
 enum ActorDialogueAction {
     #[serde(rename = "start_mission")]
     StartMission { mission_id: String },
