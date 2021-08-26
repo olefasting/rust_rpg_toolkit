@@ -74,7 +74,7 @@ async fn main() {
     {
         let player_id = generate_id();
 
-        let map = Map::load_tiled(
+        Map::load_tiled(
             "assets/maps/test_tiled_map.json",
             Some("assets/maps/map_01.json"),
             Some(&[

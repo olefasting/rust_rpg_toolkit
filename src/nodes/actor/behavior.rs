@@ -22,7 +22,6 @@ use crate::{
 };
 
 use super::Actor;
-use crate::ability::AbilityDelivery;
 
 #[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
 pub enum ActorAggression {

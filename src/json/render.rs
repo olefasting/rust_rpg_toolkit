@@ -44,7 +44,7 @@ impl From<ColorDef> for Color {
 }
 
 pub mod opt_color {
-    use super::{Color, ColorDef};
+    use super::{Color};
     use serde::{Serialize, Serializer, Deserialize, Deserializer};
 
     pub fn serialize<S>(value: &Option<Color>, serializer: S) -> Result<S::Ok, S::Error>

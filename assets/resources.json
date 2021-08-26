@@ -50,7 +50,19 @@
       "path": "sound_effects/9mm_Glock_17.wav"
     },
     {
-      "id": "blaster_01",
+      "id": "blaster_rifle_01",
+      "path": "sound_effects/Sci Fi Blaster 4.wav"
+    },
+    {
+      "id": "blaster_pistol_01",
+      "path": "sound_effects/Sci Fi Pistol 4.wav"
+    },
+    {
+      "id": "shock_melee_01",
+      "path": "sound_effects/Sci Fi Blaster 1.wav"
+    },
+    {
+      "id": "shock_melee_hit_01",
       "path": "sound_effects/Sci Fi Blaster 4.wav"
     }
   ],

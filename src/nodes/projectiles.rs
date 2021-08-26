@@ -52,7 +52,7 @@ pub struct Projectile {
     position: Vec2,
     direction: Vec2,
     speed: f32,
-    distance: f32,
+    distance_traveled: f32,
     range: f32,
 }
 
@@ -79,7 +79,7 @@ impl Projectile {
             position,
             direction,
             speed,
-            distance: 0.0,
+            distance_traveled: 0.0,
             range,
         }
     }
@@ -179,11 +179,11 @@ impl Node for Projectiles {
         for projectile in &mut node.active {
             let distance = projectile.direction * projectile.speed;
             projectile.position += distance;
-            projectile.distance += distance.length();
+            projectile.distance_traveled += distance.length();
         }
 
         node.active.retain(|projectile| {
-            if projectile.distance > projectile.range {
+            if projectile.distance_traveled > projectile.range {
                 return false;
             }
             let collider = Collider::circle(0.0, 0.0, projectile.size / 2.0).offset(projectile.position);

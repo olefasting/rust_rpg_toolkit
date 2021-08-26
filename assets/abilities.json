@@ -41,7 +41,7 @@
   },
   {
     "id": "beam",
-    "sound_effect": "blaster_01",
+    "sound_effect": "blaster_pistol_01",
     "noise_level": "silent",
     "cooldown": 0.75,
     "range": 192.0,
@@ -61,12 +61,13 @@
   },
   {
     "id": "shock_baton",
-    "sound_effect": "blaster_01",
+    "sound_effect": "shock_melee_01",
     "noise_level": "silent",
     "cooldown": 1.0,
     "range": 16.0,
     "delivery": {
-      "type": "melee"
+      "type": "melee",
+      "on_hit_sound_effect": "shock_melee_hit_01"
     },
     "effects": [
       {

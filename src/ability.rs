@@ -8,7 +8,6 @@ use macroquad::{
         Sound,
         play_sound_once,
     },
-    color,
     prelude::*,
 };
 
@@ -65,9 +64,18 @@ pub enum AbilityDelivery {
         speed: f32,
     },
     #[serde(rename = "melee")]
-    Melee,
+    Melee {
+        #[serde(default = "AbilityDelivery::default_melee_hit_sound_effect", skip_serializing_if = "Option::is_none")]
+        on_hit_sound_effect: Option<String>,
+    },
     #[serde(rename = "continuous_beam")]
     ContinuousBeam,
+}
+
+impl AbilityDelivery {
+    fn default_melee_hit_sound_effect() -> Option<String> {
+        None
+    }
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -205,14 +213,15 @@ impl Ability {
                         play_sound_once(sound_effect);
                     }
                 },
-                AbilityDelivery::Melee => {
+                AbilityDelivery::Melee { on_hit_sound_effect } => {
                     let collider = Collider::circle(
                         actor.body.position.x,
                         actor.body.position.y,
                         self.range,
                     );
+                    let mut hit_success = false;
                     for mut other_actor in scene::find_nodes_by_type::<Actor>() {
-                        let hit_success = if let Some(other_collider) = other_actor.body.get_offset_collider() {
+                        hit_success = if let Some(other_collider) = other_actor.body.get_offset_collider() {
                             if collider.overlaps(other_collider) {
                                 true
                             } else {
@@ -229,7 +238,15 @@ impl Ability {
                             }
                         }
                     }
-                    if let Some(sound_effect) = self.sound_effect {
+                    if hit_success {
+                        if let Some(sound_effect_id) = on_hit_sound_effect {
+                            let resources = storage::get::<Resources>();
+                            let sound_effect = resources.sound_effects.get(&sound_effect_id).cloned().unwrap();
+                            play_sound_once(sound_effect);
+                        } else if let Some(sound_effect) = self.sound_effect {
+                            play_sound_once(sound_effect);
+                        }
+                    } else if let Some(sound_effect) = self.sound_effect {
                         play_sound_once(sound_effect);
                     }
                 }
