@@ -373,7 +373,7 @@
         {
          "columns":20,
          "firstgid":1,
-         "image":"..\/textures\/neo_zero_tiles.png",
+         "image":"..\/..\/textures\/neo_zero_tiles.png",
          "imageheight":320,
          "imagewidth":320,
          "margin":0,
@@ -386,7 +386,7 @@
         {
          "columns":10,
          "firstgid":401,
-         "image":"..\/textures\/neo_zero_props.png",
+         "image":"..\/..\/textures\/neo_zero_props.png",
          "imageheight":160,
          "imagewidth":160,
          "margin":0,
@@ -399,7 +399,7 @@
         {
          "columns":4,
          "firstgid":501,
-         "image":"..\/textures\/items.png",
+         "image":"..\/..\/textures\/items.png",
          "imageheight":64,
          "imagewidth":64,
          "margin":0,

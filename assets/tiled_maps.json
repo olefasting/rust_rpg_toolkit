@@ -1,6 +1,6 @@
 [
   {
-    "path": "maps/chapter_01_map_01_tiled.json",
+    "path": "maps/tiled_maps/chapter_01_map_01.json",
     "export_path": "maps/chapter_01_map_01.json",
     "collisions": [
       {

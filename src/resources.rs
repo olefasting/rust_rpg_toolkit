@@ -39,6 +39,7 @@ use crate::{
 };
 use crate::modules::load_modules;
 use crate::dialogue::Dialogue;
+use crate::map::{TiledMapDeclaration, Map};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MaterialInfo {
@@ -102,6 +103,7 @@ impl Resources {
     const ACTORS_FILE_PATH: &'static str = "assets/actors.json";
     const MISSIONS_FILE_PATH: &'static str = "assets/missions.json";
     const DIALOGUE_FILE_PATH: &'static str = "assets/dialogue.json";
+    const TILED_MAPS_FILE_PATH: &'static str = "assets/tiled_maps.json";
 
     pub async fn new() -> Result<Resources, FileError> {
         let mut textures = HashMap::new();
@@ -188,6 +190,15 @@ impl Resources {
             .expect(&format!("Error when parsing dialogue file '{}'!", Self::ABILITIES_FILE_PATH));
         let mut abilities = HashMap::from_iter(
             ability_data.into_iter().map(|ability| (ability.id.clone(), ability)));
+
+        let bytes = load_file(Self::TILED_MAPS_FILE_PATH).await
+            .expect(&format!("Unable to find tiled maps file '{}'!", Self::TILED_MAPS_FILE_PATH));
+        let tiled_maps: Vec<TiledMapDeclaration> = serde_json::from_slice(&bytes)
+            .expect(&format!("Unable to parse tiled maps file '{}'!", Self::TILED_MAPS_FILE_PATH));
+        for decl in tiled_maps {
+            Map::load_tiled(decl).await
+                .expect(&format!("Unable to convert tiled map '{}'!", decl.path));
+        }
 
         let mut resources = Resources {
             materials,

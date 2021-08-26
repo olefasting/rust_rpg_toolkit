@@ -74,12 +74,6 @@ async fn main() {
     {
         let player_id = generate_id();
 
-        let bytes = load_file("assets/tiled_maps.json").await.unwrap();
-        let tiled_maps: Vec<TiledMapDeclaration> = serde_json::from_slice(&bytes).unwrap();
-        for decl in tiled_maps {
-            Map::load_tiled(decl).await.unwrap();
-        }
-
         let map = Map::load("assets/maps/chapter_01_map_01.json").await.unwrap();
 
         GameState::add_node(map, &player_id.clone());
