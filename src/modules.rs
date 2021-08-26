@@ -91,7 +91,7 @@ pub struct ModuleResourcesInfo {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ModuleInfo {
+pub struct ModuleDeclaration {
     #[serde(default)]
     pub display_name: String,
     #[serde(default)]
@@ -106,9 +106,9 @@ pub struct ModuleInfo {
     pub resources: Option<ModuleResourcesInfo>,
 }
 
-impl Default for ModuleInfo {
+impl Default for ModuleDeclaration {
     fn default() -> Self {
-        ModuleInfo {
+        ModuleDeclaration {
             display_name: "Unnamed Module".to_string(),
             description: "".to_string(),
             version: "not versioned".to_string(),
@@ -131,7 +131,7 @@ pub async fn load_modules(resources: &mut Resources) {
         let module_file_path = format!("{}/{}.json", module_path, module_name);
         let bytes = load_file(&module_file_path).await
             .expect(&format!("Unable to find module file '{}'!", module_file_path));
-        let module_info: ModuleInfo = serde_json::from_slice(&bytes)
+        let module_info: ModuleDeclaration = serde_json::from_slice(&bytes)
             .expect(&format!("Unable to parse module file '{}'!", module_file_path));
         for dependency in module_info.dependencies {
             let found = loaded_modules.iter().find(|loaded|
