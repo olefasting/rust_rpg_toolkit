@@ -98,7 +98,7 @@ async fn main() {
         Projectiles::add_node();
         ContinuousBeams::add_node();
         DrawBuffer::<Actor>::add_node();
-        PostProcessing::add_node("crt");
+        PostProcessing::add_node();
         Hud::add_node();
     }
 

@@ -2,6 +2,7 @@
 
 cargo build --target wasm32-unknown-unknown
 rm web/capstone.*
-rm web/assets
-cp -r assets web/assets
+rm -r web/assets
+cp -r assets web/
+rm -r web/assets/sound_effects/external
 cp target/wasm32-unknown-unknown/debug/capstone.* web/

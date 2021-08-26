@@ -4,5 +4,6 @@
     "y": 1080
   },
   "fullscreen": true,
-  "gui_scale": 1.5
+  "gui_scale": 1.5,
+  "post_processing": "crt"
 }

@@ -11,7 +11,10 @@ use macroquad::{
     prelude::*,
 };
 
-use crate::Resources;
+use crate::{
+    Resources,
+    Config,
+};
 
 use super::Camera;
 
@@ -20,17 +23,18 @@ pub struct PostProcessing {
 }
 
 impl PostProcessing {
-    pub fn new(material_id: &str) -> Self {
+    pub fn new() -> Self {
+        let config = storage::get::<Config>();
         let resources = storage::get::<Resources>();
-        let material = resources.materials.get(material_id).cloned().unwrap();
+        let material = resources.materials.get(&config.post_processing).cloned().unwrap();
 
         PostProcessing {
             material,
         }
     }
 
-    pub fn add_node(material_id: &str) -> Handle<Self> {
-        scene::add_node(Self::new(material_id))
+    pub fn add_node() -> Handle<Self> {
+        scene::add_node(Self::new())
     }
 }
 

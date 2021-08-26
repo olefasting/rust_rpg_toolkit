@@ -22,6 +22,8 @@ pub struct Config {
     pub fullscreen: bool,
     #[serde(default)]
     pub gui_scale: f32,
+    #[serde(default)]
+    pub post_processing: String,
 }
 
 impl Default for Config {
@@ -30,6 +32,7 @@ impl Default for Config {
             resolution: uvec2(1920, 1080),
             fullscreen: true,
             gui_scale: 1.0,
+            post_processing: "crt".to_string(),
         }
     }
 }
@@ -53,7 +56,8 @@ impl Config {
         let config = Config {
             resolution: uvec2(1080, 720),
             fullscreen: false,
-            gui_scale: 2.0,
+            gui_scale: 1.0,
+            ..Default::default()
         };
         storage::store(config.clone());
         config
