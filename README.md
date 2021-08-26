@@ -35,6 +35,7 @@ To use the primary and secondary abilities, go to Inventory and equip a weapon a
 
 This is a work in progress but current features include (not an exhaustive list as we are adding features at a high pace):
 
+- User modules that can extend or replace the game's data and resources
 - Composable actors, from code or by JSON [assets/actors.json](https://github.com/olefasting/capstone/blob/master/assets/actors.json)
 - Very basic AI behavior, with aggression levels that can be set on actor prototypes, through JSON or through code, that determine how they react to other actors of other factions. There are also visibility and noise levels, as factors determining how AI actors will react to their surroundings.
 - RPG mechanics, such as character stats and various abilities
