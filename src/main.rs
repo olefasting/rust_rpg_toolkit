@@ -74,20 +74,20 @@ async fn main() {
     {
         let player_id = generate_id();
 
-        // let map = Map::load_tiled(
-        //     "assets/maps/test_tiled_map.json",
-        //     Some("assets/maps/map_01.json"),
-        //     Some(&[
-        //         ("barriers_2", map::MapCollisionKind::Barrier),
-        //         ("barriers_1", map::MapCollisionKind::Barrier),
-        //         ("solids_2", map::MapCollisionKind::Solid),
-        //         ("solids_1", map::MapCollisionKind::Solid),
-        //     ]),
-        //     &[
-        //         ("neo_zero_tiles", "../textures/neo_zero_tiles.png", "tiles"),
-        //         ("neo_zero_props", "../textures/neo_zero_props.png", "props"),
-        //         ("items", "../textures/items.png", "items"),
-        //     ]).await.unwrap();
+        let map = Map::load_tiled(
+            "assets/maps/test_tiled_map.json",
+            Some("assets/maps/map_01.json"),
+            Some(&[
+                ("barriers_2", map::MapCollisionKind::Barrier),
+                ("barriers_1", map::MapCollisionKind::Barrier),
+                ("solids_2", map::MapCollisionKind::Solid),
+                ("solids_1", map::MapCollisionKind::Solid),
+            ]),
+            &[
+                ("neo_zero_tiles", "../textures/neo_zero_tiles.png", "tiles"),
+                ("neo_zero_props", "../textures/neo_zero_props.png", "props"),
+                ("items", "../textures/items.png", "items"),
+            ]).await.unwrap();
 
         let map = Map::load("assets/maps/map_01.json").await.unwrap();
 

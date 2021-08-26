@@ -181,6 +181,67 @@
     }
   },
   {
+    "id": "enemy_thug_boss",
+    "name": "Thug Boss",
+    "behavior": {
+      "aggression": "aggressive",
+      "is_stationary": true,
+      "is_on_guard": false,
+      "flee_at_health_factor": 0.2
+    },
+    "factions": [
+      "thugs"
+    ],
+    "strength": 8,
+    "dexterity": 8,
+    "constitution": 8,
+    "intelligence": 6,
+    "willpower": 6,
+    "perception": 8,
+    "charisma": 6,
+    "items": [
+      "sub_machine_gun"
+    ],
+    "credits": 25,
+    "collider": {
+      "x": -8.0,
+      "y": 0.0,
+      "width": 16.0,
+      "height": 16.0
+    },
+    "animation_player": {
+      "texture_id": "characters",
+      "tile_size": {
+        "x": 32.0,
+        "y": 32.0
+      },
+      "offset": {
+        "x": -16.0,
+        "y": -16.0
+      },
+      "animations": [
+        {
+          "name": "down",
+          "row": 3,
+          "frames": 3,
+          "fps": 8
+        },
+        {
+          "name": "up",
+          "row": 4,
+          "frames": 3,
+          "fps": 8
+        },
+        {
+          "name": "right",
+          "row": 5,
+          "frames": 3,
+          "fps": 8
+        }
+      ]
+    }
+  },
+  {
     "id": "enemy_thug",
     "name": "Thug",
     "behavior": {

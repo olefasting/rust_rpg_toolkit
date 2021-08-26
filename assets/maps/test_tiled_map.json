@@ -150,14 +150,14 @@
                         {
                          "name":"prototype_id",
                          "type":"string",
-                         "value":"enemy_thug"
+                         "value":"enemy_thug_boss"
                         }],
                  "rotation":0,
                  "type":"spawn_point",
                  "visible":true,
                  "width":0,
-                 "x":1528,
-                 "y":273
+                 "x":1532,
+                 "y":248
                 }, 
                 {
                  "height":0,
