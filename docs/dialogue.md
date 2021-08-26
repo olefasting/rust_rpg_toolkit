@@ -27,8 +27,10 @@ struct ActorDialogue {
 ```
 
 In short, `title` defines the text that shows up in the list of options, when the dialogue option is available as a response (and therefore has no effect on a root option).
-The `body` field shows the text body of the dialogue option, spoken by the player. The `response` field holds the actor that holds this dialogue options response to the player.
+The `body` field shows the text body of the dialogue option, spoken by the player and the `response` field holds the response to the player, from the actor that holds the dialogue option.
 Both these fields are `Vec<String>`, with every contained `String` representing a line of text (no automatic formatting or line breaking, as of now, so be careful not to overflow, by line breaking properly).
+
+The `actor_name` field is set and used internally to display the name of the actor holding the dialogue, in the dialogue window, and can not be set in the `dialogue.json` file.
 
 The `requirements` field holds a set of requirements that must be met for this option to show up in the list of available options. The options in `ActorDialogueRequirements` are self-explanatory:
 
