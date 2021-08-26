@@ -4,6 +4,10 @@ use macroquad::{
     experimental::{
         collections::storage,
     },
+    audio::{
+        Sound,
+        play_sound_once,
+    },
     color,
     prelude::*,
 };
@@ -19,12 +23,11 @@ use crate::{
         Projectiles,
         ContinuousBeams,
         projectiles::ProjectileKind,
+        actor::ActorNoiseLevel
     },
     Resources,
     json,
 };
-use crate::nodes::actor::ActorNoiseLevel;
-use macroquad::audio::{Sound, play_sound_once};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum Effect {
@@ -33,13 +36,14 @@ pub enum Effect {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub enum AbilityKind {
+#[serde(tag = "type")]
+pub enum AbilityDelivery {
     #[serde(rename = "projectile")]
-    Projectile,
-    #[serde(rename = "energy_sphere")]
-    EnergySphere,
-    #[serde(rename = "beam")]
-    Beam,
+    Projectile {
+        projectile_kind: ProjectileKind,
+        spread: f32,
+        speed: f32,
+    },
     #[serde(rename = "continuous_beam")]
     ContinuousBeam,
 }
@@ -51,7 +55,7 @@ pub struct AbilityParams {
     pub sound_effect_id: Option<String>,
     #[serde(default)]
     pub noise_level: ActorNoiseLevel,
-    pub kind: AbilityKind,
+    pub delivery: AbilityDelivery,
     #[serde(default)]
     pub cooldown: f32,
     #[serde(default)]
@@ -60,17 +64,13 @@ pub struct AbilityParams {
     pub stamina_cost: f32,
     #[serde(default)]
     pub energy_cost: f32,
-    #[serde(default)]
-    pub speed: f32,
-    #[serde(default)]
-    pub spread: f32,
     pub range: f32,
     pub damage: f32,
     pub effects: Vec<Effect>,
-    #[serde(default, with = "json::ColorDef")]
-    pub color: Color,
-    #[serde(default)]
-    pub size: f32,
+    #[serde(default, with = "json::opt_color", skip_serializing_if = "Option::is_none")]
+    pub color_override: Option<Color>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub size_override: Option<f32>,
 }
 
 impl Default for AbilityParams {
@@ -79,18 +79,20 @@ impl Default for AbilityParams {
             id: "".to_string(),
             sound_effect_id: None,
             noise_level: ActorNoiseLevel::Moderate,
-            kind: AbilityKind::Projectile,
+            delivery: AbilityDelivery::Projectile {
+                projectile_kind: ProjectileKind::Bullet,
+                speed: 8.0,
+                spread: 5.0
+            },
             cooldown: 0.0,
             health_cost: 0.0,
             stamina_cost: 0.0,
             energy_cost: 0.0,
-            speed: 75.0,
-            spread: 0.0,
-            range: 100.0,
             damage: 0.0,
+            range: 5.0,
             effects: Vec::new(),
-            color: Ability::DEFAULT_PROJECTILE_COLOR,
-            size: Ability::DEFAULT_PROJECTILE_SIZE,
+            color_override: None,
+            size_override: None,
         }
     }
 }
@@ -98,29 +100,21 @@ impl Default for AbilityParams {
 #[derive(Clone)]
 pub struct Ability {
     pub noise_level: ActorNoiseLevel,
-    pub kind: AbilityKind,
+    pub delivery: AbilityDelivery,
     pub sound_effect: Option<Sound>,
     pub cooldown: f32,
     pub cooldown_timer: f32,
     pub health_cost: f32,
     pub stamina_cost: f32,
     pub energy_cost: f32,
-    pub speed: f32,
-    pub spread: f32,
-    pub range: f32,
     pub damage: f32,
+    pub range: f32,
     pub effects: Vec<Effect>,
-    pub color: Color,
-    pub size: f32,
+    pub color_override: Option<Color>,
+    pub size_override: Option<f32>,
 }
 
 impl Ability {
-    const DEFAULT_PROJECTILE_COLOR: Color = color::YELLOW;
-    const DEFAULT_PROJECTILE_SIZE: f32 = 1.0;
-
-    const DEFAULT_BEAM_COLOR: Color = color::RED;
-    const DEFAULT_BEAM_SIZE: f32 = 2.0;
-
     pub fn new(params: AbilityParams) -> Self {
         let sound_effect = if let Some(sound_id) = params.sound_effect_id {
             let resources = storage::get::<Resources>();
@@ -132,67 +126,67 @@ impl Ability {
         Ability {
             sound_effect,
             noise_level: params.noise_level,
-            kind: params.kind,
+            delivery: params.delivery,
             health_cost: params.health_cost,
             stamina_cost: params.stamina_cost,
             energy_cost: params.energy_cost,
             cooldown: params.cooldown,
             cooldown_timer: params.cooldown,
-            speed: params.speed,
-            spread: params.spread,
-            range: params.range,
             damage: params.damage,
+            range: params.range,
             effects: params.effects,
-            size: params.size,
-            color: params.color,
+            color_override: params.color_override,
+            size_override: params.size_override,
         }
     }
 
     pub fn activate(&mut self, actor: &mut Actor, origin: Vec2, target: Vec2) {
-        if (self.health_cost == 0.0 || actor.stats.current_health >= self.health_cost)
+        if self.cooldown_timer >= self.cooldown
+            && (self.health_cost == 0.0 || actor.stats.current_health >= self.health_cost)
             && (self.stamina_cost == 0.0 || actor.stats.current_stamina >= self.stamina_cost)
             && (self.energy_cost == 0.0 || actor.stats.current_energy >= self.energy_cost) {
+            self.cooldown_timer = 0.0;
             actor.set_noise_level(self.noise_level);
             actor.stats.current_health -= self.health_cost;
             actor.stats.current_stamina -= self.stamina_cost;
             actor.stats.current_energy -= self.energy_cost;
-            if self.kind == AbilityKind::ContinuousBeam {
-                self.cooldown_timer = 0.0;
-                let mut continuous_beams = scene::find_node_by_type::<ContinuousBeams>().unwrap();
-                let end = actor.body.position + target.sub(actor.body.position).normalize_or_zero() * self.range;
-                continuous_beams.spawn(
-                    &actor.id,
-                    &actor.factions,
-                    self.damage,
-                    self.color,
-                    self.size,
-                    actor.body.position,
-                    end,
-                );
-            } else if self.cooldown_timer >= self.cooldown {
-                self.cooldown_timer = 0.0;
-                let kind = match self.kind {
-                    AbilityKind::Beam => ProjectileKind::Beam,
-                    AbilityKind::EnergySphere => ProjectileKind::EnergySphere,
-                    _ => ProjectileKind::Bullet,
-                };
-                let mut projectiles = scene::find_node_by_type::<Projectiles>().unwrap();
-                let ttl = self.range / self.speed;
-                projectiles.spawn(
-                    &actor.id,
-                    &actor.factions,
-                    kind,
-                    self.damage,
-                    self.color,
-                    self.size,
-                    origin,
-                    target,
-                    self.speed,
-                    self.spread,
-                    ttl,
-                );
-                if let Some(sound_effect) = self.sound_effect {
-                    play_sound_once(sound_effect);
+            match self.delivery.clone() {
+                AbilityDelivery::ContinuousBeam => {
+                    let mut continuous_beams = scene::find_node_by_type::<ContinuousBeams>().unwrap();
+                    let end = actor.body.position + target.sub(actor.body.position).normalize_or_zero() * self.range;
+                    continuous_beams.spawn(
+                        &actor.id,
+                        &actor.factions,
+                        self.damage,
+                        self.color_override,
+                        self.size_override,
+                        actor.body.position,
+                        end,
+                    );
+                },
+                AbilityDelivery::Projectile {
+                    projectile_kind,
+                    spread,
+                    speed,
+                } => {
+                    let mut projectiles = scene::find_node_by_type::<Projectiles>().unwrap();
+                    let ttl = self.range / speed;
+                    projectiles.spawn(
+                        &actor.id,
+                        &actor.factions,
+                        projectile_kind,
+                        self.damage,
+                        self.color_override,
+                        self.size_override,
+                        origin,
+                        target,
+                        speed,
+                        spread,
+                        ttl,
+                    );
+                    if let Some(sound_effect) = self.sound_effect {
+                        play_sound_once(sound_effect);
+                    }
                 }
             }
         }

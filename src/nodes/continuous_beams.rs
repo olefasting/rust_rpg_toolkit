@@ -31,6 +31,9 @@ pub struct ContinuousBeams {
 }
 
 impl ContinuousBeams {
+    const DEFAULT_COLOR: Color = color::RED;
+    const DEFAULT_WIDTH: f32 = 4.0;
+
     const WIDTH_TOLERANCE_FACTOR: f32 = 350.0;
 
     pub fn new() -> Self {
@@ -43,13 +46,22 @@ impl ContinuousBeams {
         scene::add_node(Self::new())
     }
 
-    pub fn spawn(&mut self, actor_id: &str, factions: &[String], damage: f32, color: Color, width: f32, origin: Vec2, end: Vec2) {
+    pub fn spawn(
+        &mut self,
+        actor_id: &str,
+        factions: &[String],
+        damage: f32,
+        color_override: Option<Color>,
+        width_override: Option<f32>,
+        origin: Vec2,
+        end: Vec2,
+    ) {
         let beam = ContinuousBeam {
             actor_id: actor_id.to_string(),
             factions: factions.to_vec(),
             damage,
-            color,
-            width,
+            color: color_override.unwrap_or(Self::DEFAULT_COLOR),
+            width: width_override.unwrap_or(Self::DEFAULT_WIDTH),
             origin,
             end,
         };

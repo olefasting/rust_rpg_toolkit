@@ -140111,8 +140111,8 @@
             "y": 248.0
           },
           "properties": {
-            "instance_id": "thug_01",
-            "prototype_id": "enemy_thug_boss"
+            "prototype_id": "enemy_thug_boss",
+            "instance_id": "thug_01"
           }
         },
         {
@@ -140143,8 +140143,8 @@
             "y": 253.0
           },
           "properties": {
-            "instance_id": "thug_03",
-            "prototype_id": "enemy_thug"
+            "prototype_id": "enemy_thug",
+            "instance_id": "thug_03"
           }
         },
         {
@@ -140154,8 +140154,8 @@
             "y": 546.3333
           },
           "properties": {
-            "prototype_id": "guard_boss",
-            "instance_id": "guard_boss"
+            "instance_id": "guard_boss",
+            "prototype_id": "guard_boss"
           }
         },
         {
@@ -140195,8 +140195,8 @@
             "y": 844.5
           },
           "properties": {
-            "instance_id": "scared_woman",
-            "prototype_id": "scared_woman"
+            "prototype_id": "scared_woman",
+            "instance_id": "scared_woman"
           }
         }
       ],
@@ -140213,8 +140213,8 @@
             "y": 886.0
           },
           "properties": {
-            "prototype_id": "quest_pistol",
-            "instance_id": "quest_pistol"
+            "instance_id": "quest_pistol",
+            "prototype_id": "quest_pistol"
           }
         }
       ],

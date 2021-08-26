@@ -4,17 +4,13 @@
     "sound_effect": "gunshot_02",
     "noise_level": "loud",
     "cooldown": 0.6,
-    "speed": 8.0,
-    "spread": 5.0,
-    "range": 5.0,
     "damage": 50.0,
-    "kind": "projectile",
-    "size": 1.0,
-    "color": {
-      "r": 0.99,
-      "g": 0.98,
-      "b": 0.0,
-      "a": 1.0
+    "range": 5.0,
+    "delivery": {
+      "type": "projectile",
+      "projectile_kind": "bullet",
+      "speed": 8.0,
+      "spread": 5.0
     },
     "effects": []
   },
@@ -23,17 +19,13 @@
     "noise_level": "loud",
     "sound_effect": "gunshot_01",
     "cooldown": 0.1,
-    "speed": 8.0,
-    "spread": 2.0,
-    "range": 5.0,
     "damage": 75.0,
-    "kind": "projectile",
-    "size": 1.0,
-    "color": {
-      "r": 0.99,
-      "g": 0.98,
-      "b": 0.0,
-      "a": 1.0
+    "range": 5.0,
+    "delivery": {
+      "type": "projectile",
+      "projectile_kind": "bullet",
+      "speed": 8.0,
+      "spread": 2.0
     },
     "effects": []
   },
@@ -42,17 +34,13 @@
     "sound_effect": "blaster_01",
     "noise_level": "silent",
     "cooldown": 0.75,
-    "speed": 15.0,
-    "spread": 2.0,
-    "range": 8.0,
     "damage": 125.0,
-    "kind": "beam",
-    "size": 2.0,
-    "color": {
-      "r": 0.99,
-      "g": 0.0,
-      "b": 0.0,
-      "a": 1.0
+    "range": 8.0,
+    "delivery": {
+      "type": "projectile",
+      "projectile_kind": "beam",
+      "speed": 15.0,
+      "spread": 2.0
     },
     "effects": []
   }

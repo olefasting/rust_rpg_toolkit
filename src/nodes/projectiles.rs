@@ -12,7 +12,13 @@ use macroquad::{
         },
         collections::storage,
     },
+    color,
     prelude::*,
+};
+
+use serde::{
+    Serialize,
+    Deserialize,
 };
 
 use crate::{
@@ -27,10 +33,12 @@ use crate::{
 };
 use crate::map::MapCollisionKind;
 
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum ProjectileKind {
+    #[serde(rename = "bullet")]
     Bullet,
+    #[serde(rename = "beam")]
     Beam,
-    EnergySphere,
 }
 
 pub struct Projectile {
@@ -80,6 +88,12 @@ pub struct Projectiles {
 }
 
 impl Projectiles {
+    const DEFAULT_PROJECTILE_COLOR: Color = color::YELLOW;
+    const DEFAULT_PROJECTILE_SIZE: f32 = 1.0;
+
+    const DEFAULT_BEAM_COLOR: Color = color::RED;
+    const DEFAULT_BEAM_SIZE: f32 = 2.0;
+
     const MIN_PROJECTILE_SPEED: f32 = 1.0;
     const MAX_PROJECTILE_SPEED: f32 = 200.0;
 
@@ -110,8 +124,8 @@ impl Projectiles {
         factions: &[String],
         kind: ProjectileKind,
         damage: f32,
-        color: Color,
-        size: f32,
+        color_override: Option<Color>,
+        size_override: Option<f32>,
         position: Vec2,
         target: Vec2,
         speed: f32,
@@ -125,6 +139,24 @@ impl Projectiles {
             rand::gen_range(spread_target.x - spread, spread_target.x + spread),
             rand::gen_range(spread_target.y - spread, spread_target.y + spread),
         ).normalize_or_zero();
+
+        let color = if let Some(color) = color_override {
+            color
+        } else {
+            match kind {
+                ProjectileKind::Bullet => Self::DEFAULT_PROJECTILE_COLOR,
+                ProjectileKind::Beam => Self::DEFAULT_BEAM_COLOR,
+            }
+        };
+        let size = if let Some(size) = size_override {
+            size
+        } else {
+            match kind {
+                ProjectileKind::Bullet => Self::DEFAULT_PROJECTILE_SIZE,
+                ProjectileKind::Beam => Self::DEFAULT_BEAM_SIZE,
+            }
+        };
+
         self.active.push(Projectile::new(
             actor_id,
             factions,
@@ -236,12 +268,6 @@ impl Node for Projectiles {
                             projectile.color,
                         );
                     }
-                    ProjectileKind::EnergySphere => draw_circle(
-                        projectile.position.x,
-                        projectile.position.y,
-                        projectile.size / 2.0,
-                        projectile.color,
-                    ),
                 }
             }
         }

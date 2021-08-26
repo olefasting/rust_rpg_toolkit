@@ -43,6 +43,32 @@ impl From<ColorDef> for Color {
     }
 }
 
+pub mod opt_color {
+    use super::{Color, ColorDef};
+    use serde::{Serialize, Serializer, Deserialize, Deserializer};
+
+    pub fn serialize<S>(value: &Option<Color>, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: Serializer,
+    {
+        #[derive(Serialize)]
+        struct Helper<'a>(#[serde(with = "super::ColorDef")] &'a Color);
+
+        value.as_ref().map(Helper).serialize(serializer)
+    }
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<Color>, D::Error>
+        where
+            D: Deserializer<'de>,
+    {
+        #[derive(Deserialize)]
+        struct Helper(#[serde(with = "super::ColorDef")] Color);
+
+        let helper = Option::deserialize(deserializer)?;
+        Ok(helper.map(|Helper(external)| external))
+    }
+}
+
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(remote = "Animation")]
 pub struct AnimationDef {
