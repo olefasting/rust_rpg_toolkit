@@ -1,6 +1,7 @@
 #![feature(fn_traits)]
 #![feature(drain_filter)]
 #![feature(try_find)]
+#![feature(async_closure)]
 
 use macroquad::{
     experimental::{
@@ -31,6 +32,8 @@ use nodes::{
 use nodes::item::Credits;
 use resources::Resources;
 pub use uid::generate_id;
+use crate::scenario::{Scenario, ScenarioParams};
+use crate::modules::load_modules;
 
 pub mod resources;
 pub mod ability;
@@ -48,6 +51,7 @@ pub mod config;
 pub mod uid;
 pub mod modules;
 pub mod dialogue;
+pub mod scenario;
 
 fn window_conf() -> Conf {
     let config = Config::load();
@@ -62,9 +66,29 @@ fn window_conf() -> Conf {
     }
 }
 
+const TILED_MAPS_FILE_PATH: &'static str = "assets/tiled_maps.json";
+
 #[macroquad::main(window_conf)]
 async fn main() {
-    Resources::load().await;
+    {
+        let mut resources = Resources::new().await.unwrap();
+        let mut scenario_params = Scenario::load_params().await.unwrap();
+        load_modules(&mut resources, &mut scenario_params).await;
+
+        storage::store(resources);
+
+        let bytes = load_file(TILED_MAPS_FILE_PATH).await
+            .expect(&format!("Unable to find tiled maps file '{}'!", TILED_MAPS_FILE_PATH));
+        let tiled_maps: Vec<TiledMapDeclaration> = serde_json::from_slice(&bytes)
+            .expect(&format!("Unable to parse tiled maps file '{}'!", TILED_MAPS_FILE_PATH));
+        for decl in tiled_maps {
+            Map::load_tiled(decl.clone()).await
+                .expect(&format!("Unable to convert tiled map '{}'!", decl.path));
+        }
+
+        let scenario = Scenario::new(scenario_params).await.unwrap();
+        storage::store(scenario);
+    }
 
     {
         let config = storage::get::<Config>();

@@ -23,17 +23,17 @@
     "tilesets": [
       {
         "name": "neo_zero_tiles",
-        "relative_texture_path": "../textures/neo_zero_tiles.png",
+        "relative_texture_path": "../../textures/neo_zero_tiles.png",
         "texture_id": "tiles"
       },
       {
         "name": "neo_zero_props",
-        "relative_texture_path": "../textures/neo_zero_props.png",
+        "relative_texture_path": "../../textures/neo_zero_props.png",
         "texture_id": "props"
       },
       {
         "name": "items",
-        "relative_texture_path": "../textures/items.png",
+        "relative_texture_path": "../../textures/items.png",
         "texture_id": "items"
       }
     ]

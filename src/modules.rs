@@ -22,10 +22,11 @@ use crate::{
     generate_id
 };
 
-use crate::resources::{MaterialInfo, TextureInfo, SoundInfo};
+use crate::resources::{MaterialInfo, TextureParams, SoundParams};
 use crate::render::{LINEAR_FILTER_MODE, NEAREST_FILTER_MODE};
 use macroquad::audio::load_sound;
 use crate::dialogue::Dialogue;
+use crate::scenario::{ScenarioParams, ChapterParams};
 
 const ACTIVE_MODULES_FILE_PATH: &'static str = "modules/active_modules.json";
 
@@ -52,7 +53,7 @@ pub enum ModuleIntegration {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ModuleDataInfo {
+pub struct ModuleDataParams {
     pub kind: ModuleDataFileKind,
     pub path: String,
     pub integration: ModuleIntegration,
@@ -73,17 +74,17 @@ pub struct ModuleMaterials {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ModuleTextures {
     pub integration: ModuleIntegration,
-    pub files: Vec<TextureInfo>
+    pub files: Vec<TextureParams>
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ModuleSounds {
     pub integration: ModuleIntegration,
-    pub files: Vec<SoundInfo>
+    pub files: Vec<SoundParams>
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ModuleResourcesInfo {
+pub struct ModuleResourcesParams {
     materials: ModuleMaterials,
     textures: ModuleTextures,
     sound_effects: ModuleSounds,
@@ -91,9 +92,15 @@ pub struct ModuleResourcesInfo {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ModuleScenarioParams {
+    pub integration: ModuleIntegration,
+    pub chapters: Vec<ChapterParams>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ModuleDeclaration {
     #[serde(default)]
-    pub display_name: String,
+    pub title: String,
     #[serde(default)]
     pub description: String,
     #[serde(default)]
@@ -101,25 +108,28 @@ pub struct ModuleDeclaration {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub dependencies: Vec<ModuleDependencyInfo>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub data: Vec<ModuleDataInfo>,
+    pub data: Vec<ModuleDataParams>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub resources: Option<ModuleResourcesInfo>,
+    pub resources: Option<ModuleResourcesParams>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub scenario: Option<ModuleScenarioParams>,
 }
 
 impl Default for ModuleDeclaration {
     fn default() -> Self {
         ModuleDeclaration {
-            display_name: "Unnamed Module".to_string(),
+            title: "Unnamed Module".to_string(),
             description: "".to_string(),
             version: "not versioned".to_string(),
             dependencies: Vec::new(),
             data: Vec::new(),
             resources: None,
+            scenario: None,
         }
     }
 }
 
-pub async fn load_modules(resources: &mut Resources) {
+pub async fn load_modules(resources: &mut Resources, scenario: &mut ScenarioParams) {
     let mut loaded_modules: Vec<ModuleDependencyInfo> = Vec::new();
 
     let bytes = load_file(ACTIVE_MODULES_FILE_PATH).await
@@ -131,9 +141,9 @@ pub async fn load_modules(resources: &mut Resources) {
         let module_file_path = format!("{}/{}.json", module_path, module_name);
         let bytes = load_file(&module_file_path).await
             .expect(&format!("Unable to find module file '{}'!", module_file_path));
-        let module_info: ModuleDeclaration = serde_json::from_slice(&bytes)
+        let module_decl: ModuleDeclaration = serde_json::from_slice(&bytes)
             .expect(&format!("Unable to parse module file '{}'!", module_file_path));
-        for dependency in module_info.dependencies {
+        for dependency in module_decl.dependencies {
             let found = loaded_modules.iter().find(|loaded|
                 loaded.name.clone() == dependency.name && loaded.version.clone() == dependency.version);
             if found.is_none() {
@@ -141,7 +151,88 @@ pub async fn load_modules(resources: &mut Resources) {
                 continue 'module;
             }
         }
-        for data in module_info.data {
+
+        if let Some(module_resources) = module_decl.resources {
+            {
+                let mut materials = HashMap::new();
+                for material_info in module_resources.materials.files {
+                    let vertex_shader = load_file(&format!("{}/{}", module_path, material_info.vertex_shader_path)).await.unwrap();
+                    let fragment_shader = load_file(&format!("{}/{}", module_path, material_info.fragment_shader_path)).await.unwrap();
+
+                    let material = load_material(
+                        &String::from_utf8(vertex_shader).unwrap(),
+                        &String::from_utf8(fragment_shader).unwrap(),
+                        MaterialParams {
+                            ..Default::default()
+                        },
+                    ).unwrap();
+
+                    materials.insert(material_info.id, material);
+                }
+                match module_resources.materials.integration {
+                    ModuleIntegration::Extend => {
+                        for (id, material) in materials {
+                            resources.materials.insert(id, material);
+                        }
+                    }
+                    ModuleIntegration::Replace => resources.materials = materials,
+                }
+            }
+            {
+                let mut textures = HashMap::new();
+                for texture_info in module_resources.textures.files {
+                    let texture = load_texture(&format!("{}/{}", module_path, texture_info.path)).await.unwrap();
+                    if texture_info.filter_mode == LINEAR_FILTER_MODE.to_string() {
+                        texture.set_filter(FilterMode::Linear)
+                    } else if texture_info.filter_mode == NEAREST_FILTER_MODE.to_string() {
+                        texture.set_filter(FilterMode::Nearest);
+                    } else {
+                        assert!(false, "Invalid filter mode '{}'", texture_info.filter_mode);
+                    }
+                    textures.insert(texture_info.id.clone(), texture);
+                }
+                match module_resources.textures.integration {
+                    ModuleIntegration::Extend => {
+                        for (id, texture) in textures {
+                            resources.textures.insert(id, texture);
+                        }
+                    }
+                    ModuleIntegration::Replace => resources.textures = textures,
+                }
+            }
+            {
+                let mut sound_effects = HashMap::new();
+                for sound_info in module_resources.sound_effects.files {
+                    let sound = load_sound(&format!("{}/{}", module_path, sound_info.path)).await.unwrap();
+                    sound_effects.insert(sound_info.id, sound);
+                }
+                match module_resources.sound_effects.integration {
+                    ModuleIntegration::Extend => {
+                        for (id, sound_effect) in sound_effects {
+                            resources.sound_effects.insert(id, sound_effect);
+                        }
+                    }
+                    ModuleIntegration::Replace => resources.sound_effects = sound_effects,
+                }
+            }
+            {
+                let mut music = HashMap::new();
+                for music_info in module_resources.music.files {
+                    let music_file = load_sound(&format!("{}/{}", module_path, music_info.path)).await.unwrap();
+                    music.insert(music_info.id, music_file);
+                }
+                match module_resources.music.integration {
+                    ModuleIntegration::Extend => {
+                        for (id, music_file) in music {
+                            resources.music.insert(id, music_file);
+                        }
+                    }
+                    ModuleIntegration::Replace => resources.music = music,
+                }
+            }
+        }
+
+        for data in module_decl.data {
             let bytes = load_file(&format!("{}/{}", module_path, data.path)).await
                 .expect(&format!("Unable to find module data file '{}'!", data.path));
             match data.kind {
@@ -248,89 +339,25 @@ pub async fn load_modules(resources: &mut Resources) {
             }
         }
 
-        if let Some(module_resources) = module_info.resources {
-            {
-                let mut materials = HashMap::new();
-                for material_info in module_resources.materials.files {
-                    let vertex_shader = load_file(&format!("{}/{}", module_path, material_info.vertex_shader_path)).await.unwrap();
-                    let fragment_shader = load_file(&format!("{}/{}", module_path, material_info.fragment_shader_path)).await.unwrap();
-
-                    let material = load_material(
-                        &String::from_utf8(vertex_shader).unwrap(),
-                        &String::from_utf8(fragment_shader).unwrap(),
-                        MaterialParams {
-                            ..Default::default()
-                        },
-                    ).unwrap();
-
-                    materials.insert(material_info.id, material);
-                }
-                match module_resources.materials.integration {
-                    ModuleIntegration::Extend => {
-                        for (id, material) in materials {
-                            resources.materials.insert(id, material);
-                        }
-                    }
-                    ModuleIntegration::Replace => resources.materials = materials,
-                }
+        if let Some(module_scenario) = module_decl.scenario {
+            let mut chapters = Vec::new();
+            for mut chapter_params in module_scenario.chapters {
+                chapter_params.maps = chapter_params.maps.into_iter().map(|map_params| {
+                    let mut map_params = map_params;
+                    map_params.path = format!("../modules/{}/{}", module_name, map_params.path);
+                    map_params
+                }).collect();
+                chapters.push(chapter_params);
             }
-            {
-                let mut textures = HashMap::new();
-                for texture_info in module_resources.textures.files {
-                    let texture = load_texture(&format!("{}/{}", module_path, texture_info.path)).await.unwrap();
-                    if texture_info.filter_mode == LINEAR_FILTER_MODE.to_string() {
-                        texture.set_filter(FilterMode::Linear)
-                    } else if texture_info.filter_mode == NEAREST_FILTER_MODE.to_string() {
-                        texture.set_filter(FilterMode::Nearest);
-                    } else {
-                        assert!(false, "Invalid filter mode '{}'", texture_info.filter_mode);
-                    }
-                    textures.insert(texture_info.id.clone(), texture);
-                }
-                match module_resources.textures.integration {
-                    ModuleIntegration::Extend => {
-                        for (id, texture) in textures {
-                            resources.textures.insert(id, texture);
-                        }
-                    }
-                    ModuleIntegration::Replace => resources.textures = textures,
-                }
-            }
-            {
-                let mut sound_effects = HashMap::new();
-                for sound_info in module_resources.sound_effects.files {
-                    let sound = load_sound(&format!("{}/{}", module_path, sound_info.path)).await.unwrap();
-                    sound_effects.insert(sound_info.id, sound);
-                }
-                match module_resources.sound_effects.integration {
-                    ModuleIntegration::Extend => {
-                        for (id, sound_effect) in sound_effects {
-                            resources.sound_effects.insert(id, sound_effect);
-                        }
-                    }
-                    ModuleIntegration::Replace => resources.sound_effects = sound_effects,
-                }
-            }
-            {
-                let mut music = HashMap::new();
-                for music_info in module_resources.music.files {
-                    let music_file = load_sound(&format!("{}/{}", module_path, music_info.path)).await.unwrap();
-                    music.insert(music_info.id, music_file);
-                }
-                match module_resources.music.integration {
-                    ModuleIntegration::Extend => {
-                        for (id, music_file) in music {
-                            resources.music.insert(id, music_file);
-                        }
-                    }
-                    ModuleIntegration::Replace => resources.music = music,
-                }
+            match module_scenario.integration {
+                ModuleIntegration::Extend => scenario.chapters.append(&mut chapters),
+                ModuleIntegration::Replace => scenario.chapters = chapters,
             }
         }
 
         loaded_modules.push(ModuleDependencyInfo {
             name: module_name,
-            version: module_info.version,
+            version: module_decl.version,
         })
     }
 }
