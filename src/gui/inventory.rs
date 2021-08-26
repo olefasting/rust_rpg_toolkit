@@ -22,7 +22,7 @@ use crate::{
 use super::GuiSkins;
 
 fn draw_entry(ui: &mut Ui, scale: f32, player: &mut Actor, entry: &ActorInventoryEntry) {
-    Group::new(hash!(), vec2(270.0 * scale, 50.0 * scale)).ui(ui, |ui| {
+    //Group::new(hash!(), vec2(270.0 * scale, 50.0 * scale)).ui(ui, |ui| {
         ui.label(None, &entry.params.name);
         if entry.equipped_to == EquipmentSlot::None {
             if ui.button(None, "Equip") {
@@ -40,7 +40,7 @@ fn draw_entry(ui: &mut Ui, scale: f32, player: &mut Actor, entry: &ActorInventor
                 player.unequip_item(&entry.id);
             }
         }
-    });
+    //});
 }
 
 pub fn draw_inventory_window(player: &mut Actor) {

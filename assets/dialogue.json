@@ -11,13 +11,13 @@
   },
   {
     "id": "dialogue_guard_boss_find_gun",
-    "title": "Do you have any jobs for me?",
+    "title": "Do you have any work for me?",
     "body": [
-      "Do you have any jobs for me?"
+      "Do you have any work for me?"
     ],
     "response": [
       "Yeah, I've lost my gun somewhere",
-      "and I need someone to retrieve it..."
+      "and I need someone to find it..."
     ],
     "exclusions": [
       {
