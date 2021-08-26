@@ -22,8 +22,8 @@ pub struct Config {
     pub fullscreen: bool,
     #[serde(default)]
     pub gui_scale: f32,
-    #[serde(default)]
-    pub post_processing: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub post_processing: Option<String>,
 }
 
 impl Default for Config {
@@ -32,7 +32,7 @@ impl Default for Config {
             resolution: uvec2(1920, 1080),
             fullscreen: true,
             gui_scale: 1.0,
-            post_processing: "crt".to_string(),
+            post_processing: None,
         }
     }
 }
@@ -57,7 +57,7 @@ impl Config {
             resolution: uvec2(1080, 720),
             fullscreen: false,
             gui_scale: 1.0,
-            ..Default::default()
+            post_processing: Some("crt".to_string()),
         };
         storage::store(config.clone());
         config

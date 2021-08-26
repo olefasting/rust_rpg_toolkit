@@ -19,14 +19,18 @@ use crate::{
 use super::Camera;
 
 pub struct PostProcessing {
-    pub material: Material,
+    pub material: Option<Material>,
 }
 
 impl PostProcessing {
     pub fn new() -> Self {
         let config = storage::get::<Config>();
         let resources = storage::get::<Resources>();
-        let material = resources.materials.get(&config.post_processing).cloned().unwrap();
+        let material = if let Some(material_id) = &config.post_processing {
+            Some(resources.materials.get(material_id).cloned().unwrap())
+        } else {
+            None
+        };
 
         PostProcessing {
             material,
@@ -43,7 +47,9 @@ impl Node for PostProcessing {
         let camera = scene::find_node_by_type::<Camera>().unwrap();
 
         set_default_camera();
-        gl_use_material(node.material);
+        if let Some(material) = node.material {
+            gl_use_material(material);
+        }
         draw_texture_ex(
             camera.get_render_target().texture,
             0.0,
@@ -54,6 +60,8 @@ impl Node for PostProcessing {
                 ..Default::default()
             },
         );
-        gl_use_default_material();
+        if node.material.is_some() {
+            gl_use_default_material();
+        }
     }
 }
