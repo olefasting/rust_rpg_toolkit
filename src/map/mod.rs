@@ -15,6 +15,7 @@ pub use map::{
 pub use tiled::{
     TiledMap,
     TiledTileset,
+    TiledMapDeclaration,
 };
 
 pub const MAP_LAYER_GROUND: &'static str = "ground";

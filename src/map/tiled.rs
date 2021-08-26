@@ -4,7 +4,13 @@ use macroquad::{
     },
     prelude::*,
 };
+
 use macroquad_tiled as tiled;
+
+use serde::{
+    Serialize,
+    Deserialize,
+};
 
 use std::{
     collections::HashMap,
@@ -28,8 +34,31 @@ use super::map::{
     MapCollisionKind,
 };
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TiledMapCollisionDeclaration {
+    pub layer_id: String,
+    #[serde(rename = "kind")]
+    pub collision_kind: MapCollisionKind,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TiledTilesetDeclaration {
+    pub name: String,
+    pub relative_texture_path: String,
+    pub texture_id: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TiledMapDeclaration {
+    pub path: String,
+    pub export_path: String,
+    pub collisions: Vec<TiledMapCollisionDeclaration>,
+    pub tilesets: Vec<TiledTilesetDeclaration>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TiledTileset {
-    pub relative_path: String,
+    pub relative_texture_path: String,
     pub texture_id: String,
 }
 
@@ -40,16 +69,12 @@ pub struct TiledMap {
 }
 
 impl TiledMap {
-    pub async fn load(
-        path: &str,
-        collisions: Option<&[(&str, MapCollisionKind)]>,
-        tiled_tilesets: &[(&str, &str, &str)],
-    ) -> Self {
-        let tiled_tilesets = HashMap::from_iter(tiled_tilesets
+    pub async fn load(decl: TiledMapDeclaration) -> Self {
+        let tiled_tilesets = HashMap::from_iter(decl.tilesets
             .iter()
-            .map(|(name, relative_path, texture_id)| (name.to_string(), TiledTileset {
-                relative_path: relative_path.to_string(),
-                texture_id: texture_id.to_string(),
+            .map(|decl| (decl.name.to_string(), TiledTileset {
+                relative_texture_path: decl.relative_texture_path.to_string(),
+                texture_id: decl.texture_id.to_string(),
             })));
         let resources = storage::get::<Resources>();
         let mut tileset_textures = Vec::new();
@@ -57,19 +82,16 @@ impl TiledMap {
             let texture = resources.textures
                 .get(&tileset.texture_id)
                 .expect(&format!("Unable to find texture with id '{}'", tileset.texture_id));
-            tileset_textures.push((tileset.relative_path.deref(), texture.clone()));
+            tileset_textures.push((tileset.relative_texture_path.deref(), texture.clone()));
         }
-        let bytes = load_file(path).await
-            .expect(&format!("Error loading tiled map file '{}'!", path));
+        let bytes = load_file(&format!("assets/{}", &decl.path)).await
+            .expect(&format!("Error loading tiled map file '{}'!", &decl.path));
         let tiled_map = tiled::load_map(&String::from_utf8(bytes).unwrap(), tileset_textures.deref(), &[])
-            .expect(&format!("Error parsing tiled map '{}'!", path));
+            .expect(&format!("Error parsing tiled map '{}'!", &decl.path));
 
-        let collisions = match collisions {
-            Some(collisions) => HashMap::from_iter(collisions
+        let collisions = HashMap::from_iter(decl.collisions
                 .into_iter()
-                .map(|(layer_id, kind)| (layer_id.to_string(), kind.clone()))),
-            _ => HashMap::new(),
-        };
+                .map(|decl| (decl.layer_id.to_string(), decl.collision_kind.clone())).collect::<Vec<(String, MapCollisionKind)>>());
 
         TiledMap {
             tiled_map,

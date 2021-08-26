@@ -24,6 +24,7 @@ use crate::{
 };
 
 use super::TiledMap;
+use crate::map::tiled::TiledMapDeclaration;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(into = "json::MapDef", from = "json::MapDef")]
@@ -49,16 +50,9 @@ impl Map {
         Ok(map)
     }
 
-    pub async fn load_tiled(
-        path: &str,
-        export_path: Option<&str>,
-        collisions: Option<&[(&str, MapCollisionKind)]>,
-        tiled_tilesets: &[(&str, &str, &str)],
-    ) -> io::Result<Self> {
-        let map: Map = TiledMap::load(path, collisions, tiled_tilesets).await.into();
-        if let Some(export_path) = export_path {
-            map.save(export_path)?;
-        }
+    pub async fn load_tiled(decl: TiledMapDeclaration) -> io::Result<Self> {
+        let map: Map = TiledMap::load(decl.clone()).await.into();
+        map.save(&format!("assets/{}", &decl.export_path))?;
         Ok(map)
     }
 

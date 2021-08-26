@@ -12,7 +12,11 @@ use macroquad::{
 
 use config::Config;
 use gui::skins::GuiSkins;
-use map::Map;
+use map::{
+    Map,
+    MapCollisionKind,
+    TiledMapDeclaration,
+};
 use nodes::{
     Actor,
     Camera,
@@ -43,7 +47,7 @@ pub mod missions;
 pub mod config;
 pub mod uid;
 pub mod modules;
-mod dialogue;
+pub mod dialogue;
 
 fn window_conf() -> Conf {
     let config = Config::load();
@@ -70,22 +74,13 @@ async fn main() {
     {
         let player_id = generate_id();
 
-        Map::load_tiled(
-            "assets/maps/test_tiled_map.json",
-            Some("assets/maps/map_01.json"),
-            Some(&[
-                ("barriers_2", map::MapCollisionKind::Barrier),
-                ("barriers_1", map::MapCollisionKind::Barrier),
-                ("solids_2", map::MapCollisionKind::Solid),
-                ("solids_1", map::MapCollisionKind::Solid),
-            ]),
-            &[
-                ("neo_zero_tiles", "../textures/neo_zero_tiles.png", "tiles"),
-                ("neo_zero_props", "../textures/neo_zero_props.png", "props"),
-                ("items", "../textures/items.png", "items"),
-            ]).await.unwrap();
+        let bytes = load_file("assets/tiled_maps.json").await.unwrap();
+        let tiled_maps: Vec<TiledMapDeclaration> = serde_json::from_slice(&bytes).unwrap();
+        for decl in tiled_maps {
+            Map::load_tiled(decl).await.unwrap();
+        }
 
-        let map = Map::load("assets/maps/map_01.json").await.unwrap();
+        let map = Map::load("assets/maps/chapter_01_map_01.json").await.unwrap();
 
         GameState::add_node(map, &player_id.clone());
         Camera::add_node();
