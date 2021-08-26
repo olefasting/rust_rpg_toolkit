@@ -66,6 +66,28 @@ fn window_conf() -> Conf {
     }
 }
 
+pub fn load_map(chapter: u32, map: u32) {
+    let player_id = generate_id();
+
+    let scenario = storage::get::<Scenario>();
+    let chapter_data = scenario.chapters.get(chapter as usize)
+        .expect(&format!("Unable to load chapter '{}'!", chapter));
+    let map_data = chapter_data.maps.get(map as usize)
+        .expect(&format!("Unable to load map '{}' of chapter '{}'!", map, chapter));
+
+    scene::clear();
+
+    GameState::add_node(map_data.map.clone(), &player_id);
+    Camera::add_node();
+    DrawBuffer::<Item>::add_node();
+    DrawBuffer::<Credits>::add_node();
+    Projectiles::add_node();
+    ContinuousBeams::add_node();
+    DrawBuffer::<Actor>::add_node();
+    PostProcessing::add_node();
+    Hud::add_node();
+}
+
 const TILED_MAPS_FILE_PATH: &'static str = "assets/tiled_maps.json";
 
 #[macroquad::main(window_conf)]
@@ -95,21 +117,7 @@ async fn main() {
         storage::store(GuiSkins::new(config.gui_scale));
     }
 
-    {
-        let player_id = generate_id();
-
-        let map = Map::load("assets/maps/chapter_01_map_01.json").await.unwrap();
-
-        GameState::add_node(map, &player_id.clone());
-        Camera::add_node();
-        DrawBuffer::<Item>::add_node();
-        DrawBuffer::<Credits>::add_node();
-        Projectiles::add_node();
-        ContinuousBeams::add_node();
-        DrawBuffer::<Actor>::add_node();
-        PostProcessing::add_node();
-        Hud::add_node();
-    }
+    load_map(0, 0);
 
     loop {
         {

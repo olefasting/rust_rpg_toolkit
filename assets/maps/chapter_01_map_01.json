@@ -140086,8 +140086,8 @@
             "y": 4.0
           },
           "properties": {
-            "color": "#ffff0000",
-            "intensity": "0.1"
+            "intensity": "0.1",
+            "color": "#ffff0000"
           }
         }
       ],
@@ -140143,8 +140143,8 @@
             "y": 253.0
           },
           "properties": {
-            "prototype_id": "enemy_thug",
-            "instance_id": "thug_03"
+            "instance_id": "thug_03",
+            "prototype_id": "enemy_thug"
           }
         },
         {
@@ -140154,8 +140154,8 @@
             "y": 546.3333
           },
           "properties": {
-            "instance_id": "guard_boss",
-            "prototype_id": "guard_boss"
+            "prototype_id": "guard_boss",
+            "instance_id": "guard_boss"
           }
         },
         {
@@ -140213,8 +140213,8 @@
             "y": 886.0
           },
           "properties": {
-            "instance_id": "quest_pistol",
-            "prototype_id": "quest_pistol"
+            "prototype_id": "quest_pistol",
+            "instance_id": "quest_pistol"
           }
         }
       ],
