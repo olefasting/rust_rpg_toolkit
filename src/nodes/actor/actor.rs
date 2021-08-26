@@ -77,6 +77,7 @@ use crate::{
 };
 use crate::nodes::actor::equipped::{EquippedItems, EquipmentSlot};
 use crate::nodes::item::ItemKind;
+use crate::ability::{Effect, DamageType};
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub enum ActorNoiseLevel {
@@ -310,9 +311,26 @@ impl Actor {
         scene::add_node(Self::new(instance_id, controller_kind, params))
     }
 
-    pub fn take_damage(&mut self, actor_id: &str, damage: f32) {
+    pub fn take_damage(&mut self, actor_id: &str, _damage_type: DamageType, amount: f32) {
         self.behavior.last_attacked_by = Some((0.0, actor_id.to_string()));
-        self.stats.current_health -= damage;
+        self.stats.current_health -= amount;
+    }
+
+    pub fn apply_effect(&mut self, actor_id: &str, factions: &[String], effect: Effect) -> bool {
+        match effect {
+            Effect::Damage { damage_type, amount } => {
+                if actor_id != self.id {
+                    for faction in factions {
+                        if self.factions.contains(faction) {
+                            return false;
+                        }
+                    }
+                    self.take_damage(actor_id, damage_type, amount);
+                    return true;
+                }
+                return false;
+            }
+        }
     }
 
     pub fn find_by_player_id(id: &str) -> Option<RefMut<Self>> {

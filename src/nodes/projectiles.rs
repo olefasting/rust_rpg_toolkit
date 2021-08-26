@@ -32,6 +32,7 @@ use crate::{
     },
 };
 use crate::map::MapCollisionKind;
+use crate::ability::Effect;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum ProjectileKind {
@@ -45,7 +46,7 @@ pub struct Projectile {
     actor_id: String,
     factions: Vec<String>,
     kind: ProjectileKind,
-    damage: f32,
+    effects: Vec<Effect>,
     color: Color,
     size: f32,
     position: Vec2,
@@ -60,7 +61,8 @@ impl Projectile {
         actor_id: &str,
         factions: &[String],
         kind: ProjectileKind,
-        damage: f32, color: Color,
+        effects: Vec<Effect>,
+        color: Color,
         size: f32,
         position: Vec2,
         direction: Vec2,
@@ -71,7 +73,7 @@ impl Projectile {
             actor_id: actor_id.to_string(),
             factions: factions.to_vec(),
             kind,
-            damage,
+            effects,
             color,
             size,
             position,
@@ -123,7 +125,7 @@ impl Projectiles {
         actor_id: &str,
         factions: &[String],
         kind: ProjectileKind,
-        damage: f32,
+        effects: &[Effect],
         color_override: Option<Color>,
         size_override: Option<f32>,
         position: Vec2,
@@ -161,7 +163,7 @@ impl Projectiles {
             actor_id,
             factions,
             kind,
-            damage,
+            effects.to_vec(),
             color,
             size,
             position,
@@ -194,14 +196,12 @@ impl Node for Projectiles {
             'outer: for mut other_actor in scene::find_nodes_by_type::<Actor>() {
                 if let Some(other_collider) = other_actor.body.get_offset_collider() {
                     if collider.overlaps(other_collider) {
-                        if projectile.actor_id != other_actor.id {
-                            for faction in &projectile.factions {
-                                if other_actor.factions.contains(&faction) {
-                                    continue 'outer;
-                                }
+                        for effect in projectile.effects.clone() {
+                            if other_actor.apply_effect(&projectile.actor_id, &projectile.factions, effect) {
+                                return false;
+                            } else {
+                                continue 'outer;
                             }
-                            other_actor.take_damage(&projectile.actor_id, projectile.damage);
-                            return false;
                         }
                     }
                 }

@@ -15,11 +15,12 @@ use crate::{
     physics::beam_collision_check,
 };
 use crate::physics::get_beam_end;
+use crate::ability::Effect;
 
 pub struct ContinuousBeam {
     pub actor_id: String,
     pub factions: Vec<String>,
-    pub damage: f32,
+    pub effects: Vec<Effect>,
     pub color: Color,
     pub width: f32,
     pub origin: Vec2,
@@ -50,7 +51,7 @@ impl ContinuousBeams {
         &mut self,
         actor_id: &str,
         factions: &[String],
-        damage: f32,
+        effects: &[Effect],
         color_override: Option<Color>,
         width_override: Option<f32>,
         origin: Vec2,
@@ -59,7 +60,7 @@ impl ContinuousBeams {
         let beam = ContinuousBeam {
             actor_id: actor_id.to_string(),
             factions: factions.to_vec(),
-            damage,
+            effects: effects.to_vec(),
             color: color_override.unwrap_or(Self::DEFAULT_COLOR),
             width: width_override.unwrap_or(Self::DEFAULT_WIDTH),
             origin,
@@ -79,20 +80,18 @@ impl Node for ContinuousBeams {
                 Self::WIDTH_TOLERANCE_FACTOR,
             );
             'outer: for mut other_actor in scene::find_nodes_by_type::<Actor>() {
-                if other_actor.id != beam.actor_id {
-                    for faction in &beam.factions {
-                        if other_actor.factions.contains(&faction) {
+                let position = match other_actor.body.get_offset_collider() {
+                    Some(collider) => collider.get_position(),
+                    None => other_actor.body.position,
+                };
+                if beam_collision_check(position, beam.origin, beam.end, beam.width,Self::WIDTH_TOLERANCE_FACTOR) {
+                    for effect in beam.effects.clone() {
+                        if other_actor.apply_effect(&beam.actor_id, &beam.factions, effect) {
+                            if beam.origin.distance(position) < beam.origin.distance(cutoff) {
+                                cutoff = position;
+                            }
+                        } else {
                             continue 'outer;
-                        }
-                    }
-                    let position = match other_actor.body.get_offset_collider() {
-                        Some(collider) => collider.get_position(),
-                        None => other_actor.body.position,
-                    };
-                    if beam_collision_check(position, beam.origin, beam.end, beam.width,Self::WIDTH_TOLERANCE_FACTOR) {
-                        other_actor.take_damage(&beam.actor_id, beam.damage);
-                        if beam.origin.distance(position) < beam.origin.distance(cutoff) {
-                            cutoff = position;
                         }
                     }
                 }

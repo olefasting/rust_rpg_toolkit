@@ -4,7 +4,6 @@
     "sound_effect": "gunshot_02",
     "noise_level": "loud",
     "cooldown": 0.6,
-    "damage": 50.0,
     "range": 5.0,
     "delivery": {
       "type": "projectile",
@@ -12,14 +11,19 @@
       "speed": 8.0,
       "spread": 5.0
     },
-    "effects": []
+    "effects": [
+      {
+        "type": "damage",
+        "damage_type": "piercing",
+        "amount": 50.0
+      }
+    ]
   },
   {
     "id": "sub_machine_gun",
     "noise_level": "loud",
     "sound_effect": "gunshot_01",
     "cooldown": 0.1,
-    "damage": 75.0,
     "range": 5.0,
     "delivery": {
       "type": "projectile",
@@ -27,14 +31,19 @@
       "speed": 8.0,
       "spread": 2.0
     },
-    "effects": []
+    "effects": [
+      {
+        "type": "damage",
+        "damage_type": "piercing",
+        "amount": 50.0
+      }
+    ]
   },
   {
     "id": "beam",
     "sound_effect": "blaster_01",
     "noise_level": "silent",
     "cooldown": 0.75,
-    "damage": 125.0,
     "range": 8.0,
     "delivery": {
       "type": "projectile",
@@ -42,6 +51,12 @@
       "speed": 15.0,
       "spread": 2.0
     },
-    "effects": []
+    "effects": [
+      {
+        "type": "damage",
+        "damage_type": "energy",
+        "amount": 125.0
+      }
+    ]
   }
 ]

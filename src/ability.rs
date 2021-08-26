@@ -30,9 +30,26 @@ use crate::{
 };
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+
+pub enum DamageType {
+    #[serde(rename = "piercing")]
+    Piercing,
+    #[serde(rename = "slashing")]
+    Slashing,
+    #[serde(rename = "blunt")]
+    Blunt,
+    #[serde(rename = "energy")]
+    Energy,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
 pub enum Effect {
-    #[serde(rename = "projectile")]
-    Damage,
+    #[serde(rename = "damage")]
+    Damage {
+        damage_type: DamageType,
+        amount: f32,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -65,7 +82,6 @@ pub struct AbilityParams {
     #[serde(default)]
     pub energy_cost: f32,
     pub range: f32,
-    pub damage: f32,
     pub effects: Vec<Effect>,
     #[serde(default, with = "json::opt_color", skip_serializing_if = "Option::is_none")]
     pub color_override: Option<Color>,
@@ -88,7 +104,6 @@ impl Default for AbilityParams {
             health_cost: 0.0,
             stamina_cost: 0.0,
             energy_cost: 0.0,
-            damage: 0.0,
             range: 5.0,
             effects: Vec::new(),
             color_override: None,
@@ -107,7 +122,6 @@ pub struct Ability {
     pub health_cost: f32,
     pub stamina_cost: f32,
     pub energy_cost: f32,
-    pub damage: f32,
     pub range: f32,
     pub effects: Vec<Effect>,
     pub color_override: Option<Color>,
@@ -132,7 +146,6 @@ impl Ability {
             energy_cost: params.energy_cost,
             cooldown: params.cooldown,
             cooldown_timer: params.cooldown,
-            damage: params.damage,
             range: params.range,
             effects: params.effects,
             color_override: params.color_override,
@@ -157,7 +170,7 @@ impl Ability {
                     continuous_beams.spawn(
                         &actor.id,
                         &actor.factions,
-                        self.damage,
+                        &self.effects,
                         self.color_override,
                         self.size_override,
                         actor.body.position,
@@ -175,7 +188,7 @@ impl Ability {
                         &actor.id,
                         &actor.factions,
                         projectile_kind,
-                        self.damage,
+                        &self.effects,
                         self.color_override,
                         self.size_override,
                         origin,
