@@ -27,7 +27,11 @@ impl PostProcessing {
         let config = storage::get::<Config>();
         let resources = storage::get::<Resources>();
         let material = if let Some(material_id) = &config.post_processing {
-            Some(resources.materials.get(material_id).cloned().unwrap())
+            if material_id == "none" {
+                None
+            } else {
+                Some(resources.materials.get(material_id).cloned().unwrap())
+            }
         } else {
             None
         };
