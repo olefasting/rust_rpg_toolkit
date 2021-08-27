@@ -135,21 +135,3 @@ impl Default for ActorStats {
         }
     }
 }
-
-impl From<&ActorParams> for ActorStats {
-    fn from(params: &ActorParams) -> Self {
-        ActorStats {
-            strength: params.strength,
-            dexterity: params.dexterity,
-            constitution: params.constitution,
-            intelligence: params.intelligence,
-            willpower: params.willpower,
-            perception: params.perception,
-            charisma: params.charisma,
-            current_health: params.current_health,
-            current_stamina: params.current_stamina,
-            current_energy: params.current_energy,
-            ..Default::default()
-        }
-    }
-}

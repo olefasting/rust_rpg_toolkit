@@ -49,7 +49,7 @@ impl MissionObjective {
             },
             Self::FindItem { item_id } => {
                 for item in scene::find_nodes_by_type::<Item>() {
-                    if item.prototype_id == item_id {
+                    if item.id == item_id {
                         return Some(vec2(item.position.x, item.position.y - MISSION_MARKER_Y_OFFSET));
                     }
                 }

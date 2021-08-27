@@ -160,10 +160,9 @@ impl Ord for ActorNoiseLevel {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ActorParams {
-    #[serde(default, rename = "id", skip_serializing_if = "Option::is_none")]
-    pub prototype_id: Option<String>,
+    pub id: String,
     #[serde(default)]
     pub behavior: ActorBehaviorParams,
     #[serde(default, with = "json::opt_vec2", skip_serializing_if = "Option::is_none")]
@@ -201,7 +200,7 @@ pub struct ActorParams {
 impl Default for ActorParams {
     fn default() -> Self {
         ActorParams {
-            prototype_id: None,
+            id: generate_id(),
             behavior: Default::default(),
             position: None,
             name: "Unnamed Actor".to_string(),
@@ -223,6 +222,24 @@ impl Default for ActorParams {
             experience: 0,
             can_level_up: false,
             dialogue_id: None,
+        }
+    }
+}
+
+impl Into<ActorStats> for ActorParams {
+    fn into(self) -> ActorStats {
+        ActorStats {
+            strength: self.strength,
+            dexterity: self.dexterity,
+            constitution: self.constitution,
+            intelligence: self.intelligence,
+            willpower: self.willpower,
+            perception: self.perception,
+            charisma: self.charisma,
+            current_health: self.current_health,
+            current_stamina: self.current_stamina,
+            current_energy: self.current_energy,
+            ..Default::default()
         }
     }
 }
@@ -269,7 +286,7 @@ impl Actor {
     const PICK_UP_RADIUS: f32 = 36.0;
     const INTERACT_RADIUS: f32 = 36.0;
 
-    pub fn new(instance_id: Option<String>, controller_kind: ActorControllerKind, params: ActorParams) -> Self {
+    pub fn new(is_from_prototype: bool, controller_kind: ActorControllerKind, params: ActorParams) -> Self {
         let position = params.position.unwrap_or_default();
         let dialogue = if let Some(dialogue_id) = params.dialogue_id.clone() {
             let resources = storage::get::<Resources>();
@@ -280,8 +297,14 @@ impl Actor {
             None
         };
 
+        let inventory = if is_from_prototype {
+            ActorInventory::from_prototypes(&params.inventory)
+        } else {
+            ActorInventory::from_save_game(&params.inventory)
+        };
+
         Actor {
-            id: instance_id.unwrap_or(generate_id()).to_string(),
+            id: params.id.clone(),
             name: params.name.clone(),
             active_missions: Vec::new(),
             completed_missions: Vec::new(),
@@ -290,10 +313,10 @@ impl Actor {
                 home: Some(position),
                 ..params.behavior
             }),
-            stats: ActorStats::from(&params),
+            stats: params.clone().into(),
             factions: params.factions,
             body: PhysicsBody::new(position, 0.0, params.collider),
-            inventory: ActorInventory::from(params.inventory),
+            inventory,
             equipped_items: params.equipped_items,
             primary_ability: None,
             secondary_ability: None,
@@ -307,8 +330,41 @@ impl Actor {
         }
     }
 
-    pub fn add_node(instance_id: Option<String>, controller_kind: ActorControllerKind, params: ActorParams) -> Handle<Self> {
-        scene::add_node(Self::new(instance_id, controller_kind, params))
+    pub fn add_node(is_from_prototype: bool, controller_kind: ActorControllerKind, params: ActorParams) -> Handle<Self> {
+        scene::add_node(Self::new(is_from_prototype, controller_kind, params))
+    }
+
+    pub fn to_save(&self) -> ActorParams {
+        let dialogue_id = if let Some(dialogue) = &self.dialogue {
+            Some(dialogue.id.clone())
+        } else {
+            None
+        };
+
+        ActorParams {
+            id: self.id.clone(),
+            behavior: self.behavior.clone().into(),
+            position: Some(self.body.position),
+            name: self.name.clone(),
+            strength: self.stats.strength,
+            dexterity: self.stats.dexterity,
+            constitution: self.stats.constitution,
+            intelligence: self.stats.intelligence,
+            willpower: self.stats.willpower,
+            perception: self.stats.perception,
+            charisma: self.stats.charisma,
+            current_health: self.stats.current_health,
+            current_stamina: self.stats.current_stamina,
+            current_energy: self.stats.current_energy,
+            factions: self.factions.clone(),
+            collider: self.body.collider,
+            inventory: self.inventory.to_params(),
+            equipped_items: self.equipped_items.clone(),
+            animation_player: self.animation_player.clone().into(),
+            experience: self.experience,
+            can_level_up: self.can_level_up,
+            dialogue_id,
+        }
     }
 
     pub fn take_damage(&mut self, actor_id: &str, _damage_type: DamageType, amount: f32) {
@@ -438,7 +494,7 @@ impl Actor {
                             }
                         }
                         MissionObjective::FindItem { item_id } => {
-                            if self.inventory.items.iter().find(|entry| entry.id == item_id.clone()).is_some() {
+                            if self.inventory.items.iter().find(|entry| entry.params.id == item_id.clone()).is_some() {
                                 objective.1 = true;
                             }
                         }
@@ -489,7 +545,7 @@ impl Actor {
         let item_id = item_id.to_string();
         let mut found_entry = None;
         for entry in &self.inventory.items {
-            if entry.id == item_id {
+            if entry.params.id == item_id {
                 found_entry = Some(entry.clone());
             }
         }
@@ -509,23 +565,23 @@ impl Actor {
             self.unequip_slot(slot.clone());
             match slot {
                 EquipmentSlot::MainHand => {
-                    self.equipped_items.main_hand = Some(entry.id.to_string());
+                    self.equipped_items.main_hand = Some(entry.params.id.clone());
                     self.primary_ability = entry.get_actor_ability();
                 }
                 EquipmentSlot::OffHand => {
-                    self.equipped_items.off_hand = Some(entry.id.to_string());
+                    self.equipped_items.off_hand = Some(entry.params.id.clone());
                     self.secondary_ability = entry.get_actor_ability();
                 }
                 EquipmentSlot::BothHands => {
-                    self.equipped_items.main_hand = Some(entry.id.to_string());
-                    self.equipped_items.off_hand = Some(entry.id.to_string());
+                    self.equipped_items.main_hand = Some(entry.params.id.clone());
+                    self.equipped_items.off_hand = Some(entry.params.id.clone());
                     self.primary_ability = entry.get_actor_ability();
                 }
                 EquipmentSlot::None => {}
             }
         }
 
-        if let Some(entry) = self.inventory.items.iter_mut().find(|entry| entry.id == item_id) {
+        if let Some(entry) = self.inventory.items.iter_mut().find(|entry| entry.params.id == item_id) {
             entry.equipped_to = slot;
         }
     }
@@ -577,43 +633,8 @@ impl Actor {
                 self.secondary_ability = None;
             }
         }
-        if let Some(entry) = self.inventory.items.iter_mut().find(|entry| entry.id == item_id.to_string()) {
+        if let Some(entry) = self.inventory.items.iter_mut().find(|entry| entry.params.id == item_id.to_string()) {
             entry.equipped_to = EquipmentSlot::None;
-        }
-    }
-}
-
-impl Into<ActorParams> for Actor {
-    fn into(self) -> ActorParams {
-        let dialogue_id = if let Some(dialogue) = self.dialogue {
-            Some(dialogue.id.clone())
-        } else {
-            None
-        };
-
-        ActorParams {
-            prototype_id: None,
-            position: Some(self.body.position),
-            behavior: self.behavior.into(),
-            name: self.name,
-            strength: self.stats.strength,
-            dexterity: self.stats.dexterity,
-            constitution: self.stats.constitution,
-            intelligence: self.stats.intelligence,
-            willpower: self.stats.willpower,
-            perception: self.stats.perception,
-            charisma: self.stats.charisma,
-            current_health: self.stats.current_health,
-            current_stamina: self.stats.current_stamina,
-            current_energy: self.stats.current_energy,
-            factions: self.factions,
-            collider: self.body.collider,
-            inventory: self.inventory.to_params(),
-            equipped_items: self.equipped_items,
-            dialogue_id,
-            animation_player: SpriteAnimationParams::from(self.animation_player),
-            experience: self.experience,
-            can_level_up: self.can_level_up,
         }
     }
 }

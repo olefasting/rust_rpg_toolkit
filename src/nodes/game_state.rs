@@ -20,11 +20,7 @@ use super::{
     ActorParams,
 };
 
-use crate::{
-    map::Map,
-    render::Viewport,
-    resources::Resources,
-};
+use crate::{map::Map, render::Viewport, resources::Resources, generate_id};
 use crate::nodes::item::Credits;
 
 #[derive(Debug, Clone)]
@@ -51,9 +47,10 @@ impl GameState {
                 if object.name == "player" {
                     let params = resources.actors.get("player").cloned().unwrap();
                     let mut player = Actor::new(
-                        None,
+                        true,
                         ActorControllerKind::LocalPlayer { player_id: local_player_id.to_string() },
                         ActorParams {
+                            id: generate_id(),
                             name: "Abraxas".to_string(),
                             position: Some(object.position),
                             ..params
@@ -66,7 +63,8 @@ impl GameState {
                     let params = resources.actors.get(prototype_id).cloned()
                         .expect(&format!("Unable to find actor with prototype id '{}'", prototype_id));
                     let instance_id = object.properties.get("instance_id").cloned();
-                    let mut actor = Actor::new(instance_id, ActorControllerKind::Computer, ActorParams {
+                    let mut actor = Actor::new(true, ActorControllerKind::Computer, ActorParams {
+                        id: instance_id.unwrap_or(generate_id()),
                         position: Some(object.position),
                         ..params
                     });
@@ -110,7 +108,8 @@ impl GameState {
                         let params = resources.items.get(&prototype_id).cloned()
                             .expect(&format!("Unable to find item with prototype id '{}'", &prototype_id));
                         let instance_id = object.properties.get("instance_id").cloned();
-                        Item::add_node(instance_id, ItemParams {
+                        Item::add_node(ItemParams {
+                            id: instance_id.unwrap_or(generate_id()),
                             position: Some(object.position),
                             ..params
                         });

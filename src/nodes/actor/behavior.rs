@@ -136,7 +136,7 @@ fn equip_weapon(actor: &mut Actor) {
     let weapons = actor.inventory.get_all_of_kind(&[ItemKind::OneHandedWeapon, ItemKind::TwoHandedWeapon]);
     let i = rand::gen_range(0, weapons.len() - 1);
     if let Some(weapon) = weapons.get(i) {
-        actor.equip_item(&weapon.id);
+        actor.equip_item(&weapon.params.id);
     }
 }
 

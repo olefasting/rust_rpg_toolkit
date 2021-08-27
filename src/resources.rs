@@ -159,13 +159,13 @@ impl Resources {
         let actor_data: Vec<ActorParams> = serde_json::from_slice(&bytes)
             .expect(&format!("Error when parsing actors file '{}'!", Self::ACTORS_FILE_PATH));
         let mut actors = HashMap::from_iter(
-            actor_data.into_iter().map(|params| (params.prototype_id.clone().unwrap_or(generate_id()), params)));
+            actor_data.into_iter().map(|params| (params.id.clone(), params)));
 
         let bytes = load_file(Self::ITEMS_FILE_PATH).await?;
         let items_data: Vec<ItemParams> = serde_json::from_slice(&bytes)
             .expect(&format!("Error when parsing items file '{}'!", Self::ITEMS_FILE_PATH));
         let mut items = HashMap::from_iter(
-            items_data.into_iter().map(|params| (params.prototype_id.clone(), params)));
+            items_data.into_iter().map(|params| (params.id.clone(), params)));
 
         let bytes = load_file(Self::MISSIONS_FILE_PATH).await?;
         let missions_data: Vec<MissionParams> = serde_json::from_slice(&bytes)

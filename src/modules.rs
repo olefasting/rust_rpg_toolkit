@@ -242,14 +242,14 @@ pub async fn load_modules(resources: &mut Resources, scenario: &mut ScenarioPara
                     match data.integration {
                         ModuleIntegration::Extend => {
                             for params in actors {
-                                resources.actors.insert(params.prototype_id.clone().unwrap_or(generate_id()), params);
+                                resources.actors.insert(params.id.clone(), params);
                             }
                         },
                         ModuleIntegration::Replace => {
                             let hash_map = HashMap::from_iter(
                                 actors
                                     .into_iter()
-                                    .map(|params| (params.prototype_id.clone().unwrap_or(generate_id()), params))
+                                    .map(|params| (params.id.clone(), params))
                                     .collect::<Vec<(String, ActorParams)>>()
                             );
                             resources.actors = hash_map;
@@ -302,14 +302,14 @@ pub async fn load_modules(resources: &mut Resources, scenario: &mut ScenarioPara
                     match data.integration {
                         ModuleIntegration::Extend => {
                             for params in items {
-                                resources.items.insert(params.prototype_id.clone(), params);
+                                resources.items.insert(params.id.clone(), params);
                             }
                         },
                         ModuleIntegration::Replace => {
                             let hash_map = HashMap::from_iter(
                                 items
                                     .into_iter()
-                                    .map(|params| (params.prototype_id.clone(), params))
+                                    .map(|params| (params.id.clone(), params))
                                     .collect::<Vec<(String, ItemParams)>>()
                             );
                             resources.items = hash_map;

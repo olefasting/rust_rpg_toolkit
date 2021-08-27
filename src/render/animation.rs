@@ -52,18 +52,6 @@ impl Default for SpriteAnimationParams {
     }
 }
 
-impl From<SpriteAnimationPlayer> for SpriteAnimationParams {
-    fn from(player: SpriteAnimationPlayer) -> Self {
-        SpriteAnimationParams {
-            offset: player.offset,
-            texture_id: player.texture_id,
-            tile_size: player.tile_size,
-            animations: player.animations,
-            should_play: player.animated_sprite.playing,
-        }
-    }
-}
-
 #[derive(Clone)]
 pub struct SpriteAnimationPlayer {
     pub offset: Vec2,
@@ -146,5 +134,17 @@ impl SpriteAnimationPlayer {
                 ..Default::default()
             },
         );
+    }
+}
+
+impl Into<SpriteAnimationParams> for SpriteAnimationPlayer {
+    fn into(self) -> SpriteAnimationParams {
+        SpriteAnimationParams {
+            offset: self.offset,
+            texture_id: self.texture_id,
+            tile_size: self.tile_size,
+            animations: self.animations,
+            should_play: self.animated_sprite.playing,
+        }
     }
 }

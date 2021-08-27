@@ -7,7 +7,7 @@ use serde::{
 
 use crate::math::Circle;
 
-#[derive(Copy, Clone, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Collider {
     Rectangle {

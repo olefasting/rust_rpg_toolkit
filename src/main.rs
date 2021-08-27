@@ -3,6 +3,8 @@
 #![feature(try_find)]
 #![feature(async_closure)]
 
+const GAME_VERSION: &'static str = "0.1.0";
+
 use macroquad::{
     experimental::{
         collections::storage,
@@ -34,6 +36,7 @@ use resources::Resources;
 pub use uid::generate_id;
 use crate::scenario::{Scenario, ScenarioParams, CurrentChapter};
 use crate::modules::load_modules;
+use crate::save_games::SaveGame;
 
 pub mod resources;
 pub mod ability;
@@ -52,6 +55,12 @@ pub mod uid;
 pub mod modules;
 pub mod dialogue;
 pub mod scenario;
+pub mod save_games;
+
+pub struct MapTransition {
+    pub next_map_id: Option<String>,
+    pub next_chapter: bool,
+}
 
 fn window_conf() -> Conf {
     let config = Config::load();
@@ -148,8 +157,6 @@ async fn main() {
 
     loop {
         load_map(chapter_i, &next_map_id.unwrap());
-        next_map_id = None;
-
         next_map_id = game_loop().await;
 
         scene::clear();

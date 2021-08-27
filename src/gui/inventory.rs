@@ -26,7 +26,7 @@ fn draw_entry(ui: &mut Ui, scale: f32, player: &mut Actor, entry: &ActorInventor
         ui.label(None, &entry.params.name);
         if entry.equipped_to == EquipmentSlot::None {
             if ui.button(None, "Equip") {
-                player.equip_item(&entry.id);
+                player.equip_item(&entry.params.id);
             }
             // if item.params.is_quest_item == false {
             //     if ui.button(None, "Drop") {
@@ -37,7 +37,7 @@ fn draw_entry(ui: &mut Ui, scale: f32, player: &mut Actor, entry: &ActorInventor
             // }
         } else {
             if ui.button(None, "Unequip") {
-                player.unequip_item(&entry.id);
+                player.unequip_item(&entry.params.id);
             }
         }
     //});

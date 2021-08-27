@@ -37,10 +37,9 @@ pub enum ItemKind {
     Misc,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ItemParams {
-    #[serde(rename = "id")]
-    pub prototype_id: String,
+    pub id: String,
     pub name: String,
     pub description: String,
     #[serde(default, with = "json::opt_vec2", skip_serializing_if = "Option::is_none")]
@@ -54,32 +53,10 @@ pub struct ItemParams {
     pub is_quest_item: bool,
 }
 
-impl From<&Item> for ItemParams {
-    fn from(item: &Item) -> Self {
-        let ability_id = if let Some(params) = &item.ability {
-            Some(params.id.clone())
-        } else {
-            None
-        };
-
-        ItemParams {
-            prototype_id: item.prototype_id.clone(),
-            name: item.name.clone(),
-            description: item.description.clone(),
-            position: Some(item.position),
-            kind: item.kind.clone(),
-            weight: item.weight,
-            ability_id,
-            sprite: item.sprite.clone(),
-            is_quest_item: item.is_quest_item,
-        }
-    }
-}
-
 impl Default for ItemParams {
     fn default() -> Self {
         ItemParams {
-            prototype_id: "".to_string(),
+            id: "".to_string(),
             name: "Unnamed Item".to_string(),
             description: "".to_string(),
             position: Default::default(),
@@ -95,7 +72,6 @@ impl Default for ItemParams {
 #[derive(Clone)]
 pub struct Item {
     pub id: String,
-    pub prototype_id: String,
     pub name: String,
     pub description: String,
     pub position: Vec2,
@@ -107,7 +83,7 @@ pub struct Item {
 }
 
 impl Item {
-    pub fn new(instance_id: Option<String>, params: ItemParams) -> Self {
+    pub fn new(params: ItemParams) -> Self {
         let resources = storage::get::<Resources>();
         let ability = if let Some(ability_id) = params.ability_id {
             Some(resources.abilities.get(&ability_id).cloned().unwrap())
@@ -116,8 +92,7 @@ impl Item {
         };
 
         Item {
-            id: instance_id.unwrap_or(generate_id()).to_string(),
-            prototype_id: params.prototype_id,
+            id: params.id,
             position: params.position.unwrap_or_default(),
             kind: params.kind,
             name: params.name,
@@ -129,8 +104,28 @@ impl Item {
         }
     }
 
-    pub fn add_node(instance_id: Option<String>, params: ItemParams) -> Handle<Self> {
-        scene::add_node(Self::new(instance_id, params))
+    pub fn add_node(params: ItemParams) -> Handle<Self> {
+        scene::add_node(Self::new(params))
+    }
+
+    pub fn to_params(&self) -> ItemParams {
+        let ability_id = if let Some(ability) = &self.ability {
+            Some(ability.id.clone())
+        } else {
+            None
+        };
+
+        ItemParams {
+            id: self.id.clone(),
+            name: self.name.clone(),
+            description: self.description.clone(),
+            position: Some(self.position),
+            kind: self.kind.clone(),
+            weight: self.weight,
+            ability_id,
+            sprite: self.sprite.clone(),
+            is_quest_item: self.is_quest_item
+        }
     }
 }
 
