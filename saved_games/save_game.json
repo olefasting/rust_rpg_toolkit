@@ -472,8 +472,8 @@
         "flee_at_health_factor": 0.0
       },
       "position": {
-        "x": 1595.3334,
-        "y": 897.1667
+        "x": 1447.7216,
+        "y": 915.94806
       },
       "name": "Bystander",
       "strength": 8,
@@ -545,8 +545,8 @@
         "flee_at_health_factor": 0.0
       },
       "position": {
-        "x": 1813.5,
-        "y": 877.3333
+        "x": 1546.2256,
+        "y": 882.59515
       },
       "name": "Bystander",
       "strength": 8,
@@ -692,8 +692,8 @@
         "flee_at_health_factor": 0.0
       },
       "position": {
-        "x": 1371.0,
-        "y": 856.0
+        "x": 1655.8937,
+        "y": 856.8378
       },
       "name": "Bystander",
       "strength": 8,

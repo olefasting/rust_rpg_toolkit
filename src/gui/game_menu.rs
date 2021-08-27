@@ -12,6 +12,7 @@ use macroquad::{
 
 use crate::{
     nodes::GameState,
+    save_games::SaveGame,
 };
 
 use super::GuiSkins;
@@ -24,6 +25,11 @@ pub fn draw_game_menu(game_state: &mut RefMut<GameState>) {
     widgets::Window::new(hash!(), vec2(x, y), vec2(150.0 * scale, 200.0 * scale))
         .titlebar(false)
         .ui(&mut *root_ui(), |ui| {
+            if ui.button(None, "Save Game") {
+                game_state.save_game_to = Some("save_game.json".to_string());
+                game_state.show_game_menu = false;
+            }
+
             if ui.button(None, "Quit") {
                 game_state.should_quit = true;
             }

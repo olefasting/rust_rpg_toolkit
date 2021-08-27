@@ -140086,8 +140086,8 @@
             "y": 4.0
           },
           "properties": {
-            "color": "#ffff0000",
-            "intensity": "0.1"
+            "intensity": "0.1",
+            "color": "#ffff0000"
           }
         }
       ],
@@ -140132,8 +140132,8 @@
             "y": 237.66667
           },
           "properties": {
-            "instance_id": "thug_02",
-            "prototype_id": "enemy_thug"
+            "prototype_id": "enemy_thug",
+            "instance_id": "thug_02"
           }
         },
         {
@@ -140185,8 +140185,8 @@
             "y": 844.5
           },
           "properties": {
-            "prototype_id": "scared_woman",
-            "instance_id": "scared_woman"
+            "instance_id": "scared_woman",
+            "prototype_id": "scared_woman"
           }
         },
         {
@@ -140223,6 +140223,24 @@
   ],
   "tilesets": [
     {
+      "id": "neo_zero_tiles",
+      "texture_id": "tiles",
+      "texture_size": {
+        "x": 320,
+        "y": 320
+      },
+      "tile_size": {
+        "x": 16,
+        "y": 16
+      },
+      "grid_size": {
+        "x": 20,
+        "y": 20
+      },
+      "first_tile_id": 1,
+      "tile_cnt": 400
+    },
+    {
       "id": "items",
       "texture_id": "items",
       "texture_size": {
@@ -140257,24 +140275,6 @@
       },
       "first_tile_id": 401,
       "tile_cnt": 100
-    },
-    {
-      "id": "neo_zero_tiles",
-      "texture_id": "tiles",
-      "texture_size": {
-        "x": 320,
-        "y": 320
-      },
-      "tile_size": {
-        "x": 16,
-        "y": 16
-      },
-      "grid_size": {
-        "x": 20,
-        "y": 20
-      },
-      "first_tile_id": 1,
-      "tile_cnt": 400
     }
   ]
 }

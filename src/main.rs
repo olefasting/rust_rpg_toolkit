@@ -113,6 +113,7 @@ async fn game_loop() -> Option<String> {
 
         {
             let game_state = scene::find_node_by_type::<GameState>().unwrap();
+            game_state.try_save_game();
             if game_state.should_quit {
                 break;
             }

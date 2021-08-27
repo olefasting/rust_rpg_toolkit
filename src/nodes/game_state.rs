@@ -22,6 +22,7 @@ use super::{
 
 use crate::{map::Map, render::Viewport, resources::Resources, generate_id};
 use crate::nodes::item::Credits;
+use crate::save_games::SaveGame;
 
 #[derive(Debug, Clone)]
 pub struct GameParams {
@@ -37,6 +38,7 @@ pub struct GameState {
     pub in_debug_mode: bool,
     pub transition_to_map: Option<String>,
     pub should_quit: bool,
+    pub save_game_to: Option<String>,
 }
 
 impl GameState {
@@ -128,11 +130,18 @@ impl GameState {
             in_debug_mode: false,
             transition_to_map: None,
             should_quit: false,
+            save_game_to: None,
         }
     }
 
     pub fn add_node(map: Map, local_player_id: &str) -> Handle<Self> {
         scene::add_node(Self::new(map, local_player_id))
+    }
+
+    pub fn try_save_game(&self) {
+        if let Some(name) = &self.save_game_to {
+            SaveGame::save_scene_to_file(name, self);
+        }
     }
 }
 
