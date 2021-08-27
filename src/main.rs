@@ -56,6 +56,7 @@ pub mod modules;
 pub mod dialogue;
 pub mod scenario;
 pub mod save_games;
+pub mod versions;
 
 pub struct MapTransition {
     pub next_map_id: Option<String>,

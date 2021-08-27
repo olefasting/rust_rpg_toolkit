@@ -140143,8 +140143,8 @@
             "y": 253.0
           },
           "properties": {
-            "prototype_id": "enemy_thug",
-            "instance_id": "thug_03"
+            "instance_id": "thug_03",
+            "prototype_id": "enemy_thug"
           }
         },
         {
@@ -140154,8 +140154,8 @@
             "y": 546.3333
           },
           "properties": {
-            "prototype_id": "guard_boss",
-            "instance_id": "guard_boss"
+            "instance_id": "guard_boss",
+            "prototype_id": "guard_boss"
           }
         },
         {
@@ -140213,8 +140213,8 @@
             "y": 886.0
           },
           "properties": {
-            "prototype_id": "quest_pistol",
-            "instance_id": "quest_pistol"
+            "instance_id": "quest_pistol",
+            "prototype_id": "quest_pistol"
           }
         }
       ],
@@ -140222,24 +140222,6 @@
     }
   ],
   "tilesets": [
-    {
-      "id": "neo_zero_tiles",
-      "texture_id": "tiles",
-      "texture_size": {
-        "x": 320,
-        "y": 320
-      },
-      "tile_size": {
-        "x": 16,
-        "y": 16
-      },
-      "grid_size": {
-        "x": 20,
-        "y": 20
-      },
-      "first_tile_id": 1,
-      "tile_cnt": 400
-    },
     {
       "id": "neo_zero_props",
       "texture_id": "props",
@@ -140275,6 +140257,24 @@
       },
       "first_tile_id": 501,
       "tile_cnt": 16
+    },
+    {
+      "id": "neo_zero_tiles",
+      "texture_id": "tiles",
+      "texture_size": {
+        "x": 320,
+        "y": 320
+      },
+      "tile_size": {
+        "x": 16,
+        "y": 16
+      },
+      "grid_size": {
+        "x": 20,
+        "y": 20
+      },
+      "first_tile_id": 1,
+      "tile_cnt": 400
     }
   ]
 }

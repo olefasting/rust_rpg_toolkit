@@ -21,6 +21,7 @@ use crate::render::{LINEAR_FILTER_MODE, NEAREST_FILTER_MODE};
 use macroquad::audio::load_sound;
 use crate::dialogue::Dialogue;
 use crate::scenario::{ScenarioParams, ChapterParams};
+use crate::versions::check_version_requirement;
 
 const ACTIVE_MODULES_FILE_PATH: &'static str = "modules/active_modules.json";
 
@@ -99,7 +100,7 @@ pub struct ModuleDeclaration {
     pub description: String,
     #[serde(default)]
     pub version: String,
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub required_game_version: Option<String>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub dependencies: Vec<ModuleDependencyInfo>,
@@ -141,16 +142,16 @@ pub async fn load_modules(resources: &mut Resources, scenario: &mut ScenarioPara
         let module_decl: ModuleDeclaration = serde_json::from_slice(&bytes)
             .expect(&format!("Unable to parse module file '{}'!", module_file_path));
 
-        if let Some(required_game_version) = module_decl.required_game_version {
-            if required_game_version != GAME_VERSION {
-                println!("Module '{}' was not loaded as its game version requirement was unmet (game version is '{}')!", module_name, GAME_VERSION);
+        if let Some(required_game_version) = &module_decl.required_game_version {
+            if check_version_requirement(required_game_version, GAME_VERSION) == false {
+                println!("WARNING: Module '{}' was not loaded as its game version requirement '{}' was unmet (game version is '{}')!", module_name, required_game_version, GAME_VERSION);
                 continue 'module;
             }
         }
 
         for dependency in module_decl.dependencies {
             let found = loaded_modules.iter().find(|loaded|
-                loaded.name.clone() == dependency.name && loaded.version.clone() == dependency.version);
+                loaded.name.clone() == dependency.name && check_version_requirement(&loaded.version, &dependency.version));
             if found.is_none() {
                 println!("WARNING: Dependency '{}', version '{}', unmet for module '{}'!", dependency.name, dependency.version, module_name);
                 continue 'module;

@@ -21,39 +21,29 @@ use serde::{
     Serialize,
 };
 
-use crate::{
-    ability::Ability,
-    generate_id,
-    input::apply_local_player_input,
-    json,
-    nodes::{
-        draw_buffer::{
-            Bounds,
-            BufferedDraw,
-            DrawBuffer,
-        },
-        Item,
-        GameState,
-        Camera,
+use crate::{ability::Ability, generate_id, input::apply_local_player_input, json, nodes::{
+    draw_buffer::{
+        Bounds,
+        BufferedDraw,
+        DrawBuffer,
     },
-    physics::{
-        Collider,
-        PhysicsBody,
-        PhysicsObject,
-    },
-    render::{
-        draw_progress_bar,
-        HorizontalAlignment,
-        SpriteAnimationParams,
-        SpriteAnimationPlayer,
-        draw_aligned_text,
-        VerticalAlignment,
-    },
-    missions::{
-        Mission,
-    },
-    Resources,
-};
+    Item,
+    GameState,
+    Camera,
+}, physics::{
+    Collider,
+    PhysicsBody,
+    PhysicsObject,
+}, render::{
+    draw_progress_bar,
+    HorizontalAlignment,
+    SpriteAnimationParams,
+    SpriteAnimationPlayer,
+    draw_aligned_text,
+    VerticalAlignment,
+}, missions::{
+    Mission,
+}, Resources, GAME_VERSION};
 
 use super::{
     ActorController,
@@ -376,6 +366,7 @@ impl Actor {
             .collect();
 
         ExportedCharacter {
+            game_version: GAME_VERSION.to_string(),
             actor,
             items,
         }

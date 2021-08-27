@@ -20,10 +20,11 @@ use crate::{nodes::{
     GameState,
     Item,
     ItemParams,
-}, scenario::CurrentChapter, SAVE_FOLDER_PATH};
+}, scenario::CurrentChapter, SAVE_FOLDER_PATH, GAME_VERSION};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SaveGame {
+    pub game_version: String,
     pub chapter: u32,
     #[serde(rename = "map")]
     pub map_id: String,
@@ -56,6 +57,7 @@ impl SaveGame {
         let current_chapter = storage::get::<CurrentChapter>();
 
         SaveGame {
+            game_version: GAME_VERSION.to_string(),
             chapter: current_chapter.chapter_index as u32 + 1,
             map_id: current_chapter.current_map_id.clone(),
             player_actor_id,
@@ -82,6 +84,7 @@ impl SaveGame {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ExportedCharacter {
+    pub game_version: String,
     pub actor: ActorParams,
     pub items: Vec<ItemParams>,
 }

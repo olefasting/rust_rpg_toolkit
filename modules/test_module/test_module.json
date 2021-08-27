@@ -2,6 +2,7 @@
   "display_name": "Test Module",
   "description": "Test Module description",
   "version": "0.1.0",
+  "required_game_version": "0.1",
   "data": [
     {
       "kind": "actors",
