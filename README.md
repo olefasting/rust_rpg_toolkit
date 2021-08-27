@@ -51,13 +51,12 @@ use rust_rpg_toolkit::{Config, GameParams};
 // Used when determining whether module dependencies on game version are met
 const GAME_VERSION: &'static str = "0.1.0";
 
-// These would be in the project root, if this was a project depending on the crate,
-// not an example in a sub directory of the crate...
-const CONFIG_PATH: &'static str = "examples/example_project/config.json";
-const ASSETS_PATH: &'static str = "examples/example_project/assets";
-const MODULES_PATH: &'static str = "examples/example_project/modules";
-const CHARACTERS_PATH: &'static str = "examples/example_project/characters";
-const SAVES_PATH: &'static str = "examples/example_project/save_games";
+// All paths are relative to project root
+const CONFIG_PATH: &'static str = "config.json";
+const ASSETS_PATH: &'static str = "assets";
+const MODULES_PATH: &'static str = "modules";
+const CHARACTERS_PATH: &'static str = "characters";
+const SAVES_PATH: &'static str = "save_games";
 
 fn window_conf() -> Conf {
     let config = Config::load(CONFIG_PATH);
