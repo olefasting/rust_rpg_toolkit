@@ -128,7 +128,6 @@ async fn game_loop() -> Option<String> {
 pub struct GameVersion(String);
 
 pub async fn run_game(game_version: &str) {
-    println!("test");
     storage::store(GameVersion(game_version.to_string()));
     {
         let config = storage::get::<Config>();
