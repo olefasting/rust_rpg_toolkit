@@ -138,8 +138,8 @@ async fn game_loop() -> Option<String> {
 
 pub struct GameVersion(String);
 
-pub fn run_game(game_version: String) {
-    storage::store(GameVersion(game_version));
+pub fn run_game(game_version: &str) {
+    storage::store(GameVersion(game_version.to_string()));
     {
         let config = storage::get::<Config>();
         storage::store(GuiSkins::new(config.gui_scale));
