@@ -1,7 +1,7 @@
 /target
-/assets/sound_effects/external/
-/web/assets/*
-/web/capstone.d
-/web/capstone.wasm
-/web/modules/*
+/examples/example_project/assets/sound_effects/external/
+/examples/example_project/web/assets/*
+/examples/example_project/web/capstone.d
+/examples/example_project/web/capstone.wasm
+/examples/example_project/web/modules/*
 /web.tar.gz

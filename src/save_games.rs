@@ -23,8 +23,7 @@ use crate::{
         ItemParams,
     },
     scenario::CurrentChapter,
-    SAVE_FOLDER_PATH,
-    GameVersion,
+    GameParams,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -40,7 +39,7 @@ pub struct SaveGame {
 
 impl SaveGame {
     pub fn create_from_scene(game_state: &GameState) -> Self {
-        let game_version = storage::get::<GameVersion>().0.clone();
+        let game_params = storage::get::<GameParams>();
 
         let player_actor_id = {
             let player = Actor::find_by_player_id(&game_state.local_player_id).unwrap();
@@ -64,7 +63,7 @@ impl SaveGame {
         let current_chapter = storage::get::<CurrentChapter>();
 
         SaveGame {
-            game_version: game_version,
+            game_version: game_params.game_version.clone(),
             chapter: current_chapter.chapter_index as u32 + 1,
             map_id: current_chapter.current_map_id.clone(),
             player_actor_id,
@@ -75,8 +74,9 @@ impl SaveGame {
 
     #[cfg(any(target_family = "unix", target_family = "windows"))]
     pub fn save_scene_to_file(name: &str, game_state: &GameState) {
+        let game_params = storage::get::<GameParams>();
         let save_game = Self::create_from_scene(game_state);
-        let path = &format!("{}/{}", SAVE_FOLDER_PATH, name);
+        let path = &format!("{}/{}", game_params.saves_path, name);
         let json = serde_json::to_string_pretty(&save_game)
             .expect("Unable to serialize scene into JSON!");
         fs::write(path, &json)

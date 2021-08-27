@@ -16,12 +16,7 @@ use serde::{
     Deserialize,
 };
 
-use crate::{
-    resources::Resources,
-    physics::Collider,
-    math::URect,
-    json,
-};
+use crate::{resources::Resources, physics::Collider, math::URect, json, GameParams};
 
 use super::TiledMap;
 use crate::map::tiled::TiledMapDeclaration;
@@ -51,8 +46,9 @@ impl Map {
     }
 
     pub async fn load_tiled(decl: TiledMapDeclaration) -> io::Result<Self> {
+        let game_params = storage::get::<GameParams>();
         let map: Map = TiledMap::load(decl.clone()).await.into();
-        map.save(&format!("assets/{}", &decl.export_path))?;
+        map.save(&format!("{}/{}", game_params.assets_path, &decl.export_path))?;
         Ok(map)
     }
 

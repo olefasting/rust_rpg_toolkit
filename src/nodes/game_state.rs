@@ -22,13 +22,9 @@ use super::{
     ActorParams,
 };
 
-use crate::{map::Map, render::Viewport, resources::Resources, generate_id, CHARACTERS_FOLDER_PATH};
+use crate::{map::Map, render::Viewport, resources::Resources, generate_id, GameParams};
 use crate::nodes::item::Credits;
 use crate::save_games::SaveGame;
-
-#[derive(Debug, Clone)]
-pub struct GameParams {
-}
 
 pub struct GameState {
     pub map: Map,
@@ -153,10 +149,11 @@ impl GameState {
 
     #[cfg(any(target_family = "unix", target_family = "windows"))]
     pub fn export_character(&mut self) {
+        let game_params = storage::get::<GameParams>();
         let player = Actor::find_by_player_id(&self.local_player_id).unwrap();
         let json = serde_json::to_string_pretty(&player.to_export())
             .expect(&format!("Unable to serialize character '{}' to JSON!", player.name));
-        let path = format!("{}/{}.json", CHARACTERS_FOLDER_PATH, player.name);
+        let path = format!("{}/{}.json", game_params.characters_path, player.name);
         fs::write(&path, json)
             .expect(&format!("Unable to write character to path '{}'!", path));
     }

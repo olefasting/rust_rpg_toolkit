@@ -19,6 +19,7 @@ use crate::render::{
 };
 
 use crate::map::Map;
+use crate::GameParams;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MapParams {
@@ -71,9 +72,8 @@ pub struct Scenario {
 }
 
 impl Scenario {
-    const SCENARIO_FILE_PATH: &'static str = "assets/scenario.json";
-
     pub async fn new(params: ScenarioParams) -> Result<Self, FileError> {
+        let game_params = storage::get::<GameParams>();
         let mut chapters = Vec::new();
         for chapter_params in params.chapters.clone() {
             let mut  maps = Vec::new();
@@ -83,7 +83,7 @@ impl Scenario {
                     title: map_info.title,
                     description: map_info.description,
                     path: map_info.path.clone(),
-                    map: Map::load(&format!("assets/{}", map_info.path)).await.unwrap(),
+                    map: Map::load(&format!("{}/{}", game_params.assets_path, map_info.path)).await.unwrap(),
                 };
 
                 maps.push(map);
@@ -107,9 +107,11 @@ impl Scenario {
     }
 
     pub async fn load_params() -> Result<ScenarioParams, FileError> {
-        let bytes = load_file(Self::SCENARIO_FILE_PATH).await?;
+        let game_params = storage::get::<GameParams>();
+        let path = &format!("{}/scenario.json", game_params.assets_path);
+        let bytes = load_file(path).await?;
         let params = serde_json::from_slice(&bytes)
-            .expect(&format!("Unable to parse scenario file '{}'!", Self::SCENARIO_FILE_PATH));
+            .expect(&format!("Unable to parse scenario file '{}'!", path));
         Ok(params)
     }
 }

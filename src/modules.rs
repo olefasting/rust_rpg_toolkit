@@ -16,16 +16,10 @@ use serde::{
     Deserialize,
 };
 
-use crate::{
-    Resources, nodes::{
-        ActorParams,
-        ItemParams,
-    },
-    missions::MissionParams,
-    ability::AbilityParams,
-    generate_id,
-    GameVersion,
-};
+use crate::{Resources, nodes::{
+    ActorParams,
+    ItemParams,
+}, missions::MissionParams, ability::AbilityParams, generate_id, GameParams};
 
 use crate::resources::{MaterialInfo, TextureParams, SoundParams};
 use crate::render::{LINEAR_FILTER_MODE, NEAREST_FILTER_MODE};
@@ -33,8 +27,6 @@ use macroquad::audio::load_sound;
 use crate::dialogue::Dialogue;
 use crate::scenario::{ScenarioParams, ChapterParams};
 use crate::versions::check_version_requirement;
-
-const ACTIVE_MODULES_FILE_PATH: &'static str = "modules/active_modules.json";
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum ModuleDataFileKind {
@@ -139,15 +131,17 @@ impl Default for ModuleDeclaration {
 }
 
 pub async fn load_modules(resources: &mut Resources, scenario: &mut ScenarioParams) {
-    let game_version = storage::get::<GameVersion>().0.clone();
+    let game_params = storage::get::<GameParams>();
+    let active_modules_file_path = &format!("{}/active_modules.json", game_params.modules_path);
+    let game_params = storage::get::<GameParams>();
     let mut loaded_modules: Vec<ModuleDependencyInfo> = Vec::new();
 
-    let bytes = load_file(ACTIVE_MODULES_FILE_PATH).await
-        .expect(&format!("Unable to find active modules file '{}'!", ACTIVE_MODULES_FILE_PATH));
+    let bytes = load_file(active_modules_file_path).await
+        .expect(&format!("Unable to find active modules file '{}'!", active_modules_file_path));
     let active_modules: Vec<String> = serde_json::from_slice(&bytes)
-        .expect(&format!("Unable to parse active modules file '{}'!", ACTIVE_MODULES_FILE_PATH));
+        .expect(&format!("Unable to parse active modules file '{}'!", active_modules_file_path));
     'module: for module_name in active_modules {
-        let module_path = format!("modules/{}", module_name);
+        let module_path = format!("{}/{}", game_params.modules_path, module_name);
         let module_file_path = format!("{}/{}.json", module_path, module_name);
         let bytes = load_file(&module_file_path).await
             .expect(&format!("Unable to find module file '{}'!", module_file_path));
@@ -155,8 +149,8 @@ pub async fn load_modules(resources: &mut Resources, scenario: &mut ScenarioPara
             .expect(&format!("Unable to parse module file '{}'!", module_file_path));
 
         if let Some(required_game_version) = &module_decl.required_game_version {
-            if check_version_requirement(required_game_version, &game_version) == false {
-                println!("WARNING: Module '{}' was not loaded as its game version requirement '{}' was unmet (game version is '{}')!", module_name, required_game_version, game_version);
+            if check_version_requirement(required_game_version, &game_params.game_version) == false {
+                println!("WARNING: Module '{}' was not loaded as its game version requirement '{}' was unmet (game version is '{}')!", module_name, required_game_version, game_params.game_version);
                 continue 'module;
             }
         }

@@ -42,7 +42,7 @@ use crate::{ability::Ability, generate_id, input::apply_local_player_input, json
     VerticalAlignment,
 }, missions::{
     Mission,
-}, Resources, GameVersion};
+}, Resources, GameParams};
 
 use super::{
     ActorController,
@@ -358,15 +358,15 @@ impl Actor {
     }
 
     pub fn to_export(&self) -> ExportedCharacter {
-        let game_version = storage::get::<GameVersion>().0.clone();
+        let game_params = storage::get::<GameParams>();
         let actor = self.to_save();
-        let mut items= self.inventory.items
+        let mut items = self.inventory.items
             .iter()
             .map(|entry| entry.params.clone())
             .collect();
 
         ExportedCharacter {
-            game_version,
+            game_version: game_params.game_version.clone(),
             actor,
             items,
         }
@@ -563,7 +563,7 @@ impl Actor {
                     } else {
                         EquipmentSlot::MainHand
                     }
-                },
+                }
                 ItemKind::TwoHandedWeapon => EquipmentSlot::BothHands,
                 _ => EquipmentSlot::None,
             };
@@ -599,14 +599,14 @@ impl Actor {
                 } else {
                     Vec::new()
                 }
-            },
+            }
             EquipmentSlot::OffHand => {
                 if let Some(item_id) = self.equipped_items.off_hand.clone() {
                     vec!(item_id)
                 } else {
                     Vec::new()
                 }
-            },
+            }
             EquipmentSlot::BothHands => {
                 let mut item_ids = Vec::new();
                 if let Some(item_id) = self.equipped_items.main_hand.clone() {
@@ -616,7 +616,7 @@ impl Actor {
                     item_ids.push(item_id);
                 }
                 item_ids
-            },
+            }
             EquipmentSlot::None => Vec::new(),
         };
 

@@ -6,6 +6,11 @@ edition = "2018"
 [profile.dev.package."*"]
 opt-level = 3
 
+[[example]]
+name = "example_project"
+path = "examples/example_project/src/main.rs"
+crate-type = ["bin"]
+
 [dependencies]
 chrono = "0.4.19"
 regex = "1.5.4"

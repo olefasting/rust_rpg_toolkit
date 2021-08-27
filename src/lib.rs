@@ -93,10 +93,6 @@ pub fn load_map(chapter: usize, map_id: &str) {
     Hud::add_node();
 }
 
-pub const SAVE_FOLDER_PATH: &'static str = "saved_games";
-pub const CHARACTERS_FOLDER_PATH: &'static str = "characters";
-pub const TILED_MAPS_FILE_PATH: &'static str = "assets/tiled_maps.json";
-
 async fn game_loop() -> Option<String> {
     loop {
         gui::draw_gui();
@@ -125,10 +121,16 @@ async fn game_loop() -> Option<String> {
     return None;
 }
 
-pub struct GameVersion(String);
+pub struct GameParams {
+    pub game_version: String,
+    pub assets_path: String,
+    pub modules_path: String,
+    pub characters_path: String,
+    pub saves_path: String,
+}
 
-pub async fn run_game(game_version: &str) {
-    storage::store(GameVersion(game_version.to_string()));
+pub async fn run_game(params: GameParams) {
+    storage::store(params);
     {
         let config = storage::get::<Config>();
         storage::store(GuiSkins::new(config.gui_scale));
@@ -139,10 +141,12 @@ pub async fn run_game(game_version: &str) {
 
         storage::store(resources);
 
-        let bytes = load_file(TILED_MAPS_FILE_PATH).await
-            .expect(&format!("Unable to find tiled maps file '{}'!", TILED_MAPS_FILE_PATH));
+        let game_params = storage::get::<GameParams>();
+        let tiled_maps_file_path = format!("{}/tiled_maps.json", game_params.assets_path);
+        let bytes = load_file(&tiled_maps_file_path).await
+            .expect(&format!("Unable to find tiled maps file '{}'!", tiled_maps_file_path));
         let tiled_maps: Vec<TiledMapDeclaration> = serde_json::from_slice(&bytes)
-            .expect(&format!("Unable to parse tiled maps file '{}'!", TILED_MAPS_FILE_PATH));
+            .expect(&format!("Unable to parse tiled maps file '{}'!", tiled_maps_file_path));
         for decl in tiled_maps {
             Map::load_tiled(decl.clone()).await
                 .expect(&format!("Unable to convert tiled map '{}'!", decl.path));
@@ -165,7 +169,4 @@ pub async fn run_game(game_version: &str) {
             break
         }
     }
-
-    let config = storage::get::<Config>();
-    config.save();
 }

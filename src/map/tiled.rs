@@ -18,11 +18,7 @@ use std::{
     iter::FromIterator,
 };
 
-use crate::{
-    generate_id,
-    resources::Resources,
-    render::try_color_from_hex_string,
-};
+use crate::{generate_id, resources::Resources, render::try_color_from_hex_string, GameParams};
 
 use super::map::{
     Map,
@@ -84,7 +80,8 @@ impl TiledMap {
                 .expect(&format!("Unable to find texture with id '{}'", tileset.texture_id));
             tileset_textures.push((tileset.relative_texture_path.deref(), texture.clone()));
         }
-        let bytes = load_file(&format!("assets/{}", &decl.path)).await
+        let game_params = storage::get::<GameParams>();
+        let bytes = load_file(&format!("{}/{}", game_params.assets_path, &decl.path)).await
             .expect(&format!("Error loading tiled map file '{}'!", &decl.path));
         let tiled_map = tiled::load_map(&String::from_utf8(bytes).unwrap(), tileset_textures.deref(), &[])
             .expect(&format!("Error parsing tiled map '{}'!", &decl.path));

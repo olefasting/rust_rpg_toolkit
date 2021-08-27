@@ -38,16 +38,13 @@ impl Default for Config {
 }
 
 impl Config {
-    const CONFIG_FILE_PATH: &'static str = "config.json";
-
     #[cfg(any(target_family = "unix", target_family = "windows"))]
-    pub fn load() -> Self {
-        let json = fs::read_to_string(Self::CONFIG_FILE_PATH)
-            .expect(&format!("Unable to find config file '{}'!", Self::CONFIG_FILE_PATH));
+    pub fn load(path: &str) -> Self {
+        let json = fs::read_to_string(path)
+            .expect(&format!("Unable to find config file '{}'!", path));
         let mut config: Config = serde_json::from_str(&json)
-            .expect(&format!("Unable to parse config file '{}'!", Self::CONFIG_FILE_PATH));
+            .expect(&format!("Unable to parse config file '{}'!", path));
         config.gui_scale = config.gui_scale.clamp(0.25, 5.0);
-        storage::store(config.clone());
         config
     }
 
@@ -64,9 +61,9 @@ impl Config {
     }
 
     #[cfg(any(target_family = "unix", target_family = "windows"))]
-    pub fn save(&self) {
+    pub fn save(&self, path: &str) {
         let json = serde_json::to_string_pretty(self).expect("Error parsing config!");
-        fs::write(Self::CONFIG_FILE_PATH, &json).expect("Error saving config to file!");
+        fs::write(path, &json).expect("Error saving config to file!");
     }
 
     #[cfg(target_family = "wasm")]

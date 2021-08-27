@@ -140111,8 +140111,8 @@
             "y": 248.0
           },
           "properties": {
-            "prototype_id": "enemy_thug_boss",
-            "instance_id": "thug_01"
+            "instance_id": "thug_01",
+            "prototype_id": "enemy_thug_boss"
           }
         },
         {
@@ -140132,8 +140132,8 @@
             "y": 237.66667
           },
           "properties": {
-            "instance_id": "thug_02",
-            "prototype_id": "enemy_thug"
+            "prototype_id": "enemy_thug",
+            "instance_id": "thug_02"
           }
         },
         {
@@ -140143,8 +140143,8 @@
             "y": 253.0
           },
           "properties": {
-            "prototype_id": "enemy_thug",
-            "instance_id": "thug_03"
+            "instance_id": "thug_03",
+            "prototype_id": "enemy_thug"
           }
         },
         {
@@ -140154,8 +140154,8 @@
             "y": 546.3333
           },
           "properties": {
-            "instance_id": "guard_boss",
-            "prototype_id": "guard_boss"
+            "prototype_id": "guard_boss",
+            "instance_id": "guard_boss"
           }
         },
         {
@@ -140185,8 +140185,8 @@
             "y": 844.5
           },
           "properties": {
-            "prototype_id": "scared_woman",
-            "instance_id": "scared_woman"
+            "instance_id": "scared_woman",
+            "prototype_id": "scared_woman"
           }
         },
         {
@@ -140223,24 +140223,6 @@
   ],
   "tilesets": [
     {
-      "id": "neo_zero_props",
-      "texture_id": "props",
-      "texture_size": {
-        "x": 160,
-        "y": 160
-      },
-      "tile_size": {
-        "x": 16,
-        "y": 16
-      },
-      "grid_size": {
-        "x": 10,
-        "y": 10
-      },
-      "first_tile_id": 401,
-      "tile_cnt": 100
-    },
-    {
       "id": "items",
       "texture_id": "items",
       "texture_size": {
@@ -140275,6 +140257,24 @@
       },
       "first_tile_id": 1,
       "tile_cnt": 400
+    },
+    {
+      "id": "neo_zero_props",
+      "texture_id": "props",
+      "texture_size": {
+        "x": 160,
+        "y": 160
+      },
+      "tile_size": {
+        "x": 16,
+        "y": 16
+      },
+      "grid_size": {
+        "x": 10,
+        "y": 10
+      },
+      "first_tile_id": 401,
+      "tile_cnt": 100
     }
   ]
 }
