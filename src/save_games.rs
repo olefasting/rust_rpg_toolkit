@@ -20,7 +20,7 @@ use crate::{nodes::{
     GameState,
     Item,
     ItemParams,
-}, scenario::CurrentChapter, SAVE_FOLDER_PATH, GAME_VERSION};
+}, scenario::CurrentChapter, SAVE_FOLDER_PATH, GAME_VERSION, GameVersion};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SaveGame {
@@ -35,6 +35,8 @@ pub struct SaveGame {
 
 impl SaveGame {
     pub fn create_from_scene(game_state: &GameState) -> Self {
+        let game_version = storage::get::<GameVersion>().0.clone();
+
         let player_actor_id = {
             let player = Actor::find_by_player_id(&game_state.local_player_id).unwrap();
             player.id.clone()
@@ -57,7 +59,7 @@ impl SaveGame {
         let current_chapter = storage::get::<CurrentChapter>();
 
         SaveGame {
-            game_version: GAME_VERSION.to_string(),
+            game_version: game_version,
             chapter: current_chapter.chapter_index as u32 + 1,
             map_id: current_chapter.current_map_id.clone(),
             player_actor_id,

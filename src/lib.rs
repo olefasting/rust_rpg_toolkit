@@ -3,8 +3,6 @@
 #![feature(try_find)]
 #![feature(async_closure)]
 
-const GAME_VERSION: &'static str = "0.1.0";
-
 use macroquad::{
     experimental::{
         collections::storage,
@@ -138,8 +136,10 @@ async fn game_loop() -> Option<String> {
     return None;
 }
 
-#[macroquad::main(window_conf)]
-async fn main() {
+pub struct GameVersion(String);
+
+pub fn run_game(game_version: String) {
+    storage::store(GameVersion(game_version));
     {
         let config = storage::get::<Config>();
         storage::store(GuiSkins::new(config.gui_scale));

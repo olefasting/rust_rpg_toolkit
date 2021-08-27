@@ -43,7 +43,7 @@ use crate::{ability::Ability, generate_id, input::apply_local_player_input, json
     VerticalAlignment,
 }, missions::{
     Mission,
-}, Resources, GAME_VERSION};
+}, Resources, GameVersion};
 
 use super::{
     ActorController,
@@ -359,6 +359,7 @@ impl Actor {
     }
 
     pub fn to_export(&self) -> ExportedCharacter {
+        let game_version = storage::get::<GameVersion>().0.clone();
         let actor = self.to_save();
         let mut items= self.inventory.items
             .iter()
@@ -366,7 +367,7 @@ impl Actor {
             .collect();
 
         ExportedCharacter {
-            game_version: GAME_VERSION.to_string(),
+            game_version,
             actor,
             items,
         }

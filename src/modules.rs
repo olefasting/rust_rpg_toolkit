@@ -4,17 +4,28 @@ use std::{
     io,
 };
 
-use macroquad::prelude::*;
+use macroquad::{
+    experimental::{
+        collections::storage,
+    },
+    prelude::*
+};
 
 use serde::{
     Serialize,
     Deserialize,
 };
 
-use crate::{Resources, nodes::{
-    ActorParams,
-    ItemParams,
-}, missions::MissionParams, ability::AbilityParams, generate_id, GAME_VERSION};
+use crate::{
+    Resources, nodes::{
+        ActorParams,
+        ItemParams,
+    },
+    missions::MissionParams,
+    ability::AbilityParams,
+    generate_id,
+    GameVersion},
+;
 
 use crate::resources::{MaterialInfo, TextureParams, SoundParams};
 use crate::render::{LINEAR_FILTER_MODE, NEAREST_FILTER_MODE};
@@ -63,19 +74,19 @@ pub struct ModuleDependencyInfo {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ModuleMaterials {
     pub integration: ModuleIntegration,
-    pub files: Vec<MaterialInfo>
+    pub files: Vec<MaterialInfo>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ModuleTextures {
     pub integration: ModuleIntegration,
-    pub files: Vec<TextureParams>
+    pub files: Vec<TextureParams>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ModuleSounds {
     pub integration: ModuleIntegration,
-    pub files: Vec<SoundParams>
+    pub files: Vec<SoundParams>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -128,6 +139,7 @@ impl Default for ModuleDeclaration {
 }
 
 pub async fn load_modules(resources: &mut Resources, scenario: &mut ScenarioParams) {
+    let game_version = storage::get::<GameVersion>().0.clone();
     let mut loaded_modules: Vec<ModuleDependencyInfo> = Vec::new();
 
     let bytes = load_file(ACTIVE_MODULES_FILE_PATH).await
@@ -143,8 +155,8 @@ pub async fn load_modules(resources: &mut Resources, scenario: &mut ScenarioPara
             .expect(&format!("Unable to parse module file '{}'!", module_file_path));
 
         if let Some(required_game_version) = &module_decl.required_game_version {
-            if check_version_requirement(required_game_version, GAME_VERSION) == false {
-                println!("WARNING: Module '{}' was not loaded as its game version requirement '{}' was unmet (game version is '{}')!", module_name, required_game_version, GAME_VERSION);
+            if check_version_requirement(required_game_version, &game_version) == false {
+                println!("WARNING: Module '{}' was not loaded as its game version requirement '{}' was unmet (game version is '{}')!", module_name, required_game_version, game_version);
                 continue 'module;
             }
         }
@@ -250,7 +262,7 @@ pub async fn load_modules(resources: &mut Resources, scenario: &mut ScenarioPara
                             for params in actors {
                                 resources.actors.insert(params.id.clone(), params);
                             }
-                        },
+                        }
                         ModuleIntegration::Replace => {
                             let hash_map = HashMap::from_iter(
                                 actors
@@ -261,7 +273,7 @@ pub async fn load_modules(resources: &mut Resources, scenario: &mut ScenarioPara
                             resources.actors = hash_map;
                         }
                     }
-                },
+                }
                 ModuleDataFileKind::Dialogue => {
                     let dialogue: Vec<Dialogue> = serde_json::from_slice(&bytes)
                         .expect(&format!("Unable to parse module dialogue data file '{}'!", data.path));
@@ -270,7 +282,7 @@ pub async fn load_modules(resources: &mut Resources, scenario: &mut ScenarioPara
                             for params in dialogue {
                                 resources.dialogue.insert(params.id.clone(), params);
                             }
-                        },
+                        }
                         ModuleIntegration::Replace => {
                             let hash_map = HashMap::from_iter(
                                 dialogue
@@ -281,7 +293,7 @@ pub async fn load_modules(resources: &mut Resources, scenario: &mut ScenarioPara
                             resources.dialogue = hash_map;
                         }
                     }
-                },
+                }
                 ModuleDataFileKind::Missions => {
                     let missions: Vec<MissionParams> = serde_json::from_slice(&bytes)
                         .expect(&format!("Unable to parse module missions data file '{}'!", data.path));
@@ -290,7 +302,7 @@ pub async fn load_modules(resources: &mut Resources, scenario: &mut ScenarioPara
                             for params in missions {
                                 resources.missions.insert(params.id.clone(), params);
                             }
-                        },
+                        }
                         ModuleIntegration::Replace => {
                             let hash_map = HashMap::from_iter(
                                 missions
@@ -301,7 +313,7 @@ pub async fn load_modules(resources: &mut Resources, scenario: &mut ScenarioPara
                             resources.missions = hash_map;
                         }
                     }
-                },
+                }
                 ModuleDataFileKind::Items => {
                     let items: Vec<ItemParams> = serde_json::from_slice(&bytes)
                         .expect(&format!("Unable to parse module items data file '{}'!", data.path));
@@ -310,7 +322,7 @@ pub async fn load_modules(resources: &mut Resources, scenario: &mut ScenarioPara
                             for params in items {
                                 resources.items.insert(params.id.clone(), params);
                             }
-                        },
+                        }
                         ModuleIntegration::Replace => {
                             let hash_map = HashMap::from_iter(
                                 items
@@ -321,7 +333,7 @@ pub async fn load_modules(resources: &mut Resources, scenario: &mut ScenarioPara
                             resources.items = hash_map;
                         }
                     }
-                },
+                }
                 ModuleDataFileKind::Abilities => {
                     let abilities: Vec<AbilityParams> = serde_json::from_slice(&bytes)
                         .expect(&format!("Unable to parse module abilities data file '{}'!", data.path));
@@ -330,7 +342,7 @@ pub async fn load_modules(resources: &mut Resources, scenario: &mut ScenarioPara
                             for params in abilities {
                                 resources.abilities.insert(params.id.clone(), params);
                             }
-                        },
+                        }
                         ModuleIntegration::Replace => {
                             let hash_map = HashMap::from_iter(
                                 abilities
