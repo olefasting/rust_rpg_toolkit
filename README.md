@@ -11,6 +11,8 @@ To use the library, add it to your dependencies and call the `run_game` method, 
 You will need an assets and a modules folder in your project root, as well as a config file. I recommend that you just copy these from this repo, to get started.
 If you want to build for WASM, copy the bash file in the repo root to your project root, as well....
 
+WASM build of the scenario included in this repo can be found [here](https://magus.no/static/web/index.html)
+
 ## Contributing
 
 Contributions are more than welcome. Feel free to create a PR or an issue.
