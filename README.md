@@ -57,6 +57,13 @@ async fn main() {
 }
 ```
 
+## Further documentation
+
+Check the [docs folder](https://github.com/olefasting/rust_rpg_toolkit/tree/master/docs) for more documentation.
+
+\
+\
+\
 License: MIT
 
 Copyright 2021 Ole A. Sjo Fasting and [Magus](http://magus.no)
