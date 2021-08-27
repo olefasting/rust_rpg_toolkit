@@ -8,6 +8,9 @@ For now most of your options are limited to creating a game through editing reso
 
 To use the library, add it to your dependencies and call the `run_game` method, with a game version as a parameter (used for user mod dependency checking and more).
 
+You will need an assets and a modules folder in your project root, as well as a config file. I recommend that you just copy these from this repo, to get started.
+If you want to build for WASM, copy the bash file in the repo root to your project root, as well....
+
 ## Contributing
 
 Contributions are more than welcome. Feel free to create a PR or an issue.
@@ -26,7 +29,7 @@ This is a work in progress but current features include (not an exhaustive list 
 - Scriptable dialogue system (see [assets/dialogue.json](https://github.com/olefasting/capstone/blob/master/assets/dialogue.json))
 - Scriptable mission and reward system (see [assets/dialogue.json](https://github.com/olefasting/capstone/blob/master/assets/missions.json))
 
-Loading of save games and creating new games using an exported character, will be implemented in the coming days. The same goes for chapter transitions. Aside from this, entire games can be created by just editing JSON files, after depending on this repo, call `rust_rpg_toolkit::run_game(game_version)` from a macroquad main loop.
+Loading of save games and creating new games using an exported character, will be implemented in the coming days. The same goes for chapter transitions. Aside from this, entire games can be created by just editing JSON files. After depending on this repo, call `rust_rpg_toolkit::run_game(game_version)` from a macroquad main loop to get started.
 
 ## Example
 
