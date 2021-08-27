@@ -26,6 +26,8 @@ This is a work in progress but current features include (not an exhaustive list 
 - Scriptable dialogue system (see [assets/dialogue.json](https://github.com/olefasting/capstone/blob/master/assets/dialogue.json))
 - Scriptable mission and reward system (see [assets/dialogue.json](https://github.com/olefasting/capstone/blob/master/assets/missions.json))
 
+Loading of save games and creating new games using an exported character, will be implemented in the coming days. The same goes for chapter transitions. Aside from this, entire games can be created by just editing JSON files, after depending on this repo, call `rust_rpg_toolkit::run_game(game_version)` from a macroquad main loop.
+
 ## Example
 
 You should depend on [macroquad](https://github.com/not-fl3/macroquad), as well as my library, then a main like this.
