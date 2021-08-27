@@ -11,16 +11,10 @@ use serde::{
     Deserialize,
 };
 
-use crate::{
-    Resources,
-    nodes::{
-        ActorParams,
-        ItemParams,
-    },
-    missions::MissionParams,
-    ability::AbilityParams,
-    generate_id
-};
+use crate::{Resources, nodes::{
+    ActorParams,
+    ItemParams,
+}, missions::MissionParams, ability::AbilityParams, generate_id, GAME_VERSION};
 
 use crate::resources::{MaterialInfo, TextureParams, SoundParams};
 use crate::render::{LINEAR_FILTER_MODE, NEAREST_FILTER_MODE};
@@ -106,6 +100,8 @@ pub struct ModuleDeclaration {
     #[serde(default)]
     pub version: String,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub required_game_version: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub dependencies: Vec<ModuleDependencyInfo>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub data: Vec<ModuleDataParams>,
@@ -121,6 +117,7 @@ impl Default for ModuleDeclaration {
             title: "Unnamed Module".to_string(),
             description: "".to_string(),
             version: "not versioned".to_string(),
+            required_game_version: None,
             dependencies: Vec::new(),
             data: Vec::new(),
             resources: None,
@@ -143,6 +140,14 @@ pub async fn load_modules(resources: &mut Resources, scenario: &mut ScenarioPara
             .expect(&format!("Unable to find module file '{}'!", module_file_path));
         let module_decl: ModuleDeclaration = serde_json::from_slice(&bytes)
             .expect(&format!("Unable to parse module file '{}'!", module_file_path));
+
+        if let Some(required_game_version) = module_decl.required_game_version {
+            if required_game_version != GAME_VERSION {
+                println!("Module '{}' was not loaded as its game version requirement was unmet (game version is '{}')!", module_name, GAME_VERSION);
+                continue 'module;
+            }
+        }
+
         for dependency in module_decl.dependencies {
             let found = loaded_modules.iter().find(|loaded|
                 loaded.name.clone() == dependency.name && loaded.version.clone() == dependency.version);

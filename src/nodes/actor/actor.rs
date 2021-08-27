@@ -78,6 +78,7 @@ use crate::nodes::actor::equipped::{EquippedItems, EquipmentSlot};
 use crate::nodes::item::ItemKind;
 use crate::ability::{Effect, DamageType};
 use crate::dialogue::Dialogue;
+use crate::save_games::ExportedCharacter;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub enum ActorNoiseLevel {
@@ -364,6 +365,19 @@ impl Actor {
             experience: self.experience,
             can_level_up: self.can_level_up,
             dialogue_id,
+        }
+    }
+
+    pub fn to_export(&self) -> ExportedCharacter {
+        let actor = self.to_save();
+        let mut items= self.inventory.items
+            .iter()
+            .map(|entry| entry.params.clone())
+            .collect();
+
+        ExportedCharacter {
+            actor,
+            items,
         }
     }
 

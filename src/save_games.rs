@@ -14,16 +14,13 @@ use serde::{
     Deserialize,
 };
 
-use crate::{
-    nodes::{
-        Actor,
-        ActorParams,
-        GameState,
-        Item,
-        ItemParams,
-    },
-    scenario::CurrentChapter,
-};
+use crate::{nodes::{
+    Actor,
+    ActorParams,
+    GameState,
+    Item,
+    ItemParams,
+}, scenario::CurrentChapter, SAVE_FOLDER_PATH};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SaveGame {
@@ -36,8 +33,6 @@ pub struct SaveGame {
 }
 
 impl SaveGame {
-    const SAVE_FOLDER_PATH: &'static str = "saved_games";
-
     pub fn create_from_scene(game_state: &GameState) -> Self {
         let player_actor_id = {
             let player = Actor::find_by_player_id(&game_state.local_player_id).unwrap();
@@ -72,7 +67,7 @@ impl SaveGame {
     #[cfg(any(target_family = "unix", target_family = "windows"))]
     pub fn save_scene_to_file(name: &str, game_state: &GameState) {
         let save_game = Self::create_from_scene(game_state);
-        let path = &format!("{}/{}", Self::SAVE_FOLDER_PATH, name);
+        let path = &format!("{}/{}", SAVE_FOLDER_PATH, name);
         let json = serde_json::to_string_pretty(&save_game)
             .expect("Unable to serialize scene into JSON!");
         fs::write(path, &json)
@@ -81,6 +76,12 @@ impl SaveGame {
 
     #[cfg(target_family = "wasm")]
     pub fn save_scene_to_file(name: &str, game_state: &GameState) {
-        todo!()
+        todo!("Implement wasm save games")
     }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ExportedCharacter {
+    pub actor: ActorParams,
+    pub items: Vec<ItemParams>,
 }

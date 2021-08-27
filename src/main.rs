@@ -105,15 +105,24 @@ pub fn load_map(chapter: usize, map_id: &str) {
     Hud::add_node();
 }
 
-const TILED_MAPS_FILE_PATH: &'static str = "assets/tiled_maps.json";
+pub const SAVE_FOLDER_PATH: &'static str = "saved_games";
+pub const CHARACTERS_FOLDER_PATH: &'static str = "characters";
+pub const TILED_MAPS_FILE_PATH: &'static str = "assets/tiled_maps.json";
 
 async fn game_loop() -> Option<String> {
     loop {
         gui::draw_gui();
 
         {
-            let game_state = scene::find_node_by_type::<GameState>().unwrap();
-            game_state.try_save_game();
+            let mut game_state = scene::find_node_by_type::<GameState>().unwrap();
+            if game_state.should_export_character {
+                game_state.export_character();
+                game_state.should_export_character = false;
+            }
+            if game_state.should_save_game {
+                game_state.save_game();
+                game_state.should_save_game = false;
+            }
             if game_state.should_quit {
                 break;
             }

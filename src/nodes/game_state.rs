@@ -1,3 +1,5 @@
+use std::fs;
+
 use macroquad::{
     experimental::{
         scene::{
@@ -20,7 +22,7 @@ use super::{
     ActorParams,
 };
 
-use crate::{map::Map, render::Viewport, resources::Resources, generate_id};
+use crate::{map::Map, render::Viewport, resources::Resources, generate_id, CHARACTERS_FOLDER_PATH};
 use crate::nodes::item::Credits;
 use crate::save_games::SaveGame;
 
@@ -38,7 +40,8 @@ pub struct GameState {
     pub in_debug_mode: bool,
     pub transition_to_map: Option<String>,
     pub should_quit: bool,
-    pub save_game_to: Option<String>,
+    pub should_save_game: bool,
+    pub should_export_character: bool,
 }
 
 impl GameState {
@@ -130,7 +133,8 @@ impl GameState {
             in_debug_mode: false,
             transition_to_map: None,
             should_quit: false,
-            save_game_to: None,
+            should_save_game: false,
+            should_export_character: false,
         }
     }
 
@@ -138,10 +142,28 @@ impl GameState {
         scene::add_node(Self::new(map, local_player_id))
     }
 
-    pub fn try_save_game(&self) {
-        if let Some(name) = &self.save_game_to {
-            SaveGame::save_scene_to_file(name, self);
-        }
+    pub fn save_game(&self) {
+        let name = {
+            let player = Actor::find_by_player_id(&self.local_player_id).unwrap();
+            let time_stamp = chrono::Utc::now();
+            format!("{} {}.json", player.name, time_stamp.to_rfc2822())
+        };
+        SaveGame::save_scene_to_file(&name, self);
+    }
+
+    #[cfg(any(target_family = "unix", target_family = "windows"))]
+    pub fn export_character(&mut self) {
+        let player = Actor::find_by_player_id(&self.local_player_id).unwrap();
+        let json = serde_json::to_string_pretty(&player.to_export())
+            .expect(&format!("Unable to serialize character '{}' to JSON!", player.name));
+        let path = format!("{}/{}.json", CHARACTERS_FOLDER_PATH, player.name);
+        fs::write(&path, json)
+            .expect(&format!("Unable to write character to path '{}'!", path));
+    }
+
+    #[cfg(target_family = "wasm")]
+    pub fn export_character(&self) {
+        todo!("Implement wasm character export")
     }
 }
 
