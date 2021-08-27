@@ -11,7 +11,6 @@ use macroquad::{
     prelude::*,
 };
 
-use config::Config;
 use gui::skins::GuiSkins;
 use map::{
     Map,
@@ -30,11 +29,14 @@ use nodes::{
     Projectiles,
 };
 use nodes::item::Credits;
-use resources::Resources;
+pub use resources::Resources;
 pub use uid::generate_id;
+
 use crate::scenario::{Scenario, ScenarioParams, CurrentChapter};
 use crate::modules::load_modules;
 use crate::save_games::SaveGame;
+
+pub use config::Config;
 
 pub mod resources;
 pub mod ability;
@@ -59,19 +61,6 @@ pub mod versions;
 pub struct MapTransition {
     pub next_map_id: Option<String>,
     pub next_chapter: bool,
-}
-
-fn window_conf() -> Conf {
-    let config = Config::load();
-
-    Conf {
-        window_title: "Capstone".to_owned(),
-        high_dpi: true,
-        window_width: config.resolution.x as i32,
-        window_height: config.resolution.y as i32,
-        fullscreen: config.fullscreen,
-        ..Default::default()
-    }
 }
 
 pub fn load_map(chapter: usize, map_id: &str) {
@@ -138,7 +127,8 @@ async fn game_loop() -> Option<String> {
 
 pub struct GameVersion(String);
 
-pub fn run_game(game_version: &str) {
+pub async fn run_game(game_version: &str) {
+    println!("test");
     storage::store(GameVersion(game_version.to_string()));
     {
         let config = storage::get::<Config>();

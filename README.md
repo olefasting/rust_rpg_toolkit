@@ -26,6 +26,37 @@ This is a work in progress but current features include (not an exhaustive list 
 - Scriptable dialogue system (see [assets/dialogue.json](https://github.com/olefasting/capstone/blob/master/assets/dialogue.json))
 - Scriptable mission and reward system (see [assets/dialogue.json](https://github.com/olefasting/capstone/blob/master/assets/missions.json))
 
+## Example
+
+You should depend on [macroquad](https://github.com/not-fl3/macroquad), as well as my library, then a main like this.
+Remember to copy dependencies from the `Cargo.toml` in this library, as it uses some patched versions of the library.
+
+```rust
+use macroquad::prelude::*;
+
+use rust_rpg_toolkit::Config;
+
+const GAME_VERSION: &'static str = "0.1.0";
+
+fn window_conf() -> Conf {
+    let config = Config::load();
+
+    Conf {
+        window_title: "Capstone".to_owned(),
+        high_dpi: true,
+        window_width: config.resolution.x as i32,
+        window_height: config.resolution.y as i32,
+        fullscreen: config.fullscreen,
+        ..Default::default()
+    }
+}
+
+#[macroquad::main(window_conf)]
+async fn main() {
+    rust_rpg_toolkit::run_game(GAME_VERSION).await;
+}
+```
+
 License: MIT
 
 Copyright 2021 Ole A. Sjo Fasting and [Magus](http://magus.no)

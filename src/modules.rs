@@ -24,8 +24,8 @@ use crate::{
     missions::MissionParams,
     ability::AbilityParams,
     generate_id,
-    GameVersion},
-;
+    GameVersion,
+};
 
 use crate::resources::{MaterialInfo, TextureParams, SoundParams};
 use crate::render::{LINEAR_FILTER_MODE, NEAREST_FILTER_MODE};
