@@ -57,6 +57,8 @@ async fn main() {
 }
 ```
 
+Any game you create should also have an assets folder. Copy the onw included in this repo as a starting point...
+
 ## Further documentation
 
 Check the [docs folder](https://github.com/olefasting/rust_rpg_toolkit/tree/master/docs) for more documentation.
