@@ -43,7 +43,7 @@ pub fn draw_dialogue_window(player: &mut Actor) {
                     }
                 } else {
                     for mut option in options {
-                        if ui.button(None, option.title.clone()) {
+                        if ui.button(None, &option.title.clone()) {
                             option.should_apply = true;
                             player.current_dialogue = Some(option);
                         }

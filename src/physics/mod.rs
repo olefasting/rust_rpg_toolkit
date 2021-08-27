@@ -5,7 +5,6 @@ mod raycast;
 
 pub use physics_body::{
     PhysicsBody,
-    PhysicsObject,
 };
 
 pub use collider::Collider;

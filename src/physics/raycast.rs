@@ -5,12 +5,12 @@ use macroquad::prelude::*;
 use crate::{
     nodes::GameState,
     map::MapCollisionKind,
+    nodes::Actor,
 };
 
 use super::{
     ACTOR_TO_ACTOR_COLLISIONS,
     Collider,
-    PhysicsObject,
 };
 
 const RESOLUTION: f32 = 2.5;
@@ -30,12 +30,10 @@ pub fn raycast(origin: Vec2, end: Vec2, ignore_barriers: bool) -> Option<Vec2> {
                 }
             }
             if ACTOR_TO_ACTOR_COLLISIONS {
-                for (_, mut body) in scene::find_nodes_with::<PhysicsObject>() {
-                    if let Some(body) = body.get() {
-                        if let Some(other_collider) = body.get_offset_collider() {
-                            if other_collider.contains(current) {
-                                return Some(current);
-                            }
+                for actor in scene::find_nodes_by_type::<Actor>() {
+                    if let Some(other_collider) = actor.body.get_offset_collider() {
+                        if other_collider.contains(current) {
+                            return Some(current);
                         }
                     }
                 }

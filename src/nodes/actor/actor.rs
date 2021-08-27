@@ -33,7 +33,6 @@ use crate::{ability::Ability, generate_id, input::apply_local_player_input, json
 }, physics::{
     Collider,
     PhysicsBody,
-    PhysicsObject,
 }, render::{
     draw_progress_bar,
     HorizontalAlignment,
@@ -734,11 +733,6 @@ impl BufferedDraw for Actor {
 
 impl Node for Actor {
     fn ready(mut node: RefMut<Self>) {
-        node.provides::<PhysicsObject>((
-            node.handle().untyped(),
-            node.handle().lens(|actor| &mut actor.body),
-        ));
-
         let mut draw_buffer = scene::find_node_by_type::<DrawBuffer<Self>>().unwrap();
         draw_buffer.buffered.push(node.handle());
 
@@ -856,9 +850,7 @@ impl Node for Actor {
                 node.current_dialogue = Some(dialogue);
             }
         }
-    }
 
-    fn fixed_update(mut node: RefMut<Self>) {
         let direction = node.controller.direction.normalize_or_zero();
         node.body.velocity = if direction != Vec2::ZERO {
             direction * if node.inventory.get_total_weight() >= node.stats.carry_capacity {

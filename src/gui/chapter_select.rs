@@ -33,7 +33,7 @@ pub async fn draw_chapter_select() -> (usize, String) {
 
                 for i in 0..scenario.chapters.len() {
                     let chapter = scenario.chapters.get(i).unwrap();
-                    if ui.button(None, chapter.title.clone()) {
+                    if ui.button(None, &chapter.title.clone()) {
                        result = Some((i, chapter.initial_map_id.clone()));
                     }
                 }

@@ -71,7 +71,7 @@ impl ContinuousBeams {
 }
 
 impl Node for ContinuousBeams {
-    fn fixed_update(mut node: RefMut<Self>) {
+    fn update(mut node: RefMut<Self>) {
         for mut beam in &mut node.active {
             let mut cutoff = get_beam_end(
                 beam.origin,

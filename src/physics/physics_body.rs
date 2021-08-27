@@ -1,9 +1,5 @@
 use macroquad::{
     experimental::{
-        scene::{
-            HandleUntyped,
-            Lens,
-        }
     },
     color,
     prelude::*,
@@ -15,7 +11,10 @@ use crate::{
         Collider,
         raycast,
     },
-    nodes::GameState,
+    nodes::{
+        Actor,
+        GameState,
+    },
     render::{
         draw_aligned_text,
         HorizontalAlignment,
@@ -23,8 +22,6 @@ use crate::{
     map::MapCollisionKind,
 };
 use crate::render::VerticalAlignment;
-
-pub type PhysicsObject = (HandleUntyped, Lens<PhysicsBody>);
 
 #[derive(Clone)]
 pub struct PhysicsBody {
@@ -125,18 +122,16 @@ impl PhysicsBody {
             }
 
             if ACTOR_TO_ACTOR_COLLISIONS {
-                for (_, mut body_lens) in scene::find_nodes_with::<PhysicsObject>() {
-                    if let Some(body) = body_lens.get() {
-                        if let Some(other_collider) = body.get_offset_collider() {
-                            if collider.offset(self.velocity).overlaps(other_collider) {
-                                return;
-                            }
+                for actor in scene::find_node_by_type::<Actor>() {
+                    if let Some(other_collider) = actor.body.get_offset_collider() {
+                        if collider.offset(self.velocity).overlaps(other_collider) {
+                            return;
                         }
                     }
                 }
             }
 
-            self.position += self.velocity;
+            self.position += (self.velocity * 50.0) * get_frame_time();
         }
     }
 }

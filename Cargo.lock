@@ -214,7 +214,8 @@ checksum = "320cfe77175da3a483efed4bc0adc1968ca050b098ce4f2f1c13a56626128790"
 [[package]]
 name = "macroquad"
 version = "0.3.8"
-source = "git+https://github.com/not-fl3/macroquad.git?rev=1f4c57eaf42#1f4c57eaf42300c037c927fd0327645a899faec8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "01cd857aa6338beb13b14bc26e662652e2d78b9341ed82ee91ef2c7fceb35ed3"
 dependencies = [
  "bumpalo",
  "fontdue",
@@ -229,7 +230,8 @@ dependencies = [
 [[package]]
 name = "macroquad-particles"
 version = "0.1.1"
-source = "git+https://github.com/not-fl3/macroquad.git?rev=1f4c57eaf42#1f4c57eaf42300c037c927fd0327645a899faec8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8505dc035e4d68799a53a459afef0bc345410039325b5928af2e0d83eb15de40"
 dependencies = [
  "macroquad",
  "nanoserde",
@@ -238,7 +240,8 @@ dependencies = [
 [[package]]
 name = "macroquad-tiled"
 version = "0.1.1"
-source = "git+https://github.com/not-fl3/macroquad.git?rev=1f4c57eaf42#1f4c57eaf42300c037c927fd0327645a899faec8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6fee87816ce03b309adf842e1cb984fdd2f1917ccf0542028cdc7af67000c97f"
 dependencies = [
  "macroquad",
  "nanoserde",
@@ -247,7 +250,8 @@ dependencies = [
 [[package]]
 name = "macroquad_macro"
 version = "0.1.5"
-source = "git+https://github.com/not-fl3/macroquad.git?rev=1f4c57eaf42#1f4c57eaf42300c037c927fd0327645a899faec8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6ecb8935bc6a74b8374439c0bd8d2857ae1499fde9fbba76bb00722f7213b42d"
 
 [[package]]
 name = "maybe-uninit"

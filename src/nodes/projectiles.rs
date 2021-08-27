@@ -190,9 +190,9 @@ impl Projectiles {
 }
 
 impl Node for Projectiles {
-    fn fixed_update(mut node: RefMut<Self>) {
+    fn update(mut node: RefMut<Self>) {
         for projectile in &mut node.active {
-            let distance = projectile.direction * projectile.speed;
+            let distance = (projectile.direction * projectile.speed) * 50.0 * get_frame_time();
             projectile.position += distance;
             projectile.distance_traveled += distance.length();
         }

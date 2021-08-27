@@ -90,11 +90,9 @@ impl Node for Camera {
         storage::store(node.get_viewport());
     }
 
-    fn update(node: RefMut<Self>) {
+    fn update(mut node: RefMut<Self>) {
         storage::store(node.get_viewport());
-    }
 
-    fn fixed_update(mut node: RefMut<Self>) {
         let game_state = scene::find_node_by_type::<GameState>().unwrap();
         if let Some(player) = Actor::find_by_player_id(&game_state.local_player_id) {
             let viewport = node.get_viewport();
@@ -108,7 +106,7 @@ impl Node for Camera {
                 let difference = player.body.position.sub(node.position);
                 if difference.length() > Self::FOLLOW_END_AT_DISTANCE {
                     node.is_following = true;
-                    node.position += difference * Self::FOLLOW_LERP_FRACTION;
+                    node.position += (difference * Self::FOLLOW_LERP_FRACTION) * 50.0 * get_frame_time();
                 } else {
                     node.is_following = false;
                 }
@@ -117,7 +115,7 @@ impl Node for Camera {
     }
 
     fn draw(node: RefMut<Self>) where Self: Sized {
-        scene::set_camera_1(Camera2D {
+        scene::set_camera(Camera2D {
             offset: vec2(0.0, 0.0),
             target: vec2(node.position.x, node.position.y),
             zoom: vec2(node.scale / screen_width(), node.scale / screen_height()) * 2.0,
