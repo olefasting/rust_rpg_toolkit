@@ -32,7 +32,7 @@ use nodes::{
 use nodes::item::Credits;
 use resources::Resources;
 pub use uid::generate_id;
-use crate::scenario::{Scenario, ScenarioParams};
+use crate::scenario::{Scenario, ScenarioParams, CurrentChapter};
 use crate::modules::load_modules;
 
 pub mod resources;
@@ -66,18 +66,26 @@ fn window_conf() -> Conf {
     }
 }
 
-pub fn load_map(chapter: u32, map_id: &str) {
+pub fn load_map(chapter: usize, map_id: &str) {
     let player_id = generate_id();
 
     let scenario = storage::get::<Scenario>();
-    let chapter_data = scenario.chapters.get(chapter as usize)
+    let chapter_data = scenario.chapters.get(chapter)
+        .cloned()
         .expect(&format!("Unable to load chapter '{}'!", chapter));
     let map_data = chapter_data.maps.iter().find(|map| map.id == map_id)
+        .cloned()
         .expect(&format!("Unable to load map '{}' of chapter '{}'!", map_id, chapter_data.title));
 
-    scene::clear();
+    let current_chapter = CurrentChapter {
+        chapter: chapter_data,
+        chapter_index: chapter,
+        current_map_id: map_id.to_string(),
+    };
 
-    GameState::add_node(map_data.map.clone(), &player_id);
+    storage::store(current_chapter);
+
+    GameState::add_node(map_data.map, &player_id);
     Camera::add_node();
     DrawBuffer::<Item>::add_node();
     DrawBuffer::<Credits>::add_node();
@@ -89,6 +97,26 @@ pub fn load_map(chapter: u32, map_id: &str) {
 }
 
 const TILED_MAPS_FILE_PATH: &'static str = "assets/tiled_maps.json";
+
+async fn game_loop() -> Option<String> {
+    loop {
+        gui::draw_gui();
+
+        {
+            let game_state = scene::find_node_by_type::<GameState>().unwrap();
+            if game_state.should_quit {
+                break;
+            }
+            if let Some(map_id) = game_state.transition_to_map.clone() {
+                return Some(map_id);
+            }
+        }
+
+        next_frame().await;
+    }
+
+    return None;
+}
 
 #[macroquad::main(window_conf)]
 async fn main() {
@@ -116,23 +144,20 @@ async fn main() {
     }
 
     let (chapter_i, map_id) = gui::draw_chapter_select().await;
-
-    load_map(chapter_i, &map_id);
+    let mut next_map_id = Some(map_id);
 
     loop {
-        {
-            let game_state = scene::find_node_by_type::<GameState>().unwrap();
-            if game_state.should_quit {
-                break;
-            }
+        load_map(chapter_i, &next_map_id.unwrap());
+        next_map_id = None;
+
+        next_map_id = game_loop().await;
+
+        scene::clear();
+
+        if next_map_id.is_none() {
+            break
         }
-
-        gui::draw_gui();
-
-        next_frame().await;
     }
-
-    scene::clear();
 
     let config = storage::get::<Config>();
     config.save();

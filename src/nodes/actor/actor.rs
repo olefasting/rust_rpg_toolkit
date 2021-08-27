@@ -820,6 +820,15 @@ impl Node for Actor {
                 }
             }
         }
+
+        let current_dialogue = node.current_dialogue.clone();
+        if let Some(mut dialogue) = current_dialogue {
+            if dialogue.should_apply {
+                dialogue.should_apply = false;
+                dialogue.apply_action(&mut *node);
+                node.current_dialogue = Some(dialogue);
+            }
+        }
     }
 
     fn fixed_update(mut node: RefMut<Self>) {

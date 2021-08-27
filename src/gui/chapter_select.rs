@@ -10,7 +10,7 @@ use macroquad::{
 use crate::gui::skins::GuiSkins;
 use crate::scenario::Scenario;
 
-pub async fn draw_chapter_select() -> (u32, String) {
+pub async fn draw_chapter_select() -> (usize, String) {
     let gui_skins = storage::get::<GuiSkins>();
     let scenario = storage::get::<Scenario>();
 
@@ -34,7 +34,7 @@ pub async fn draw_chapter_select() -> (u32, String) {
                 for i in 0..scenario.chapters.len() {
                     let chapter = scenario.chapters.get(i).unwrap();
                     if ui.button(None, chapter.title.clone()) {
-                       result = Some((i as u32, chapter.initial_map_id.clone()));
+                       result = Some((i, chapter.initial_map_id.clone()));
                     }
                 }
             });

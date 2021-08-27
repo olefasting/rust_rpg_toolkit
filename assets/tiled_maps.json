@@ -37,5 +37,44 @@
         "texture_id": "items"
       }
     ]
+  },
+  {
+    "path": "maps/tiled_maps/chapter_01_map_02.json",
+    "export_path": "maps/chapter_01_map_02.json",
+    "collisions": [
+      {
+        "layer_id": "barriers_2",
+        "kind": "barrier"
+      },
+      {
+        "layer_id": "barriers_1",
+        "kind": "barrier"
+      },
+      {
+        "layer_id": "solids_2",
+        "kind": "solid"
+      },
+      {
+        "layer_id": "solids_1",
+        "kind": "solid"
+      }
+    ],
+    "tilesets": [
+      {
+        "name": "neo_zero_tiles",
+        "relative_texture_path": "../../textures/neo_zero_tiles.png",
+        "texture_id": "tiles"
+      },
+      {
+        "name": "neo_zero_props",
+        "relative_texture_path": "../../textures/neo_zero_props.png",
+        "texture_id": "props"
+      },
+      {
+        "name": "items",
+        "relative_texture_path": "../../textures/items.png",
+        "texture_id": "items"
+      }
+    ]
   }
 ]

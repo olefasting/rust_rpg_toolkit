@@ -59,6 +59,13 @@ pub struct Chapter {
 }
 
 #[derive(Debug, Clone)]
+pub struct CurrentChapter {
+    pub chapter_index: usize,
+    pub chapter: Chapter,
+    pub current_map_id: String,
+}
+
+#[derive(Debug, Clone)]
 pub struct Scenario {
     pub chapters: Vec<Chapter>,
 }

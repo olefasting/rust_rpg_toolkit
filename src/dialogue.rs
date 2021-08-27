@@ -2,6 +2,7 @@ use macroquad::{
     experimental::{
         collections::storage,
     },
+    prelude::*,
 };
 
 use serde::{
@@ -9,10 +10,11 @@ use serde::{
     Deserialize,
 };
 
-use crate::Resources;
+use crate::{Resources, load_map};
 
-use crate::nodes::Actor;
+use crate::nodes::{Actor, GameState};
 use crate::missions::Mission;
+use crate::scenario::CurrentChapter;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
@@ -28,12 +30,16 @@ pub enum DialogueRequirement {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum DialogueAction {
-    // #[serde(rename = "open_trade")]
-    // OpenTrade,
+    #[serde(rename = "open_trade")]
+    OpenTrade,
     #[serde(rename = "start_mission")]
     StartMission { mission_id: String },
     #[serde(rename = "complete_mission")]
     CompleteMission { mission_id: String },
+    #[serde(rename = "map_transition")]
+    MapTransition { map_id: String },
+    #[serde(rename = "complete_chapter")]
+    CompleteChapter,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -55,6 +61,8 @@ pub struct Dialogue {
     pub action: Option<DialogueAction>,
     #[serde(skip)]
     pub actor_name: String,
+    #[serde(skip)]
+    pub should_apply: bool,
 }
 
 impl Dialogue {
@@ -112,6 +120,7 @@ impl Dialogue {
         if let Some(action) = self.action.clone() {
             let resources = storage::get::<Resources>();
             match action {
+                DialogueAction::OpenTrade => { todo!() },
                 DialogueAction::CompleteMission { mission_id } => {
                     actor.active_missions = actor.active_missions
                         .clone()
@@ -130,7 +139,13 @@ impl Dialogue {
                 DialogueAction::StartMission { mission_id } => {
                     let params = resources.missions.get(&mission_id).cloned().unwrap();
                     actor.active_missions.push(Mission::new(params));
-                }
+                },
+                DialogueAction::MapTransition { map_id } => {
+                    let mut game_state = scene::find_node_by_type::<GameState>().unwrap();
+                    game_state.transition_to_map = Some(map_id);
+                    actor.current_dialogue = None;
+                },
+                DialogueAction::CompleteChapter => todo!(),
             }
         }
     }
@@ -148,6 +163,7 @@ impl Default for Dialogue {
             requirements: Vec::new(),
             exclusions: Vec::new(),
             action: None,
+            should_apply: false,
         }
     }
 }

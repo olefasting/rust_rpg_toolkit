@@ -5,7 +5,7 @@ Actor dialogue can be defined by editing `assets/dialogue.json` and added to an 
 Every entry in the dialogue definition file needs to have an `id`. Except for that, all other fields are optional. It doesn't make much sense to leave out `title`, `body` and `response`, however, unless you are defining a root dialogue (these root options are also the reason why many fields are left optional).
 
 ```rust
-struct ActorDialogue {
+struct Dialogue {
     pub id: String,
     #[serde(default)]
     pub title: String,
@@ -21,8 +21,6 @@ struct ActorDialogue {
     pub exclusions: Vec<ActorDialogueRequirement>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub action: Option<ActorDialogueAction>,
-    #[serde(skip)]
-    pub actor_name: String,
 }
 ```
 
@@ -32,13 +30,11 @@ Both these fields are `Vec<String>`, with every contained `String` representing 
 
 In the `options` field we define available responses by referencing the `id` of other dialogue entries.
 
-The `actor_name` field is set and used internally to display the name of the actor holding the dialogue, in the dialogue window, and can not be set in the `dialogue.json` file.
-
 The `requirements` field holds a set of requirements that must be met for this option to show up in the list of available options. The options in `ActorDialogueRequirements` are self-explanatory:
 
 ```rust
 #[serde(tag = "type")]
-enum ActorDialogueRequirement {
+enum DialogueRequirement {
     #[serde(rename = "active_mission")]
     ActiveMission { mission_id: String },
     #[serde(rename = "completed_mission")]
@@ -54,12 +50,16 @@ In the `action` field we define an optional action that will be applied on the `
 
 ```rust
 #[serde(tag = "type")]
-enum ActorDialogueAction {
+enum DialogueAction {
+    #[serde(rename = "open_trade")]
+    OpenTrade,
     #[serde(rename = "start_mission")]
     StartMission { mission_id: String },
     #[serde(rename = "complete_mission")]
     CompleteMission { mission_id: String },
+    #[serde(rename = "map_transition")]
+    MapTransition { map_id: String },
+    #[serde(rename = "complete_chapter")]
+    CompleteChapter,
 }
 ```
-
-Currently, this is limited to starting and completing a mission but more, like open trade, give item, take item, will be added as we go.

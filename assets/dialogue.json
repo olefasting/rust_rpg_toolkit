@@ -92,7 +92,8 @@
     "body": [],
     "options": [
       "dialogue_scared_woman_kill_thugs",
-      "dialogue_scared_woman_killed_thugs"
+      "dialogue_scared_woman_killed_thugs",
+      "dialogue_scared_woman_next_map"
     ]
   },
   {
@@ -166,6 +167,26 @@
     "action": {
       "type": "complete_mission",
       "mission_id": "mission_kill_thugs_get_reward"
+    }
+  },
+  {
+    "id": "dialogue_scared_woman_next_map",
+    "title": "What now?",
+    "body": [
+      "What do I do now...?"
+    ],
+    "response": [
+      "I can send you to the next map, if you want...!"
+    ],
+    "requirements": [
+      {
+        "type": "completed_mission",
+        "mission_id": "mission_kill_thugs_get_reward"
+      }
+    ],
+    "action": {
+      "type": "map_transition",
+      "map_id": "chapter_01_map_02"
     }
   }
 ]

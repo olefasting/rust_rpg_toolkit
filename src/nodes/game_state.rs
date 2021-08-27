@@ -39,6 +39,7 @@ pub struct GameState {
     pub show_inventory_window: bool,
     pub show_game_menu: bool,
     pub in_debug_mode: bool,
+    pub transition_to_map: Option<String>,
     pub should_quit: bool,
 }
 
@@ -126,6 +127,7 @@ impl GameState {
             show_inventory_window: false,
             show_game_menu: false,
             in_debug_mode: false,
+            transition_to_map: None,
             should_quit: false,
         }
     }

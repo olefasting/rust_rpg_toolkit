@@ -10,6 +10,12 @@
           "title": "First Map",
           "description": "First Map description",
           "path": "maps/chapter_01_map_01.json"
+        },
+        {
+          "id": "chapter_01_map_02",
+          "title": "Second Map",
+          "description": "Second Map description",
+          "path": "maps/chapter_01_map_02.json"
         }
       ]
     }
