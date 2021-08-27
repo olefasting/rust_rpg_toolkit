@@ -36,7 +36,7 @@ A lot of RPG mechanics are also currently missing, like level up's, skills and f
 
 ## Example
 
-You should depend on [macroquad](https://github.com/not-fl3/macroquad), as well as my library, then a main like this.
+You should depend on [macroquad](https://github.com/not-fl3/macroquad), as well as my library, then create a main like this.
 Remember to copy dependencies from the `Cargo.toml` in this library, as it uses some patched versions of the library.
 
 ```rust
