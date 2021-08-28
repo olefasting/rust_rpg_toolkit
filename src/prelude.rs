@@ -4,6 +4,7 @@ pub use std::{
 };
 
 pub use macroquad::{
+    self,
     experimental::{
         collections::storage,
         scene::{
