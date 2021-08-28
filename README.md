@@ -47,13 +47,6 @@ use rust_rpg_toolkit::prelude::*;
 // Used when determining whether module dependencies on game version are met
 const GAME_VERSION: &'static str = "0.1.0";
 
-// All paths are relative to project root
-const CONFIG_PATH: &'static str = "config.json";
-const ASSETS_PATH: &'static str = "assets";
-const MODULES_PATH: &'static str = "modules";
-const CHARACTERS_PATH: &'static str = "characters";
-const SAVES_PATH: &'static str = "save_games";
-
 fn window_conf() -> Conf {
     let config = Config::load(CONFIG_PATH);
     storage::store(config.clone());
@@ -72,10 +65,7 @@ fn window_conf() -> Conf {
 async fn main() {
     let params = GameParams {
         game_version: GAME_VERSION.to_string(),
-        assets_path: ASSETS_PATH.to_string(),
-        modules_path: MODULES_PATH.to_string(),
-        characters_path: CHARACTERS_PATH.to_string(),
-        saves_path: SAVES_PATH.to_string()
+        ..Default::default()
     };
 
     run_game(params).await;
