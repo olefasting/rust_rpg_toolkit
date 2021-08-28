@@ -1,6 +1,5 @@
 use std::{
     fs,
-    io,
 };
 
 use crate::{
@@ -165,10 +164,8 @@ pub async fn run_game(params: GameParams) {
                 chapter_index,
                 map_id,
             }),
-        MainMenuResult::LoadGame(save_game) =>
-            scene_transition = None,
-        MainMenuResult::Quit =>
-            scene_transition = None,
+        MainMenuResult::LoadGame(_save_game) => {}
+        MainMenuResult::Quit => {}
     };
 
     loop {

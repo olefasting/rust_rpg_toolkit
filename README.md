@@ -33,8 +33,7 @@ This is a work in progress but current features include (not an exhaustive list 
 - Controller support (needs polishing)
 - WebAssembly support (some features are not implemented yet for WASM, awaiting a decision on how to handle persistent user data)
 
-Loading of save games and creating new games using an exported character, will be implemented in the coming days. The same goes for chapter transitions. Aside from this, entire games can be created by just editing JSON files. After depending on this repo, call `rust_rpg_toolkit::run_game(game_version)` from a macroquad main loop to get started.
-A lot of RPG mechanics are also currently missing, like level up's, skills and feats. This will also be added in the very near future...
+Currently, you can create a new game, using a new character (not very interactive, just uses a prototype) or an exported character. Loading of save games is not possible yet but it is on the top of the list of priorities...
 
 ## Example
 

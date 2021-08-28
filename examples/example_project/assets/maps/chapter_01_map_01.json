@@ -140086,8 +140086,8 @@
             "y": 4.0
           },
           "properties": {
-            "intensity": "0.1",
-            "color": "#ffff0000"
+            "color": "#ffff0000",
+            "intensity": "0.1"
           }
         }
       ],
@@ -140185,8 +140185,8 @@
             "y": 844.5
           },
           "properties": {
-            "prototype_id": "scared_woman",
-            "instance_id": "scared_woman"
+            "instance_id": "scared_woman",
+            "prototype_id": "scared_woman"
           }
         },
         {
@@ -140223,24 +140223,6 @@
   ],
   "tilesets": [
     {
-      "id": "neo_zero_props",
-      "texture_id": "props",
-      "texture_size": {
-        "x": 160,
-        "y": 160
-      },
-      "tile_size": {
-        "x": 16,
-        "y": 16
-      },
-      "grid_size": {
-        "x": 10,
-        "y": 10
-      },
-      "first_tile_id": 401,
-      "tile_cnt": 100
-    },
-    {
       "id": "neo_zero_tiles",
       "texture_id": "tiles",
       "texture_size": {
@@ -140257,6 +140239,24 @@
       },
       "first_tile_id": 1,
       "tile_cnt": 400
+    },
+    {
+      "id": "neo_zero_props",
+      "texture_id": "props",
+      "texture_size": {
+        "x": 160,
+        "y": 160
+      },
+      "tile_size": {
+        "x": 16,
+        "y": 16
+      },
+      "grid_size": {
+        "x": 10,
+        "y": 10
+      },
+      "first_tile_id": 401,
+      "tile_cnt": 100
     },
     {
       "id": "items",
