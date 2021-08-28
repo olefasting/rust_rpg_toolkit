@@ -17,30 +17,26 @@ pub struct GameState {
 }
 
 impl GameState {
-    pub fn new(map: Map, local_player_id: &str) -> GameState {
+    pub fn new(player: ExportedCharacter, map: Map) -> GameState {
+        let local_player_id = generate_id();
+
         let resources = storage::get::<Resources>();
         if let Some(layer) = map.layers.get("spawn_points") {
             for object in &layer.objects {
                 if object.name == "player" {
-                    let params = resources.actors.get("player").cloned().unwrap();
-                    let mut player = Actor::new(
-                        true,
-                        ActorControllerKind::local_player(local_player_id),
-                        ActorParams {
-                            id: generate_id(),
-                            name: "Abraxas".to_string(),
-                            position: Some(object.position),
-                            ..params
-                        }
+                    let mut actor = Actor::from_export(
+                        object.position,
+                        ActorControllerKind::local_player(&local_player_id),
+                        player.clone(),
                     );
-                    player.stats.recalculate_derived();
-                    player.stats.restore_vitals();
-                    scene::add_node(player);
+                    actor.stats.recalculate_derived();
+                    actor.stats.restore_vitals();
+                    scene::add_node(actor);
                 } else if let Some(prototype_id) = object.properties.get("prototype_id") {
                     let params = resources.actors.get(prototype_id).cloned()
                         .expect(&format!("Unable to find actor with prototype id '{}'", prototype_id));
                     let instance_id = object.properties.get("instance_id").cloned();
-                    let mut actor = Actor::new(true, ActorControllerKind::Computer, ActorParams {
+                    let mut actor = Actor::new( ActorControllerKind::Computer, ActorParams {
                         id: instance_id.unwrap_or(generate_id()),
                         position: Some(object.position),
                         ..params
@@ -110,17 +106,17 @@ impl GameState {
         }
     }
 
-    pub fn add_node(map: Map, local_player_id: &str) -> Handle<Self> {
-        scene::add_node(Self::new(map, local_player_id))
+    pub fn add_node(player: ExportedCharacter, map: Map) -> Handle<Self> {
+        scene::add_node(Self::new(player, map))
     }
 
     pub fn save_game(&self) {
-        let name = {
+        let filename = {
             let player = Actor::find_by_player_id(&self.local_player_id).unwrap();
             let time_stamp = chrono::Utc::now();
             format!("{} {}.json", player.name, time_stamp.to_rfc2822())
         };
-        SaveGame::save_scene_to_file(&name, self);
+        SaveGame::save_scene_to_file(&filename, self);
     }
 
     #[cfg(any(target_family = "unix", target_family = "windows"))]

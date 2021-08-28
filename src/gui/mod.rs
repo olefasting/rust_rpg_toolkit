@@ -19,7 +19,6 @@ mod dialogue;
 mod game_menu;
 
 pub mod skins;
-pub mod chapter_select;
 pub mod main_menu;
 
 use game_menu::draw_game_menu;
@@ -27,7 +26,10 @@ use dialogue::draw_dialogue_window;
 use inventory::draw_inventory_window;
 use character::draw_character_window;
 
-pub use chapter_select::draw_chapter_select;
+pub use main_menu::{
+    draw_main_menu,
+    MainMenuResult,
+};
 
 pub fn draw_gui() {
     let gui_skins = storage::get::<GuiSkins>();

@@ -11,7 +11,7 @@ const MODULES_PATH: &'static str = "examples/example_project/modules";
 const CHARACTERS_PATH: &'static str = "examples/example_project/characters";
 const SAVES_PATH: &'static str = "examples/example_project/save_games";
 
-fn window_conf() -> Conf {
+pub fn window_conf() -> Conf {
     let config = Config::load(CONFIG_PATH);
     storage::store(config.clone());
 

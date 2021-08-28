@@ -73,13 +73,18 @@ impl Inventory {
         }
     }
 
-    pub fn from_save_game(params: &InventoryParams) -> Self {
-        let resources = storage::get::<Resources>();
+    pub fn from_saved(params: &InventoryParams, item_params: &[ItemParams]) -> Self {
+        let mut items = Vec::new();
+        for entry in params.items.clone() {
+            if let Some(params) = item_params.into_iter().find(|item| item.id == entry) {
+                items.push(InventoryEntry {
+                    params: params.clone(),
+                    equipped_to: EquipmentSlot::None
+                });
+            }
+        }
         Inventory {
-            items: params.items.clone().into_iter().map(|id| {
-                let params = resources.items.get(&id).cloned().unwrap();
-                InventoryEntry::new(params)
-            }).collect(),
+            items,
             credits: params.credits,
         }
     }

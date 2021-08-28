@@ -1,6 +1,6 @@
 [
   {
-    "id": "player",
+    "id": "new_character_prototype",
     "name": "Unnamed Player",
     "can_level_up": true,
     "factions": [
@@ -8,13 +8,13 @@
       "bystanders",
       "guards"
     ],
-    "strength": 12,
-    "dexterity": 12,
-    "constitution": 12,
-    "intelligence": 12,
-    "willpower": 12,
-    "perception": 12,
-    "charisma": 12,
+    "strength": 8,
+    "dexterity": 8,
+    "constitution": 8,
+    "intelligence": 8,
+    "willpower": 8,
+    "perception": 8,
+    "charisma": 8,
     "items": [
       "pistol",
       "sub_machine_gun",

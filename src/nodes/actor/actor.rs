@@ -84,6 +84,40 @@ impl Into<ActorStats> for ActorParams {
     }
 }
 
+impl Into<ExportedCharacter> for ActorParams {
+    fn into(self) -> ExportedCharacter {
+        let game_params = storage::get::<GameParams>();
+        let resources = storage::get::<Resources>();
+        let mut item_ids = Vec::new();
+        let mut items = Vec::new();
+
+        for entry in self.inventory.items {
+            let id = generate_id();
+            let params = resources.items.get(&entry).cloned().unwrap();
+            items.push(ItemParams {
+                id: id.clone(),
+                ..params
+            });
+            item_ids.push(id);
+        }
+
+        ExportedCharacter {
+            game_version: game_params.game_version.clone(),
+            actor: ActorParams {
+                id: generate_id(),
+                inventory: InventoryParams {
+                    items: item_ids,
+                    credits: self.inventory.credits,
+                },
+                ..self
+            },
+            items,
+            active_missions: Vec::new(),
+            completed_missions: Vec::new(),
+        }
+    }
+}
+
 #[derive(Clone)]
 pub struct Actor {
     pub id: String,
@@ -126,7 +160,7 @@ impl Actor {
     const PICK_UP_RADIUS: f32 = 36.0;
     const INTERACT_RADIUS: f32 = 36.0;
 
-    pub fn new(is_from_prototype: bool, controller_kind: ActorControllerKind, params: ActorParams) -> Self {
+    pub fn new(controller_kind: ActorControllerKind, params: ActorParams) -> Self {
         let position = params.position.unwrap_or_default();
         let dialogue = if let Some(dialogue_id) = params.dialogue_id.clone() {
             let resources = storage::get::<Resources>();
@@ -137,11 +171,7 @@ impl Actor {
             None
         };
 
-        let inventory = if is_from_prototype {
-            Inventory::from_prototypes(&params.inventory)
-        } else {
-            Inventory::from_save_game(&params.inventory)
-        };
+        let inventory = Inventory::from_prototypes(&params.inventory);
 
         Actor {
             id: params.id.clone(),
@@ -170,8 +200,8 @@ impl Actor {
         }
     }
 
-    pub fn add_node(is_from_prototype: bool, controller_kind: ActorControllerKind, params: ActorParams) -> Handle<Self> {
-        scene::add_node(Self::new(is_from_prototype, controller_kind, params))
+    pub fn add_node(controller_kind: ActorControllerKind, params: ActorParams) -> Handle<Self> {
+        scene::add_node(Self::new(controller_kind, params))
     }
 
     pub fn to_save(&self) -> ActorParams {
@@ -207,6 +237,57 @@ impl Actor {
         }
     }
 
+    pub fn from_export(position: Vec2, controller_kind: ActorControllerKind, export: ExportedCharacter) -> Self {
+        let resources = storage::get::<Resources>();
+
+        let active_missions = export.active_missions
+            .into_iter()
+            .map(|mission_id| {
+                let params = resources.missions.get(&mission_id).cloned().unwrap();
+                Mission::new(params)
+            })
+            .collect();
+
+        let completed_missions = export.completed_missions
+            .into_iter()
+            .map(|mission_id| {
+                let params = resources.missions.get(&mission_id).cloned().unwrap();
+                Mission::new(params)
+            })
+            .collect();
+
+        let body = PhysicsBody::new(position, 0.0, export.actor.collider);
+
+        let dialogue = if let Some(dialogue_id) = &export.actor.dialogue_id {
+            resources.dialogue.get(dialogue_id).cloned()
+        } else {
+            None
+        };
+
+        Actor {
+            id: export.actor.id.clone(),
+            name: export.actor.name.clone(),
+            active_missions,
+            completed_missions,
+            noise_level: NoiseLevel::None,
+            behavior: ActorBehavior::new(export.actor.behavior.clone()),
+            stats: export.actor.clone().into(),
+            factions: export.actor.factions,
+            body,
+            inventory: Inventory::from_saved(&export.actor.inventory, &export.items),
+            equipped_items: export.actor.equipped_items,
+            primary_ability: None,
+            secondary_ability: None,
+            controller: ActorController::new(controller_kind),
+            experience: export.actor.experience,
+            dialogue,
+            current_dialogue: None,
+            animation_player: SpriteAnimationPlayer::new(export.actor.animation_player),
+            noise_level_timer: 0.0,
+            can_level_up: export.actor.can_level_up
+        }
+    }
+
     pub fn to_export(&self) -> ExportedCharacter {
         let game_params = storage::get::<GameParams>();
         let actor = self.to_save();
@@ -215,10 +296,22 @@ impl Actor {
             .map(|entry| entry.params.clone())
             .collect();
 
+        let active_missions = self.active_missions
+            .iter()
+            .map(|mission| mission.id.clone())
+            .collect();
+
+        let completed_missions = self.completed_missions
+            .iter()
+            .map(|mission| mission.id.clone())
+            .collect();
+
         ExportedCharacter {
             game_version: game_params.game_version.clone(),
             actor,
             items,
+            active_missions,
+            completed_missions,
         }
     }
 

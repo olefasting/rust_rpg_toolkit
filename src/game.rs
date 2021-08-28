@@ -1,15 +1,16 @@
+use std::{
+    fs,
+    io,
+};
+
 use crate::{
+    gui::MainMenuResult,
     modules::load_modules,
     map::TiledMapDeclaration,
     prelude::*,
 };
 
-pub struct MapTransition {
-    pub next_map_id: Option<String>,
-    pub next_chapter: bool,
-}
-
-pub fn load_map(local_player_id: &str, chapter: usize, map_id: &str) {
+pub fn load_map(player: ExportedCharacter, chapter: usize, map_id: &str) {
     let scenario = storage::get::<Scenario>();
     let chapter_data = scenario.chapters.get(chapter)
         .cloned()
@@ -26,7 +27,7 @@ pub fn load_map(local_player_id: &str, chapter: usize, map_id: &str) {
 
     storage::store(current_chapter);
 
-    GameState::add_node(map_data.map, &local_player_id);
+    GameState::add_node(player, map_data.map);
     Camera::add_node();
     DrawBuffer::<Item>::add_node();
     DrawBuffer::<Credits>::add_node();
@@ -37,7 +38,13 @@ pub fn load_map(local_player_id: &str, chapter: usize, map_id: &str) {
     Hud::add_node();
 }
 
-async fn game_loop() -> Option<String> {
+struct SceneTransition {
+    pub player: ExportedCharacter,
+    pub chapter_index: usize,
+    pub map_id: String,
+}
+
+async fn game_loop() -> Option<SceneTransition> {
     loop {
         gui::draw_gui();
         update_input();
@@ -55,7 +62,13 @@ async fn game_loop() -> Option<String> {
                 break;
             }
             if let Some(map_id) = game_state.transition_to_map.clone() {
-                return Some(map_id);
+                let player = Actor::find_by_player_id(&game_state.local_player_id).unwrap();
+                let current_chapter = storage::get::<CurrentChapter>();
+                return Some(SceneTransition {
+                    player: player.to_export(),
+                    chapter_index: current_chapter.chapter_index,
+                    map_id,
+                });
             }
         }
 
@@ -65,12 +78,14 @@ async fn game_loop() -> Option<String> {
     return None;
 }
 
+#[derive(Debug, Clone)]
 pub struct GameParams {
     pub game_version: String,
     pub assets_path: String,
     pub modules_path: String,
     pub characters_path: String,
     pub saves_path: String,
+    pub new_character_prototype_id: String,
 }
 
 impl Default for GameParams {
@@ -81,14 +96,30 @@ impl Default for GameParams {
             modules_path: "modules".to_string(),
             characters_path: "characters".to_string(),
             saves_path: "save_games".to_string(),
+            new_character_prototype_id: "new_character_prototype".to_string(),
         }
     }
 }
 
+#[cfg(any(target_family = "unix", target_family = "windows"))]
+fn init_environment(params: &GameParams) {
+    fs::create_dir_all(&params.characters_path)
+        .expect(&format!("Unable to create characters directory '{}'!", params.characters_path));
+    fs::create_dir_all(&params.saves_path)
+        .expect(&format!("Unable to create save games directory '{}'!", params.saves_path));
+}
+
+#[cfg(any(target_family = "wasm"))]
+fn init_environment(params: &GameParams) {
+    todo!("Implement for WASM");
+}
+
 pub async fn run_game(params: GameParams) {
+    init_environment(&params);
+
     let local_player_id = generate_id();
     map_gamepad(&local_player_id);
-    storage::store(params);
+    storage::store(params.clone());
     {
         let config = storage::get::<Config>();
         storage::store(GuiSkins::new(config.gui_scale));
@@ -114,17 +145,43 @@ pub async fn run_game(params: GameParams) {
         storage::store(scenario);
     }
 
-
-    let (chapter_i, map_id) = gui::draw_chapter_select().await;
-    let mut next_map_id = Some(map_id);
+    let mut scene_transition = None;
+    match gui::draw_main_menu(&params).await {
+        MainMenuResult::NewCharacter(character) => {
+            let scenario = storage::get::<Scenario>();
+            let map_id = scenario.chapters
+                .first()
+                .map(|chapter| chapter.initial_map_id.clone())
+                .unwrap();
+            scene_transition = Some(SceneTransition {
+                player: character,
+                chapter_index: 0,
+                map_id,
+            });
+        }
+        MainMenuResult::ImportedCharacter(character, chapter_index, map_id) =>
+            scene_transition = Some(SceneTransition {
+                player: character,
+                chapter_index,
+                map_id,
+            }),
+        MainMenuResult::LoadGame(save_game) =>
+            scene_transition = None,
+        MainMenuResult::Quit =>
+            scene_transition = None,
+    };
 
     loop {
-        load_map(&local_player_id, chapter_i, &next_map_id.unwrap());
-        next_map_id = game_loop().await;
+        {
+            let scene_transition = scene_transition.unwrap();
+            load_map(scene_transition.player, scene_transition.chapter_index, &scene_transition.map_id);
+        }
+
+        scene_transition = game_loop().await;
 
         scene::clear();
 
-        if next_map_id.is_none() {
+        if scene_transition.is_none() {
             break;
         }
     }
