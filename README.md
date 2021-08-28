@@ -30,6 +30,7 @@ This is a work in progress but current features include (not an exhaustive list 
 - Create maps either by writing them in JSON, manually, or by importing and converting Tiled maps
 - Scriptable dialogue system (see [assets/dialogue.json](https://github.com/olefasting/capstone/blob/master/assets/dialogue.json))
 - Scriptable mission and reward system (see [assets/dialogue.json](https://github.com/olefasting/capstone/blob/master/assets/missions.json))
+- Controller support (needs polishing)
 
 Loading of save games and creating new games using an exported character, will be implemented in the coming days. The same goes for chapter transitions. Aside from this, entire games can be created by just editing JSON files. After depending on this repo, call `rust_rpg_toolkit::run_game(game_version)` from a macroquad main loop to get started.
 A lot of RPG mechanics are also currently missing, like level up's, skills and feats. This will also be added in the very near future...
