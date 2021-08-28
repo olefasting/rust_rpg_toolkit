@@ -1,7 +1,3 @@
-use std::{
-    ops::Sub,
-};
-
 use crate::prelude::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -214,7 +210,7 @@ impl Actor {
     pub fn to_export(&self) -> ExportedCharacter {
         let game_params = storage::get::<GameParams>();
         let actor = self.to_save();
-        let mut items = self.inventory.items
+        let items = self.inventory.items
             .iter()
             .map(|entry| entry.params.clone())
             .collect();
@@ -586,7 +582,7 @@ impl BufferedDraw for Actor {
 }
 
 impl Node for Actor {
-    fn ready(mut node: RefMut<Self>) {
+    fn ready(node: RefMut<Self>) {
         let mut draw_buffer = scene::find_node_by_type::<DrawBuffer<Self>>().unwrap();
         draw_buffer.buffered.push(node.handle());
 

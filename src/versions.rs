@@ -51,7 +51,7 @@ pub fn check_version_requirement(required_version: &str, version: &str) -> bool 
     let up_to_or_regex: Regex = Regex::new(r"^\^").unwrap();
     let no_patch_regex: Regex = Regex::new(r"^\d+.\d+$").unwrap();
 
-    let (is_up_to_or, required_version) = if let Some(res) = up_to_or_regex.find(required_version) {
+    let (_is_up_to_or, required_version) = if let Some(res) = up_to_or_regex.find(required_version) {
         (true, &required_version[res.end()..required_version.len()])
     } else {
         (false, required_version)

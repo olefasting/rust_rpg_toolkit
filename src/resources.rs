@@ -1,20 +1,9 @@
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use crate::prelude::*;
 
-use crate::{
-    render::{
-        LINEAR_FILTER_MODE,
-        NEAREST_FILTER_MODE,
-    },
-    prelude::*,
+use crate::render::{
+    NEAREST_FILTER_MODE,
+    LINEAR_FILTER_MODE,
 };
-
-use crate::modules::load_modules;
-use crate::dialogue::Dialogue;
-use crate::map::{TiledMapDeclaration, Map};
-use crate::scenario::Scenario;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MaterialInfo {
@@ -132,34 +121,34 @@ impl Resources {
         let bytes = load_file(&actors_file_path).await?;
         let actor_data: Vec<ActorParams> = serde_json::from_slice(&bytes)
             .expect(&format!("Error when parsing actors file '{}'!", &actors_file_path));
-        let mut actors = HashMap::from_iter(
+        let actors = HashMap::from_iter(
             actor_data.into_iter().map(|params| (params.id.clone(), params)));
 
         let bytes = load_file(&items_file_path).await?;
         let items_data: Vec<ItemParams> = serde_json::from_slice(&bytes)
             .expect(&format!("Error when parsing items file '{}'!", items_file_path));
-        let mut items = HashMap::from_iter(
+        let items = HashMap::from_iter(
             items_data.into_iter().map(|params| (params.id.clone(), params)));
 
         let bytes = load_file(&missions_file_path).await?;
         let missions_data: Vec<MissionParams> = serde_json::from_slice(&bytes)
             .expect(&format!("Error when parsing missions file '{}'!", &missions_file_path));
-        let mut missions = HashMap::from_iter(
+        let missions = HashMap::from_iter(
             missions_data.into_iter().map(|mission| (mission.id.clone(), mission)));
 
         let bytes = load_file(&dialogue_file_path).await?;
         let dialogue_data: Vec<Dialogue> = serde_json::from_slice(&bytes)
             .expect(&format!("Error when parsing dialogue file '{}'!", &dialogue_file_path));
-        let mut dialogue = HashMap::from_iter(
+        let dialogue = HashMap::from_iter(
             dialogue_data.into_iter().map(|dialogue| (dialogue.id.clone(), dialogue)));
 
         let bytes = load_file(&abilities_file_path).await?;
         let ability_data: Vec<AbilityParams> = serde_json::from_slice(&bytes)
             .expect(&format!("Error when parsing dialogue file '{}'!", &abilities_file_path));
-        let mut abilities = HashMap::from_iter(
+        let abilities = HashMap::from_iter(
             ability_data.into_iter().map(|ability| (ability.id.clone(), ability)));
 
-        let mut resources = Resources {
+        let resources = Resources {
             materials,
             textures,
             sound_effects,

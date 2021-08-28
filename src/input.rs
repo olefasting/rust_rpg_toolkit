@@ -23,11 +23,6 @@ use crate::{
     prelude::*,
 };
 
-const GAMEPAD_TARGET_SCREEN_PADDING: f32 = 10.0;
-const GAMEPAD_TARGET_MOVE_SPEED: f32 = 400.0;
-
-pub const MAX_MAPPED_ABILITIES: usize = 6;
-
 static mut INPUT_CONTEXT: StaticWrapper<InputContext> = StaticWrapper {
     data: None,
 };
@@ -40,7 +35,7 @@ struct InputContext {
 }
 
 fn get_input_context() -> &'static mut InputContext {
-    let mut wrapper = unsafe { &mut INPUT_CONTEXT };
+    let wrapper = unsafe { &mut INPUT_CONTEXT };
     if wrapper.is_initiated() == false {
         let context = InputContext {
             gilrs: Gilrs::new().unwrap(),
@@ -49,7 +44,7 @@ fn get_input_context() -> &'static mut InputContext {
         };
         wrapper.init(context)
     }
-    wrapper.data.as_mut().unwrap()
+    wrapper.get_data()
 }
 
 fn is_mapped(gamepad_id: GamepadId) -> bool {
@@ -94,7 +89,6 @@ pub fn apply_input(player_id: &str, node: &mut RefMut<Actor>) {
 
     node.controller.should_use_primary_ability = false;
     node.controller.should_use_secondary_ability = false;
-    node.controller.should_use_mapped_ability = [false; MAX_MAPPED_ABILITIES];
     node.controller.move_direction = Vec2::ZERO;
     node.controller.should_start_interaction = false;
     node.controller.should_pick_up_items = false;
@@ -103,7 +97,7 @@ pub fn apply_input(player_id: &str, node: &mut RefMut<Actor>) {
     if let Some(gamepad_id) = get_gamepad_id(player_id) {
         for event in InputEventIterator::new(gamepad_id) {
             match event {
-                EventType::ButtonChanged(button, value, code) => {
+                EventType::ButtonChanged(button, value, _code) => {
                     match button {
                         Button::South => {},
                         Button::East => {
@@ -159,7 +153,7 @@ pub fn apply_input(player_id: &str, node: &mut RefMut<Actor>) {
                         Button::Unknown => {},
                     }
                 }
-                EventType::AxisChanged(axis, value, code) => {
+                EventType::AxisChanged(axis, value, _code) => {
                     match axis {
                         Axis::LeftStickX => {
                             node.controller.move_direction.x = value;
@@ -294,7 +288,7 @@ pub fn apply_input(player_id: &str, node: &mut RefMut<Actor>) {
 }
 
 pub fn try_map_gamepad(player_id: &str) -> Option<GamepadId> {
-    let mut context = get_input_context();
+    let context = get_input_context();
     if let Some(gamepad_id) = get_gamepad_id(player_id) {
         return Some(gamepad_id);
     }
@@ -358,8 +352,8 @@ pub struct InputEventIterator<'a> {
 
 impl<'a> InputEventIterator<'a> {
     pub fn new(gamepad_id: GamepadId) -> Self {
-        let mut context = get_input_context();
-        let mut events_vec = context.events
+        let context = get_input_context();
+        let events_vec = context.events
             .get_mut(&gamepad_id);
         InputEventIterator {
             events_vec,
@@ -377,7 +371,7 @@ impl<'a> Iterator for InputEventIterator<'a> {
     type Item = EventType;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if let Some(mut events_vec) = self.events_vec.as_mut() {
+        if let Some(events_vec) = self.events_vec.as_mut() {
             return events_vec.pop();
         }
         None

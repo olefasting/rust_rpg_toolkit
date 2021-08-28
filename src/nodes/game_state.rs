@@ -18,8 +18,6 @@ pub struct GameState {
 
 impl GameState {
     pub fn new(map: Map, local_player_id: &str) -> GameState {
-        let gamepad_id = try_map_gamepad(local_player_id);
-
         let resources = storage::get::<Resources>();
         if let Some(layer) = map.layers.get("spawn_points") {
             for object in &layer.objects {

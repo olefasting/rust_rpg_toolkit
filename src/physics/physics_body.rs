@@ -1,27 +1,6 @@
-use macroquad::{
-    experimental::{
-    },
-    color,
-    prelude::*,
-};
+use crate::prelude::*;
 
-use crate::{
-    physics::{
-        ACTOR_TO_ACTOR_COLLISIONS,
-        Collider,
-        raycast,
-    },
-    nodes::{
-        Actor,
-        GameState,
-    },
-    render::{
-        draw_aligned_text,
-        HorizontalAlignment,
-    },
-    map::MapCollisionKind,
-};
-use crate::render::VerticalAlignment;
+use super::ACTOR_TO_ACTOR_COLLISIONS;
 
 #[derive(Clone)]
 pub struct PhysicsBody {

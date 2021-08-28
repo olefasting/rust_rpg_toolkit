@@ -1,15 +1,7 @@
-use macroquad::ui::{
-    Ui,
-    hash, root_ui,
-    widgets::{
-        self,
-        Group,
-    },
-};
-
+use crate::gui::prelude::*;
 use crate::prelude::*;
 
-fn draw_entry(ui: &mut Ui, scale: f32, player: &mut Actor, entry: &InventoryEntry) {
+fn draw_entry(ui: &mut Ui, _scale: f32, player: &mut Actor, entry: &InventoryEntry) {
     //Group::new(hash!(), vec2(270.0 * scale, 50.0 * scale)).ui(ui, |ui| {
     ui.label(None, &entry.params.name);
     if entry.equipped_to == EquipmentSlot::None {

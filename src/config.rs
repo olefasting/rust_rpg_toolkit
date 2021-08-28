@@ -1,18 +1,6 @@
 use std::fs;
 
-use macroquad::{
-    experimental::{
-        collections::storage,
-    },
-    prelude::*,
-};
-
-use serde::{
-    Serialize,
-    Deserialize,
-};
-
-use crate::json;
+use crate::prelude::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {

@@ -1,21 +1,5 @@
-use macroquad::{
-    ui::{
-        hash, root_ui,
-        widgets::{self},
-    },
-    experimental::{
-        scene::RefMut,
-        collections::storage,
-    },
-    prelude::*,
-};
-
-use crate::{
-    nodes::GameState,
-    save_games::SaveGame,
-};
-
-use super::GuiSkins;
+use crate::gui::prelude::*;
+use crate::prelude::*;
 
 pub fn draw_game_menu(game_state: &mut RefMut<GameState>) {
     let gui_skins = storage::get::<GuiSkins>();

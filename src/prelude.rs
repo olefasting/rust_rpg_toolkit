@@ -56,6 +56,7 @@ pub use crate::{
     physics::{
         Collider,
         PhysicsBody,
+        raycast,
     },
     inventory::{
         Inventory,

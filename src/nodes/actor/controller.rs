@@ -1,5 +1,4 @@
 use crate::{
-    input::MAX_MAPPED_ABILITIES,
     prelude::*,
 };
 
@@ -23,7 +22,6 @@ pub struct ActorController {
     pub kind: ActorControllerKind,
     pub should_use_primary_ability: bool,
     pub should_use_secondary_ability: bool,
-    pub should_use_mapped_ability: [bool; MAX_MAPPED_ABILITIES],
     pub move_direction: Vec2,
     pub aim_direction: Vec2,
     pub should_start_interaction: bool,
@@ -39,7 +37,6 @@ impl ActorController {
             kind,
             should_use_primary_ability: false,
             should_use_secondary_ability: false,
-            should_use_mapped_ability: [false; MAX_MAPPED_ABILITIES],
             move_direction: Vec2::ZERO,
             aim_direction: Vec2::ZERO,
             should_start_interaction: false,

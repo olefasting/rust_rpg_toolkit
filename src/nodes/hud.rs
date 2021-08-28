@@ -1,7 +1,5 @@
 use crate::prelude::*;
 
-const SHOW_TARGET_DISTANCE_THRESHOLD: f32 = 64.0;
-
 pub struct Hud {}
 
 impl Hud {
