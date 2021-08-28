@@ -126,7 +126,7 @@ impl Dialogue {
                 },
                 DialogueAction::MapTransition { map_id } => {
                     let mut game_state = scene::find_node_by_type::<GameState>().unwrap();
-                    game_state.transition_to_map = Some(map_id);
+                    game_state.scene_transition = Some(SceneTransitionParams::change_map(&map_id));
                     actor.current_dialogue = None;
                 },
                 DialogueAction::CompleteChapter => todo!(),

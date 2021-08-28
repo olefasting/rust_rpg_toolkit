@@ -49,6 +49,8 @@ pub use crate::{
         Chapter,
         ChapterParams,
         CurrentChapter,
+        SceneTransition,
+        SceneTransitionParams,
     },
     save_games::{
         SaveGame,

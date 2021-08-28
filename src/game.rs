@@ -37,12 +37,6 @@ pub fn load_map(player: ExportedCharacter, chapter: usize, map_id: &str) {
     Hud::add_node();
 }
 
-struct SceneTransition {
-    pub player: ExportedCharacter,
-    pub chapter_index: usize,
-    pub map_id: String,
-}
-
 async fn game_loop() -> Option<SceneTransition> {
     loop {
         gui::draw_gui();
@@ -60,14 +54,9 @@ async fn game_loop() -> Option<SceneTransition> {
             if game_state.should_quit {
                 break;
             }
-            if let Some(map_id) = game_state.transition_to_map.clone() {
+            if let Some(transition_params) = game_state.scene_transition.clone() {
                 let player = Actor::find_by_player_id(&game_state.local_player_id).unwrap();
-                let current_chapter = storage::get::<CurrentChapter>();
-                return Some(SceneTransition {
-                    player: player.to_export(),
-                    chapter_index: current_chapter.chapter_index,
-                    map_id,
-                });
+                return Some(SceneTransition::new(player.to_export(), transition_params));
             }
         }
 

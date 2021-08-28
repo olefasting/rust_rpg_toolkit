@@ -94,3 +94,36 @@ impl Scenario {
         Ok(params)
     }
 }
+
+#[derive(Debug, Clone)]
+pub struct SceneTransitionParams {
+    pub chapter_index: usize,
+    pub map_id: String,
+}
+
+impl SceneTransitionParams {
+    pub fn change_map(map_id: &str) -> Self {
+        let current_chapter = storage::get::<CurrentChapter>();
+        SceneTransitionParams {
+            chapter_index: current_chapter.chapter_index,
+            map_id: map_id.to_string(),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct SceneTransition {
+    pub player: ExportedCharacter,
+    pub chapter_index: usize,
+    pub map_id: String,
+}
+
+impl SceneTransition {
+    pub fn new(player: ExportedCharacter, params: SceneTransitionParams) -> Self {
+        SceneTransition {
+            player,
+            chapter_index: params.chapter_index,
+            map_id: params.map_id,
+        }
+    }
+}
