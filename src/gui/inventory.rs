@@ -1,5 +1,4 @@
-use crate::gui::prelude::*;
-use crate::prelude::*;
+use crate::gui::*;
 
 fn draw_entry(ui: &mut Ui, _scale: f32, player: &mut Actor, entry: &InventoryEntry) {
     //Group::new(hash!(), vec2(270.0 * scale, 50.0 * scale)).ui(ui, |ui| {

@@ -1,5 +1,4 @@
-use crate::gui::prelude::*;
-use crate::prelude::*;
+use crate::gui::*;
 
 pub fn draw_game_menu(game_state: &mut RefMut<GameState>) {
     let gui_skins = storage::get::<GuiSkins>();

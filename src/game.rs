@@ -87,7 +87,7 @@ impl Default for GameParams {
 
 pub async fn run_game(params: GameParams) {
     let local_player_id = generate_id();
-    try_map_gamepad(&local_player_id);
+    map_gamepad(&local_player_id);
     storage::store(params);
     {
         let config = storage::get::<Config>();
@@ -113,6 +113,7 @@ pub async fn run_game(params: GameParams) {
         let scenario = Scenario::new(scenario_params).await.unwrap();
         storage::store(scenario);
     }
+
 
     let (chapter_i, map_id) = gui::draw_chapter_select().await;
     let mut next_map_id = Some(map_id);

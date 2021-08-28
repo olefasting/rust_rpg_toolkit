@@ -1,14 +1,4 @@
-use macroquad::{
-    ui::{
-        hash, root_ui,
-        widgets::{self},
-    },
-    experimental::collections::storage,
-    prelude::*,
-};
-
-use crate::gui::skins::GuiSkins;
-use crate::scenario::Scenario;
+use crate::gui::*;
 
 pub async fn draw_chapter_select() -> (usize, String) {
     let gui_skins = storage::get::<GuiSkins>();

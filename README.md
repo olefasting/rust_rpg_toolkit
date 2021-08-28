@@ -22,14 +22,14 @@ Contributions are more than welcome. Feel free to create a PR or an issue.
 This is a work in progress but current features include (not an exhaustive list as we are adding features at a high pace):
 
 - User modules that can extend or replace the game's data and resources
-- Composable actors, from code or by JSON [assets/actors.json](https://github.com/olefasting/capstone/blob/master/assets/actors.json)
+- Composable actors, from code or by JSON [actors.json](https://github.com/olefasting/rust_rpg_toolkit/blob/master/examples/example_project/assets/actors.json)
 - Very basic AI behavior, with aggression levels that can be set on actor prototypes, through JSON or through code, that determine how they react to other actors of other factions. There are also visibility and noise levels, as factors determining how AI actors will react to their surroundings.
 - RPG mechanics, such as character stats and various abilities
-- Composable items, from code or by JSON [assets/items.json](https://github.com/olefasting/capstone/blob/master/assets/items.json), character inventory and more
-- Dynamic resource loading, so textures can be added by editing [assets/resources.json](https://github.com/olefasting/capstone/blob/master/assets/resources.json) and referenced by `texture_id` in actors and items, both in-code and in the corresponding json-files
+- Composable items, from code or by JSON [items.json](https://github.com/olefasting/rust_rpg_toolkit/blob/master/examples/example_project/assets/items.json), character inventory and more
+- Dynamic resource loading, so textures can be added by editing [resources.json](https://github.com/olefasting/rust_rpg_toolkit/blob/master/examples/example_project/assets/resources.json) and referenced by `texture_id` in actors and items, both in-code and in the corresponding json-files
 - Create maps either by writing them in JSON, manually, or by importing and converting Tiled maps
-- Scriptable dialogue system (see [assets/dialogue.json](https://github.com/olefasting/capstone/blob/master/assets/dialogue.json))
-- Scriptable mission and reward system (see [assets/dialogue.json](https://github.com/olefasting/capstone/blob/master/assets/missions.json))
+- Scriptable dialogue system (see [dialogue.json](https://github.com/olefasting/rust_rpg_toolkit/blob/master/examples/example_project/assets/dialogue.json))
+- Scriptable mission and reward system (see [missions.json](https://github.com/olefasting/rust_rpg_toolkit/blob/master/examples/example_project/assets/missions.json))
 - Controller support (needs polishing)
 - WebAssembly support (some features are not implemented yet for WASM, awaiting a decision on how to handle persistent user data)
 

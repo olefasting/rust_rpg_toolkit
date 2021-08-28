@@ -18,14 +18,15 @@ pub use gilrs::{
     Gamepad,
 };
 
-use crate::{
-    static_wrapper::StaticWrapper,
-    prelude::*,
+use crate::prelude::*;
+
+static mut INPUT_CONTEXT: StaticContext = StaticContext {
+    context: None,
 };
 
-static mut INPUT_CONTEXT: StaticWrapper<InputContext> = StaticWrapper {
-    data: None,
-};
+struct StaticContext {
+    pub context: Option<InputContext>,
+}
 
 #[derive(Debug)]
 struct InputContext {
@@ -36,15 +37,15 @@ struct InputContext {
 
 fn get_input_context() -> &'static mut InputContext {
     let wrapper = unsafe { &mut INPUT_CONTEXT };
-    if wrapper.is_initiated() == false {
+    if wrapper.context.is_none() {
         let context = InputContext {
             gilrs: Gilrs::new().unwrap(),
             mappings: HashMap::new(),
             events: HashMap::new(),
         };
-        wrapper.init(context)
+        wrapper.context = Some(context);
     }
-    wrapper.get_data()
+    wrapper.context.as_mut().unwrap()
 }
 
 fn is_mapped(gamepad_id: GamepadId) -> bool {
@@ -287,7 +288,7 @@ pub fn apply_input(player_id: &str, node: &mut RefMut<Actor>) {
     }
 }
 
-pub fn try_map_gamepad(player_id: &str) -> Option<GamepadId> {
+pub fn map_gamepad(player_id: &str) -> Option<GamepadId> {
     let context = get_input_context();
     if let Some(gamepad_id) = get_gamepad_id(player_id) {
         return Some(gamepad_id);
@@ -302,12 +303,7 @@ pub fn try_map_gamepad(player_id: &str) -> Option<GamepadId> {
     None
 }
 
-pub fn get_gamepad<'a>(gamepad_id: GamepadId) -> Gamepad<'a> {
-    let context = get_input_context();
-    context.gilrs.gamepad(gamepad_id)
-}
-
-pub fn get_gamepad_for<'a>(player_id: &str) -> Option<Gamepad<'a>> {
+pub fn get_mapped_gamepad<'a>(player_id: &str) -> Option<Gamepad<'a>> {
     let context = get_input_context();
     if let Some(gamepad_id) = context.mappings.get(player_id) {
         return Some(context.gilrs.gamepad(*gamepad_id));
@@ -315,7 +311,12 @@ pub fn get_gamepad_for<'a>(player_id: &str) -> Option<Gamepad<'a>> {
     None
 }
 
-pub fn get_player_id_for(gamepad_id: GamepadId) -> Option<String> {
+pub fn get_gamepad<'a>(gamepad_id: GamepadId) -> Gamepad<'a> {
+    let context = get_input_context();
+    context.gilrs.gamepad(gamepad_id)
+}
+
+pub fn get_player_id(gamepad_id: GamepadId) -> Option<String> {
     let context = get_input_context();
     context.mappings
         .iter()
@@ -328,7 +329,7 @@ pub fn get_gamepad_id(player_id: &str) -> Option<GamepadId> {
     context.mappings.get(player_id).cloned()
 }
 
-pub fn get_events_for(player_id: &str) -> InputEventIterator {
+pub fn get_events(player_id: &str) -> InputEventIterator {
     if let Some(gamepad_id) = get_gamepad_id(player_id) {
         return InputEventIterator::new(gamepad_id);
     }

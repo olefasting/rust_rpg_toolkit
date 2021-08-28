@@ -1,5 +1,17 @@
+pub use macroquad::{
+    ui::{
+        Ui,
+        hash,
+        root_ui,
+        widgets::{
+            self,
+            Window,
+            Group,
+        },
+    },
+};
+
 use crate::prelude::*;
-use crate::gui::prelude::*;
 
 mod inventory;
 mod character;
@@ -8,7 +20,7 @@ mod game_menu;
 
 pub mod skins;
 pub mod chapter_select;
-pub mod prelude;
+pub mod main_menu;
 
 use game_menu::draw_game_menu;
 use dialogue::draw_dialogue_window;
