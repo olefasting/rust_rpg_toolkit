@@ -140132,8 +140132,8 @@
             "y": 237.66667
           },
           "properties": {
-            "instance_id": "thug_02",
-            "prototype_id": "enemy_thug"
+            "prototype_id": "enemy_thug",
+            "instance_id": "thug_02"
           }
         },
         {
@@ -140213,8 +140213,8 @@
             "y": 886.0
           },
           "properties": {
-            "prototype_id": "quest_pistol",
-            "instance_id": "quest_pistol"
+            "instance_id": "quest_pistol",
+            "prototype_id": "quest_pistol"
           }
         }
       ],
@@ -140241,24 +140241,6 @@
       "tile_cnt": 400
     },
     {
-      "id": "items",
-      "texture_id": "items",
-      "texture_size": {
-        "x": 64,
-        "y": 64
-      },
-      "tile_size": {
-        "x": 16,
-        "y": 16
-      },
-      "grid_size": {
-        "x": 4,
-        "y": 4
-      },
-      "first_tile_id": 501,
-      "tile_cnt": 16
-    },
-    {
       "id": "neo_zero_props",
       "texture_id": "props",
       "texture_size": {
@@ -140275,6 +140257,24 @@
       },
       "first_tile_id": 401,
       "tile_cnt": 100
+    },
+    {
+      "id": "items",
+      "texture_id": "items",
+      "texture_size": {
+        "x": 64,
+        "y": 64
+      },
+      "tile_size": {
+        "x": 16,
+        "y": 16
+      },
+      "grid_size": {
+        "x": 4,
+        "y": 4
+      },
+      "first_tile_id": 501,
+      "tile_cnt": 16
     }
   ]
 }

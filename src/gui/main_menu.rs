@@ -198,7 +198,7 @@ pub async fn draw_create_character_menu() -> Option<ExportedCharacter> {
 
     let resources = storage::get::<Resources>();
     let game_params = storage::get::<GameParams>();
-    let mut build_points = 6;
+    let mut build_points = game_params.character_build_points;
     let mut character = resources.actors.get(&game_params.new_character_prototype_id).cloned().unwrap();
 
     root_ui().push_skin(&gui_skins.character);

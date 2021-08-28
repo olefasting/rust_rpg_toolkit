@@ -4,4 +4,7 @@
 /examples/example_project/web/capstone.d
 /examples/example_project/web/capstone.wasm
 /examples/example_project/web/modules/*
+/examples/example_project/save_games/*
+/examples/example_project/characters/*
+/examples/example_project/web.tar.gz
 /web.tar.gz

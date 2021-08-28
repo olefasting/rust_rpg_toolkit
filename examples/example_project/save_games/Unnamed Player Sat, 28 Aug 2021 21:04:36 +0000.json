@@ -1,0 +1,923 @@
+{
+  "game_version": "0.1.0",
+  "filename": "Unnamed Player Sat, 28 Aug 2021 21:04:36 +0000.json",
+  "chapter": 1,
+  "map": "chapter_01_map_01",
+  "player_actor": {
+    "id": "vo5aem5c1zkzpdbu",
+    "behavior": {
+      "aggression": "neutral",
+      "is_stationary": true,
+      "is_on_guard": false,
+      "flee_at_health_factor": 0.0
+    },
+    "position": {
+      "x": 1618.4023,
+      "y": 644.20935
+    },
+    "name": "Unnamed Player",
+    "strength": 6,
+    "dexterity": 26,
+    "constitution": 6,
+    "intelligence": 6,
+    "willpower": 6,
+    "perception": 6,
+    "charisma": 6,
+    "current_health": 800.0,
+    "current_stamina": 266.9568,
+    "current_energy": 900.0,
+    "factions": [
+      "player",
+      "bystanders",
+      "guards"
+    ],
+    "collider": {
+      "x": -7.0,
+      "y": 0.0,
+      "w": 14.0,
+      "h": 14.0
+    },
+    "items": [
+      "6knxaw3c7b099m75",
+      "4yfwrggjjoh5cqh7",
+      "t6tbpo1rnsylxk4u",
+      "w9m3130ju1ey4eh9"
+    ],
+    "credits": 100,
+    "equipped_items": {},
+    "animation_player": {
+      "offset": {
+        "x": -16.0,
+        "y": -16.0
+      },
+      "texture_id": "player",
+      "tile_size": {
+        "x": 32.0,
+        "y": 32.0
+      },
+      "animations": [
+        {
+          "name": "down",
+          "row": 0,
+          "frames": 3,
+          "fps": 8
+        },
+        {
+          "name": "up",
+          "row": 1,
+          "frames": 3,
+          "fps": 8
+        },
+        {
+          "name": "right",
+          "row": 2,
+          "frames": 3,
+          "fps": 8
+        }
+      ]
+    },
+    "experience": 0,
+    "can_level_up": true
+  },
+  "actors": [
+    {
+      "id": "thug_01",
+      "behavior": {
+        "aggression": "aggressive",
+        "home": {
+          "x": 1532.0,
+          "y": 248.0
+        },
+        "is_stationary": true,
+        "is_on_guard": false,
+        "flee_at_health_factor": 0.2
+      },
+      "position": {
+        "x": 1532.0,
+        "y": 248.0
+      },
+      "name": "Thug Boss",
+      "strength": 8,
+      "dexterity": 8,
+      "constitution": 8,
+      "intelligence": 6,
+      "willpower": 6,
+      "perception": 8,
+      "charisma": 6,
+      "current_health": 1100.0,
+      "current_stamina": 1100.0,
+      "current_energy": 1000.0,
+      "factions": [
+        "thugs"
+      ],
+      "collider": {
+        "x": -8.0,
+        "y": 0.0,
+        "w": 16.0,
+        "h": 16.0
+      },
+      "items": [
+        "njsb98mu1jwql2nb"
+      ],
+      "credits": 25,
+      "equipped_items": {},
+      "animation_player": {
+        "offset": {
+          "x": -16.0,
+          "y": -16.0
+        },
+        "texture_id": "characters",
+        "tile_size": {
+          "x": 32.0,
+          "y": 32.0
+        },
+        "animations": [
+          {
+            "name": "down",
+            "row": 3,
+            "frames": 3,
+            "fps": 8
+          },
+          {
+            "name": "up",
+            "row": 4,
+            "frames": 3,
+            "fps": 8
+          },
+          {
+            "name": "right",
+            "row": 5,
+            "frames": 3,
+            "fps": 8
+          }
+        ]
+      },
+      "experience": 0,
+      "can_level_up": false
+    },
+    {
+      "id": "k79mm5qikjy4g317",
+      "behavior": {
+        "aggression": "neutral",
+        "home": {
+          "x": 1004.0,
+          "y": 537.3333
+        },
+        "is_stationary": true,
+        "is_on_guard": true,
+        "flee_at_health_factor": 0.0
+      },
+      "position": {
+        "x": 1004.0,
+        "y": 537.3333
+      },
+      "name": "Guard",
+      "strength": 12,
+      "dexterity": 12,
+      "constitution": 12,
+      "intelligence": 8,
+      "willpower": 8,
+      "perception": 10,
+      "charisma": 8,
+      "current_health": 1700.0,
+      "current_stamina": 1700.0,
+      "current_energy": 1400.0,
+      "factions": [
+        "guards"
+      ],
+      "collider": {
+        "x": -8.0,
+        "y": 0.0,
+        "w": 16.0,
+        "h": 16.0
+      },
+      "items": [
+        "hhl6vndbepcf3djz"
+      ],
+      "credits": 25,
+      "equipped_items": {},
+      "animation_player": {
+        "offset": {
+          "x": -16.0,
+          "y": -16.0
+        },
+        "texture_id": "characters",
+        "tile_size": {
+          "x": 32.0,
+          "y": 32.0
+        },
+        "animations": [
+          {
+            "name": "down",
+            "row": 0,
+            "frames": 3,
+            "fps": 8
+          },
+          {
+            "name": "up",
+            "row": 1,
+            "frames": 3,
+            "fps": 8
+          },
+          {
+            "name": "right",
+            "row": 2,
+            "frames": 3,
+            "fps": 8
+          }
+        ]
+      },
+      "experience": 0,
+      "can_level_up": false
+    },
+    {
+      "id": "thug_02",
+      "behavior": {
+        "aggression": "aggressive",
+        "home": {
+          "x": 1488.0,
+          "y": 237.66667
+        },
+        "is_stationary": true,
+        "is_on_guard": false,
+        "flee_at_health_factor": 0.2
+      },
+      "position": {
+        "x": 1488.0,
+        "y": 237.66667
+      },
+      "name": "Thug",
+      "strength": 8,
+      "dexterity": 8,
+      "constitution": 8,
+      "intelligence": 6,
+      "willpower": 6,
+      "perception": 8,
+      "charisma": 6,
+      "current_health": 1100.0,
+      "current_stamina": 1100.0,
+      "current_energy": 1000.0,
+      "factions": [
+        "thugs"
+      ],
+      "collider": {
+        "x": -8.0,
+        "y": 0.0,
+        "w": 16.0,
+        "h": 16.0
+      },
+      "items": [
+        "b7lzyk52j0yj0sgy"
+      ],
+      "credits": 25,
+      "equipped_items": {},
+      "animation_player": {
+        "offset": {
+          "x": -16.0,
+          "y": -16.0
+        },
+        "texture_id": "characters",
+        "tile_size": {
+          "x": 32.0,
+          "y": 32.0
+        },
+        "animations": [
+          {
+            "name": "down",
+            "row": 3,
+            "frames": 3,
+            "fps": 8
+          },
+          {
+            "name": "up",
+            "row": 4,
+            "frames": 3,
+            "fps": 8
+          },
+          {
+            "name": "right",
+            "row": 5,
+            "frames": 3,
+            "fps": 8
+          }
+        ]
+      },
+      "experience": 0,
+      "can_level_up": false
+    },
+    {
+      "id": "thug_03",
+      "behavior": {
+        "aggression": "aggressive",
+        "home": {
+          "x": 1429.3334,
+          "y": 253.0
+        },
+        "is_stationary": true,
+        "is_on_guard": false,
+        "flee_at_health_factor": 0.2
+      },
+      "position": {
+        "x": 1429.3334,
+        "y": 253.0
+      },
+      "name": "Thug",
+      "strength": 8,
+      "dexterity": 8,
+      "constitution": 8,
+      "intelligence": 6,
+      "willpower": 6,
+      "perception": 8,
+      "charisma": 6,
+      "current_health": 1100.0,
+      "current_stamina": 1100.0,
+      "current_energy": 1000.0,
+      "factions": [
+        "thugs"
+      ],
+      "collider": {
+        "x": -8.0,
+        "y": 0.0,
+        "w": 16.0,
+        "h": 16.0
+      },
+      "items": [
+        "lo6jsafg2hyuitt8"
+      ],
+      "credits": 25,
+      "equipped_items": {},
+      "animation_player": {
+        "offset": {
+          "x": -16.0,
+          "y": -16.0
+        },
+        "texture_id": "characters",
+        "tile_size": {
+          "x": 32.0,
+          "y": 32.0
+        },
+        "animations": [
+          {
+            "name": "down",
+            "row": 3,
+            "frames": 3,
+            "fps": 8
+          },
+          {
+            "name": "up",
+            "row": 4,
+            "frames": 3,
+            "fps": 8
+          },
+          {
+            "name": "right",
+            "row": 5,
+            "frames": 3,
+            "fps": 8
+          }
+        ]
+      },
+      "experience": 0,
+      "can_level_up": false
+    },
+    {
+      "id": "guard_boss",
+      "behavior": {
+        "aggression": "neutral",
+        "home": {
+          "x": 927.0,
+          "y": 546.3333
+        },
+        "is_stationary": true,
+        "is_on_guard": true,
+        "flee_at_health_factor": 0.0
+      },
+      "position": {
+        "x": 927.0,
+        "y": 546.3333
+      },
+      "name": "Guard Boss",
+      "strength": 12,
+      "dexterity": 12,
+      "constitution": 12,
+      "intelligence": 8,
+      "willpower": 8,
+      "perception": 10,
+      "charisma": 8,
+      "current_health": 1700.0,
+      "current_stamina": 1700.0,
+      "current_energy": 1400.0,
+      "factions": [
+        "guards"
+      ],
+      "collider": {
+        "x": -8.0,
+        "y": 0.0,
+        "w": 16.0,
+        "h": 16.0
+      },
+      "items": [
+        "n3u5biks16p1c71t"
+      ],
+      "credits": 25,
+      "equipped_items": {},
+      "animation_player": {
+        "offset": {
+          "x": -16.0,
+          "y": -16.0
+        },
+        "texture_id": "characters",
+        "tile_size": {
+          "x": 32.0,
+          "y": 32.0
+        },
+        "animations": [
+          {
+            "name": "down",
+            "row": 0,
+            "frames": 3,
+            "fps": 8
+          },
+          {
+            "name": "up",
+            "row": 1,
+            "frames": 3,
+            "fps": 8
+          },
+          {
+            "name": "right",
+            "row": 2,
+            "frames": 3,
+            "fps": 8
+          }
+        ]
+      },
+      "experience": 0,
+      "can_level_up": false,
+      "dialogue": "dialogue_guard_boss"
+    },
+    {
+      "id": "cv817ukt1ngjtlbg",
+      "behavior": {
+        "aggression": "passive",
+        "home": {
+          "x": 1595.3334,
+          "y": 897.1667
+        },
+        "is_stationary": false,
+        "is_on_guard": false,
+        "flee_at_health_factor": 0.0
+      },
+      "position": {
+        "x": 1208.4656,
+        "y": 927.16583
+      },
+      "name": "Bystander",
+      "strength": 8,
+      "dexterity": 8,
+      "constitution": 8,
+      "intelligence": 6,
+      "willpower": 6,
+      "perception": 8,
+      "charisma": 6,
+      "current_health": 1100.0,
+      "current_stamina": 1100.0,
+      "current_energy": 1000.0,
+      "factions": [
+        "bystanders"
+      ],
+      "collider": {
+        "x": -8.0,
+        "y": 0.0,
+        "w": 16.0,
+        "h": 16.0
+      },
+      "items": [],
+      "credits": 25,
+      "equipped_items": {},
+      "animation_player": {
+        "offset": {
+          "x": -16.0,
+          "y": -16.0
+        },
+        "texture_id": "characters",
+        "tile_size": {
+          "x": 32.0,
+          "y": 32.0
+        },
+        "animations": [
+          {
+            "name": "down",
+            "row": 6,
+            "frames": 3,
+            "fps": 8
+          },
+          {
+            "name": "up",
+            "row": 7,
+            "frames": 3,
+            "fps": 8
+          },
+          {
+            "name": "right",
+            "row": 8,
+            "frames": 3,
+            "fps": 8
+          }
+        ]
+      },
+      "experience": 0,
+      "can_level_up": false
+    },
+    {
+      "id": "rcf1yhsklhcrb9y4",
+      "behavior": {
+        "aggression": "passive",
+        "home": {
+          "x": 1813.5,
+          "y": 877.3333
+        },
+        "is_stationary": false,
+        "is_on_guard": false,
+        "flee_at_health_factor": 0.0
+      },
+      "position": {
+        "x": 1795.5083,
+        "y": 830.90906
+      },
+      "name": "Bystander",
+      "strength": 8,
+      "dexterity": 8,
+      "constitution": 8,
+      "intelligence": 6,
+      "willpower": 6,
+      "perception": 8,
+      "charisma": 6,
+      "current_health": 1100.0,
+      "current_stamina": 1100.0,
+      "current_energy": 1000.0,
+      "factions": [
+        "bystanders"
+      ],
+      "collider": {
+        "x": -8.0,
+        "y": 0.0,
+        "w": 16.0,
+        "h": 16.0
+      },
+      "items": [],
+      "credits": 25,
+      "equipped_items": {},
+      "animation_player": {
+        "offset": {
+          "x": -16.0,
+          "y": -16.0
+        },
+        "texture_id": "characters",
+        "tile_size": {
+          "x": 32.0,
+          "y": 32.0
+        },
+        "animations": [
+          {
+            "name": "down",
+            "row": 6,
+            "frames": 3,
+            "fps": 8
+          },
+          {
+            "name": "up",
+            "row": 7,
+            "frames": 3,
+            "fps": 8
+          },
+          {
+            "name": "right",
+            "row": 8,
+            "frames": 3,
+            "fps": 8
+          }
+        ]
+      },
+      "experience": 0,
+      "can_level_up": false
+    },
+    {
+      "id": "scared_woman",
+      "behavior": {
+        "aggression": "passive",
+        "home": {
+          "x": 1221.0,
+          "y": 844.5
+        },
+        "is_stationary": true,
+        "is_on_guard": false,
+        "flee_at_health_factor": 0.0
+      },
+      "position": {
+        "x": 1221.0,
+        "y": 844.5
+      },
+      "name": "Scared Woman",
+      "strength": 8,
+      "dexterity": 8,
+      "constitution": 8,
+      "intelligence": 6,
+      "willpower": 6,
+      "perception": 8,
+      "charisma": 6,
+      "current_health": 1100.0,
+      "current_stamina": 1100.0,
+      "current_energy": 1000.0,
+      "factions": [
+        "bystanders"
+      ],
+      "collider": {
+        "x": -8.0,
+        "y": 0.0,
+        "w": 16.0,
+        "h": 16.0
+      },
+      "items": [],
+      "credits": 25,
+      "equipped_items": {},
+      "animation_player": {
+        "offset": {
+          "x": -16.0,
+          "y": -16.0
+        },
+        "texture_id": "characters",
+        "tile_size": {
+          "x": 32.0,
+          "y": 32.0
+        },
+        "animations": [
+          {
+            "name": "down",
+            "row": 6,
+            "frames": 3,
+            "fps": 8
+          },
+          {
+            "name": "up",
+            "row": 7,
+            "frames": 3,
+            "fps": 8
+          },
+          {
+            "name": "right",
+            "row": 8,
+            "frames": 3,
+            "fps": 8
+          }
+        ]
+      },
+      "experience": 0,
+      "can_level_up": false,
+      "dialogue": "dialogue_scared_woman"
+    },
+    {
+      "id": "h3xmq10m7r4quqi1",
+      "behavior": {
+        "aggression": "passive",
+        "home": {
+          "x": 1371.0,
+          "y": 856.0
+        },
+        "is_stationary": false,
+        "is_on_guard": false,
+        "flee_at_health_factor": 0.0
+      },
+      "position": {
+        "x": 1938.9281,
+        "y": 927.6748
+      },
+      "name": "Bystander",
+      "strength": 8,
+      "dexterity": 8,
+      "constitution": 8,
+      "intelligence": 6,
+      "willpower": 6,
+      "perception": 8,
+      "charisma": 6,
+      "current_health": 1100.0,
+      "current_stamina": 1100.0,
+      "current_energy": 1000.0,
+      "factions": [
+        "bystanders"
+      ],
+      "collider": {
+        "x": -8.0,
+        "y": 0.0,
+        "w": 16.0,
+        "h": 16.0
+      },
+      "items": [],
+      "credits": 25,
+      "equipped_items": {},
+      "animation_player": {
+        "offset": {
+          "x": -16.0,
+          "y": -16.0
+        },
+        "texture_id": "characters",
+        "tile_size": {
+          "x": 32.0,
+          "y": 32.0
+        },
+        "animations": [
+          {
+            "name": "down",
+            "row": 6,
+            "frames": 3,
+            "fps": 8
+          },
+          {
+            "name": "up",
+            "row": 7,
+            "frames": 3,
+            "fps": 8
+          },
+          {
+            "name": "right",
+            "row": 8,
+            "frames": 3,
+            "fps": 8
+          }
+        ]
+      },
+      "experience": 0,
+      "can_level_up": false
+    }
+  ],
+  "items": [
+    {
+      "id": "njsb98mu1jwql2nb",
+      "name": "Pistol",
+      "description": "A regular pistol",
+      "kind": "one_handed_weapon",
+      "weight": 10.0,
+      "ability": "pistol",
+      "sprite": {
+        "offset": {
+          "x": -8.0,
+          "y": -8.0
+        },
+        "rotation": 0.0,
+        "flip_x": false,
+        "flip_y": false,
+        "tile_size": {
+          "x": 16,
+          "y": 16
+        },
+        "texture_id": "items",
+        "texture_coords": {
+          "x": 0,
+          "y": 3
+        }
+      },
+      "is_quest_item": false
+    },
+    {
+      "id": "hhl6vndbepcf3djz",
+      "name": "Pistol",
+      "description": "A regular pistol",
+      "kind": "one_handed_weapon",
+      "weight": 10.0,
+      "ability": "pistol",
+      "sprite": {
+        "offset": {
+          "x": -8.0,
+          "y": -8.0
+        },
+        "rotation": 0.0,
+        "flip_x": false,
+        "flip_y": false,
+        "tile_size": {
+          "x": 16,
+          "y": 16
+        },
+        "texture_id": "items",
+        "texture_coords": {
+          "x": 0,
+          "y": 3
+        }
+      },
+      "is_quest_item": false
+    },
+    {
+      "id": "b7lzyk52j0yj0sgy",
+      "name": "Shock Baton",
+      "description": "A baton that shocks people",
+      "kind": "one_handed_weapon",
+      "weight": 2.0,
+      "ability": "shock_baton",
+      "sprite": {
+        "offset": {
+          "x": -8.0,
+          "y": -8.0
+        },
+        "rotation": 0.0,
+        "flip_x": false,
+        "flip_y": false,
+        "tile_size": {
+          "x": 16,
+          "y": 16
+        },
+        "texture_id": "items",
+        "texture_coords": {
+          "x": 2,
+          "y": 3
+        }
+      },
+      "is_quest_item": false
+    },
+    {
+      "id": "lo6jsafg2hyuitt8",
+      "name": "Shock Baton",
+      "description": "A baton that shocks people",
+      "kind": "one_handed_weapon",
+      "weight": 2.0,
+      "ability": "shock_baton",
+      "sprite": {
+        "offset": {
+          "x": -8.0,
+          "y": -8.0
+        },
+        "rotation": 0.0,
+        "flip_x": false,
+        "flip_y": false,
+        "tile_size": {
+          "x": 16,
+          "y": 16
+        },
+        "texture_id": "items",
+        "texture_coords": {
+          "x": 2,
+          "y": 3
+        }
+      },
+      "is_quest_item": false
+    },
+    {
+      "id": "n3u5biks16p1c71t",
+      "name": "Sub-Machine Gun",
+      "description": "A regular sub-machine gun",
+      "kind": "two_handed_weapon",
+      "weight": 10.0,
+      "ability": "sub_machine_gun",
+      "sprite": {
+        "offset": {
+          "x": -8.0,
+          "y": -8.0
+        },
+        "rotation": 0.0,
+        "flip_x": false,
+        "flip_y": false,
+        "tile_size": {
+          "x": 16,
+          "y": 16
+        },
+        "texture_id": "items",
+        "texture_coords": {
+          "x": 1,
+          "y": 3
+        }
+      },
+      "is_quest_item": false
+    },
+    {
+      "id": "quest_pistol",
+      "name": "Pistol",
+      "description": "A pistol belonging to someone",
+      "position": {
+        "x": 2003.0,
+        "y": 886.0
+      },
+      "kind": "one_handed_weapon",
+      "weight": 10.0,
+      "ability": "pistol",
+      "sprite": {
+        "offset": {
+          "x": -8.0,
+          "y": -8.0
+        },
+        "rotation": 0.0,
+        "flip_x": false,
+        "flip_y": false,
+        "tile_size": {
+          "x": 16,
+          "y": 16
+        },
+        "texture_id": "items",
+        "texture_coords": {
+          "x": 0,
+          "y": 3
+        }
+      },
+      "is_quest_item": true
+    }
+  ],
+  "active_missions": [],
+  "completed_missions": []
+}

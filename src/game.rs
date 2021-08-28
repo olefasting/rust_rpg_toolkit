@@ -74,6 +74,7 @@ pub struct GameParams {
     pub characters_path: String,
     pub saves_path: String,
     pub new_character_prototype_id: String,
+    pub character_build_points: u32,
 }
 
 impl Default for GameParams {
@@ -85,6 +86,7 @@ impl Default for GameParams {
             characters_path: "characters".to_string(),
             saves_path: "save_games".to_string(),
             new_character_prototype_id: "new_character_prototype".to_string(),
+            character_build_points: 6,
         }
     }
 }

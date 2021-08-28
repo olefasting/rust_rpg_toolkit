@@ -31,7 +31,7 @@ pub struct Camera {
 impl Camera {
     const FOLLOW_THRESHOLD_FRACTION: f32 = 0.4;
     const FOLLOW_END_AT_DISTANCE: f32 = 20.0;
-    const FOLLOW_LERP_FRACTION: f32 = 0.015;
+    const FOLLOW_LERP_FRACTION: f32 = 0.03;
 
     const DEFAULT_SCALE: f32 = 2.0;
 
@@ -103,10 +103,10 @@ impl Node for Camera {
             };
 
             if node.is_following || bounds.contains(player.body.position) == false {
-                let difference = player.body.position.sub(node.position);
-                if difference.length() > Self::FOLLOW_END_AT_DISTANCE {
+                let distance = player.body.position.sub(node.position);
+                if distance.length() > Self::FOLLOW_END_AT_DISTANCE {
                     node.is_following = true;
-                    node.position += (difference * Self::FOLLOW_LERP_FRACTION) * 50.0 * get_frame_time();
+                    node.position += distance * Self::FOLLOW_LERP_FRACTION;
                 } else {
                     node.is_following = false;
                 }
