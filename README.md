@@ -47,6 +47,8 @@ use rust_rpg_toolkit::prelude::*;
 // Used when determining whether module dependencies on game version are met
 const GAME_VERSION: &'static str = "0.1.0";
 
+const CONFIG_PATH: &'static str = "config.json";
+
 fn window_conf() -> Conf {
     let config = Config::load(CONFIG_PATH);
     storage::store(config.clone());
