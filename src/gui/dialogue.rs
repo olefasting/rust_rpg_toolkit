@@ -18,7 +18,8 @@ pub fn draw_dialogue_window(player: &mut Actor) {
     let x = screen_width() / 2.0 - 200.0 * scale;
     let y = screen_height() / 2.0 - 175.0 * scale;
     if let Some(interaction) = interaction {
-        widgets::Window::new(hash!(), vec2(x, y), vec2(400.0 * scale, 350.0 * scale))
+        root_ui().push_skin(&gui_skins.default);
+        widgets::Window::new(hash!(), vec2(x, y), vec2(400.0, 350.0) * scale)
             .titlebar(false)
             //.label(&interaction.actor_name)
             .ui(&mut *root_ui(), |ui| {
@@ -50,5 +51,6 @@ pub fn draw_dialogue_window(player: &mut Actor) {
                     }
                 }
             });
+        root_ui().pop_skin();
     }
 }
