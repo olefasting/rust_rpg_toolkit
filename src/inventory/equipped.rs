@@ -1,5 +1,3 @@
-//use macroquad::prelude::*;
-
 use serde::{
     Serialize,
     Deserialize,

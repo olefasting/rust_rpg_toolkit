@@ -16,10 +16,14 @@ use serde::{
     Deserialize,
 };
 
-use crate::{resources::Resources, physics::Collider, math::URect, json, GameParams};
+use crate::prelude::*;
 
-use super::TiledMap;
-use crate::map::tiled::TiledMapDeclaration;
+use super::{
+    tiled::{
+        TiledMap,
+        TiledMapDeclaration
+    },
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(into = "json::MapDef", from = "json::MapDef")]

@@ -1,3 +1,5 @@
+use std::ops::Sub;
+
 use macroquad::{
     experimental::{
         collections::storage,
@@ -6,13 +8,338 @@ use macroquad::{
     prelude::*,
 };
 
-use crate::{
-    render::Viewport,
-    nodes::{
-        GameState,
-    },
+pub use gilrs::{
+    Gilrs,
+    Event,
+    EventType,
+    Axis,
+    Button,
+    GamepadId,
+    Gamepad,
 };
-use crate::nodes::Actor;
+
+use crate::{
+    static_wrapper::StaticWrapper,
+    prelude::*,
+};
+
+const GAMEPAD_TARGET_SCREEN_PADDING: f32 = 10.0;
+const GAMEPAD_TARGET_MOVE_SPEED: f32 = 400.0;
+
+pub const MAX_MAPPED_ABILITIES: usize = 6;
+
+static mut INPUT_CONTEXT: StaticWrapper<InputContext> = StaticWrapper {
+    data: None,
+};
+
+#[derive(Debug)]
+struct InputContext {
+    pub gilrs: Gilrs,
+    pub mappings: HashMap<String, GamepadId>,
+    pub events: HashMap<GamepadId, Vec<EventType>>,
+}
+
+fn get_input_context() -> &'static mut InputContext {
+    let mut wrapper = unsafe { &mut INPUT_CONTEXT };
+    if wrapper.is_initiated() == false {
+        let context = InputContext {
+            gilrs: Gilrs::new().unwrap(),
+            mappings: HashMap::new(),
+            events: HashMap::new(),
+        };
+        wrapper.init(context)
+    }
+    wrapper.data.as_mut().unwrap()
+}
+
+fn is_mapped(gamepad_id: GamepadId) -> bool {
+    let context = get_input_context();
+    context.mappings
+        .iter()
+        .find(|(_, mapped_id)| gamepad_id == **mapped_id)
+        .is_some()
+}
+
+fn is_active(gamepad_id: GamepadId) -> bool {
+    let context = get_input_context();
+    context.gilrs
+        .gamepads()
+        .find(|(available_id, _)| gamepad_id == *available_id)
+        .is_some()
+}
+
+pub fn update_input() {
+    let mut context = get_input_context();
+    context.mappings.retain(|player_id, gamepad_id| {
+        if is_active(*gamepad_id) == false {
+            println!("Gamepad '{}' for player '{}' has been disconnected!", gamepad_id, player_id);
+            return false;
+        }
+        true
+    });
+
+    context.events = HashMap::new();
+    while let Some(event) = context.gilrs.next_event() {
+        let gamepad_id = event.id;
+        if let Some(vec) = context.events.get_mut(&gamepad_id) {
+            vec.push(event.event);
+        } else {
+            context.events.insert(gamepad_id, vec!(event.event));
+        }
+    }
+}
+
+pub fn apply_input(player_id: &str, node: &mut RefMut<Actor>) {
+    let mut game_state = scene::find_node_by_type::<GameState>().unwrap();
+
+    node.controller.should_use_primary_ability = false;
+    node.controller.should_use_secondary_ability = false;
+    node.controller.should_use_mapped_ability = [false; MAX_MAPPED_ABILITIES];
+    node.controller.move_direction = Vec2::ZERO;
+    node.controller.should_start_interaction = false;
+    node.controller.should_pick_up_items = false;
+    node.controller.should_sprint = node.controller.is_sprint_locked && node.controller.should_sprint;
+
+    if let Some(gamepad_id) = get_gamepad_id(player_id) {
+        for event in InputEventIterator::new(gamepad_id) {
+            match event {
+                EventType::ButtonChanged(button, value, code) => {
+                    match button {
+                        Button::South => {},
+                        Button::East => {
+                            if value > 0.0 {
+                                if game_state.should_show_game_menu {
+                                    game_state.should_show_game_menu = false;
+                                } else if node.current_dialogue.is_some() {
+                                    node.current_dialogue = None;
+                                }
+                            }
+                        },
+                        Button::North => {},
+                        Button::West => {
+                            if value > 0.0 {
+                                node.controller.should_start_interaction = true;
+                            }
+                        },
+                        Button::C => {},
+                        Button::Z => {},
+                        Button::LeftTrigger => {},
+                        Button::LeftTrigger2 => {
+                            // SELECT
+                            if value > 0.0 {
+                                if game_state.should_show_character_window || game_state.should_show_inventory_window {
+                                    game_state.should_show_inventory_window = false;
+                                    game_state.should_show_character_window = false;
+                                } else {
+                                    game_state.should_show_inventory_window = true;
+                                    game_state.should_show_character_window = true;
+                                }
+                            }
+                        },
+                        Button::RightTrigger => {},
+                        Button::RightTrigger2 => {},
+                        Button::Select => {},
+                        Button::Start => {
+                            if value > 0.0 {
+                                game_state.should_show_game_menu = !game_state.should_show_game_menu;
+                            }
+                        },
+                        Button::Mode => {},
+                        Button::LeftThumb => {},
+                        Button::RightThumb => {
+                            if value > 0.0 {
+                                node.controller.should_sprint = !node.controller.should_sprint;
+                                node.controller.is_sprint_locked = node.controller.should_sprint;
+                            }
+                        },
+                        Button::DPadUp => {},
+                        Button::DPadDown => {},
+                        Button::DPadLeft => {},
+                        Button::DPadRight => {},
+                        Button::Unknown => {},
+                    }
+                }
+                EventType::AxisChanged(axis, value, code) => {
+                    match axis {
+                        Axis::LeftStickX => {
+                            node.controller.move_direction.x = value;
+                        },
+                        Axis::LeftStickY => {
+                            node.controller.move_direction.y = value;
+                        },
+                        Axis::LeftZ => {}
+                        Axis::RightStickX => {},
+                        Axis::RightStickY => {},
+                        Axis::RightZ => {},
+                        Axis::DPadX => {},
+                        Axis::DPadY => {},
+                        Axis::Unknown => {},
+                    }
+                }
+                EventType::Disconnected => {
+                    println!("Gamepad '{}' used by player '{}' was disconnected!", gamepad_id, player_id);
+                    break;
+                }
+                EventType::Dropped => {
+                    println!("Gamepad '{}' used by player '{}' was dropped!", gamepad_id, player_id);
+                    break;
+                }
+                _ => {}
+            }
+        }
+
+        let gamepad = get_gamepad(gamepad_id);
+
+        if let Some(axis_data) = gamepad.axis_data(Axis::LeftStickX) {
+            node.controller.move_direction.x = axis_data.value();
+        }
+        if let Some(axis_data) = gamepad.axis_data(Axis::LeftStickY) {
+            node.controller.move_direction.y = -axis_data.value();
+        }
+
+        let mut aim_changed = false;
+        if let Some(axis_data) = gamepad.axis_data(Axis::LeftZ) {
+            let value = axis_data.value();
+            if value != 0.0 {
+                node.controller.aim_direction.x = value;
+                aim_changed = true;
+            }
+        }
+
+        if let Some(axis_data) = gamepad.axis_data(Axis::RightZ) {
+            let value = axis_data.value();
+            if value != 0.0 {
+                node.controller.aim_direction.y = value;
+                aim_changed = true;
+            }
+        }
+
+        if aim_changed == false && node.controller.move_direction != Vec2::ZERO {
+            node.controller.aim_direction = node.controller.move_direction;
+        }
+
+        node.controller.should_use_primary_ability = gamepad.is_pressed(Button::RightTrigger);
+        node.controller.should_use_secondary_ability = gamepad.is_pressed(Button::LeftTrigger);
+
+        if node.controller.is_sprint_locked == false {
+            node.controller.should_sprint = gamepad.is_pressed(Button::East);
+        }
+
+        node.controller.should_pick_up_items = gamepad.is_pressed(Button::North);
+    } else {
+        let mouse_position = get_mouse_in_world_space();
+
+        node.controller.should_use_primary_ability = is_mouse_button_down(MouseButton::Left);
+        node.controller.should_use_secondary_ability = is_mouse_button_down(MouseButton::Right);
+
+        node.controller.move_direction = Vec2::ZERO;
+        if is_key_down(KeyCode::Up) || is_key_down(KeyCode::W) {
+            node.controller.move_direction.y -= 1.0;
+        }
+        if is_key_down(KeyCode::Down) || is_key_down(KeyCode::S) {
+            node.controller.move_direction.y += 1.0;
+        }
+        if is_key_down(KeyCode::Left) || is_key_down(KeyCode::A) {
+            node.controller.move_direction.x -= 1.0;
+        }
+        if is_key_down(KeyCode::Right) || is_key_down(KeyCode::D) {
+            node.controller.move_direction.x += 1.0;
+        }
+
+        if is_key_pressed(KeyCode::CapsLock) {
+            node.controller.is_sprint_locked = !node.controller.is_sprint_locked;
+        }
+
+        if node.controller.should_use_primary_ability || node.controller.should_use_secondary_ability {
+            node.controller.aim_direction = mouse_position.sub(node.body.position).normalize_or_zero();
+        } else {
+            node.controller.aim_direction = node.controller.move_direction;
+        }
+
+        if node.controller.is_sprint_locked {
+            node.controller.should_sprint = true;
+        } else {
+            node.controller.should_sprint = is_key_down(KeyCode::LeftShift);
+        }
+
+        node.controller.should_start_interaction = is_key_released(KeyCode::F);
+
+        node.controller.should_pick_up_items = is_key_down(KeyCode::R);
+
+        if is_key_released(KeyCode::C) {
+            game_state.should_show_character_window = !game_state.should_show_character_window;
+        }
+        if is_key_released(KeyCode::I) {
+            game_state.should_show_inventory_window = !game_state.should_show_inventory_window;
+        }
+
+        if is_key_released(KeyCode::P) {
+            game_state.in_debug_mode = !game_state.in_debug_mode;
+        }
+
+        if is_key_released(KeyCode::Escape) {
+            if node.current_dialogue.is_some()
+                || game_state.should_show_inventory_window
+                || game_state.should_show_character_window
+                || game_state.should_show_game_menu {
+                node.current_dialogue = None;
+                game_state.should_show_inventory_window = false;
+                game_state.should_show_character_window = false;
+                game_state.should_show_game_menu = false;
+            } else {
+                game_state.should_show_game_menu = true;
+            }
+        }
+    }
+}
+
+pub fn try_map_gamepad(player_id: &str) -> Option<GamepadId> {
+    let mut context = get_input_context();
+    if let Some(gamepad_id) = get_gamepad_id(player_id) {
+        return Some(gamepad_id);
+    }
+    for (gamepad_id, gamepad) in context.gilrs.gamepads() {
+        if is_mapped(gamepad_id) == false {
+            println!("Mapping '{}' ({:?}) to player '{}'", gamepad.name(), gamepad.power_info(), player_id);
+            context.mappings.insert(player_id.to_string(), gamepad_id);
+            return Some(gamepad_id);
+        }
+    }
+    None
+}
+
+pub fn get_gamepad<'a>(gamepad_id: GamepadId) -> Gamepad<'a> {
+    let context = get_input_context();
+    context.gilrs.gamepad(gamepad_id)
+}
+
+pub fn get_gamepad_for<'a>(player_id: &str) -> Option<Gamepad<'a>> {
+    let context = get_input_context();
+    if let Some(gamepad_id) = context.mappings.get(player_id) {
+        return Some(context.gilrs.gamepad(*gamepad_id));
+    }
+    None
+}
+
+pub fn get_player_id_for(gamepad_id: GamepadId) -> Option<String> {
+    let context = get_input_context();
+    context.mappings
+        .iter()
+        .find_map(|(player_id, found_id)|
+            if gamepad_id == *found_id { Some(player_id.to_string()) } else { None })
+}
+
+pub fn get_gamepad_id(player_id: &str) -> Option<GamepadId> {
+    let context = get_input_context();
+    context.mappings.get(player_id).cloned()
+}
+
+pub fn get_events_for(player_id: &str) -> InputEventIterator {
+    if let Some(gamepad_id) = get_gamepad_id(player_id) {
+        return InputEventIterator::new(gamepad_id);
+    }
+    InputEventIterator::new_empty()
+}
 
 pub fn get_mouse_position() -> Vec2 {
     let (x, y) = mouse_position();
@@ -24,60 +351,35 @@ pub fn get_mouse_in_world_space() -> Vec2 {
     viewport.to_world_space(get_mouse_position())
 }
 
-pub fn apply_local_player_input(node: &mut RefMut<Actor>) {
-    let coords = get_mouse_in_world_space();
-    node.controller.primary_target = if is_mouse_button_down(MouseButton::Left) {
-        Some(coords)
-    } else {
-        None
-    };
-    node.controller.secondary_target = if is_mouse_button_down(MouseButton::Right) {
-        Some(coords)
-    } else {
-        None
-    };
-    node.controller.direction = Vec2::ZERO;
-    if is_key_down(KeyCode::Up) || is_key_down(KeyCode::W) {
-        node.controller.direction.y -= 1.0;
-    }
-    if is_key_down(KeyCode::Down) || is_key_down(KeyCode::S) {
-        node.controller.direction.y += 1.0;
-    }
-    if is_key_down(KeyCode::Left) || is_key_down(KeyCode::A) {
-        node.controller.direction.x -= 1.0;
-    }
-    if is_key_down(KeyCode::Right) || is_key_down(KeyCode::D) {
-        node.controller.direction.x += 1.0;
-    }
-    node.controller.is_sprinting = is_key_down(KeyCode::LeftShift);
 
-    node.controller.is_starting_interaction = is_key_released(KeyCode::F);
+pub struct InputEventIterator<'a> {
+    events_vec: Option<&'a mut Vec<EventType>>,
+}
 
-    node.controller.is_picking_up_items = is_key_down(KeyCode::R);
-
-    let mut game_state = scene::find_node_by_type::<GameState>().unwrap();
-    if is_key_released(KeyCode::C) {
-        game_state.show_character_window = !game_state.show_character_window;
-    }
-    if is_key_released(KeyCode::I) {
-        game_state.show_inventory_window = !game_state.show_inventory_window;
-    }
-
-    if is_key_released(KeyCode::P) {
-        game_state.in_debug_mode = !game_state.in_debug_mode;
-    }
-
-    if is_key_released(KeyCode::Escape) {
-        if node.current_dialogue.is_some()
-            || game_state.show_inventory_window
-            || game_state.show_character_window
-            || game_state.show_game_menu {
-            node.current_dialogue = None;
-            game_state.show_inventory_window = false;
-            game_state.show_character_window = false;
-            game_state.show_game_menu = false;
-        } else {
-            game_state.show_game_menu = true;
+impl<'a> InputEventIterator<'a> {
+    pub fn new(gamepad_id: GamepadId) -> Self {
+        let mut context = get_input_context();
+        let mut events_vec = context.events
+            .get_mut(&gamepad_id);
+        InputEventIterator {
+            events_vec,
         }
+    }
+
+    pub fn new_empty() -> Self {
+        InputEventIterator {
+            events_vec: None,
+        }
+    }
+}
+
+impl<'a> Iterator for InputEventIterator<'a> {
+    type Item = EventType;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if let Some(mut events_vec) = self.events_vec.as_mut() {
+            return events_vec.pop();
+        }
+        None
     }
 }

@@ -1,5 +1,4 @@
-use macroquad::prelude::*;
-use crate::nodes::ActorParams;
+use crate::prelude::*;
 
 #[derive(Debug, Clone)]
 pub struct ActorStats {

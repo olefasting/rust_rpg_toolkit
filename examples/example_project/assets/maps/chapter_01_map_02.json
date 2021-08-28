@@ -140086,8 +140086,8 @@
             "y": 4.0
           },
           "properties": {
-            "intensity": "0.1",
-            "color": "#ffff0000"
+            "color": "#ffff0000",
+            "intensity": "0.1"
           }
         }
       ],
@@ -140154,8 +140154,8 @@
             "y": 546.3333
           },
           "properties": {
-            "prototype_id": "guard_boss",
-            "instance_id": "guard_boss"
+            "instance_id": "guard_boss",
+            "prototype_id": "guard_boss"
           }
         },
         {
@@ -140223,22 +140223,22 @@
   ],
   "tilesets": [
     {
-      "id": "items",
-      "texture_id": "items",
+      "id": "neo_zero_props",
+      "texture_id": "props",
       "texture_size": {
-        "x": 64,
-        "y": 64
+        "x": 160,
+        "y": 160
       },
       "tile_size": {
         "x": 16,
         "y": 16
       },
       "grid_size": {
-        "x": 4,
-        "y": 4
+        "x": 10,
+        "y": 10
       },
-      "first_tile_id": 501,
-      "tile_cnt": 16
+      "first_tile_id": 401,
+      "tile_cnt": 100
     },
     {
       "id": "neo_zero_tiles",
@@ -140259,22 +140259,22 @@
       "tile_cnt": 400
     },
     {
-      "id": "neo_zero_props",
-      "texture_id": "props",
+      "id": "items",
+      "texture_id": "items",
       "texture_size": {
-        "x": 160,
-        "y": 160
+        "x": 64,
+        "y": 64
       },
       "tile_size": {
         "x": 16,
         "y": 16
       },
       "grid_size": {
-        "x": 10,
-        "y": 10
+        "x": 4,
+        "y": 4
       },
-      "first_tile_id": 401,
-      "tile_cnt": 100
+      "first_tile_id": 501,
+      "tile_cnt": 16
     }
   ]
 }

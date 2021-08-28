@@ -1,32 +1,6 @@
-use macroquad::{
-    experimental::{
-        scene::{
-            Node,
-            RefMut,
-            Handle,
-        },
-        collections::storage,
-    },
-    color,
-    prelude::*,
-};
+use crate::prelude::*;
 
-use crate::{
-    render::{
-        draw_progress_bar,
-        draw_aligned_text,
-        HorizontalAlignment,
-        VerticalAlignment,
-        Viewport,
-    },
-    Config,
-};
-
-use super::{
-    Actor,
-    GameState,
-};
-use crate::resources::Resources;
+const SHOW_TARGET_DISTANCE_THRESHOLD: f32 = 64.0;
 
 pub struct Hud {}
 

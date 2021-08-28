@@ -1,154 +1,8 @@
 use std::{
     ops::Sub,
-    cmp::Ordering,
 };
 
-use macroquad::{
-    color,
-    experimental::{
-        collections::storage,
-        scene::{
-            Handle,
-            Node,
-            RefMut,
-        },
-    },
-    prelude::*,
-};
-
-use serde::{
-    Deserialize,
-    Serialize,
-};
-
-use crate::{ability::Ability, generate_id, input::apply_local_player_input, json, nodes::{
-    draw_buffer::{
-        Bounds,
-        BufferedDraw,
-        DrawBuffer,
-    },
-    Item,
-    GameState,
-    Camera,
-}, physics::{
-    Collider,
-    PhysicsBody,
-}, render::{
-    draw_progress_bar,
-    HorizontalAlignment,
-    SpriteAnimationParams,
-    SpriteAnimationPlayer,
-    draw_aligned_text,
-    VerticalAlignment,
-}, missions::{
-    Mission,
-}, Resources, GameParams};
-
-use super::{
-    ActorController,
-    ActorControllerKind,
-    ActorInventory,
-    ActorStats,
-    ActorBehavior,
-    ActorBehaviorParams,
-    ActorInventoryParams,
-    apply_actor_behavior,
-};
-use crate::{
-    missions::{
-        MissionReward,
-        MissionObjective,
-    },
-    nodes::{
-        item::Credits
-    },
-};
-use crate::nodes::actor::equipped::{EquippedItems, EquipmentSlot};
-use crate::nodes::item::ItemKind;
-use crate::ability::{Effect, DamageType};
-use crate::dialogue::Dialogue;
-use crate::save_games::ExportedCharacter;
-
-#[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Serialize, Deserialize)]
-pub enum ActorNoiseLevel {
-    #[serde(rename = "none")]
-    None,
-    #[serde(rename = "silent")]
-    Silent,
-    #[serde(rename = "moderate")]
-    Moderate,
-    #[serde(rename = "loud")]
-    Loud,
-    #[serde(rename = "extreme")]
-    Extreme,
-}
-
-impl ActorNoiseLevel {
-    const RADIUS_NONE: f32 = 0.0;
-    const RADIUS_SILENT: f32 = 64.0;
-    const RADIUS_MODERATE: f32 = 192.0;
-    const RADIUS_LOUD: f32 = 416.0;
-    const RADIUS_EXTREME: f32 = 1024.0;
-
-    pub fn to_range(self) -> f32 {
-        match self {
-            Self::None => Self::RADIUS_NONE,
-            Self::Silent => Self::RADIUS_SILENT,
-            Self::Moderate => Self::RADIUS_MODERATE,
-            Self::Loud => Self::RADIUS_LOUD,
-            Self::Extreme => Self::RADIUS_EXTREME,
-        }
-    }
-}
-
-impl Default for ActorNoiseLevel {
-    fn default() -> Self {
-        Self::None
-    }
-}
-
-impl ToString for ActorNoiseLevel {
-    fn to_string(&self) -> String {
-        let res = match self {
-            Self::None => "None",
-            Self::Silent => "Silent",
-            Self::Moderate => "Moderate",
-            Self::Loud => "Loud",
-            Self::Extreme => "Extreme",
-        };
-        res.to_string()
-    }
-}
-
-impl Ord for ActorNoiseLevel {
-    fn cmp(&self, other: &Self) -> Ordering {
-        match self {
-            Self::None => match other {
-                Self::None => Ordering::Equal,
-                _ => Ordering::Less,
-            },
-            Self::Silent => match other {
-                Self::None => Ordering::Greater,
-                Self::Silent => Ordering::Equal,
-                _ => Ordering::Less,
-            },
-            Self::Moderate => match other {
-                Self::None | Self::Silent => Ordering::Greater,
-                Self::Moderate => Ordering::Equal,
-                _ => Ordering::Less,
-            },
-            Self::Loud => match other {
-                Self::None | Self::Silent | Self::Moderate => Ordering::Greater,
-                Self::Loud => Ordering::Equal,
-                _ => Ordering::Less,
-            },
-            Self::Extreme => match other {
-                Self::None | Self::Silent | Self::Moderate | Self::Loud => Ordering::Greater,
-                Self::Extreme => Ordering::Equal,
-            }
-        }
-    }
-}
+use crate::prelude::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ActorParams {
@@ -175,7 +29,7 @@ pub struct ActorParams {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub collider: Option<Collider>,
     #[serde(default, flatten)]
-    pub inventory: ActorInventoryParams,
+    pub inventory: InventoryParams,
     #[serde(default)]
     pub equipped_items: EquippedItems,
     pub animation_player: SpriteAnimationParams,
@@ -240,12 +94,12 @@ pub struct Actor {
     pub name: String,
     pub active_missions: Vec<Mission>,
     pub completed_missions: Vec<Mission>,
-    pub noise_level: ActorNoiseLevel,
+    pub noise_level: NoiseLevel,
     pub behavior: ActorBehavior,
     pub stats: ActorStats,
     pub factions: Vec<String>,
     pub body: PhysicsBody,
-    pub inventory: ActorInventory,
+    pub inventory: Inventory,
     pub equipped_items: EquippedItems,
     pub primary_ability: Option<Ability>,
     pub secondary_ability: Option<Ability>,
@@ -268,8 +122,8 @@ impl Actor {
     const SPRINT_SPEED_FACTOR: f32 = 2.0;
     const SPRINT_STAMINA_COST: f32 = 10.0;
 
-    const MOVE_NOISE_LEVEL: ActorNoiseLevel = ActorNoiseLevel::Silent;
-    const SPRINT_NOISE_LEVEL: ActorNoiseLevel = ActorNoiseLevel::Moderate;
+    const MOVE_NOISE_LEVEL: NoiseLevel = NoiseLevel::Silent;
+    const SPRINT_NOISE_LEVEL: NoiseLevel = NoiseLevel::Moderate;
 
     const NOISE_LEVEL_COOLDOWN: f32 = 1.5;
 
@@ -288,9 +142,9 @@ impl Actor {
         };
 
         let inventory = if is_from_prototype {
-            ActorInventory::from_prototypes(&params.inventory)
+            Inventory::from_prototypes(&params.inventory)
         } else {
-            ActorInventory::from_save_game(&params.inventory)
+            Inventory::from_save_game(&params.inventory)
         };
 
         Actor {
@@ -298,7 +152,7 @@ impl Actor {
             name: params.name.clone(),
             active_missions: Vec::new(),
             completed_missions: Vec::new(),
-            noise_level: ActorNoiseLevel::None,
+            noise_level: NoiseLevel::None,
             behavior: ActorBehavior::new(ActorBehaviorParams {
                 home: Some(position),
                 ..params.behavior
@@ -450,7 +304,7 @@ impl Actor {
         }
     }
 
-    pub fn set_noise_level(&mut self, level: ActorNoiseLevel) {
+    pub fn set_noise_level(&mut self, level: NoiseLevel) {
         self.noise_level_timer = 0.0;
         if self.noise_level < level {
             self.noise_level = level;
@@ -476,10 +330,10 @@ impl Actor {
         self.noise_level_timer += get_frame_time();
         if self.noise_level_timer >= Self::NOISE_LEVEL_COOLDOWN {
             self.noise_level = match self.noise_level {
-                ActorNoiseLevel::Extreme => ActorNoiseLevel::Loud,
-                ActorNoiseLevel::Loud => ActorNoiseLevel::Moderate,
-                ActorNoiseLevel::Moderate => ActorNoiseLevel::Silent,
-                _ => ActorNoiseLevel::None,
+                NoiseLevel::Extreme => NoiseLevel::Loud,
+                NoiseLevel::Loud => NoiseLevel::Moderate,
+                NoiseLevel::Moderate => NoiseLevel::Silent,
+                _ => NoiseLevel::None,
             };
             self.noise_level_timer = 0.0;
         }
@@ -677,7 +531,7 @@ impl BufferedDraw for Actor {
             } else {
                 self.body.position
             };
-            if self.noise_level != ActorNoiseLevel::None {
+            if self.noise_level != NoiseLevel::None {
                 draw_aligned_text(
                     &format!("noise level: {}", self.noise_level.to_string()),
                     center_position.x,
@@ -706,7 +560,7 @@ impl BufferedDraw for Actor {
                 2.0,
                 color::RED,
             );
-            if self.noise_level != ActorNoiseLevel::None {
+            if self.noise_level != NoiseLevel::None {
                 draw_circle_lines(
                     self.body.position.x,
                     self.body.position.y,
@@ -764,44 +618,37 @@ impl Node for Actor {
         if let Some(ability) = node.secondary_ability.as_mut() {
             ability.update();
         }
-
-        let controller_kind = node.controller.kind.clone();
-        match controller_kind {
-            ActorControllerKind::LocalPlayer { player_id: _ } => {
-                apply_local_player_input(&mut node);
+        {
+            let controller_kind = node.controller.kind.clone();
+            match controller_kind {
+                ActorControllerKind::LocalPlayer { player_id } => {
+                    apply_input(&player_id, &mut node);
+                }
+                ActorControllerKind::RemotePlayer { player_id: _ } => {}
+                ActorControllerKind::Computer => {
+                    node.apply_behavior();
+                }
+                ActorControllerKind::None => {}
             }
-            ActorControllerKind::RemotePlayer { player_id: _ } => {}
-            ActorControllerKind::Computer => {
-                node.apply_behavior();
-            }
-            ActorControllerKind::None => {}
         }
 
         let controller = node.controller.clone();
+        node.set_animation(controller.aim_direction, controller.move_direction == Vec2::ZERO);
 
-        if let Some(target) = controller.primary_target {
-            let direction = target.sub(node.body.position).normalize_or_zero();
-            node.set_animation(direction, controller.direction == Vec2::ZERO);
-        } else if let Some(target) = controller.secondary_target {
-            let direction = target.sub(node.body.position).normalize_or_zero();
-            node.set_animation(direction, controller.direction == Vec2::ZERO);
-        } else {
-            node.set_animation(controller.direction, false);
-        }
-
-        if let Some(target) = controller.primary_target {
+        if controller.should_use_primary_ability {
             let mut primary_ability = node.primary_ability.clone();
             let position = node.body.position.clone();
             if let Some(ability) = &mut primary_ability {
-                ability.activate(&mut *node, position, target);
+                ability.activate(&mut *node, position, controller.aim_direction);
             }
             node.primary_ability = primary_ability;
         }
-        if let Some(target) = controller.secondary_target {
+
+        if controller.should_use_primary_ability {
             let mut secondary_ability = node.secondary_ability.clone();
             let position = node.body.position.clone();
             if let Some(ability) = &mut secondary_ability {
-                ability.activate(&mut *node, position, target);
+                ability.activate(&mut *node, position, controller.aim_direction);
             }
             node.secondary_ability = secondary_ability;
         }
@@ -813,7 +660,8 @@ impl Node for Actor {
                 credits.delete();
             }
         }
-        if node.controller.is_picking_up_items {
+
+        if node.controller.should_pick_up_items {
             for item in scene::find_nodes_by_type::<Item>() {
                 if collider.contains(item.position) {
                     node.inventory.pick_up(item);
@@ -821,7 +669,7 @@ impl Node for Actor {
             }
         }
 
-        if node.controller.is_starting_interaction {
+        if node.controller.should_start_interaction {
             if node.current_dialogue.is_some() {
                 node.current_dialogue = None;
             } else {
@@ -832,7 +680,7 @@ impl Node for Actor {
                             if let ActorControllerKind::Computer = actor.controller.kind {
                                 if actor.behavior.is_in_combat == false {
                                     node.current_dialogue = actor.dialogue.clone();
-                                    node.controller.is_starting_interaction = false; // stop this form firing twice
+                                    node.controller.should_start_interaction = false; // stop this form firing twice
                                     break;
                                 }
                             }
@@ -851,12 +699,12 @@ impl Node for Actor {
             }
         }
 
-        let direction = node.controller.direction.normalize_or_zero();
+        let direction = node.controller.move_direction.normalize_or_zero();
         node.body.velocity = if direction != Vec2::ZERO {
             direction * if node.inventory.get_total_weight() >= node.stats.carry_capacity {
                 node.set_noise_level(Self::MOVE_NOISE_LEVEL);
                 node.stats.move_speed * Self::ENCUMBERED_SPEED_FACTOR
-            } else if node.controller.is_sprinting && node.stats.current_stamina >= Self::SPRINT_STAMINA_COST {
+            } else if node.controller.should_sprint && node.stats.current_stamina >= Self::SPRINT_STAMINA_COST {
                 node.set_noise_level(Self::SPRINT_NOISE_LEVEL);
                 node.stats.current_stamina -= Self::SPRINT_STAMINA_COST;
                 node.stats.move_speed * Self::SPRINT_SPEED_FACTOR

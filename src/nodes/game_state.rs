@@ -1,38 +1,14 @@
 use std::fs;
 
-use macroquad::{
-    experimental::{
-        scene::{
-            Node,
-            Handle,
-            RefMut,
-        },
-        collections::storage,
-    },
-    color,
-    prelude::*,
-};
-
-use super::{
-    LightSource,
-    Item,
-    ItemParams,
-    Actor,
-    ActorControllerKind,
-    ActorParams,
-};
-
-use crate::{map::Map, render::Viewport, resources::Resources, generate_id, GameParams};
-use crate::nodes::item::Credits;
-use crate::save_games::SaveGame;
+use crate::prelude::*;
 
 pub struct GameState {
     pub map: Map,
     pub dead_actors: Vec<String>,
     pub local_player_id: String,
-    pub show_character_window: bool,
-    pub show_inventory_window: bool,
-    pub show_game_menu: bool,
+    pub should_show_character_window: bool,
+    pub should_show_inventory_window: bool,
+    pub should_show_game_menu: bool,
     pub in_debug_mode: bool,
     pub transition_to_map: Option<String>,
     pub should_quit: bool,
@@ -42,6 +18,8 @@ pub struct GameState {
 
 impl GameState {
     pub fn new(map: Map, local_player_id: &str) -> GameState {
+        let gamepad_id = try_map_gamepad(local_player_id);
+
         let resources = storage::get::<Resources>();
         if let Some(layer) = map.layers.get("spawn_points") {
             for object in &layer.objects {
@@ -49,7 +27,7 @@ impl GameState {
                     let params = resources.actors.get("player").cloned().unwrap();
                     let mut player = Actor::new(
                         true,
-                        ActorControllerKind::LocalPlayer { player_id: local_player_id.to_string() },
+                        ActorControllerKind::local_player(local_player_id),
                         ActorParams {
                             id: generate_id(),
                             name: "Abraxas".to_string(),
@@ -123,9 +101,9 @@ impl GameState {
             map,
             dead_actors: Vec::new(),
             local_player_id: local_player_id.to_string(),
-            show_character_window: false,
-            show_inventory_window: false,
-            show_game_menu: false,
+            should_show_character_window: false,
+            should_show_inventory_window: false,
+            should_show_game_menu: false,
             in_debug_mode: false,
             transition_to_map: None,
             should_quit: false,
@@ -167,7 +145,7 @@ impl GameState {
 impl Node for GameState {
     fn update(mut node: RefMut<Self>) where Self: Sized {
         if Actor::find_by_player_id(&node.local_player_id).is_none() {
-            node.show_game_menu = is_key_released(KeyCode::Escape);
+            node.should_show_game_menu = is_key_released(KeyCode::Escape);
         }
     }
 

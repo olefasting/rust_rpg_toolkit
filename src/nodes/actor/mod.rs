@@ -1,6 +1,5 @@
 pub use actor::{
     Actor,
-    ActorNoiseLevel,
     ActorParams,
 };
 pub use behavior::{
@@ -13,20 +12,10 @@ pub use controller::{
     ActorController,
     ActorControllerKind,
 };
-pub use equipped::{
-    EquipmentSlot,
-    EquippedItems,
-};
-pub use inventory::{
-    ActorInventory,
-    ActorInventoryEntry,
-    ActorInventoryParams,
-};
+
 pub use stats::ActorStats;
 
 mod controller;
-mod inventory;
 mod stats;
 mod actor;
 mod behavior;
-mod equipped;

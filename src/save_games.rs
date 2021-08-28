@@ -14,17 +14,7 @@ use serde::{
     Deserialize,
 };
 
-use crate::{
-    nodes::{
-        Actor,
-        ActorParams,
-        GameState,
-        Item,
-        ItemParams,
-    },
-    scenario::CurrentChapter,
-    GameParams,
-};
+use crate::prelude::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SaveGame {

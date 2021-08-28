@@ -41,12 +41,7 @@ You should depend on [macroquad](https://github.com/not-fl3/macroquad), as well 
 You can run the example project with `cargo run --example example_project`
 
 ```rust
-use macroquad::{
-    experimental::collections::storage,
-    prelude::*
-};
-
-use rust_rpg_toolkit::{Config, GameParams};
+use rust_rpg_toolkit::prelude::*;
 
 // Used when determining whether module dependencies on game version are met
 const GAME_VERSION: &'static str = "0.1.0";
@@ -82,7 +77,7 @@ async fn main() {
         saves_path: SAVES_PATH.to_string()
     };
 
-    rust_rpg_toolkit::run_game(params).await;
+    run_game(params).await;
 
     let config = storage::get::<Config>();
     config.save(CONFIG_PATH);

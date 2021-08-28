@@ -27,12 +27,12 @@ pub fn draw_game_menu(game_state: &mut RefMut<GameState>) {
         .ui(&mut *root_ui(), |ui| {
             if ui.button(None, "Export Character") {
                 game_state.should_export_character = true;
-                game_state.show_game_menu = false;
+                game_state.should_show_game_menu = false;
             }
 
             if ui.button(None, "Save Game") {
                 game_state.should_save_game = true;
-                game_state.show_game_menu = false;
+                game_state.should_show_game_menu = false;
             }
 
             if ui.button(None, "Quit") {

@@ -1,45 +1,33 @@
-use macroquad::{
-    ui::{
-        Ui,
-        hash, root_ui,
-        widgets::{self, Group},
-    },
-    experimental::collections::storage,
-    prelude::*,
-};
-
-use crate::{
-    nodes::{
-        Actor,
-        item::ItemKind,
-        actor::{
-            EquipmentSlot,
-            ActorInventoryEntry,
-        },
+use macroquad::ui::{
+    Ui,
+    hash, root_ui,
+    widgets::{
+        self,
+        Group,
     },
 };
 
-use super::GuiSkins;
+use crate::prelude::*;
 
-fn draw_entry(ui: &mut Ui, scale: f32, player: &mut Actor, entry: &ActorInventoryEntry) {
+fn draw_entry(ui: &mut Ui, scale: f32, player: &mut Actor, entry: &InventoryEntry) {
     //Group::new(hash!(), vec2(270.0 * scale, 50.0 * scale)).ui(ui, |ui| {
-        ui.label(None, &entry.params.name);
-        if entry.equipped_to == EquipmentSlot::None {
-            if ui.button(None, "Equip") {
-                player.equip_item(&entry.params.id);
-            }
-            // if item.params.is_quest_item == false {
-            //     if ui.button(None, "Drop") {
-            //         player.unequip_item(&item.id);
-            //         let position = player.body.position;
-            //         player.inventory.drop(&item.id, position);
-            //     }
-            // }
-        } else {
-            if ui.button(None, "Unequip") {
-                player.unequip_item(&entry.params.id);
-            }
+    ui.label(None, &entry.params.name);
+    if entry.equipped_to == EquipmentSlot::None {
+        if ui.button(None, "Equip") {
+            player.equip_item(&entry.params.id);
         }
+        // if item.params.is_quest_item == false {
+        //     if ui.button(None, "Drop") {
+        //         player.unequip_item(&item.id);
+        //         let position = player.body.position;
+        //         player.inventory.drop(&item.id, position);
+        //     }
+        // }
+    } else {
+        if ui.button(None, "Unequip") {
+            player.unequip_item(&entry.params.id);
+        }
+    }
     //});
 }
 

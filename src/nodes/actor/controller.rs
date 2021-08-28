@@ -1,6 +1,9 @@
-use macroquad::prelude::*;
+use crate::{
+    input::MAX_MAPPED_ABILITIES,
+    prelude::*,
+};
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub enum ActorControllerKind {
     LocalPlayer { player_id: String },
     RemotePlayer { player_id: String },
@@ -8,27 +11,42 @@ pub enum ActorControllerKind {
     None,
 }
 
-#[derive(Clone)]
+impl ActorControllerKind {
+    pub fn local_player(player_id: &str) -> Self {
+        let player_id = player_id.to_string();
+        ActorControllerKind::LocalPlayer { player_id }
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct ActorController {
     pub kind: ActorControllerKind,
-    pub primary_target: Option<Vec2>,
-    pub secondary_target: Option<Vec2>,
-    pub direction: Vec2,
-    pub is_starting_interaction: bool,
-    pub is_picking_up_items: bool,
-    pub is_sprinting: bool,
+    pub should_use_primary_ability: bool,
+    pub should_use_secondary_ability: bool,
+    pub should_use_mapped_ability: [bool; MAX_MAPPED_ABILITIES],
+    pub move_direction: Vec2,
+    pub aim_direction: Vec2,
+    pub should_start_interaction: bool,
+    pub should_pick_up_items: bool,
+    pub should_dash: bool,
+    pub should_sprint: bool,
+    pub is_sprint_locked: bool,
 }
 
 impl ActorController {
     pub fn new(kind: ActorControllerKind) -> Self {
         ActorController {
             kind,
-            primary_target: None,
-            secondary_target: None,
-            direction: Vec2::ZERO,
-            is_starting_interaction: false,
-            is_picking_up_items: false,
-            is_sprinting: false,
+            should_use_primary_ability: false,
+            should_use_secondary_ability: false,
+            should_use_mapped_ability: [false; MAX_MAPPED_ABILITIES],
+            move_direction: Vec2::ZERO,
+            aim_direction: Vec2::ZERO,
+            should_start_interaction: false,
+            should_pick_up_items: false,
+            should_dash: false,
+            should_sprint: false,
+            is_sprint_locked: false,
         }
     }
 }

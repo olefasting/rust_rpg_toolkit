@@ -1,34 +1,7 @@
-use macroquad::{
-    experimental::{
-        collections::storage,
-    },
-    prelude::*,
-};
-
 use macroquad_tiled as tiled;
 
-use serde::{
-    Serialize,
-    Deserialize,
-};
-
-use std::{
-    collections::HashMap,
-    ops::Deref,
-    iter::FromIterator,
-};
-
-use crate::{generate_id, resources::Resources, render::try_color_from_hex_string, GameParams};
-
-use super::map::{
-    Map,
-    MapLayerKind,
-    MapLayer,
-    MapTile,
-    MapObject,
-    MapTileset,
-    MapCollisionKind,
-};
+use crate::prelude::*;
+use std::ops::Deref;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TiledMapCollisionDeclaration {

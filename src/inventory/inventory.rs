@@ -1,39 +1,15 @@
-use macroquad::{
-    experimental::{
-        scene::RefMut,
-        collections::storage,
-    },
-    prelude::*,
-};
-
-use serde::{
-    Serialize,
-    Deserialize,
-};
-
-use crate::{
-    nodes::item::{
-        ItemKind,
-        ItemParams,
-        Item,
-        Credits,
-    },
-    ability::Ability,
-    generate_id,
-    resources::Resources,
-};
-use crate::nodes::actor::equipped::EquipmentSlot;
+use crate::prelude::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ActorInventoryParams {
+pub struct InventoryParams {
     pub items: Vec<String>,
     #[serde(default)]
     pub credits: u32,
 }
 
-impl Default for ActorInventoryParams {
+impl Default for InventoryParams {
     fn default() -> Self {
-        ActorInventoryParams {
+        InventoryParams {
             items: Vec::new(),
             credits: 0,
         }
@@ -41,21 +17,21 @@ impl Default for ActorInventoryParams {
 }
 
 #[derive(Clone)]
-pub struct ActorInventoryEntry {
+pub struct InventoryEntry {
     pub params: ItemParams,
     pub equipped_to: EquipmentSlot,
 }
 
-impl ActorInventoryEntry {
+impl InventoryEntry {
     pub fn new(params: ItemParams) -> Self {
-        ActorInventoryEntry {
+        InventoryEntry {
             params,
             equipped_to: EquipmentSlot::None,
         }
     }
 }
 
-impl ActorInventoryEntry {
+impl InventoryEntry {
     pub fn get_actor_ability(&self) -> Option<Ability> {
         if let Some(ability_id) = self.params.ability_id.clone() {
             let resources = storage::get::<Resources>();
@@ -68,27 +44,27 @@ impl ActorInventoryEntry {
 }
 
 #[derive(Clone)]
-pub struct ActorInventory {
-    pub items: Vec<ActorInventoryEntry>,
+pub struct Inventory {
+    pub items: Vec<InventoryEntry>,
     pub credits: u32,
 }
 
-impl ActorInventory {
+impl Inventory {
     const DROP_ALL_POSITION_VARIANCE: f32 = 15.0;
 
     pub fn new() -> Self {
-        ActorInventory {
+        Inventory {
             items: Vec::new(),
             credits: 0,
         }
     }
 
-    pub fn from_prototypes(params: &ActorInventoryParams) -> Self {
+    pub fn from_prototypes(params: &InventoryParams) -> Self {
         let resources = storage::get::<Resources>();
-        ActorInventory {
+        Inventory {
             items: params.items.clone().into_iter().map(|id| {
                 let params = resources.items.get(&id).cloned().unwrap();
-                ActorInventoryEntry::new(ItemParams {
+                InventoryEntry::new(ItemParams {
                     id: generate_id(),
                     ..params
                 })
@@ -97,18 +73,18 @@ impl ActorInventory {
         }
     }
 
-    pub fn from_save_game(params: &ActorInventoryParams) -> Self {
+    pub fn from_save_game(params: &InventoryParams) -> Self {
         let resources = storage::get::<Resources>();
-        ActorInventory {
+        Inventory {
             items: params.items.clone().into_iter().map(|id| {
                 let params = resources.items.get(&id).cloned().unwrap();
-                ActorInventoryEntry::new(params)
+                InventoryEntry::new(params)
             }).collect(),
             credits: params.credits,
         }
     }
 
-    pub fn get_all_of_kind(&self, kinds: &[ItemKind]) -> Vec<ActorInventoryEntry> {
+    pub fn get_all_of_kind(&self, kinds: &[ItemKind]) -> Vec<InventoryEntry> {
         self.items.clone().into_iter().filter(|item| {
             if kinds.contains(&item.params.kind) {
                 return true;
@@ -118,7 +94,7 @@ impl ActorInventory {
     }
 
     pub fn pick_up(&mut self, item: RefMut<Item>) {
-        self.items.push(ActorInventoryEntry::new(ItemParams {
+        self.items.push(InventoryEntry::new(ItemParams {
             position: None,
             ..item.to_params()
         }));
@@ -126,7 +102,7 @@ impl ActorInventory {
     }
 
     pub fn add_item(&mut self, item_params: ItemParams) {
-        self.items.push(ActorInventoryEntry::new(ItemParams {
+        self.items.push(InventoryEntry::new(ItemParams {
             position: None,
             ..item_params
         }));
@@ -137,7 +113,7 @@ impl ActorInventory {
     }
 
     pub fn drop(&mut self, item_id: &str, position: Vec2) -> bool {
-        let items: Vec<ActorInventoryEntry> = self.items
+        let items: Vec<InventoryEntry> = self.items
             .drain_filter(|entry| {
                 if entry.params.id == item_id && entry.params.is_quest_item == false {
                     let params = ItemParams {
@@ -190,8 +166,8 @@ impl ActorInventory {
         weight
     }
 
-    pub fn to_params(&self) -> ActorInventoryParams {
-        ActorInventoryParams {
+    pub fn to_params(&self) -> InventoryParams {
+        InventoryParams {
             items: self.items.iter().map( | entry| entry.params.id.clone()).collect(),
             credits: self.credits,
         }

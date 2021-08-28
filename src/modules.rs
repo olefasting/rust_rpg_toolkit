@@ -1,32 +1,8 @@
-use std::{
-    collections::HashMap,
-    iter::FromIterator,
-    io,
-};
-
-use macroquad::{
-    experimental::{
-        collections::storage,
-    },
-    prelude::*
-};
-
-use serde::{
-    Serialize,
-    Deserialize,
-};
-
-use crate::{Resources, nodes::{
-    ActorParams,
-    ItemParams,
-}, missions::MissionParams, ability::AbilityParams, generate_id, GameParams};
+use crate::prelude::*;
 
 use crate::resources::{MaterialInfo, TextureParams, SoundParams};
+
 use crate::render::{LINEAR_FILTER_MODE, NEAREST_FILTER_MODE};
-use macroquad::audio::load_sound;
-use crate::dialogue::Dialogue;
-use crate::scenario::{ScenarioParams, ChapterParams};
-use crate::versions::check_version_requirement;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum ModuleDataFileKind {
@@ -105,6 +81,8 @@ pub struct ModuleDeclaration {
     pub version: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub required_game_version: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub required_toolkit_version: Option<String>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub dependencies: Vec<ModuleDependencyInfo>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -121,6 +99,7 @@ impl Default for ModuleDeclaration {
             title: "Unnamed Module".to_string(),
             description: "".to_string(),
             version: "not versioned".to_string(),
+            required_toolkit_version: None,
             required_game_version: None,
             dependencies: Vec::new(),
             data: Vec::new(),
@@ -151,6 +130,13 @@ pub async fn load_modules(resources: &mut Resources, scenario: &mut ScenarioPara
         if let Some(required_game_version) = &module_decl.required_game_version {
             if check_version_requirement(required_game_version, &game_params.game_version) == false {
                 println!("WARNING: Module '{}' was not loaded as its game version requirement '{}' was unmet (game version is '{}')!", module_name, required_game_version, game_params.game_version);
+                continue 'module;
+            }
+        }
+
+        if let Some(required_toolkit_version) = &module_decl.required_toolkit_version {
+            if check_version_requirement(required_toolkit_version, TOOLKIT_VERSION) == false {
+                println!("WARNING: Module '{}' was not loaded as its toolkit version requirement '{}' was unmet (toolkit version is '{}')!", module_name, required_toolkit_version, TOOLKIT_VERSION);
                 continue 'module;
             }
         }

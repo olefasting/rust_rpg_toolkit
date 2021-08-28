@@ -1,25 +1,4 @@
-use macroquad::{
-    experimental::{
-        coroutines::start_coroutine,
-        collections::storage,
-    },
-    color,
-    prelude::*,
-};
-
-use serde::{
-    Serialize,
-    Deserialize,
-};
-
-use crate::render::{
-    draw_aligned_text,
-    HorizontalAlignment,
-    VerticalAlignment,
-};
-
-use crate::map::Map;
-use crate::GameParams;
+use crate::prelude::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MapParams {

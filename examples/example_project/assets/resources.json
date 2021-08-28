@@ -8,6 +8,10 @@
   ],
   "textures": [
     {
+      "id": "target_cursor",
+      "path": "textures/target_cursor.png"
+    },
+    {
       "id": "characters",
       "path": "textures/neo_zero_characters.png"
     },

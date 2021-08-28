@@ -97,26 +97,26 @@ const INVESTIGATE_FORGET_AFTER: f32 = 15.0;
 fn go_to(actor: &mut Actor, target: Vec2) {
     actor.behavior.current_action = Some(format!("go to {}", target.to_string()));
     if actor.body.position.distance(target) > GO_TO_STOP_THRESHOLD {
-        actor.controller.direction = target.sub(actor.body.position).normalize_or_zero();
+        actor.controller.move_direction = target.sub(actor.body.position).normalize_or_zero();
     } else {
-        actor.controller.direction = Vec2::ZERO;
+        actor.controller.move_direction = Vec2::ZERO;
     }
 }
 
 fn investigate(actor: &mut Actor, target: Vec2) {
     actor.behavior.current_action = Some(format!("investigating {}", target.to_string()));
     if actor.is_target_visible(target) {
-        actor.controller.direction = Vec2::ZERO;
+        actor.controller.move_direction = Vec2::ZERO;
         actor.behavior.investigate_cooldown_timer = 0.0;
         actor.behavior.investigating = None;
     } else {
-        actor.controller.direction = target.sub(actor.body.position).normalize_or_zero();
+        actor.controller.move_direction = target.sub(actor.body.position).normalize_or_zero();
     }
 }
 
 fn wander(actor: &mut Actor) {
     actor.behavior.current_action = Some("wander".to_string());
-    let mut direction = actor.controller.direction;
+    let mut direction = actor.controller.move_direction;
     if direction == Vec2::ZERO {
         direction = vec2(rand::gen_range(-1.0, 1.0), rand::gen_range(-1.0, 1.0)).normalize_or_zero();
     }
@@ -128,7 +128,7 @@ fn wander(actor: &mut Actor) {
         };
         direction = rotate_vector(direction, deg_to_rad(deg));
     }
-    actor.controller.direction = direction;
+    actor.controller.move_direction = direction;
 }
 
 fn equip_weapon(actor: &mut Actor) {
@@ -143,7 +143,7 @@ fn equip_weapon(actor: &mut Actor) {
 fn flee(actor: &mut Actor, target: Vec2) {
     actor.behavior.is_in_combat = true;
     actor.behavior.current_action = Some(format!("flee"));
-    let mut direction = actor.controller.direction;
+    let mut direction = actor.controller.move_direction;
     if actor.body.last_collisions.len() > 0 || actor.body.raycast( actor.body.position + direction * 32.0, false).is_some() {
         direction = rotate_vector(direction, deg_to_rad(6.0));
     } else {
@@ -162,8 +162,8 @@ fn flee(actor: &mut Actor, target: Vec2) {
             break;
         }
     }
-    actor.controller.direction = direction;
-    actor.controller.is_sprinting = true;
+    actor.controller.move_direction = direction;
+    actor.controller.should_sprint = true;
 }
 
 fn attack(actor: &mut Actor, target: Vec2) {
@@ -174,25 +174,27 @@ fn attack(actor: &mut Actor, target: Vec2) {
     if distance < actor.stats.view_distance * 0.8 {
         if let Some(ability) = actor.primary_ability.as_mut() {
             if distance < ability.range * 0.9 {
+                actor.controller.aim_direction = direction;
                 direction = Vec2::ZERO;
-                actor.controller.primary_target = Some(target);
+                actor.controller.should_use_primary_ability = true;
             }
         } else if let Some(ability) = actor.secondary_ability.as_mut() {
             if distance < ability.range * 0.9 {
+                actor.controller.aim_direction = direction;
                 direction = Vec2::ZERO;
-                actor.controller.secondary_target = Some(target);
+                actor.controller.should_use_secondary_ability = true;
             }
         } else {
             equip_weapon(actor);
         }
     }
-    actor.controller.direction = direction;
+    actor.controller.move_direction = direction;
 }
 
 pub fn apply_actor_behavior(actor: &mut Actor) {
     actor.behavior.is_in_combat = false;
-    actor.controller.primary_target = None;
-    actor.controller.secondary_target = None;
+    actor.controller.should_use_primary_ability = false;
+    actor.controller.should_use_secondary_ability = false;
 
     let dt = get_frame_time();
     actor.behavior.investigate_cooldown_timer += dt;

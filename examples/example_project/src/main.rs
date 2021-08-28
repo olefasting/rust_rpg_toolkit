@@ -1,9 +1,4 @@
-use macroquad::{
-    experimental::collections::storage,
-    prelude::*
-};
-
-use rust_rpg_toolkit::{Config, GameParams};
+use rust_rpg_toolkit::prelude::*;
 
 // Used when determining whether module dependencies on game version are met
 const GAME_VERSION: &'static str = "0.1.0";
@@ -37,10 +32,11 @@ async fn main() {
         assets_path: ASSETS_PATH.to_string(),
         modules_path: MODULES_PATH.to_string(),
         characters_path: CHARACTERS_PATH.to_string(),
-        saves_path: SAVES_PATH.to_string()
+        saves_path: SAVES_PATH.to_string(),
+        ..Default::default()
     };
 
-    rust_rpg_toolkit::run_game(params).await;
+    run_game(params).await;
 
     let config = storage::get::<Config>();
     config.save(CONFIG_PATH);

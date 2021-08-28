@@ -4,17 +4,10 @@ pub use draw_buffer::DrawBuffer;
 pub use game_state::GameState;
 pub use item::{
     Item,
-    ItemParams,
+    Credits,
 };
 pub use projectiles::Projectiles;
-pub use actor::{
-    Actor,
-    ActorController,
-    ActorControllerKind,
-    ActorInventory,
-    ActorParams,
-    ActorStats,
-};
+pub use actor::Actor;
 
 pub use light_source::LightSource;
 

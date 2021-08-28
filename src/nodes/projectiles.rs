@@ -142,13 +142,13 @@ impl Projectiles {
         color_override: Option<Color>,
         size_override: Option<f32>,
         position: Vec2,
-        target: Vec2,
+        direction: Vec2,
         speed: f32,
         spread: f32,
         range: f32,
         on_hit_sound_effect_id: Option<String>,
     ) {
-        let spread_target = target.sub(position).normalize_or_zero() * Self::SPREAD_CALCULATION_DISTANCE;
+        let spread_target = direction.normalize_or_zero() * Self::SPREAD_CALCULATION_DISTANCE;
         let direction = vec2(
             rand::gen_range(spread_target.x - spread, spread_target.x + spread),
             rand::gen_range(spread_target.y - spread, spread_target.y + spread),

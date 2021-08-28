@@ -1,33 +1,6 @@
 use std::ops::Sub;
 
-use macroquad::{
-    experimental::{
-        collections::storage,
-    },
-    audio::{
-        Sound,
-        play_sound_once,
-    },
-    prelude::*,
-};
-
-use serde::{
-    Serialize,
-    Deserialize,
-};
-
-use crate::{
-    Actor,
-    nodes::{
-        Projectiles,
-        ContinuousBeams,
-        projectiles::ProjectileKind,
-        actor::ActorNoiseLevel
-    },
-    Resources,
-    json,
-};
-use crate::physics::Collider;
+use crate::prelude::*;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 
@@ -77,7 +50,7 @@ pub struct AbilityParams {
     #[serde(default, rename = "on_hit_sound_effect", skip_serializing_if = "Option::is_none")]
     pub on_hit_sound_effect_id: Option<String>,
     #[serde(default)]
-    pub noise_level: ActorNoiseLevel,
+    pub noise_level: NoiseLevel,
     pub delivery: AbilityDelivery,
     #[serde(default)]
     pub cooldown: f32,
@@ -101,7 +74,7 @@ impl Default for AbilityParams {
             id: "".to_string(),
             sound_effect_id: None,
             on_hit_sound_effect_id: None,
-            noise_level: ActorNoiseLevel::Moderate,
+            noise_level: NoiseLevel::Moderate,
             delivery: AbilityDelivery::Projectile {
                 projectile_kind: ProjectileKind::Bullet,
                 speed: 8.0,
@@ -121,7 +94,7 @@ impl Default for AbilityParams {
 
 #[derive(Clone)]
 pub struct Ability {
-    pub noise_level: ActorNoiseLevel,
+    pub noise_level: NoiseLevel,
     pub delivery: AbilityDelivery,
     pub sound_effect: Option<Sound>,
     pub on_hit_sound_effect_id: Option<String>,
@@ -162,7 +135,8 @@ impl Ability {
         }
     }
 
-    pub fn activate(&mut self, actor: &mut Actor, origin: Vec2, target: Vec2) {
+    pub fn activate(&mut self, actor: &mut Actor, origin: Vec2, direction: Vec2) {
+        let direction = direction.normalize_or_zero();
         if self.cooldown_timer >= self.cooldown
             && (self.health_cost == 0.0 || actor.stats.current_health >= self.health_cost)
             && (self.stamina_cost == 0.0 || actor.stats.current_stamina >= self.stamina_cost)
@@ -175,7 +149,7 @@ impl Ability {
             match self.delivery.clone() {
                 AbilityDelivery::ContinuousBeam => {
                     let mut continuous_beams = scene::find_node_by_type::<ContinuousBeams>().unwrap();
-                    let end = actor.body.position + target.sub(actor.body.position).normalize_or_zero() * self.range;
+                    let end = actor.body.position + direction * self.range;
                     continuous_beams.spawn(
                         &actor.id,
                         &actor.factions,
@@ -200,7 +174,7 @@ impl Ability {
                         self.color_override,
                         self.size_override,
                         origin,
-                        target,
+                        direction,
                         speed,
                         spread,
                         self.range,

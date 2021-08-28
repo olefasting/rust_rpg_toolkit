@@ -13,6 +13,10 @@ struct ModuleDeclaration {
     pub description: String,
     #[serde(default)]
     pub version: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub required_game_version: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub required_toolkit_version: Option<String>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub dependencies: Vec<ModuleDependencyInfo>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]

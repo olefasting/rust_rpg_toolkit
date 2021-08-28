@@ -1,24 +1,4 @@
-use macroquad::{
-    experimental::{
-        animation::{
-            AnimatedSprite,
-            Animation,
-        },
-        collections::storage,
-    },
-    color,
-    prelude::*,
-};
-
-use serde::{
-    Serialize,
-    Deserialize,
-};
-
-use crate::{
-    Resources,
-    json,
-};
+use crate::prelude::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SpriteAnimationParams {

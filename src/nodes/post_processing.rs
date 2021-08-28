@@ -1,22 +1,4 @@
-use macroquad::{
-    experimental::{
-        scene::{
-            Node,
-            RefMut,
-            Handle,
-        },
-        collections::storage,
-    },
-    color,
-    prelude::*,
-};
-
-use crate::{
-    Resources,
-    Config,
-};
-
-use super::Camera;
+use crate::prelude::*;
 
 pub struct PostProcessing {
     pub material: Option<Material>,

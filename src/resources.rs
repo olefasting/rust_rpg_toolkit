@@ -1,36 +1,16 @@
-use std::{
-    collections::HashMap,
-    iter::FromIterator,
-};
-
-use macroquad::{
-    audio::{
-        load_sound,
-        Sound,
-    },
-    experimental::{
-        collections::storage,
-        coroutines::start_coroutine,
-    },
-    color,
-    prelude::*,
-};
-
 use serde::{
     Deserialize,
     Serialize,
 };
 
-use crate::{generate_id, nodes::{
-    item::ItemParams,
-    actor::ActorParams,
-}, render::{
-    LINEAR_FILTER_MODE,
-    NEAREST_FILTER_MODE,
-    draw_aligned_text,
-    HorizontalAlignment,
-    VerticalAlignment,
-}, missions::MissionParams, ability::AbilityParams, GameParams};
+use crate::{
+    render::{
+        LINEAR_FILTER_MODE,
+        NEAREST_FILTER_MODE,
+    },
+    prelude::*,
+};
+
 use crate::modules::load_modules;
 use crate::dialogue::Dialogue;
 use crate::map::{TiledMapDeclaration, Map};
@@ -119,7 +99,7 @@ impl Resources {
                 &String::from_utf8(fragment_shader).unwrap(),
                 MaterialParams {
                     ..Default::default()
-                }
+                },
             ).unwrap();
 
             materials.insert(material_params.id.clone(), material);
