@@ -1,7 +1,9 @@
-use regex::Regex;
-
-pub fn check_version_requirement(required_version: u32, version: u32) -> bool {
-    required_version == version
+pub fn check_version_requirement(required_version: &str, version: &str) -> bool {
+    if required_version.starts_with("^") {
+        return to_int_version(
+            &required_version[1..required_version.len()]) <= to_int_version(version);
+    }
+    to_int_version(&required_version) == to_int_version(version)
 }
 
 pub fn get_toolkit_version() -> String {

@@ -1,6 +1,5 @@
 use std::{
     fs,
-    io,
 };
 
 use crate::{
@@ -210,6 +209,7 @@ pub async fn run_game(game_params: GameParams) {
         }
     }
 
+    #[allow(unused_assignments)]
     let mut scene_transition = None;
     match gui::draw_main_menu(&game_params).await {
         MainMenuResult::StartGame(transition) =>

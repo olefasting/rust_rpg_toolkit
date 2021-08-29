@@ -26,8 +26,6 @@ impl Default for Config {
 }
 
 impl Config {
-    const WEB_STORAGE_CONFIG_KEY: &'static str = "toolkit_config";
-
     #[cfg(any(target_family = "unix", target_family = "windows"))]
     pub fn load(path: &str) -> Self {
         let json = fs::read_to_string(path)

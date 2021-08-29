@@ -209,7 +209,7 @@ impl Actor {
         scene::add_node(Self::new(controller_kind, params))
     }
 
-    pub fn to_save(&self) -> ActorParams {
+    pub fn to_params(&self) -> ActorParams {
         let dialogue_id = if let Some(dialogue) = &self.dialogue {
             Some(dialogue.id.clone())
         } else {
@@ -295,7 +295,7 @@ impl Actor {
 
     pub fn to_export(&self) -> SavedCharacter {
         let game_params = storage::get::<GameParams>();
-        let actor = self.to_save();
+        let actor = self.to_params();
         let items = self.inventory.items
             .iter()
             .map(|entry| entry.params.clone())

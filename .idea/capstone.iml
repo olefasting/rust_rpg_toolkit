@@ -10,6 +10,8 @@
       <excludeFolder url="file://$MODULE_DIR$/macroquad-ldtk/target" />
       <excludeFolder url="file://$MODULE_DIR$/cli/rpg_toolkit_cli/target" />
       <excludeFolder url="file://$MODULE_DIR$/cli/target" />
+      <excludeFolder url="file://$MODULE_DIR$/examples/example_project/web/assets" />
+      <excludeFolder url="file://$MODULE_DIR$/examples/example_project/web/modules" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

@@ -192,7 +192,7 @@ impl Map {
     }
 
     #[cfg(target_family = "wasm")]
-    pub fn save(&self, _: &str) -> io::Result<()> {
+    pub fn save(&self, _: &str) -> Result<(), FileError> {
         Ok(())
     }
 }

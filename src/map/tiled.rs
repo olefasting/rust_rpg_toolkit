@@ -2,8 +2,6 @@ use macroquad_tiled as tiled;
 
 use crate::prelude::*;
 use std::{
-    io,
-    fs,
     ops::Deref,
     path::Path,
 };

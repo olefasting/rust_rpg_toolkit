@@ -1,8 +1,10 @@
 /target
+**/target
+*/target
 /examples/example_project/assets/sound_effects/external/
 /examples/example_project/web/assets/*
-/examples/example_project/web/capstone.d
-/examples/example_project/web/capstone.wasm
+/examples/example_project/web/*.d
+/examples/example_project/web/*.wasm
 /examples/example_project/web/modules/*
 /examples/example_project/save_games/*
 /examples/example_project/characters/*

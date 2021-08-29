@@ -1,4 +1,4 @@
-use std::{io, fs};
+use std::fs;
 
 use crate::prelude::*;
 
