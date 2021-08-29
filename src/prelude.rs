@@ -33,6 +33,8 @@ pub use serde::{
     Deserialize,
 };
 
+pub use serde_json;
+
 pub use crate::{
     versions::{
         get_toolkit_version,

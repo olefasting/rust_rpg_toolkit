@@ -60,14 +60,13 @@ impl Resources {
     pub const GROUND_TILES_TEXTURE_ID: &'static str = "tiles";
     pub const ITEMS_TEXTURE_ID: &'static str = "items";
 
-    pub async fn new() -> Result<Self, FileError> {
-        let game_params = storage::get::<GameParams>();
-        let resources_file_path = format!("{}/resources.json", game_params.assets_path);
-        let actors_file_path = format!("{}/actors.json", game_params.assets_path);
-        let items_file_path = format!("{}/items.json", game_params.assets_path);
-        let abilities_file_path = format!("{}/abilities.json", game_params.assets_path);
-        let missions_file_path = format!("{}/missions.json", game_params.assets_path);
-        let dialogue_file_path = format!("{}/dialogue.json", game_params.assets_path);
+    pub async fn new(assets_path: &str) -> Result<Self, FileError> {
+        let resources_file_path = format!("{}/resources.json", assets_path);
+        let actors_file_path = format!("{}/actors.json", assets_path);
+        let items_file_path = format!("{}/items.json", assets_path);
+        let abilities_file_path = format!("{}/abilities.json", assets_path);
+        let missions_file_path = format!("{}/missions.json", assets_path);
+        let dialogue_file_path = format!("{}/dialogue.json", assets_path);
 
         let mut textures = HashMap::new();
         let white_texture = load_texture("assets/textures/white_texture.png").await?;
@@ -80,8 +79,8 @@ impl Resources {
 
         let mut materials = HashMap::new();
         for material_params in &resources.materials {
-            let vertex_shader = load_file(&format!("{}/{}", game_params.assets_path, material_params.vertex_shader_path)).await?;
-            let fragment_shader = load_file(&format!("{}/{}", game_params.assets_path, material_params.fragment_shader_path)).await?;
+            let vertex_shader = load_file(&format!("{}/{}", assets_path, material_params.vertex_shader_path)).await?;
+            let fragment_shader = load_file(&format!("{}/{}", assets_path, material_params.fragment_shader_path)).await?;
 
             let material = load_material(
                 &String::from_utf8(vertex_shader).unwrap(),
@@ -95,7 +94,7 @@ impl Resources {
         }
 
         for texture_params in &resources.textures {
-            let texture = load_texture(&format!("{}/{}", game_params.assets_path, texture_params.path)).await?;
+            let texture = load_texture(&format!("{}/{}", assets_path, texture_params.path)).await?;
             if texture_params.filter_mode == LINEAR_FILTER_MODE.to_string() {
                 texture.set_filter(FilterMode::Linear)
             } else if texture_params.filter_mode == NEAREST_FILTER_MODE.to_string() {
@@ -108,7 +107,7 @@ impl Resources {
 
         let mut sound_effects = HashMap::new();
         for sound_params in &resources.sound_effects {
-            let sound = load_sound(&format!("{}/{}", game_params.assets_path, sound_params.path)).await?;
+            let sound = load_sound(&format!("{}/{}", assets_path, sound_params.path)).await?;
             sound_effects.insert(sound_params.id.clone(), sound);
         }
 

@@ -22,7 +22,7 @@ gilrs = "0.8.1"
 
 macroquad = { version = "0.3.8" }
 quad-storage = "0.1.0"
-# macroquad-profiler = "0.1"
+#macroquad-profiler = "0.1"
 macroquad-particles = { version = "0.1", features = ["nanoserde"] }
 macroquad-tiled = "0.1"
 

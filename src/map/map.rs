@@ -49,10 +49,9 @@ impl Map {
         Ok(map)
     }
 
-    pub async fn load_tiled(decl: TiledMapDeclaration) -> io::Result<Self> {
-        let game_params = storage::get::<GameParams>();
-        let map: Map = TiledMap::load(decl.clone()).await.into();
-        map.save(&format!("{}/{}", game_params.assets_path, &decl.export_path))?;
+    pub async fn load_tiled(assets_path: &str, decl: TiledMapDeclaration) -> Result<Self, FileError> {
+        let map: Map = TiledMap::load(assets_path, decl.clone()).await?.into();
+        map.save(&format!("{}/{}", assets_path, &decl.export_path))?;
         Ok(map)
     }
 
@@ -186,9 +185,9 @@ impl Map {
     }
 
     #[cfg(any(target_family = "unix", target_family = "windows"))]
-    pub fn save(&self, path: &str) -> io::Result<()> {
-        let json = serde_json::to_string_pretty(self)?;
-        std::fs::write(path, json)?;
+    pub fn save(&self, path: &str) -> Result<(), FileError> {
+        let json = serde_json::to_string_pretty(self).unwrap();
+        std::fs::write(path, json).unwrap();
         Ok(())
     }
 

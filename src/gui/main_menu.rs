@@ -137,7 +137,6 @@ async fn draw_character_select_menu(available_characters: &[SavedCharacter]) -> 
 
 pub async fn draw_create_character_menu() -> Option<SavedCharacter> {
     let gui_skins = storage::get::<GuiSkins>();
-
     let resources = storage::get::<Resources>();
     let game_params = storage::get::<GameParams>();
     let mut build_points = game_params.new_character_build_points;

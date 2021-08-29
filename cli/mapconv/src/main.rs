@@ -1,29 +1,34 @@
+use std::path::PathBuf;
+
 use quicli::prelude::*;
+use structopt::StructOpt;
 
 use rust_rpg_toolkit::{
     map::*,
     prelude::*,
 };
 
-const DEFAULT_TILED_MAPS_FILE_PATH: &'static str = "assets/tiled_maps.json";
-
 #[derive(Debug, StructOpt)]
 struct Cli {
-    /// Input file to read
-    file: String,
-    /// Number of lines to read
-    #[structopt(short = "n")]
-    num: usize,
+    #[structopt(short = "f", default_value = "assets")]
+    assets_folder: String,
 }
 
 fn main() -> CliResult {
-    let tiled_maps_file_path = format!("{}/tiled_maps.json", assets_path);
-    let bytes = load_file(&tiled_maps_file_path).await
-        .expect(&format!("Unable to find tiled maps file '{}'!", tiled_maps_file_path));
-    let tiled_maps: Vec<TiledMapDeclaration> = serde_json::from_slice(&bytes)
-        .expect(&format!("Unable to parse tiled maps file '{}'!", tiled_maps_file_path));
-    for decl in tiled_maps {
-        Map::load_tiled(&assets_path, decl.clone()).await
-            .expect(&format!("Unable to convert tiled map '{}'!", decl.path));
+    let args = Cli::from_args();
+
+    let manifest_path = format!("{}/tiled_maps.json", args.assets_folder);
+    let content = read_file(&manifest_path)?;
+    let manifest: Vec<TiledMapDeclaration> = serde_json::from_str(&content)?;
+
+    println!("Converting maps using manifest file '{}'", manifest_path);
+
+    for decl in manifest {
+        let in_path = format!("{}/{}", args.assets_folder, decl.path);
+        let out_path = format!("{}/{}", args.assets_folder, decl.export_path);
+        Map::load_tiled(&args.assets_folder, decl.clone())?;
+        println!("Successfully converted map '{}' and exported it to '{}'", in_path, out_path);
     }
+
+    Ok(())
 }

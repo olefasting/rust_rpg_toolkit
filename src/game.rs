@@ -1,4 +1,7 @@
-use std::fs;
+use std::{
+    fs,
+    io,
+};
 
 use crate::{
     gui::MainMenuResult,
@@ -7,7 +10,9 @@ use crate::{
     prelude::*,
 };
 
-fn load_map(transition: SceneTransition) {
+use crate::prelude::coroutines::start_coroutine;
+
+fn load_map(local_player_id: &str, transition: SceneTransition) {
     let scenario = storage::get::<Scenario>();
     let SceneTransition { player, chapter_index, map_id } = transition;
     let chapter = scenario.chapters.get(chapter_index)
@@ -26,7 +31,6 @@ fn load_map(transition: SceneTransition) {
     storage::store(current_chapter);
 
     let map = map_data.map;
-    let local_player_id = generate_id();
 
     let resources = storage::get::<Resources>();
     if let Some(layer) = map.layers.get("spawn_points") {
@@ -110,31 +114,6 @@ fn load_map(transition: SceneTransition) {
     Hud::add_node();
 }
 
-async fn game_loop() -> Option<SceneTransition> {
-    loop {
-        gui::draw_gui();
-        update_input();
-        {
-            let mut game_state = scene::find_node_by_type::<GameState>().unwrap();
-            if game_state.should_save_character {
-                game_state.save_player_character();
-                game_state.should_save_character = false;
-            }
-            if game_state.should_quit {
-                break;
-            }
-            if let Some(transition_params) = game_state.scene_transition.clone() {
-                let player = Actor::find_by_player_id(&game_state.local_player_id).unwrap();
-                return Some(SceneTransition::new(player.to_export(), transition_params));
-            }
-        }
-
-        next_frame().await;
-    }
-
-    return None;
-}
-
 #[derive(Debug, Clone)]
 pub struct GameParams {
     pub game_name: String,
@@ -144,6 +123,7 @@ pub struct GameParams {
     pub characters_path: String,
     pub new_character_prototype_id: String,
     pub new_character_build_points: u32,
+    pub clear_background_color: Color,
 }
 
 impl Default for GameParams {
@@ -156,6 +136,7 @@ impl Default for GameParams {
             characters_path: "characters".to_string(),
             new_character_prototype_id: "new_character_prototype".to_string(),
             new_character_build_points: 6,
+            clear_background_color: color::BLACK,
         }
     }
 }
@@ -167,54 +148,106 @@ fn check_env(params: &GameParams) {
 }
 
 #[cfg(target_family = "wasm")]
-fn check_env(_params: &GameParams) {}
+pub fn check_env(_params: &GameParams) {}
 
-pub async fn run_game(params: GameParams) {
-    check_env(&params);
-
+pub fn setup_local_player() -> String {
     let local_player_id = generate_id();
     map_gamepad(&local_player_id);
-    storage::store(params.clone());
+    local_player_id
+}
+
+pub async fn load_resources(game_params: GameParams) -> Result<(), FileError> {
+    let assets_path = game_params.assets_path.clone();
+    let mut resources = Resources::new(&assets_path).await.unwrap();
+    let mut scenario_params = Scenario::load_params(&assets_path).await.unwrap();
+    load_modules(&game_params, &mut resources, &mut scenario_params).await;
+    storage::store(resources);
+
+    let tiled_maps_file_path = format!("{}/tiled_maps.json", assets_path);
+    let bytes = load_file(&tiled_maps_file_path).await?;
+    let tiled_maps: Vec<TiledMapDeclaration> = serde_json::from_slice(&bytes).unwrap();
+    for decl in tiled_maps {
+        Map::load_tiled(&assets_path, decl.clone()).await?;
+    }
+
+    let scenario = Scenario::new(&assets_path, scenario_params).await?;
+    storage::store(scenario);
+    Ok(())
+}
+
+pub async fn run_game(game_params: GameParams) {
+    storage::store(game_params.clone());
+    check_env(&game_params);
+
+    let player_id = setup_local_player();
+
+    let config = storage::get::<Config>();
+    storage::store(GuiSkins::new(config.gui_scale));
+
     {
-        let config = storage::get::<Config>();
-        storage::store(GuiSkins::new(config.gui_scale));
+        let game_params = game_params.clone();
+        let clear_background_color = game_params.clear_background_color.clone();
+        let coroutine = start_coroutine({
+            async move {
+                load_resources(game_params).await.unwrap();
+            }
+        });
 
-        let mut resources = Resources::new().await.unwrap();
-        let mut scenario_params = Scenario::load_params().await.unwrap();
-        load_modules(&mut resources, &mut scenario_params).await;
+        while coroutine.is_done() == false {
+            clear_background(clear_background_color);
+            draw_aligned_text(
+                "Loading game data...",
+                screen_width() / 2.0,
+                screen_height() / 2.0,
+                HorizontalAlignment::Center,
+                VerticalAlignment::Center,
+                TextParams {
+                    ..Default::default()
+                },
+            );
 
-        storage::store(resources);
-
-        let game_params = storage::get::<GameParams>();
-        let tiled_maps_file_path = format!("{}/tiled_maps.json", game_params.assets_path);
-        let bytes = load_file(&tiled_maps_file_path).await
-            .expect(&format!("Unable to find tiled maps file '{}'!", tiled_maps_file_path));
-        let tiled_maps: Vec<TiledMapDeclaration> = serde_json::from_slice(&bytes)
-            .expect(&format!("Unable to parse tiled maps file '{}'!", tiled_maps_file_path));
-        for decl in tiled_maps {
-            Map::load_tiled(decl.clone()).await
-                .expect(&format!("Unable to convert tiled map '{}'!", decl.path));
+            next_frame().await;
         }
-
-        let scenario = Scenario::new(scenario_params).await.unwrap();
-        storage::store(scenario);
     }
 
     let mut scene_transition = None;
-    match gui::draw_main_menu(&params).await {
+    match gui::draw_main_menu(&game_params).await {
         MainMenuResult::StartGame(transition) =>
             scene_transition = Some(transition),
         MainMenuResult::Quit => return,
     };
 
-    loop {
-        load_map(scene_transition.unwrap());
+    'outer: loop {
+        load_map(&player_id, scene_transition.unwrap());
 
-        scene_transition = game_loop().await;
+        'inner: loop {
+            gui::draw_gui();
+            update_input();
+
+            {
+                let mut game_state = scene::find_node_by_type::<GameState>().unwrap();
+                if game_state.should_save_character {
+                    game_state.save_player_character();
+                    game_state.should_save_character = false;
+                }
+
+                if game_state.should_quit {
+                    break 'outer;
+                }
+
+                if let Some(transition_params) = game_state.scene_transition.clone() {
+                    let player = Actor::find_by_player_id(&game_state.local_player_id).unwrap();
+                    scene_transition = Some(SceneTransition::new(player.to_export(), transition_params));
+                    break 'inner;
+                }
+            }
+
+            next_frame().await;
+        }
 
         if scene_transition.is_none() {
             scene::clear();
-            break;
+            break 'outer;
         }
     }
 }

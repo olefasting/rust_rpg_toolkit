@@ -52,8 +52,7 @@ pub struct Scenario {
 }
 
 impl Scenario {
-    pub async fn new(params: ScenarioParams) -> Result<Self, FileError> {
-        let game_params = storage::get::<GameParams>();
+    pub async fn new(assets_path: &str, params: ScenarioParams) -> Result<Self, FileError> {
         let mut chapters = Vec::new();
         for i in 0..params.chapters.len() {
             let chapter_params = params.chapters
@@ -68,7 +67,7 @@ impl Scenario {
                     title: map_info.title,
                     description: map_info.description,
                     path: map_info.path.clone(),
-                    map: Map::load(&format!("{}/{}", game_params.assets_path, map_info.path)).await.unwrap(),
+                    map: Map::load(&format!("{}/{}", assets_path, map_info.path)).await.unwrap(),
                 };
 
                 maps.push(map);
@@ -92,9 +91,8 @@ impl Scenario {
         Ok(scenario)
     }
 
-    pub async fn load_params() -> Result<ScenarioParams, FileError> {
-        let game_params = storage::get::<GameParams>();
-        let path = &format!("{}/scenario.json", game_params.assets_path);
+    pub async fn load_params(assets_path: &str) -> Result<ScenarioParams, FileError> {
+        let path = &format!("{}/scenario.json", assets_path.clone());
         let bytes = load_file(path).await?;
         let params = serde_json::from_slice(&bytes)
             .expect(&format!("Unable to parse scenario file '{}'!", path));

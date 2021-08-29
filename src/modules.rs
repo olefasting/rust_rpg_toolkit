@@ -109,10 +109,8 @@ impl Default for ModuleDeclaration {
     }
 }
 
-pub async fn load_modules(resources: &mut Resources, scenario: &mut ScenarioParams) {
-    let game_params = storage::get::<GameParams>();
+pub async fn load_modules(game_params: &GameParams, resources: &mut Resources, scenario: &mut ScenarioParams) {
     let active_modules_file_path = &format!("{}/active_modules.json", game_params.modules_path);
-    let game_params = storage::get::<GameParams>();
     let mut loaded_modules: Vec<ModuleDependencyInfo> = Vec::new();
 
     let bytes = load_file(active_modules_file_path).await
