@@ -1,4 +1,5 @@
 use std::{
+    io,
     fs,
 };
 
@@ -170,21 +171,21 @@ pub fn setup_local_player() -> String {
     local_player_id
 }
 
-pub async fn load_resources(game_params: GameParams) -> Result<(), FileError> {
+pub async fn load_resources(game_params: GameParams) -> io::Result<()> {
     let assets_path = game_params.assets_path.clone();
     let mut resources = Resources::new(&assets_path).await.unwrap();
-    let mut scenario_params = Scenario::load_params(&assets_path).await.unwrap();
-    load_modules(&game_params, &mut resources, &mut scenario_params).await;
+    let mut scenario_params = Scenario::load_params(&assets_path)?;
+    load_modules(&game_params, &mut resources, &mut scenario_params).await.unwrap();
     storage::store(resources);
 
     let tiled_maps_file_path = format!("{}/tiled_maps.json", assets_path);
-    let bytes = load_file(&tiled_maps_file_path).await?;
-    let tiled_maps: Vec<TiledMapDeclaration> = serde_json::from_slice(&bytes).unwrap();
+    let bytes = fs::read(&tiled_maps_file_path)?;
+    let tiled_maps: Vec<TiledMapDeclaration> = serde_json::from_slice(&bytes)?;
     for decl in tiled_maps {
-        Map::load_tiled(&assets_path, decl.clone()).await?;
+        Map::load_tiled(&assets_path, decl.clone())?;
     }
 
-    let scenario = Scenario::new(&assets_path, scenario_params).await?;
+    let scenario = Scenario::new(&assets_path, scenario_params)?;
     storage::store(scenario);
     Ok(())
 }

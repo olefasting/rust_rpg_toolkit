@@ -87,7 +87,11 @@ Any game you create should also have an assets folder. Copy the one included in 
 
 Check the [docs folder](https://github.com/olefasting/rust_rpg_toolkit/tree/master/docs) for more documentation.
 
-\
+## CLI
+
+The CLI crate currently just consists of a tiled map conversion tool, but it will be expanded as we go 
+
+
 \
 \
 License: MIT

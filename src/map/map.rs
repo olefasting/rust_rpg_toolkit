@@ -1,6 +1,7 @@
 use std::{
     collections::HashMap,
     io,
+    fs,
 };
 
 use macroquad::{
@@ -43,9 +44,9 @@ pub struct Map {
 }
 
 impl Map {
-    pub async fn load(path: &str) -> io::Result<Self> {
-        let bytes = load_file(path).await.unwrap();
-        let map = serde_json::from_str(&String::from_utf8(bytes).unwrap())?;
+    pub fn load(path: &str) -> io::Result<Self> {
+        let json = fs::read_to_string(path)?;
+        let map = serde_json::from_str(&json)?;
         Ok(map)
     }
 
@@ -55,17 +56,17 @@ impl Map {
     //     Ok(map)
     // }
 
-    pub async fn load_tiled(assets_path: &str, decl: TiledMapDeclaration) -> Result<Self, FileError> {
+    pub fn load_tiled(assets_path: &str, decl: TiledMapDeclaration) -> io::Result<Self> {
         let in_path = format!("{}/{}", assets_path, &decl.path);
         let out_path = format!("{}/{}", assets_path, &decl.export_path);
-        let bytes = load_file(&in_path).await?;
+        let bytes = fs::read(&in_path)?;
         let tiled_map: RawTiledMap = serde_json::from_slice(&bytes).unwrap();
         let map = Map::from_tiled(tiled_map, decl);
         map.save(&out_path)?;
         Ok(map)
     }
 
-    fn from_tiled(tiled_map: RawTiledMap, decl: TiledMapDeclaration) -> Map {
+    pub fn from_tiled(tiled_map: RawTiledMap, decl: TiledMapDeclaration) -> Map {
         let background_color = if let Some(background_color) = tiled_map.backgroundcolor {
             color_from_hex_string(&background_color)
         } else {
@@ -348,9 +349,9 @@ impl Map {
     }
 
     #[cfg(any(target_family = "unix", target_family = "windows"))]
-    pub fn save(&self, path: &str) -> Result<(), FileError> {
-        let json = serde_json::to_string_pretty(self).unwrap();
-        std::fs::write(path, json).unwrap();
+    pub fn save(&self, path: &str) -> io::Result<()> {
+        let json = serde_json::to_string_pretty(self)?;
+        std::fs::write(path, json)?;
         Ok(())
     }
 

@@ -1,3 +1,7 @@
+use std::{
+    io, fs
+};
+
 use crate::prelude::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -52,7 +56,7 @@ pub struct Scenario {
 }
 
 impl Scenario {
-    pub async fn new(assets_path: &str, params: ScenarioParams) -> Result<Self, FileError> {
+    pub fn new(assets_path: &str, params: ScenarioParams) -> io::Result<Self> {
         let mut chapters = Vec::new();
         for i in 0..params.chapters.len() {
             let chapter_params = params.chapters
@@ -67,7 +71,7 @@ impl Scenario {
                     title: map_info.title,
                     description: map_info.description,
                     path: map_info.path.clone(),
-                    map: Map::load(&format!("{}/{}", assets_path, map_info.path)).await.unwrap(),
+                    map: Map::load(&format!("{}/{}", assets_path, map_info.path))?,
                 };
 
                 maps.push(map);
@@ -91,11 +95,10 @@ impl Scenario {
         Ok(scenario)
     }
 
-    pub async fn load_params(assets_path: &str) -> Result<ScenarioParams, FileError> {
+    pub fn load_params(assets_path: &str) -> io::Result<ScenarioParams> {
         let path = &format!("{}/scenario.json", assets_path.clone());
-        let bytes = load_file(path).await?;
-        let params = serde_json::from_slice(&bytes)
-            .expect(&format!("Unable to parse scenario file '{}'!", path));
+        let bytes = fs::read(path)?;
+        let params = serde_json::from_slice(&bytes)?;
         Ok(params)
     }
 }

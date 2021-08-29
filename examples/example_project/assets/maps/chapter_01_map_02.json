@@ -140147,12 +140147,12 @@
             "y": 237.66667
           },
           "properties": {
-            "prototype_id": {
-              "value": "enemy_thug",
-              "type": "string"
-            },
             "instance_id": {
               "value": "thug_02",
+              "type": "string"
+            },
+            "prototype_id": {
+              "value": "enemy_thug",
               "type": "string"
             }
           }
@@ -140164,12 +140164,12 @@
             "y": 253.0
           },
           "properties": {
-            "instance_id": {
-              "value": "thug_03",
-              "type": "string"
-            },
             "prototype_id": {
               "value": "enemy_thug",
+              "type": "string"
+            },
+            "instance_id": {
+              "value": "thug_03",
               "type": "string"
             }
           }
@@ -140224,11 +140224,11 @@
             "y": 844.5
           },
           "properties": {
-            "instance_id": {
+            "prototype_id": {
               "value": "scared_woman",
               "type": "string"
             },
-            "prototype_id": {
+            "instance_id": {
               "value": "scared_woman",
               "type": "string"
             }
@@ -140261,11 +140261,11 @@
             "y": 886.0
           },
           "properties": {
-            "instance_id": {
+            "prototype_id": {
               "value": "quest_pistol",
               "type": "string"
             },
-            "prototype_id": {
+            "instance_id": {
               "value": "quest_pistol",
               "type": "string"
             }
