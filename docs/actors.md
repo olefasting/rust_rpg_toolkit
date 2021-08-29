@@ -40,7 +40,7 @@ struct ActorParams {
 }
 ```
 
-The `id` field will mean different times, depending on the intended use for the `ActorParams` struct.
+The `id` field will mean different things, depending on the intended use for the `ActorParams` struct.
 As mentioned, actor nodes will be instantiated from `ActorParams`, so if editing a game or module data-file, it will
 be a prototype id, which can be referenced in a map's spawn points layer, under a spawn points `prototype_id` property,
 to spawn that specific prototype. When instantiated, an `Actor` node will have its id randomly generated, unless you
@@ -68,7 +68,7 @@ struct ActorBehaviorParams {
 
 The `aggression` field defines how a computer controlled actor will react to other actors
 of different factions, as well as how they react to being attacked, and so on. A `home` location can be defined and it will 
-determine where the actor will return to, if he, for some reason moves away from his position. If no `home` is defined, an actor's
+determine where the actor will return to, if he, for some reason, moves away from this position. If no `home` is defined, an actor's
 spawn point will be automatically assigned as its `home`. The `is_stationary`field defines whether an actor will wander around
 or if he will stay at his `home` location, only to move away if factors, like being attacked or seeing an enemy, force it to take
 action. Another factor that controls what might trigger such an action, is the `is_on_guard` field. If this is set to `true`, an
@@ -81,7 +81,7 @@ point defined on a map, the position will be set to the spawn point position and
 
 All of an actor's primary stats, `strength`, `dexterity`, `constitution`, `intelligence`, `willpower` and `charisma`, are what
 determines all the derived attributes, like `maximum_health`, `carry_capacity`, `move_speed`, as well as the view distance and,
-in the future, the range at which they can react to another actor's `NoiseLevel`. When instantiating n actor node, these will be 
+in the future, the range at which they can react to another actor's `NoiseLevel`. When instantiating an actor node, these will be 
 contained in an `ActorStats` struct, under the nodes `stats` field.
 
 ```rust
@@ -109,12 +109,12 @@ struct ActorStats {
 ```
 
 Except for the already mentioned primary attributes, these are all derived attributes, meaning that they are automatically 
-calculated, based on the the primary abilities. An actors current vitals, like `current_health`, can also be set in `ActorParams`,
+calculated, based on the primary attributes. An actor's current vitals, like `current_health`, can also be set in `ActorParams`,
 but, in general, an actor will be instantiated at full health.
 
 The `collider` field holds the parameters for an actor's collider, used for everything from collision detection and resolution
 on the map, as well as with projectiles and other effects and whether an actor is within the view frustum, when culling drawn
-objects out of the camera's view cone. If no `Collider` is defined, an actor's position will, in general, be used for such calculations.
+objects outside the camera's view cone. If no `Collider` is defined, an actor's position will, in general, be used for such calculations.
 
 The various types of `Collider` shapes, as well as their other parameters, will be explained more thoroughly in the documentation
 for the physics system.
@@ -130,12 +130,12 @@ struct InventoryParams {
 ```
 
 This struct is flattened when serializing an actor's parameters, so when defining `ActorParams` in JSON, the `items` and `credits` fields
-will be located by the root object. As with an actors `id`, the items vector will hold different types of identifiers, 
-depending on what purpose of the `ActorParams` struct. When defining actor prototypes in a game's or a module's data files,
+will be located on the root object. As with an actor's `id`, the items vector will hold different types of identifiers, 
+depending on the purpose of the `ActorParams` struct. When defining actor prototypes in a game's or a module's data files,
 the identifiers will be item prototype id's, referencing definitions in the game's or any loaded module's data files.
 When an actor is saved as a `SavedCharacter`, these identifiers will be instance id's, referencing items saved in the 
 `SavedCharacter` items vector. What items will be equipped by an instantiated actor, as well as the slot they are equipped
-to, is determined by the `EquippedItems` struct, in the `equipped_item` field.
+to, is determined by the `EquippedItems` struct, in the `equipped_items` field.
 
 An actor's sprites and animations are defined in the `SpriteAnimationParams` in the `animation_player` field. Refer to the
 rendering documentation for more info on this.
