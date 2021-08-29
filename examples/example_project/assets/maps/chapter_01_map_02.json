@@ -140086,8 +140086,8 @@
             "y": 4.0
           },
           "properties": {
-            "intensity": "0.1",
-            "color": "#ffff0000"
+            "color": "#ffff0000",
+            "intensity": "0.1"
           }
         }
       ],
@@ -140111,8 +140111,8 @@
             "y": 248.0
           },
           "properties": {
-            "prototype_id": "enemy_thug_boss",
-            "instance_id": "thug_01"
+            "instance_id": "thug_01",
+            "prototype_id": "enemy_thug_boss"
           }
         },
         {
@@ -140241,24 +140241,6 @@
       "tile_cnt": 400
     },
     {
-      "id": "neo_zero_props",
-      "texture_id": "props",
-      "texture_size": {
-        "x": 160,
-        "y": 160
-      },
-      "tile_size": {
-        "x": 16,
-        "y": 16
-      },
-      "grid_size": {
-        "x": 10,
-        "y": 10
-      },
-      "first_tile_id": 401,
-      "tile_cnt": 100
-    },
-    {
       "id": "items",
       "texture_id": "items",
       "texture_size": {
@@ -140275,6 +140257,24 @@
       },
       "first_tile_id": 501,
       "tile_cnt": 16
+    },
+    {
+      "id": "neo_zero_props",
+      "texture_id": "props",
+      "texture_size": {
+        "x": 160,
+        "y": 160
+      },
+      "tile_size": {
+        "x": 16,
+        "y": 16
+      },
+      "grid_size": {
+        "x": 10,
+        "y": 10
+      },
+      "first_tile_id": 401,
+      "tile_cnt": 100
     }
   ]
 }
