@@ -32,12 +32,15 @@ All file paths in a module's declaration file is relative to the module's root f
 
 ## Dependencies
 
-A module can depend on other modules. Currently, the versions must match exactly but in the future we will implement more sophisticated version matching. We will also introduce game version dependency, at some point.
+Module dependencies can be declared with or without a version requirement. If no version is specified, the dependency is considered met if a module by the specified name exist earlier in the load order.
+
+Version requirements can be specified for individual module dependencies, as well as for the toolkit and game, in thew module's declaration. All version requirements can be without a patch to match only against major and minor version. By default a version requirement is only considered met on an exact match. All requirements can be prefixed with a `^`, to match on anything below and including the version requirement. `
 
 ```rust
 struct ModuleDependencyParams {
     pub name: String,
-    pub version: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub version: Option<String>,
 }
 ```
 

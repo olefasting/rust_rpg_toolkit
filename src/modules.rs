@@ -34,9 +34,19 @@ pub struct ModuleDataParams {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ModuleDependencyInfo {
+pub struct ModuleDependencyParams {
     pub name: String,
-    pub version: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub version: Option<String>,
+}
+
+impl Default for ModuleDependencyParams {
+    fn default() -> Self {
+        ModuleDependencyParams {
+            name: "".to_string(),
+            version: None,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -84,7 +94,7 @@ pub struct ModuleDeclaration {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub required_toolkit_version: Option<String>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub dependencies: Vec<ModuleDependencyInfo>,
+    pub dependencies: Vec<ModuleDependencyParams>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub data: Vec<ModuleDataParams>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -111,7 +121,7 @@ impl Default for ModuleDeclaration {
 
 pub async fn load_modules(game_params: &GameParams, resources: &mut Resources, scenario: &mut ScenarioParams) {
     let active_modules_file_path = &format!("{}/active_modules.json", game_params.modules_path);
-    let mut loaded_modules: Vec<ModuleDependencyInfo> = Vec::new();
+    let mut loaded_modules: Vec<ModuleDependencyParams> = Vec::new();
 
     let bytes = load_file(active_modules_file_path).await
         .expect(&format!("Unable to find active modules file '{}'!", active_modules_file_path));
@@ -352,7 +362,7 @@ pub async fn load_modules(game_params: &GameParams, resources: &mut Resources, s
             }
         }
 
-        loaded_modules.push(ModuleDependencyInfo {
+        loaded_modules.push(ModuleDependencyParams {
             name: module_name,
             version: module_decl.version,
         })
