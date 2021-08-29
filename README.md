@@ -34,7 +34,7 @@ This is a work in progress but current features include (not an exhaustive list 
 - Controller support (needs polishing)
 - WebAssembly support (some features are not implemented yet for WASM, awaiting a decision on how to handle persistent user data)
 
-I have decided to remove the same game feature and in stead go for a Diablo-style saving model, where characters and their progress are saved but not the maps.
+I have decided to remove the save game feature and in stead go for a Diablo-style saving model, where characters and their progress are saved but not the maps.
 
 There really is no need to save scene state when we can save progress both on missions and waypoints on a per-character basis, in stead.
 
