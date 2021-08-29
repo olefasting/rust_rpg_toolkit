@@ -32,7 +32,7 @@ pub use main_menu::{
 };
 
 pub fn draw_gui() {
-    let gui_skins = storage::get::<GuiSkins>();
+    let _gui_skins = storage::get::<GuiSkins>();
     if let Some(mut game_state) = scene::find_node_by_type::<GameState>() {
         if let Some(mut player) = Actor::find_by_player_id(&game_state.local_player_id) {
             if game_state.should_show_character_window {

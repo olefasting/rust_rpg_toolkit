@@ -4,8 +4,6 @@
 #![feature(async_closure)]
 #![feature(hash_drain_filter)]
 
-pub const TOOLKIT_VERSION: &'static str = "0.1.0";
-
 pub mod resources;
 pub mod ability;
 pub mod map;
@@ -23,7 +21,7 @@ pub mod uid;
 pub mod modules;
 pub mod dialogue;
 pub mod scenario;
-pub mod save_games;
+pub mod saved_characters;
 pub mod versions;
 pub mod game;
 pub mod prelude;

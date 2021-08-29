@@ -128,22 +128,23 @@ pub async fn load_modules(resources: &mut Resources, scenario: &mut ScenarioPara
             .expect(&format!("Unable to parse module file '{}'!", module_file_path));
 
         if let Some(required_game_version) = &module_decl.required_game_version {
-            if check_version_requirement(required_game_version, &game_params.game_version) == false {
+            if check_version_requirement(to_int_version(required_game_version), to_int_version(&game_params.game_version)) == false {
                 println!("WARNING: Module '{}' was not loaded as its game version requirement '{}' was unmet (game version is '{}')!", module_name, required_game_version, game_params.game_version);
                 continue 'module;
             }
         }
 
+        let toolkit_version = to_int_version(&get_toolkit_version());
         if let Some(required_toolkit_version) = &module_decl.required_toolkit_version {
-            if check_version_requirement(required_toolkit_version, TOOLKIT_VERSION) == false {
-                println!("WARNING: Module '{}' was not loaded as its toolkit version requirement '{}' was unmet (toolkit version is '{}')!", module_name, required_toolkit_version, TOOLKIT_VERSION);
+            if check_version_requirement(to_int_version(required_toolkit_version), toolkit_version) == false {
+                println!("WARNING: Module '{}' was not loaded as its toolkit version requirement '{}' was unmet (toolkit version is '{}')!", module_name, required_toolkit_version, toolkit_version);
                 continue 'module;
             }
         }
 
         for dependency in module_decl.dependencies {
             let found = loaded_modules.iter().find(|loaded|
-                loaded.name.clone() == dependency.name && check_version_requirement(&loaded.version, &dependency.version));
+                loaded.name.clone() == dependency.name && check_version_requirement(to_int_version(&loaded.version), to_int_version(&dependency.version)));
             if found.is_none() {
                 println!("WARNING: Dependency '{}', version '{}', unmet for module '{}'!", dependency.name, dependency.version, module_name);
                 continue 'module;

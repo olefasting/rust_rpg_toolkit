@@ -1,69 +1,60 @@
 use crate::gui::*;
 
-use crate::save_games::{
+use crate::saved_characters::{
     get_available_characters,
-    get_available_save_games,
 };
 
 enum MainMenuSelection {
-    NewGame,
-    LoadGame,
-    SelectedCharacter(ExportedCharacter),
+    StartGame,
+    SelectCharacter(SavedCharacter),
     CreateCharacter,
     Cancel,
     Quit,
 }
 
 pub enum MainMenuResult {
-    NewCharacter(ExportedCharacter),
-    ImportedCharacter(ExportedCharacter, usize, String),
-    LoadGame(SaveGame),
+    StartGame(SceneTransition),
     Quit,
 }
 
 pub async fn draw_main_menu(params: &GameParams) -> MainMenuResult {
     let mut result = None;
 
-    'menu: loop {
+    loop {
         match draw_main_menu_root().await {
-            MainMenuSelection::NewGame => {
+            MainMenuSelection::StartGame => {
                 let characters = get_available_characters(&params.characters_path).await.unwrap_or(Vec::new());
                 match draw_character_select_menu(&characters).await {
-                    MainMenuSelection::SelectedCharacter(character) => {
-                        if let Some((chapter_i, map_id)) = draw_chapter_select_menu().await {
-                            result = Some(MainMenuResult::ImportedCharacter(character, chapter_i, map_id));
-                            break 'menu;
+                    MainMenuSelection::SelectCharacter(player) => {
+                        if let Some(transition_params) = draw_chapter_select_menu().await {
+                            let transition = SceneTransition::new(player, transition_params);
+                            result = Some(MainMenuResult::StartGame(transition));
                         }
                     },
                     MainMenuSelection::CreateCharacter => {
-                        if let Some(character) = draw_create_character_menu().await {
-                            result = Some(MainMenuResult::NewCharacter(character));
-                            break 'menu;
+                        if let Some(player) = draw_create_character_menu().await {
+                            let chapter = storage::get::<Scenario>().chapters.first().cloned().unwrap();
+                            let (chapter_index, map_id) = (chapter.index, chapter.initial_map_id);
+                            let transition = SceneTransition { player, chapter_index, map_id };
+                            result = Some(MainMenuResult::StartGame(transition));
                         }
                     },
                     _ => {},
                 }
             },
-            MainMenuSelection::LoadGame => {
-                let save_games = get_available_save_games(&params.saves_path).await.unwrap_or(Vec::new());
-                if let Some(save_game) = draw_load_game_menu(&save_games).await {
-                    result = Some(MainMenuResult::LoadGame(save_game));
-                    break 'menu;
-                }
-                {};
-            },
             MainMenuSelection::Quit => {
                 result = Some(MainMenuResult::Quit);
-                break 'menu;
             },
             _ => {},
         }
 
+        if let Some(result) = result {
+            root_ui().pop_skin();
+            return result;
+        }
+
         next_frame().await;
     }
-
-    root_ui().pop_skin();
-    result.unwrap()
 }
 
 async fn draw_main_menu_root() -> MainMenuSelection {
@@ -82,12 +73,8 @@ async fn draw_main_menu_root() -> MainMenuSelection {
         widgets::Window::new(hash!(), position, size)
             .titlebar(false)
             .ui(&mut *root_ui(), |ui| {
-                if ui.button(None, "New Game") {
-                    selection = Some(MainMenuSelection::NewGame);
-                }
-
-                if ui.button(None, "Load Game") {
-                    selection = Some(MainMenuSelection::LoadGame);
+                if ui.button(None, "Start Game") {
+                    selection = Some(MainMenuSelection::StartGame);
                 }
 
                 if ui.button(None, "Quit") {
@@ -104,7 +91,7 @@ async fn draw_main_menu_root() -> MainMenuSelection {
     }
 }
 
-async fn draw_character_select_menu(available_characters: &[ExportedCharacter]) -> MainMenuSelection {
+async fn draw_character_select_menu(available_characters: &[SavedCharacter]) -> MainMenuSelection {
     let gui_skins = storage::get::<GuiSkins>();
 
     root_ui().push_skin(&gui_skins.default);
@@ -126,7 +113,7 @@ async fn draw_character_select_menu(available_characters: &[ExportedCharacter]) 
 
                 for character in available_characters {
                     if ui.button(None, &character.actor.name) {
-                        result = Some(MainMenuSelection::SelectedCharacter(character.clone()));
+                        result = Some(MainMenuSelection::SelectCharacter(character.clone()));
                     }
                 }
 
@@ -148,57 +135,12 @@ async fn draw_character_select_menu(available_characters: &[ExportedCharacter]) 
     }
 }
 
-async fn draw_load_game_menu(available_saves: &[SaveGame]) -> Option<SaveGame> {
-    let gui_skins = storage::get::<GuiSkins>();
-
-    root_ui().push_skin(&gui_skins.default);
-    loop {
-        let gui_skins = storage::get::<GuiSkins>();
-        let scale = gui_skins.scale;
-
-        let size = vec2(200.0 * scale, 300.0 * scale);
-        let position = vec2((screen_width() - size.x)  / 2.0, (screen_height() - size.y) / 2.0);
-
-        let mut result = None;
-        let mut should_cancel = false;
-
-        widgets::Window::new(hash!(), position, size)
-            .titlebar(false)
-            .ui(&mut *root_ui(), |ui| {
-                ui.label(None, "Load Game");
-
-                ui.separator();
-
-                for save_game in available_saves {
-                    if ui.button(None, &save_game.filename) {
-                        result = Some(save_game.clone());
-                    }
-                }
-
-                if ui.button(None, "Cancel") {
-                    result = None;
-                    should_cancel = true
-                }
-            });
-
-        if result.is_some() || should_cancel {
-            root_ui().pop_skin();
-            if should_cancel {
-                return None;
-            }
-            return result;
-        }
-
-        next_frame().await;
-    }
-}
-
-pub async fn draw_create_character_menu() -> Option<ExportedCharacter> {
+pub async fn draw_create_character_menu() -> Option<SavedCharacter> {
     let gui_skins = storage::get::<GuiSkins>();
 
     let resources = storage::get::<Resources>();
     let game_params = storage::get::<GameParams>();
-    let mut build_points = game_params.character_build_points;
+    let mut build_points = game_params.new_character_build_points;
     let mut character = resources.actors.get(&game_params.new_character_prototype_id).cloned().unwrap();
 
     root_ui().push_skin(&gui_skins.character);
@@ -351,7 +293,7 @@ pub async fn draw_create_character_menu() -> Option<ExportedCharacter> {
     }
 }
 
-async fn draw_chapter_select_menu() -> Option<(usize, String)> {
+async fn draw_chapter_select_menu() -> Option<SceneTransitionParams> {
     let gui_skins = storage::get::<GuiSkins>();
     let scenario = storage::get::<Scenario>();
 
@@ -373,10 +315,11 @@ async fn draw_chapter_select_menu() -> Option<(usize, String)> {
 
                 ui.separator();
 
-                for i in 0..scenario.chapters.len() {
-                    let chapter = scenario.chapters.get(i).unwrap();
+                for chapter in scenario.chapters.clone() {
                     if ui.button(None, &chapter.title.clone()) {
-                        result = Some((i, chapter.initial_map_id.clone()));
+                        let (chapter_index, map_id) = (chapter.index, chapter.initial_map_id);
+                        let params = SceneTransitionParams { chapter_index, map_id };
+                        result = Some(params);
                     }
                 }
 

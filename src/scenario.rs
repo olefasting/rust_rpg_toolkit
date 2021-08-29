@@ -32,6 +32,7 @@ pub struct MapData {
 
 #[derive(Debug, Clone)]
 pub struct Chapter {
+    pub index: usize,
     pub title: String,
     pub description: String,
     pub initial_map_id: String,
@@ -42,7 +43,7 @@ pub struct Chapter {
 pub struct CurrentChapter {
     pub chapter_index: usize,
     pub chapter: Chapter,
-    pub current_map_id: String,
+    pub map_id: String,
 }
 
 #[derive(Debug, Clone)]
@@ -54,7 +55,12 @@ impl Scenario {
     pub async fn new(params: ScenarioParams) -> Result<Self, FileError> {
         let game_params = storage::get::<GameParams>();
         let mut chapters = Vec::new();
-        for chapter_params in params.chapters.clone() {
+        for i in 0..params.chapters.len() {
+            let chapter_params = params.chapters
+                .get(i)
+                .cloned()
+                .unwrap();
+
             let mut  maps = Vec::new();
             for map_info in chapter_params.maps {
                 let map = MapData {
@@ -69,6 +75,7 @@ impl Scenario {
             }
 
             let chapter = Chapter {
+                index: i,
                 title: chapter_params.title,
                 description: chapter_params.description,
                 initial_map_id: chapter_params.initial_map_id,
@@ -113,13 +120,13 @@ impl SceneTransitionParams {
 
 #[derive(Debug, Clone)]
 pub struct SceneTransition {
-    pub player: ExportedCharacter,
+    pub player: SavedCharacter,
     pub chapter_index: usize,
     pub map_id: String,
 }
 
 impl SceneTransition {
-    pub fn new(player: ExportedCharacter, params: SceneTransitionParams) -> Self {
+    pub fn new(player: SavedCharacter, params: SceneTransitionParams) -> Self {
         SceneTransition {
             player,
             chapter_index: params.chapter_index,

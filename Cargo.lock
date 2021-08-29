@@ -548,6 +548,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "quad-storage"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9c40ce37b8b8878e770dc34bca79cdbcbe7aeafe07650d4703780bbfbaca551b"
+dependencies = [
+ "lazy_static",
+ "nanoserde",
+ "sapp-jsutils",
+]
+
+[[package]]
 name = "quote"
 version = "1.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -583,7 +594,9 @@ dependencies = [
  "macroquad",
  "macroquad-particles",
  "macroquad-tiled",
+ "quad-storage",
  "regex",
+ "sapp-jsutils",
  "serde",
  "serde_json",
 ]
@@ -650,6 +663,12 @@ checksum = "081e6e5261c9ac2e938979b6a854a53b439f065fc3c897205ce7e69d3028b4a9"
 dependencies = [
  "cc",
 ]
+
+[[package]]
+name = "sapp-jsutils"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bb8ababa867431fa6c0a178248bfe7e77b5d1de357c9848883ba8e3946bb21d4"
 
 [[package]]
 name = "sapp-linux"

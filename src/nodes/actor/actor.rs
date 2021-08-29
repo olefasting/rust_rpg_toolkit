@@ -84,8 +84,8 @@ impl Into<ActorStats> for ActorParams {
     }
 }
 
-impl Into<ExportedCharacter> for ActorParams {
-    fn into(self) -> ExportedCharacter {
+impl Into<SavedCharacter> for ActorParams {
+    fn into(self) -> SavedCharacter {
         let game_params = storage::get::<GameParams>();
         let resources = storage::get::<Resources>();
         let mut item_ids = Vec::new();
@@ -101,7 +101,10 @@ impl Into<ExportedCharacter> for ActorParams {
             item_ids.push(id);
         }
 
-        ExportedCharacter {
+        let scenario = storage::get::<Scenario>();
+        let first_chapter = scenario.chapters.first().unwrap();
+
+        SavedCharacter {
             game_version: game_params.game_version.clone(),
             actor: ActorParams {
                 id: generate_id(),
@@ -114,6 +117,8 @@ impl Into<ExportedCharacter> for ActorParams {
             items,
             active_missions: Vec::new(),
             completed_missions: Vec::new(),
+            current_chapter_index: first_chapter.index,
+            current_map_id: first_chapter.initial_map_id.clone(),
         }
     }
 }
@@ -237,7 +242,7 @@ impl Actor {
         }
     }
 
-    pub fn from_export(position: Vec2, controller_kind: ActorControllerKind, export: ExportedCharacter) -> Self {
+    pub fn from_export(position: Vec2, controller_kind: ActorControllerKind, export: SavedCharacter) -> Self {
         let resources = storage::get::<Resources>();
 
         let active_missions = export.active_missions
@@ -288,7 +293,7 @@ impl Actor {
         }
     }
 
-    pub fn to_export(&self) -> ExportedCharacter {
+    pub fn to_export(&self) -> SavedCharacter {
         let game_params = storage::get::<GameParams>();
         let actor = self.to_save();
         let items = self.inventory.items
@@ -306,12 +311,16 @@ impl Actor {
             .map(|mission| mission.id.clone())
             .collect();
 
-        ExportedCharacter {
+        let current_chapter = storage::get::<CurrentChapter>();
+
+        SavedCharacter {
             game_version: game_params.game_version.clone(),
             actor,
             items,
             active_missions,
             completed_missions,
+            current_chapter_index: current_chapter.chapter_index,
+            current_map_id: current_chapter.map_id.clone(),
         }
     }
 

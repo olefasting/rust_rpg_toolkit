@@ -1,4 +1,4 @@
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/html">
 
 <head>
     <meta charset="utf-8">
@@ -25,10 +25,20 @@
         <li><b>ESC</b> to open menu</li>
     </ul>
 </div>
+
 <!-- Minified and statically hosted version of https://github.com/not-fl3/miniquad/blob/master/native/sapp-wasm/js/gl.js -->
-<script src="https://not-fl3.github.io/miniquad-samples/mq_js_bundle_0.3.8.js"></script>
-<script>load("./capstone.wasm");</script> <!-- Your compiled wasm file -->
-</body>
+<!-- script src="https://not-fl3.github.io/miniquad-samples/mq_js_bundle_0.3.8.js"></script -->
+<!-- script src="https://not-fl3.github.io/miniquad-samples/mq_js_bundle.js"></script -->
+<!-- script src="https://github.com/not-fl3/miniquad/blob/master/native/sapp-wasm/js/gl.js"></script -->
+
+<script src="gl.js"></script>
+
+<!-- script src="audio.js"></script -->
+<script src="sapp_jsutils.js"></script>
+<!-- script src="quad-url.js"></script -->
+<!-- script src="quad-storage.js"></script -->
+
+<script>load("example_project.wasm");</script>
 
 <script>
     let can = document.getElementById('glcanvas');
@@ -41,5 +51,5 @@
         }
     }, false);
 </script>
-
+</body>
 </html>

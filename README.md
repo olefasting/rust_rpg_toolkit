@@ -30,10 +30,13 @@ This is a work in progress but current features include (not an exhaustive list 
 - Create maps either by writing them in JSON, manually, or by importing and converting Tiled maps
 - Scriptable dialogue system (see [dialogue.json](https://github.com/olefasting/rust_rpg_toolkit/blob/master/examples/example_project/assets/dialogue.json))
 - Scriptable mission and reward system (see [missions.json](https://github.com/olefasting/rust_rpg_toolkit/blob/master/examples/example_project/assets/missions.json))
+- Saving and loading of characters
 - Controller support (needs polishing)
 - WebAssembly support (some features are not implemented yet for WASM, awaiting a decision on how to handle persistent user data)
 
-Currently, you can create a new game, using a new character (not very interactive, just uses a prototype) or an exported character. Loading of save games is not possible yet but it is on the top of the list of priorities...
+I have decided to remove the same game feature and in stead go for a Diablo-style saving model, where characters and their progress are saved but not the maps.
+
+There really is no need to save scene state when we can save progress both on missions and waypoints on a per-character basis, in stead.
 
 ## Example
 

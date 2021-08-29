@@ -1,5 +1,7 @@
 use rust_rpg_toolkit::prelude::*;
 
+const GAME_NAME: &'static str = "example_project";
+
 // Used when determining whether module dependencies on game version are met
 const GAME_VERSION: &'static str = "0.1.0";
 
@@ -9,7 +11,6 @@ const CONFIG_PATH: &'static str = "examples/example_project/config.json";
 const ASSETS_PATH: &'static str = "examples/example_project/assets";
 const MODULES_PATH: &'static str = "examples/example_project/modules";
 const CHARACTERS_PATH: &'static str = "examples/example_project/characters";
-const SAVES_PATH: &'static str = "examples/example_project/save_games";
 
 pub fn window_conf() -> Conf {
     let config = Config::load(CONFIG_PATH);
@@ -28,11 +29,11 @@ pub fn window_conf() -> Conf {
 #[macroquad::main(window_conf)]
 async fn main() {
     let params = GameParams {
+        game_name: GAME_NAME.to_string(),
         game_version: GAME_VERSION.to_string(),
         assets_path: ASSETS_PATH.to_string(),
         modules_path: MODULES_PATH.to_string(),
         characters_path: CHARACTERS_PATH.to_string(),
-        saves_path: SAVES_PATH.to_string(),
         ..Default::default()
     };
 

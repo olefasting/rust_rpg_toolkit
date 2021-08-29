@@ -34,10 +34,10 @@ pub use serde::{
 };
 
 pub use crate::{
-    TOOLKIT_VERSION,
     versions::{
+        get_toolkit_version,
+        to_int_version,
         check_version_requirement,
-        is_version_up_to_or,
     },
     config::Config,
     uid::generate_id,
@@ -52,9 +52,9 @@ pub use crate::{
         SceneTransition,
         SceneTransitionParams,
     },
-    save_games::{
-        SaveGame,
-        ExportedCharacter,
+    saved_characters::{
+        SavedCharacter,
+        get_available_characters,
     },
     physics::{
         Collider,

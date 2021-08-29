@@ -1,6 +1,4 @@
-use std::{
-    fs,
-};
+use std::fs;
 
 use crate::{
     gui::MainMenuResult,
@@ -9,24 +7,99 @@ use crate::{
     prelude::*,
 };
 
-pub fn load_map(player: ExportedCharacter, chapter: usize, map_id: &str) {
+fn load_map(transition: SceneTransition) {
     let scenario = storage::get::<Scenario>();
-    let chapter_data = scenario.chapters.get(chapter)
+    let SceneTransition { player, chapter_index, map_id } = transition;
+    let chapter = scenario.chapters.get(chapter_index)
         .cloned()
-        .expect(&format!("Unable to load chapter '{}'!", chapter));
-    let map_data = chapter_data.maps.iter().find(|map| map.id == map_id)
+        .expect(&format!("Unable to load chapter '{}'!", chapter_index));
+    let map_data = chapter.maps.iter().find(|map| map.id == map_id)
         .cloned()
-        .expect(&format!("Unable to load map '{}' of chapter '{}'!", map_id, chapter_data.title));
+        .expect(&format!("Unable to load map '{}' of chapter '{}'!", map_id, chapter.title));
 
     let current_chapter = CurrentChapter {
-        chapter: chapter_data,
-        chapter_index: chapter,
-        current_map_id: map_id.to_string(),
+        chapter,
+        chapter_index,
+        map_id,
     };
 
     storage::store(current_chapter);
 
-    GameState::add_node(player, map_data.map);
+    let map = map_data.map;
+    let local_player_id = generate_id();
+
+    let resources = storage::get::<Resources>();
+    if let Some(layer) = map.layers.get("spawn_points") {
+        for object in &layer.objects {
+            if object.name == "player" {
+                let mut actor = Actor::from_export(
+                    object.position,
+                    ActorControllerKind::local_player(&local_player_id),
+                    player.clone(),
+                );
+                actor.stats.recalculate_derived();
+                actor.stats.restore_vitals();
+                scene::add_node(actor);
+            } else if let Some(prototype_id) = object.properties.get("prototype_id") {
+                let params = resources.actors.get(prototype_id).cloned()
+                    .expect(&format!("Unable to find actor with prototype id '{}'", prototype_id));
+                let instance_id = object.properties.get("instance_id").cloned();
+                let mut actor = Actor::new(ActorControllerKind::Computer, ActorParams {
+                    id: instance_id.unwrap_or(generate_id()),
+                    position: Some(object.position),
+                    ..params
+                });
+                actor.stats.recalculate_derived();
+                actor.stats.restore_vitals();
+                scene::add_node(actor);
+            }
+        }
+    }
+
+    if let Some(layer) = map.layers.get("light_sources") {
+        for object in &layer.objects {
+            let size = if let Some(size) = object.size {
+                size
+            } else {
+                LightSource::DEFAULT_SIZE
+            };
+            let color = if let Some(_color) = object.properties.get("color") {
+                // TODO: Parse hex value
+                /*Color::new()*/
+                color::WHITE
+            } else {
+                LightSource::DEFAULT_COLOR
+            };
+            let intensity = if let Some(intensity) = object.properties.get("intensity") {
+                intensity.parse::<f32>().unwrap()
+            } else {
+                LightSource::DEFAULT_INTENSITY
+            };
+            LightSource::add_node(object.position, size, color, intensity);
+        }
+    }
+
+    if let Some(layer) = map.layers.get("items") {
+        for object in &layer.objects {
+            if let Some(prototype_id) = object.properties.get("prototype_id").cloned() {
+                if prototype_id == "credits".to_string() {
+                    let amount = object.properties.get("amount").unwrap();
+                    Credits::add_node(object.position, amount.parse::<u32>().unwrap());
+                } else {
+                    let params = resources.items.get(&prototype_id).cloned()
+                        .expect(&format!("Unable to find item with prototype id '{}'", &prototype_id));
+                    let instance_id = object.properties.get("instance_id").cloned();
+                    Item::add_node(ItemParams {
+                        id: instance_id.unwrap_or(generate_id()),
+                        position: Some(object.position),
+                        ..params
+                    });
+                }
+            }
+        }
+    }
+
+    GameState::add_node(&local_player_id, map);
     Camera::add_node();
     DrawBuffer::<Item>::add_node();
     DrawBuffer::<Credits>::add_node();
@@ -43,13 +116,9 @@ async fn game_loop() -> Option<SceneTransition> {
         update_input();
         {
             let mut game_state = scene::find_node_by_type::<GameState>().unwrap();
-            if game_state.should_export_character {
-                game_state.export_character();
-                game_state.should_export_character = false;
-            }
-            if game_state.should_save_game {
-                game_state.save_game();
-                game_state.should_save_game = false;
+            if game_state.should_save_character {
+                game_state.save_player_character();
+                game_state.should_save_character = false;
             }
             if game_state.should_quit {
                 break;
@@ -68,44 +137,40 @@ async fn game_loop() -> Option<SceneTransition> {
 
 #[derive(Debug, Clone)]
 pub struct GameParams {
+    pub game_name: String,
     pub game_version: String,
     pub assets_path: String,
     pub modules_path: String,
     pub characters_path: String,
-    pub saves_path: String,
     pub new_character_prototype_id: String,
-    pub character_build_points: u32,
+    pub new_character_build_points: u32,
 }
 
 impl Default for GameParams {
     fn default() -> Self {
         GameParams {
+            game_name: "Unnamed Project".to_string(),
             game_version: "0.1.0".to_string(),
             assets_path: "assets".to_string(),
             modules_path: "modules".to_string(),
             characters_path: "characters".to_string(),
-            saves_path: "save_games".to_string(),
             new_character_prototype_id: "new_character_prototype".to_string(),
-            character_build_points: 6,
+            new_character_build_points: 6,
         }
     }
 }
 
-#[cfg(any(target_family = "unix", target_family = "windows"))]
-fn init_environment(params: &GameParams) {
+#[cfg(not(any(target_family = "wasm", target_os = "android")))]
+fn check_env(params: &GameParams) {
     fs::create_dir_all(&params.characters_path)
         .expect(&format!("Unable to create characters directory '{}'!", params.characters_path));
-    fs::create_dir_all(&params.saves_path)
-        .expect(&format!("Unable to create save games directory '{}'!", params.saves_path));
 }
 
-#[cfg(any(target_family = "wasm"))]
-fn init_environment(params: &GameParams) {
-    todo!("Implement for WASM");
-}
+#[cfg(target_family = "wasm")]
+fn check_env(_params: &GameParams) {}
 
 pub async fn run_game(params: GameParams) {
-    init_environment(&params);
+    check_env(&params);
 
     let local_player_id = generate_id();
     map_gamepad(&local_player_id);
@@ -137,39 +202,18 @@ pub async fn run_game(params: GameParams) {
 
     let mut scene_transition = None;
     match gui::draw_main_menu(&params).await {
-        MainMenuResult::NewCharacter(character) => {
-            let scenario = storage::get::<Scenario>();
-            let map_id = scenario.chapters
-                .first()
-                .map(|chapter| chapter.initial_map_id.clone())
-                .unwrap();
-            scene_transition = Some(SceneTransition {
-                player: character,
-                chapter_index: 0,
-                map_id,
-            });
-        }
-        MainMenuResult::ImportedCharacter(character, chapter_index, map_id) =>
-            scene_transition = Some(SceneTransition {
-                player: character,
-                chapter_index,
-                map_id,
-            }),
-        MainMenuResult::LoadGame(_save_game) => {}
-        MainMenuResult::Quit => {}
+        MainMenuResult::StartGame(transition) =>
+            scene_transition = Some(transition),
+        MainMenuResult::Quit => return,
     };
 
     loop {
-        {
-            let scene_transition = scene_transition.unwrap();
-            load_map(scene_transition.player, scene_transition.chapter_index, &scene_transition.map_id);
-        }
+        load_map(scene_transition.unwrap());
 
         scene_transition = game_loop().await;
 
-        scene::clear();
-
         if scene_transition.is_none() {
+            scene::clear();
             break;
         }
     }
