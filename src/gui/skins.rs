@@ -145,10 +145,21 @@ impl GuiSkins {
                 .margin(RectOffset::new(15.0 * scale, 15.0 * scale, 5.0 * scale, 5.0 * scale))
                 .build();
 
+            let editbox_style = root_ui()
+                .style_builder()
+                .background(Image::from_file_with_format(
+                    include_bytes!("../../assets/gui/wenrexa/Button11.png"),
+                    None,
+                ))
+                .text_color(Color::from_rgba(200, 200, 160, 255))
+                .font_size((12 as f32 * scale) as u16)
+                .build();
+
             Skin {
                 label_style,
                 button_style,
                 group_style,
+                editbox_style,
                 ..default.clone()
             }
         };

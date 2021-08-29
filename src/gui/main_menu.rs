@@ -159,6 +159,8 @@ pub async fn draw_create_character_menu() -> Option<SavedCharacter> {
             .ui(&mut *root_ui(), |ui| {
                 ui.label(None, "Create Character");
 
+                ui.input_text(hash!(), "", &mut character.name);
+
                 ui.separator();
 
                 ui.label(None, &format!("Build points: {}", build_points));
@@ -168,13 +170,13 @@ pub async fn draw_create_character_menu() -> Option<SavedCharacter> {
                 //root_ui().push_skin(&gui_skins.character);
 
                 ui.label(None , &format!("STR: {}", character.strength));
-                if ui.button(vec2(180.0, 35.0) * scale, "-") {
+                if ui.button(vec2(180.0, 50.0) * scale, "-") {
                     if character.strength > 6 {
                         character.strength -= 1;
                         build_points += 1;
                     }
                 }
-                if ui.button(vec2(202.0, 35.0) * scale, "+") {
+                if ui.button(vec2(202.0, 50.0) * scale, "+") {
                     if build_points > 0 {
                         character.strength += 1;
                         build_points -= 1;
@@ -182,13 +184,13 @@ pub async fn draw_create_character_menu() -> Option<SavedCharacter> {
                 }
 
                 ui.label(None, &format!("DEX: {}", character.dexterity));
-                if ui.button(vec2(180.0, 50.0) * scale, "-") {
+                if ui.button(vec2(180.0, 65.0) * scale, "-") {
                     if character.dexterity > 6 {
                         character.dexterity -= 1;
                         build_points += 1;
                     }
                 }
-                if ui.button(vec2(202.0, 50.0) * scale, "+") {
+                if ui.button(vec2(202.0, 65.0) * scale, "+") {
                     if build_points > 0 {
                         character.dexterity += 1;
                         build_points -= 1;
@@ -196,13 +198,13 @@ pub async fn draw_create_character_menu() -> Option<SavedCharacter> {
                 }
 
                 ui.label(None, &format!("CON: {}", character.constitution));
-                if ui.button(vec2(180.0, 65.0) * scale, "-") {
+                if ui.button(vec2(180.0, 80.0) * scale, "-") {
                     if character.constitution > 6 {
                         character.constitution -= 1;
                         build_points += 1;
                     }
                 }
-                if ui.button(vec2(202.0, 65.0) * scale, "+") {
+                if ui.button(vec2(202.0, 80.0) * scale, "+") {
                     if build_points > 0 {
                         character.constitution += 1;
                         build_points -= 1;
@@ -210,13 +212,13 @@ pub async fn draw_create_character_menu() -> Option<SavedCharacter> {
                 }
 
                 ui.label(None, &format!("INT: {}", character.intelligence));
-                if ui.button(vec2(180.0, 80.0) * scale, "-") {
+                if ui.button(vec2(180.0, 95.0) * scale, "-") {
                     if character.intelligence > 6 {
                         character.intelligence -= 1;
                         build_points += 1;
                     }
                 }
-                if ui.button(vec2(202.0, 80.0) * scale, "+") {
+                if ui.button(vec2(202.0, 95.0) * scale, "+") {
                     if build_points > 0 {
                         character.intelligence += 1;
                         build_points -= 1;
@@ -224,13 +226,13 @@ pub async fn draw_create_character_menu() -> Option<SavedCharacter> {
                 }
 
                 ui.label(None, &format!("WIL: {}", character.willpower));
-                if ui.button(vec2(180.0, 95.0) * scale, "-") {
+                if ui.button(vec2(180.0, 110.0) * scale, "-") {
                     if character.willpower > 6 {
                         character.willpower -= 1;
                         build_points += 1;
                     }
                 }
-                if ui.button(vec2(202.0, 95.0) * scale, "+") {
+                if ui.button(vec2(202.0, 110.0) * scale, "+") {
                     if build_points > 0 {
                         character.willpower += 1;
                         build_points -= 1;
@@ -238,13 +240,13 @@ pub async fn draw_create_character_menu() -> Option<SavedCharacter> {
                 }
 
                 ui.label(None, &format!("PER: {}", character.perception));
-                if ui.button(vec2(180.0, 110.0) * scale, "-") {
+                if ui.button(vec2(180.0, 125.0) * scale, "-") {
                     if character.perception > 6 {
                         character.perception -= 1;
                         build_points += 1;
                     }
                 }
-                if ui.button(vec2(202.0, 110.0) * scale, "+") {
+                if ui.button(vec2(202.0, 125.0) * scale, "+") {
                     if build_points > 0 {
                         character.perception += 1;
                         build_points -= 1;
@@ -252,13 +254,13 @@ pub async fn draw_create_character_menu() -> Option<SavedCharacter> {
                 }
 
                 ui.label(None, &format!("CHA: {}", character.charisma));
-                if ui.button(vec2(180.0, 125.0) * scale, "-") {
+                if ui.button(vec2(180.0, 140.0) * scale, "-") {
                     if character.charisma > 6 {
                         character.charisma -= 1;
                         build_points += 1;
                     }
                 }
-                if ui.button(vec2(202.0, 125.0) * scale, "+") {
+                if ui.button(vec2(202.0, 140.0) * scale, "+") {
                     if build_points > 0 {
                         character.charisma += 1;
                         build_points -= 1;
@@ -269,13 +271,13 @@ pub async fn draw_create_character_menu() -> Option<SavedCharacter> {
 
                 ui.separator();
 
-                if ui.button(None, "Done") {
+                if ui.button(vec2(0.0, 260.0) * scale, "Done") {
                     if build_points == 0 {
                         result = Some(character.clone().into());
                     }
                 }
 
-                if ui.button(None, "Cancel") {
+                if ui.button(vec2(48.0, 260.0) * scale, "Cancel") {
                     result = None;
                     should_cancel = true;
                 }

@@ -140154,8 +140154,8 @@
             "y": 546.3333
           },
           "properties": {
-            "instance_id": "guard_boss",
-            "prototype_id": "guard_boss"
+            "prototype_id": "guard_boss",
+            "instance_id": "guard_boss"
           }
         },
         {
