@@ -18,11 +18,11 @@ use serde::{
 
 use crate::prelude::*;
 
-use super::{
-    tiled::{
-        TiledMap,
-        TiledMapDeclaration
-    },
+use super::tiled::TiledMapDeclaration;
+
+use crate::json::tiled::{
+    RawTiledMap,
+    RawTiledPropertyType,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -49,10 +49,173 @@ impl Map {
         Ok(map)
     }
 
+    // pub async fn load_tiled(assets_path: &str, decl: TiledMapDeclaration) -> Result<Self, FileError> {
+    //     let map: Map = TiledMap::load(assets_path, decl.clone()).await?.into();
+    //     map.save(&format!("{}/{}", assets_path, &decl.export_path))?;
+    //     Ok(map)
+    // }
+
     pub async fn load_tiled(assets_path: &str, decl: TiledMapDeclaration) -> Result<Self, FileError> {
-        let map: Map = TiledMap::load(assets_path, decl.clone()).await?.into();
-        map.save(&format!("{}/{}", assets_path, &decl.export_path))?;
+        let in_path = format!("{}/{}", assets_path, &decl.path);
+        let out_path = format!("{}/{}", assets_path, &decl.export_path);
+        let bytes = load_file(&in_path).await?;
+        let tiled_map: RawTiledMap = serde_json::from_slice(&bytes).unwrap();
+        let map = Map::from_tiled(tiled_map, decl);
+        map.save(&out_path)?;
         Ok(map)
+    }
+
+    fn from_tiled(tiled_map: RawTiledMap, decl: TiledMapDeclaration) -> Map {
+        let background_color = if let Some(background_color) = tiled_map.backgroundcolor {
+            color_from_hex_string(&background_color)
+        } else {
+            color::BLACK
+        };
+
+        let mut tilesets = HashMap::new();
+        for tileset_decl in decl.tilesets {
+            let id = tileset_decl.name.clone();
+            let tiled_tileset = tiled_map.tilesets
+                .iter()
+                .find(|tileset| tileset.name == id)
+                .unwrap();
+
+            let texture_size = uvec2(tiled_tileset.imagewidth as u32, tiled_tileset.imageheight as u32);
+            let tile_size = uvec2(tiled_tileset.tilewidth as u32, tiled_tileset.tileheight as u32);
+            let grid_size = uvec2(tiled_tileset.columns as u32, tiled_tileset.tilecount as u32 / tiled_tileset.columns as u32);
+
+            let tileset = MapTileset {
+                id: id.clone(),
+                texture_id: tileset_decl.texture_id,
+                texture_size,
+                tile_size,
+                grid_size,
+                first_tile_id: tiled_tileset.firstgid,
+                tile_cnt: tiled_tileset.tilecount,
+            };
+
+            tilesets.insert(id, tileset);
+        }
+
+        let mut layers = HashMap::new();
+        let mut draw_order = Vec::new();
+        for tiled_layer in tiled_map.layers {
+            let collision = decl.collisions
+                .iter()
+                .find_map(|decl| {
+                    if decl.layer_id == tiled_layer.name {
+                        return Some(decl.collision_kind.clone());
+                    }
+                    None
+                })
+                .unwrap_or(MapCollisionKind::None);
+
+            let mut tiles = Vec::new();
+            for tile_id in tiled_layer.data {
+                let res = if tile_id != 0 {
+                    let tileset = tilesets
+                        .iter()
+                        .find_map(|(_, tileset)| {
+                            if tile_id >= tileset.first_tile_id
+                                && tile_id <= tileset.first_tile_id + tileset.tile_cnt {
+                                return Some(tileset);
+                            }
+                            None
+                        })
+                        .unwrap();
+
+                    let tile_id = tile_id - tileset.first_tile_id;
+                    let tile = MapTile {
+                        tile_id,
+                        tileset_id: tileset.id.clone(),
+                        texture_id: tileset.texture_id.clone(),
+                        texture_coords: tileset.get_texture_coords(tile_id),
+                    };
+
+                    Some(tile)
+                } else {
+                    None
+                };
+
+                tiles.push(res);
+            }
+
+
+            let mut objects = Vec::new();
+            for object in tiled_layer.objects {
+                let position = vec2(object.x, object.y);
+                let size = {
+                    let size = vec2(object.width, object.height);
+                    if size != Vec2::ZERO {
+                        Some(size)
+                    } else {
+                        None
+                    }
+                };
+
+                let mut properties = HashMap::new();
+                if let Some(tiled_props) = object.properties {
+                    for tiled_property in tiled_props {
+                        let value_type = match tiled_property.value_type {
+                            RawTiledPropertyType::BoolType => MapPropertyType::BoolType,
+                            RawTiledPropertyType::FloatType => MapPropertyType::FloatType,
+                            RawTiledPropertyType::IntType => MapPropertyType::IntType,
+                            RawTiledPropertyType::StringType => MapPropertyType::StringType,
+                            RawTiledPropertyType::ColorType => MapPropertyType::ColorType,
+                            RawTiledPropertyType::ObjectType => MapPropertyType::ObjectType,
+                            RawTiledPropertyType::FileType => MapPropertyType::FileType,
+                        };
+
+                        let property = MapProperty {
+                            value: tiled_property.value,
+                            value_type,
+                        };
+
+                        properties.insert(tiled_property.name, property);
+                    }
+                }
+
+                let object = MapObject {
+                    name: object.name,
+                    position,
+                    size,
+                    properties,
+                };
+
+                objects.push(object);
+            }
+
+            let kind = if tiled_layer.layer_type == "tilelayer".to_string() {
+                MapLayerKind::TileLayer
+            } else {
+                MapLayerKind::ObjectLayer
+            };
+
+            let grid_size = uvec2(tiled_map.width, tiled_map.height);
+            let layer = MapLayer {
+                id: tiled_layer.name,
+                kind,
+                collision,
+                grid_size,
+                tiles,
+                objects,
+                is_visible: tiled_layer.visible,
+            };
+
+            draw_order.push(layer.id.clone());
+            layers.insert(layer.id.clone(), layer);
+        }
+
+        let grid_size = uvec2(tiled_map.width, tiled_map.height);
+        Map {
+            background_color,
+            world_offset: Vec2::ZERO,
+            grid_size,
+            tile_size: vec2(tiled_map.tilewidth as f32, tiled_map.tileheight as f32),
+            layers,
+            tilesets,
+            draw_order,
+        }
     }
 
     pub fn to_grid(&self, rect: Rect) -> URect {
@@ -172,7 +335,7 @@ impl Map {
                                     );
                                 }
                             }
-                        },
+                        }
                         _ => {}
                     }
                 }
@@ -276,7 +439,7 @@ impl Default for MapLayer {
             grid_size: UVec2::ZERO,
             tiles: Vec::new(),
             objects: Vec::new(),
-            is_visible: true
+            is_visible: true,
         }
     }
 }
@@ -299,7 +462,32 @@ pub struct MapObject {
     #[serde(default, with = "json::opt_vec2", skip_serializing_if = "Option::is_none")]
     pub size: Option<Vec2>,
     #[serde(default, skip_serializing_if = "HashMap::is_empty")]
-    pub properties: HashMap<String, String>,
+    pub properties: HashMap<String, MapProperty>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum MapPropertyType {
+    #[serde(rename = "bool")]
+    BoolType,
+    #[serde(rename = "float")]
+    FloatType,
+    #[serde(rename = "integer")]
+    IntType,
+    #[serde(rename = "string")]
+    StringType,
+    #[serde(rename = "color")]
+    ColorType,
+    #[serde(rename = "object")]
+    ObjectType,
+    #[serde(rename = "file")]
+    FileType,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MapProperty {
+    pub value: String,
+    #[serde(rename = "type")]
+    pub value_type: MapPropertyType,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

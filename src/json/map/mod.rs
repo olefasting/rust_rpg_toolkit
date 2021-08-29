@@ -1,3 +1,5 @@
+pub mod tiled;
+
 use std::{
     collections::HashMap,
     iter::FromIterator,
@@ -25,7 +27,7 @@ use crate::map::{
     MapCollisionKind,
 };
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MapDef {
     #[serde(default = "MapDef::default_background_color", with = "json::ColorDef")]
     pub background_color: Color,
@@ -64,14 +66,15 @@ impl Into<MapDef> for Map {
                     MapLayerKind::ObjectLayer => (None, Some(layer.objects.clone())),
                 };
 
-                Some(MapLayerDef {
+                let layer = MapLayerDef {
                     id: layer.id.clone(),
                     kind: layer.kind.clone(),
                     collision: layer.collision.clone(),
                     objects,
                     tiles,
                     is_visible: layer.is_visible,
-                })
+                };
+                Some(layer)
             } else {
                 None
             }
@@ -158,7 +161,7 @@ impl From<MapDef> for Map {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MapLayerDef {
     pub id: String,
     #[serde(default, skip_serializing_if = "MapCollisionKind::is_none")]

@@ -40,20 +40,29 @@ fn load_map(local_player_id: &str, transition: SceneTransition) {
                     ActorControllerKind::local_player(&local_player_id),
                     player.clone(),
                 );
+
                 actor.stats.recalculate_derived();
                 actor.stats.restore_vitals();
+
                 scene::add_node(actor);
             } else if let Some(prototype_id) = object.properties.get("prototype_id") {
-                let params = resources.actors.get(prototype_id).cloned()
-                    .expect(&format!("Unable to find actor with prototype id '{}'", prototype_id));
-                let instance_id = object.properties.get("instance_id").cloned();
+                let params = resources.actors.get(&prototype_id.value).cloned()
+                    .expect(&format!("Unable to find actor with prototype id '{}'", prototype_id.value));
+                let instance_id = if let Some(instance_id) = object.properties.get("instance_id").cloned() {
+                    instance_id.value
+                } else {
+                    generate_id()
+                };
+
                 let mut actor = Actor::new(ActorControllerKind::Computer, ActorParams {
-                    id: instance_id.unwrap_or(generate_id()),
+                    id: instance_id,
                     position: Some(object.position),
                     ..params
                 });
+
                 actor.stats.recalculate_derived();
                 actor.stats.restore_vitals();
+
                 scene::add_node(actor);
             }
         }
@@ -66,18 +75,19 @@ fn load_map(local_player_id: &str, transition: SceneTransition) {
             } else {
                 LightSource::DEFAULT_SIZE
             };
-            let color = if let Some(_color) = object.properties.get("color") {
-                // TODO: Parse hex value
-                /*Color::new()*/
-                color::WHITE
+
+            let color = if let Some(color) = object.properties.get("color") {
+                color_from_hex_string(&color.value)
             } else {
                 LightSource::DEFAULT_COLOR
             };
+
             let intensity = if let Some(intensity) = object.properties.get("intensity") {
-                intensity.parse::<f32>().unwrap()
+                intensity.value.parse::<f32>().unwrap()
             } else {
                 LightSource::DEFAULT_INTENSITY
             };
+
             LightSource::add_node(object.position, size, color, intensity);
         }
     }
@@ -85,15 +95,20 @@ fn load_map(local_player_id: &str, transition: SceneTransition) {
     if let Some(layer) = map.layers.get("items") {
         for object in &layer.objects {
             if let Some(prototype_id) = object.properties.get("prototype_id").cloned() {
-                if prototype_id == "credits".to_string() {
+                if prototype_id.value == "credits".to_string() {
                     let amount = object.properties.get("amount").unwrap();
-                    Credits::add_node(object.position, amount.parse::<u32>().unwrap());
+                    Credits::add_node(object.position, amount.value.parse::<u32>().unwrap());
                 } else {
-                    let params = resources.items.get(&prototype_id).cloned()
-                        .expect(&format!("Unable to find item with prototype id '{}'", &prototype_id));
-                    let instance_id = object.properties.get("instance_id").cloned();
+                    let params = resources.items.get(&prototype_id.value).cloned()
+                        .expect(&format!("Unable to find item with prototype id '{}'", &prototype_id.value));
+                    let instance_id = if let Some(instance_id) = object.properties.get("instance_id").cloned() {
+                        instance_id.value
+                    } else {
+                        generate_id()
+                    };
+
                     Item::add_node(ItemParams {
-                        id: instance_id.unwrap_or(generate_id()),
+                        id: instance_id,
                         position: Some(object.position),
                         ..params
                     });

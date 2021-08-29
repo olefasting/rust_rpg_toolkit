@@ -138,7 +138,6 @@ pub use crate::{
     render::{
         draw_progress_bar,
         draw_aligned_text,
-        try_color_from_hex_string,
         color_from_hex_string,
         Sprite,
         SpriteAnimationParams,

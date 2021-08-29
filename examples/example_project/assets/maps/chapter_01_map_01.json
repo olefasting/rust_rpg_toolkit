@@ -140086,8 +140086,14 @@
             "y": 4.0
           },
           "properties": {
-            "color": "#ffff0000",
-            "intensity": "0.1"
+            "color": {
+              "value": "#ffff0000",
+              "type": "color"
+            },
+            "intensity": {
+              "value": "0.1",
+              "type": "string"
+            }
           }
         }
       ],
@@ -140111,8 +140117,14 @@
             "y": 248.0
           },
           "properties": {
-            "instance_id": "thug_01",
-            "prototype_id": "enemy_thug_boss"
+            "instance_id": {
+              "value": "thug_01",
+              "type": "string"
+            },
+            "prototype_id": {
+              "value": "enemy_thug_boss",
+              "type": "string"
+            }
           }
         },
         {
@@ -140122,7 +140134,10 @@
             "y": 537.3333
           },
           "properties": {
-            "prototype_id": "neutral_guard"
+            "prototype_id": {
+              "value": "neutral_guard",
+              "type": "string"
+            }
           }
         },
         {
@@ -140132,8 +140147,14 @@
             "y": 237.66667
           },
           "properties": {
-            "instance_id": "thug_02",
-            "prototype_id": "enemy_thug"
+            "instance_id": {
+              "value": "thug_02",
+              "type": "string"
+            },
+            "prototype_id": {
+              "value": "enemy_thug",
+              "type": "string"
+            }
           }
         },
         {
@@ -140143,8 +140164,14 @@
             "y": 253.0
           },
           "properties": {
-            "instance_id": "thug_03",
-            "prototype_id": "enemy_thug"
+            "instance_id": {
+              "value": "thug_03",
+              "type": "string"
+            },
+            "prototype_id": {
+              "value": "enemy_thug",
+              "type": "string"
+            }
           }
         },
         {
@@ -140154,8 +140181,14 @@
             "y": 546.3333
           },
           "properties": {
-            "prototype_id": "guard_boss",
-            "instance_id": "guard_boss"
+            "instance_id": {
+              "value": "guard_boss",
+              "type": "string"
+            },
+            "prototype_id": {
+              "value": "guard_boss",
+              "type": "string"
+            }
           }
         },
         {
@@ -140165,7 +140198,10 @@
             "y": 897.1667
           },
           "properties": {
-            "prototype_id": "neutral_bystander"
+            "prototype_id": {
+              "value": "neutral_bystander",
+              "type": "string"
+            }
           }
         },
         {
@@ -140175,7 +140211,10 @@
             "y": 877.3333
           },
           "properties": {
-            "prototype_id": "neutral_bystander"
+            "prototype_id": {
+              "value": "neutral_bystander",
+              "type": "string"
+            }
           }
         },
         {
@@ -140185,8 +140224,14 @@
             "y": 844.5
           },
           "properties": {
-            "instance_id": "scared_woman",
-            "prototype_id": "scared_woman"
+            "prototype_id": {
+              "value": "scared_woman",
+              "type": "string"
+            },
+            "instance_id": {
+              "value": "scared_woman",
+              "type": "string"
+            }
           }
         },
         {
@@ -140196,7 +140241,10 @@
             "y": 856.0
           },
           "properties": {
-            "prototype_id": "neutral_bystander"
+            "prototype_id": {
+              "value": "neutral_bystander",
+              "type": "string"
+            }
           }
         }
       ],
@@ -140213,8 +140261,14 @@
             "y": 886.0
           },
           "properties": {
-            "prototype_id": "quest_pistol",
-            "instance_id": "quest_pistol"
+            "prototype_id": {
+              "value": "quest_pistol",
+              "type": "string"
+            },
+            "instance_id": {
+              "value": "quest_pistol",
+              "type": "string"
+            }
           }
         }
       ],

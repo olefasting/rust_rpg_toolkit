@@ -36,7 +36,6 @@ pub struct ModuleDataParams {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ModuleDependencyParams {
     pub name: String,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub version: Option<String>,
 }
 
@@ -121,7 +120,7 @@ impl Default for ModuleDeclaration {
 
 pub async fn load_modules(game_params: &GameParams, resources: &mut Resources, scenario: &mut ScenarioParams) {
     let active_modules_file_path = &format!("{}/active_modules.json", game_params.modules_path);
-    let mut loaded_modules: Vec<ModuleDependencyParams> = Vec::new();
+    let mut loaded_modules: Vec<(String, String)> = Vec::new();
 
     let bytes = load_file(active_modules_file_path).await
         .expect(&format!("Unable to find active modules file '{}'!", active_modules_file_path));
@@ -145,16 +144,20 @@ pub async fn load_modules(game_params: &GameParams, resources: &mut Resources, s
         let toolkit_version = get_toolkit_version();
         if let Some(required_toolkit_version) = &module_decl.required_toolkit_version {
             if check_version_requirement(required_toolkit_version, &toolkit_version) == false {
-                println!("WARNING: Module '{}' was not loaded as its toolkit version requirement '{}' was unmet (toolkit version is '{}')!", module_name, required_toolkit_version, toolkit_version);
+                println!("WARNING: Module '{}' was not loaded as its toolkit version requirement '{}' was unmet (toolkit version is '{}')!", module_name, required_toolkit_version, get_toolkit_version());
                 continue 'module;
             }
         }
 
         for dependency in module_decl.dependencies {
-            let found = loaded_modules.iter().find(|loaded|
-                loaded.name.clone() == dependency.name && check_version_requirement(&loaded.version, &dependency.version));
-            if found.is_none() {
-                println!("WARNING: Dependency '{}', version '{}', unmet for module '{}'!", dependency.name, dependency.version, module_name);
+            if loaded_modules.iter().find(|(name, version)| {
+                let name = name.clone();
+                if let Some(required_version) = &dependency.version {
+                    return name == dependency.name && check_version_requirement(required_version, version);
+                }
+                name == dependency.name
+            }).is_none() {
+                println!("WARNING: Module '{}' was not loaded as its dependency on '{}' was unmet!", module_name, dependency.name);
                 continue 'module;
             }
         }
@@ -362,9 +365,6 @@ pub async fn load_modules(game_params: &GameParams, resources: &mut Resources, s
             }
         }
 
-        loaded_modules.push(ModuleDependencyParams {
-            name: module_name,
-            version: module_decl.version,
-        })
+        loaded_modules.push((module_name, module_decl.version));
     }
 }
