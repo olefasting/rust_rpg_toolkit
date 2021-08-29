@@ -54,7 +54,7 @@ pub use crate::{
         SceneTransition,
         SceneTransitionParams,
     },
-    saved_characters::{
+    saved_character::{
         SavedCharacter,
         get_available_characters,
     },

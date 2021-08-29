@@ -21,7 +21,7 @@ pub mod uid;
 pub mod modules;
 pub mod dialogue;
 pub mod scenario;
-pub mod saved_characters;
+pub mod saved_character;
 pub mod versions;
 pub mod game;
 pub mod prelude;

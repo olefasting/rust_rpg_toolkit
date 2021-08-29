@@ -15,16 +15,14 @@ crate-type = ["bin"]
 chrono = "0.4.19"
 regex = "1.5.4"
 hex = "0.4.3"
-#nanoserde = { version = "0.1.29" }
 serde = { version = "1.0.127", features = ["derive"] }
 serde_json = "1.0.66"
 gilrs = "0.8.1"
 
 macroquad = { version = "0.3.8" }
-quad-storage = "0.1.0"
-#macroquad-profiler = "0.1"
 macroquad-particles = { version = "0.1", features = ["nanoserde"] }
-# macroquad-tiled = "0.1"
+quad-storage = "0.1.0"
+# macroquad-profiler = "0.1"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 sapp-jsutils = "0.1.5"

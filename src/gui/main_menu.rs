@@ -1,6 +1,6 @@
 use crate::gui::*;
 
-use crate::saved_characters::{
+use crate::saved_character::{
     get_available_characters,
 };
 

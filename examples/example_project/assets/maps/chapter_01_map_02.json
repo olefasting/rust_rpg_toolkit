@@ -140086,13 +140086,13 @@
             "y": 4.0
           },
           "properties": {
-            "color": {
-              "value": "#ffff0000",
-              "type": "color"
-            },
             "intensity": {
               "value": "0.1",
               "type": "string"
+            },
+            "color": {
+              "value": "#ffff0000",
+              "type": "color"
             }
           }
         }
@@ -140117,12 +140117,12 @@
             "y": 248.0
           },
           "properties": {
-            "prototype_id": {
-              "value": "enemy_thug_boss",
-              "type": "string"
-            },
             "instance_id": {
               "value": "thug_01",
+              "type": "string"
+            },
+            "prototype_id": {
+              "value": "enemy_thug_boss",
               "type": "string"
             }
           }
@@ -140147,12 +140147,12 @@
             "y": 237.66667
           },
           "properties": {
-            "instance_id": {
-              "value": "thug_02",
-              "type": "string"
-            },
             "prototype_id": {
               "value": "enemy_thug",
+              "type": "string"
+            },
+            "instance_id": {
+              "value": "thug_02",
               "type": "string"
             }
           }
@@ -140164,12 +140164,12 @@
             "y": 253.0
           },
           "properties": {
-            "prototype_id": {
-              "value": "enemy_thug",
-              "type": "string"
-            },
             "instance_id": {
               "value": "thug_03",
+              "type": "string"
+            },
+            "prototype_id": {
+              "value": "enemy_thug",
               "type": "string"
             }
           }
@@ -140181,11 +140181,11 @@
             "y": 546.3333
           },
           "properties": {
-            "instance_id": {
+            "prototype_id": {
               "value": "guard_boss",
               "type": "string"
             },
-            "prototype_id": {
+            "instance_id": {
               "value": "guard_boss",
               "type": "string"
             }
@@ -140224,11 +140224,11 @@
             "y": 844.5
           },
           "properties": {
-            "prototype_id": {
+            "instance_id": {
               "value": "scared_woman",
               "type": "string"
             },
-            "instance_id": {
+            "prototype_id": {
               "value": "scared_woman",
               "type": "string"
             }
@@ -140277,24 +140277,6 @@
   ],
   "tilesets": [
     {
-      "id": "neo_zero_tiles",
-      "texture_id": "tiles",
-      "texture_size": {
-        "x": 320,
-        "y": 320
-      },
-      "tile_size": {
-        "x": 16,
-        "y": 16
-      },
-      "grid_size": {
-        "x": 20,
-        "y": 20
-      },
-      "first_tile_id": 1,
-      "tile_cnt": 400
-    },
-    {
       "id": "neo_zero_props",
       "texture_id": "props",
       "texture_size": {
@@ -140329,6 +140311,24 @@
       },
       "first_tile_id": 501,
       "tile_cnt": 16
+    },
+    {
+      "id": "neo_zero_tiles",
+      "texture_id": "tiles",
+      "texture_size": {
+        "x": 320,
+        "y": 320
+      },
+      "tile_size": {
+        "x": 16,
+        "y": 16
+      },
+      "grid_size": {
+        "x": 20,
+        "y": 20
+      },
+      "first_tile_id": 1,
+      "tile_cnt": 400
     }
   ]
 }

@@ -3,11 +3,12 @@ use crate::prelude::*;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ActorParams {
     pub id: String,
+    pub name: String,
+    pub factions: Vec<String>,
     #[serde(default)]
     pub behavior: ActorBehaviorParams,
     #[serde(default, with = "json::opt_vec2", skip_serializing_if = "Option::is_none")]
     pub position: Option<Vec2>,
-    pub name: String,
     pub strength: u32,
     pub dexterity: u32,
     pub constitution: u32,
@@ -21,7 +22,6 @@ pub struct ActorParams {
     pub current_stamina: f32,
     #[serde(default)]
     pub current_energy: f32,
-    pub factions: Vec<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub collider: Option<Collider>,
     #[serde(default, flatten)]
@@ -41,9 +41,10 @@ impl Default for ActorParams {
     fn default() -> Self {
         ActorParams {
             id: generate_id(),
+            name: "Unnamed Actor".to_string(),
+            factions: Vec::new(),
             behavior: Default::default(),
             position: None,
-            name: "Unnamed Actor".to_string(),
             strength: 8,
             dexterity: 8,
             constitution: 8,
@@ -54,7 +55,6 @@ impl Default for ActorParams {
             current_health: 0.0,
             current_stamina: 0.0,
             current_energy: 0.0,
-            factions: Vec::new(),
             collider: None,
             inventory: Default::default(),
             equipped_items: Default::default(),

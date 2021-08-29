@@ -17,3 +17,5 @@ pub use beam::{
 pub use raycast::raycast;
 
 pub const ACTOR_TO_ACTOR_COLLISIONS: bool = false;
+
+pub const COLLISION_RESOLUTION: f32 = 2.5;
