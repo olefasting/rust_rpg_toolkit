@@ -1,3 +1,0 @@
-cargo:rustc-link-lib=dylib=GL
-cargo:rustc-link-lib=dylib=X11
-cargo:rustc-link-lib=dylib=Xi
