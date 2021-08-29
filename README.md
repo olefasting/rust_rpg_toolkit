@@ -40,7 +40,7 @@ There really is no need to save scene state when we can save progress both on mi
 
 ## Example
 
-You should depend on [macroquad](https://github.com/not-fl3/macroquad), as well as my library, then create a main like this.
+You will need to create a macroquad main loop. You don't need to depend on macroquad, though, as the library is exposed through `rust_rpg_toolkit::prelude::*`
 
 You can run the example project with `cargo run --example example_project`
 
