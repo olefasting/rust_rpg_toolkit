@@ -22,8 +22,8 @@ use crate::prelude::*;
 use super::tiled::TiledMapDeclaration;
 
 use crate::json::tiled::{
-    RawTiledMap,
-    RawTiledPropertyType,
+    TiledMap,
+    TiledPropertyType,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -52,7 +52,7 @@ impl Map {
 
     pub async fn load_tiled(decl: TiledMapDeclaration) -> Result<Self, FileError> {
         let bytes = load_file(&decl.path).await?;
-        let tiled_map: RawTiledMap = serde_json::from_slice(&bytes).unwrap();
+        let tiled_map: TiledMap = serde_json::from_slice(&bytes).unwrap();
         let map = Map::from_tiled(tiled_map, decl.clone());
 
         map.save(&decl.export_path).unwrap();
@@ -63,7 +63,7 @@ impl Map {
 
     pub fn load_tiled_sync(decl: TiledMapDeclaration) -> io::Result<Self> {
         let bytes = fs::read(&decl.path)?;
-        let tiled_map: RawTiledMap = serde_json::from_slice(&bytes).unwrap();
+        let tiled_map: TiledMap = serde_json::from_slice(&bytes).unwrap();
         let map = Map::from_tiled(tiled_map, decl.clone());
 
         map.save(&decl.export_path)?;
@@ -71,7 +71,7 @@ impl Map {
         Ok(map)
     }
 
-    pub fn from_tiled(tiled_map: RawTiledMap, decl: TiledMapDeclaration) -> Map {
+    pub fn from_tiled(tiled_map: TiledMap, decl: TiledMapDeclaration) -> Map {
         let background_color = if let Some(background_color) = tiled_map.backgroundcolor {
             color_from_hex_string(&background_color)
         } else {
@@ -80,7 +80,7 @@ impl Map {
 
         let mut tilesets = HashMap::new();
         for tileset_decl in decl.tilesets {
-            let id = tileset_decl.name.clone();
+            let id = tileset_decl.tileset_id.clone();
             let tiled_tileset = tiled_map.tilesets
                 .iter()
                 .find(|tileset| tileset.name == id)
@@ -163,13 +163,13 @@ impl Map {
                 if let Some(tiled_props) = object.properties {
                     for tiled_property in tiled_props {
                         let value_type = match tiled_property.value_type {
-                            RawTiledPropertyType::BoolType => MapPropertyType::BoolType,
-                            RawTiledPropertyType::FloatType => MapPropertyType::FloatType,
-                            RawTiledPropertyType::IntType => MapPropertyType::IntType,
-                            RawTiledPropertyType::StringType => MapPropertyType::StringType,
-                            RawTiledPropertyType::ColorType => MapPropertyType::ColorType,
-                            RawTiledPropertyType::ObjectType => MapPropertyType::ObjectType,
-                            RawTiledPropertyType::FileType => MapPropertyType::FileType,
+                            TiledPropertyType::BoolType => MapPropertyType::BoolType,
+                            TiledPropertyType::FloatType => MapPropertyType::FloatType,
+                            TiledPropertyType::IntType => MapPropertyType::IntType,
+                            TiledPropertyType::StringType => MapPropertyType::StringType,
+                            TiledPropertyType::ColorType => MapPropertyType::ColorType,
+                            TiledPropertyType::ObjectType => MapPropertyType::ObjectType,
+                            TiledPropertyType::FileType => MapPropertyType::FileType,
                         };
 
                         let property = MapProperty {

@@ -1,7 +1,7 @@
 use std::path::{Path, PathBuf};
 
 use crate::prelude::*;
-use crate::json::tiled::RawTiledMap;
+use crate::json::tiled::TiledMap;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TiledMapCollisionDeclaration {
@@ -12,8 +12,7 @@ pub struct TiledMapCollisionDeclaration {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TiledTilesetDeclaration {
-    pub name: String,
-    pub relative_texture_path: String,
+    pub tileset_id: String,
     pub texture_id: String,
 }
 

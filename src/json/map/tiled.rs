@@ -3,7 +3,7 @@ use crate::{
 };
 
 #[derive(Debug, Clone, Deserialize)]
-pub enum RawTiledPropertyType {
+pub enum TiledPropertyType {
     #[serde(rename = "bool")]
     BoolType,
     #[serde(rename = "float")]
@@ -21,15 +21,15 @@ pub enum RawTiledPropertyType {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-pub struct RawTiledProperty {
+pub struct TileProperty {
     pub name: String,
     pub value: String,
     #[serde(rename = "type")]
-    pub value_type: RawTiledPropertyType,
+    pub value_type: TiledPropertyType,
 }
 
 #[derive(Debug, Clone, Deserialize)]
-pub struct RawTiledObject {
+pub struct TiledObject {
     pub id: u32,
     pub name: String,
     #[serde(rename = "type")]
@@ -41,25 +41,25 @@ pub struct RawTiledObject {
     pub visible: bool,
     pub rotation: f32,
     pub ellipse: Option<bool>,
-    pub polygon: Option<Vec<RawTiledPolyPoint>>,
-    pub properties: Option<Vec<RawTiledProperty>>,
+    pub polygon: Option<Vec<TiledPolyPoint>>,
+    pub properties: Option<Vec<TileProperty>>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
-pub struct RawTiledPolyPoint {
+pub struct TiledPolyPoint {
     pub x: f32,
     pub y: f32,
 }
 
 #[derive(Debug, Clone, Deserialize)]
-pub struct RawTiledTileset {
+pub struct TiledTileset {
     pub columns: i32,
     pub image: String,
     pub imagewidth: i32,
     pub imageheight: i32,
     pub margin: i32,
     pub name: String,
-    pub properties: Option<Vec<RawTiledProperty>>,
+    pub properties: Option<Vec<TileProperty>>,
     pub spacing: i32,
     pub tileheight: i32,
     pub tilewidth: i32,
@@ -68,7 +68,7 @@ pub struct RawTiledTileset {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-pub struct RawTiledLayer {
+pub struct TiledLayer {
     pub name: String,
     pub visible: bool,
     #[serde(rename = "type")]
@@ -76,13 +76,13 @@ pub struct RawTiledLayer {
     #[serde(default)]
     pub data: Vec<u32>,
     #[serde(default)]
-    pub objects: Vec<RawTiledObject>,
+    pub objects: Vec<TiledObject>,
     #[serde(default)]
-    pub properties: Option<HashMap<String, RawTiledProperty>>,
+    pub properties: Option<HashMap<String, TileProperty>>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
-pub struct RawTiledMap {
+pub struct TiledMap {
     // Optional background color
     pub backgroundcolor: Option<String>,
     // Number of columns in the map grid
@@ -97,8 +97,8 @@ pub struct RawTiledMap {
     pub version: String,
     // The Tiled version used to create the map
     pub tiledversion: String,
-    pub layers: Vec<RawTiledLayer>,
-    pub tilesets: Vec<RawTiledTileset>,
+    pub layers: Vec<TiledLayer>,
+    pub tilesets: Vec<TiledTileset>,
     #[serde(default)]
-    pub properties: Option<HashMap<String, RawTiledProperty>>,
+    pub properties: Option<HashMap<String, TileProperty>>,
 }

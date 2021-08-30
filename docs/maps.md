@@ -14,4 +14,42 @@ Light sources can also be added in an object layer named `light_sources`, with a
 
 ## Tiled Conversion
 
-A separate CLI for converting maps will be added in the future but, for now, the maps that are to be converted, must be declared in `assets/tiled_maps.json`. After declaring them, run the game once to convert them.
+Tiled maps can be converted using the `mapconv` tool in the `rust_rpg_cli_toolkit`, found in the `cli` folder of this repo, or you can have the engine convert for you.
+
+Both methods require a manifest file, containing an array of declarations for each map, that specify needed information not provided by the Tiled forma, like `texture_id` of tileset
+textures and collision information for the map's layers.
+
+```rust
+struct TiledMapDeclaration {
+    pub path: String,
+    pub export_path: String,
+    pub collisions: Vec<TiledMapCollisionDeclaration>,
+    pub tilesets: Vec<TiledTilesetDeclaration>,
+}
+```
+
+```rust
+struct TiledMapCollisionDeclaration {
+    pub layer_id: String,
+    #[serde(rename = "kind")]
+    pub collision_kind: MapCollisionKind,
+}
+```
+
+```rust
+enum MapCollisionKind {
+    #[serde(rename = "none")]
+    None,
+    #[serde(rename = "barrier")]
+    Barrier,
+    #[serde(rename = "solid")]
+    Solid,
+}
+```
+
+```rust
+struct TiledTilesetDeclaration {
+    pub layer_id: String,
+    pub texture_id: String,
+}
+```
