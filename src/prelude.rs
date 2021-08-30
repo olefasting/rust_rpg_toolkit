@@ -122,6 +122,8 @@ pub use crate::{
         self,
         skins::GuiSkins,
         MainMenuResult,
+        draw_gui,
+        draw_main_menu,
     },
     map::{
         Map,

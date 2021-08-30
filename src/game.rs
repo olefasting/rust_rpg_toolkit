@@ -237,7 +237,7 @@ pub async fn run_game(game_params: GameParams) {
         load_map(&player_id, scene_transition.unwrap());
 
         'inner: loop {
-            gui::draw_gui();
+            draw_gui();
             update_input();
 
             {
