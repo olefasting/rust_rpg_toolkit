@@ -22,17 +22,17 @@ fn main() -> CliResult {
     let folder_path = remove_filename(PathBuf::from(&args.manifest));
 
     let content = read_file(&args.manifest)?;
-    let manifest: Vec<TiledMapDeclaration> = serde_json::from_str(&content)?;
+    let manifest: Vec<TiledMapDefinition> = serde_json::from_str(&content)?;
 
     println!("Using manifest '{}':", args.manifest.to_string_lossy());
 
-    for mut decl in manifest {
-        decl.path = folder_path.join(Path::new(&decl.path)).to_string_lossy().to_string();
-        decl.export_path = folder_path.join(Path::new(&decl.export_path)).to_string_lossy().to_string();
+    for mut def in manifest {
+        def.path = folder_path.join(Path::new(&def.path)).to_string_lossy().to_string();
+        def.export_path = folder_path.join(Path::new(&def.export_path)).to_string_lossy().to_string();
 
-        Map::load_tiled_sync(decl.clone())?;
+        Map::load_tiled_sync(def.clone())?;
 
-        println!(" '{}' => '{}'", decl.path, decl.export_path);
+        println!(" '{}' => '{}'", def.path, def.export_path);
     }
 
     Ok(())

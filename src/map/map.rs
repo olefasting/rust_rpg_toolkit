@@ -19,7 +19,7 @@ use serde::{
 
 use crate::prelude::*;
 
-use super::tiled::TiledMapDeclaration;
+use super::tiled::TiledMapDefinition;
 
 use crate::json::tiled::{
     TiledMap,
@@ -50,7 +50,7 @@ impl Map {
         Ok(map)
     }
 
-    pub async fn load_tiled(decl: TiledMapDeclaration) -> Result<Self, FileError> {
+    pub async fn load_tiled(decl: TiledMapDefinition) -> Result<Self, FileError> {
         let bytes = load_file(&decl.path).await?;
         let tiled_map: TiledMap = serde_json::from_slice(&bytes).unwrap();
         let map = Map::from_tiled(tiled_map, decl.clone());
@@ -61,7 +61,7 @@ impl Map {
     }
 
 
-    pub fn load_tiled_sync(decl: TiledMapDeclaration) -> io::Result<Self> {
+    pub fn load_tiled_sync(decl: TiledMapDefinition) -> io::Result<Self> {
         let bytes = fs::read(&decl.path)?;
         let tiled_map: TiledMap = serde_json::from_slice(&bytes).unwrap();
         let map = Map::from_tiled(tiled_map, decl.clone());
@@ -71,7 +71,7 @@ impl Map {
         Ok(map)
     }
 
-    pub fn from_tiled(tiled_map: TiledMap, decl: TiledMapDeclaration) -> Map {
+    pub fn from_tiled(tiled_map: TiledMap, decl: TiledMapDefinition) -> Map {
         let background_color = if let Some(background_color) = tiled_map.backgroundcolor {
             color_from_hex_string(&background_color)
         } else {

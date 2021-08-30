@@ -968,7 +968,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "rust_rpg_toolkit_cli"
+name = "rust_rpg_toolset_cli"
 version = "0.1.0"
 dependencies = [
  "quicli",

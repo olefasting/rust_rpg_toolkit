@@ -2,6 +2,14 @@
 name = "rust_rpg_toolkit"
 version = "0.1.0"
 edition = "2018"
+authors = ["Ole A. Sjo Fasting <oasf@magus.no>"]
+description = "An engine for creating action RPGs with Rust and/or JSON"
+documentation = "https://github.com/olefasting/rust_rpg_toolkit/tree/master/docs"
+readme = "./README.md"
+keywords = ["game", "engine", "sdk"]
+categories = ["game-engines"]
+license = "Apache-2.0/MIT"
+repository = "https://github.com/olefasting/rust_rpg_toolkit"
 
 [profile.dev.package."*"]
 opt-level = 3
@@ -17,7 +25,7 @@ regex = "1.5.4"
 hex = "0.4.3"
 serde = { version = "1.0.127", features = ["derive"] }
 serde_json = "1.0.66"
-gilrs = "0.8.1"
+gilrs = { version = "0.8.1", feature = ["serde-serialize", "wasm-bindgen"] }
 
 macroquad = { version = "0.3.8" }
 # macroquad-particles = { version = "0.1", features = ["nanoserde"] }

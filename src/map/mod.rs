@@ -13,7 +13,7 @@ pub use map::{
 };
 
 pub use tiled::{
-    TiledMapDeclaration,
+    TiledMapDefinition,
     convert_tiled_maps,
 };
 
