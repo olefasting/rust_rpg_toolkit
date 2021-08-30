@@ -1,6 +1,6 @@
-# Resources
+# Assets
 
-The file `assets/resources.json` holds definitions of all the various resources used in the game. All file paths are relative to `assets/`
+The file `asets.json` holds definitions of all the various resources used in the game. All file paths are relative to `assets/`
 
 ## Materials
 
@@ -13,25 +13,6 @@ Textures hold image data that is stored in video RAM and can be defined in the `
 ## Images
 
 Images hold image data that is stored in system RAM (mainly for use with UI). They can be defined in the `textures` array, and they need a unique `id` and a `path` to the texture. You can also define an optional `format`, with the following options:
-
-```rust
-#[serde(rename_all = "snake_case")]
-enum ImageFormatDef {
-    Png,
-    Jpeg,
-    Gif,
-    WebP,
-    Pnm,
-    Tiff,
-    Tga,
-    Dds,
-    Bmp,
-    Ico,
-    Hdr,
-    Farbfeld,
-    Avif,
-}
-```
 
 ## Sound Effects
 
