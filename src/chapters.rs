@@ -10,7 +10,6 @@ pub struct MapParams {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChapterParams {
-    pub id: String,
     pub title: String,
     pub description: String,
     pub initial_map_id: String,
