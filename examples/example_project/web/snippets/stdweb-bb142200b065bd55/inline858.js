@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_07b15516ef468ebdca9fafa1f5adcab2059ecbb6(Module, $0, $1) { $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);($0).shadowOffsetX=($1); }

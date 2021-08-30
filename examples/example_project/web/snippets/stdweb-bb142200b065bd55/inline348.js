@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_df967679d0411e90561e641a658a9e175a85214e(Module, $0, $1) { $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){return($1).deltaMode;})()); }

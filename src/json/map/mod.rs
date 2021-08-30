@@ -1,21 +1,6 @@
 pub mod tiled;
 
-use std::{
-    collections::HashMap,
-    iter::FromIterator,
-};
-
-use macroquad::{
-    color,
-    prelude::*
-};
-
-use serde::{
-    Serialize,
-    Deserialize,
-};
-
-use crate::json;
+use crate::prelude::*;
 
 use crate::map::{
     Map,

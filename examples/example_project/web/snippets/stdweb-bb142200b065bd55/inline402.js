@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_da5e7bc1675656fbecb114caa83e1259e76a9538(Module, $0, $1) { return Module.STDWEB_PRIVATE.acquire_rust_reference( Module.HEAPF64.slice( $0, $1 ) ); }

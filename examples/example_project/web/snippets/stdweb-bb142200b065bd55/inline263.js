@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_8433db0c881eaaafbbb289f8c6092aaab2cf8f18(Module, $0) { var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof Selection); }

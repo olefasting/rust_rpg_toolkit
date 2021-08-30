@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_6eb72014aa87bcfc2ba8e739cb164cfa9eb098ac(Module, $0) { var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof DOMTokenList); }

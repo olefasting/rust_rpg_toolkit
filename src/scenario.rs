@@ -1,7 +1,3 @@
-use std::{
-    io, fs
-};
-
 use crate::prelude::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -56,7 +52,7 @@ pub struct Scenario {
 }
 
 impl Scenario {
-    pub fn new(assets_path: &str, params: ScenarioParams) -> io::Result<Self> {
+    pub async fn new(assets_path: &str, params: ScenarioParams) -> Result<Self, FileError> {
         let mut chapters = Vec::new();
         for i in 0..params.chapters.len() {
             let chapter_params = params.chapters
@@ -71,7 +67,7 @@ impl Scenario {
                     title: map_info.title,
                     description: map_info.description,
                     path: map_info.path.clone(),
-                    map: Map::load(&format!("{}/{}", assets_path, map_info.path))?,
+                    map: Map::load(&format!("{}/{}", assets_path, map_info.path)).await?,
                 };
 
                 maps.push(map);
@@ -93,13 +89,6 @@ impl Scenario {
         };
 
         Ok(scenario)
-    }
-
-    pub fn load_params(assets_path: &str) -> io::Result<ScenarioParams> {
-        let path = &format!("{}/scenario.json", assets_path.clone());
-        let bytes = fs::read(path)?;
-        let params = serde_json::from_slice(&bytes)?;
-        Ok(params)
     }
 }
 

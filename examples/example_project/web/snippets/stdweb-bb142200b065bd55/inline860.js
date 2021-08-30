@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_102d0fddcd272d0532ae82f81abddade37fdbacd(Module, $0, $1) { $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);($0).shadowColor=($1); }

@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_135fb13dc02e1a6017e1c50448d989d9350cabbb(Module, $0) { $0 = Module.STDWEB_PRIVATE.to_js($0);($0).stopImmediatePropagation(); }

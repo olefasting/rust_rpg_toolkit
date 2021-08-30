@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_6006aa8031971d9e1465ba8b368d945cd808a5f0(Module, $0) { var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof Event && o.type === "error"); }

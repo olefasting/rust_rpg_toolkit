@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_340bc392953cd602bcea4df98ce51c06cf20791f(Module, $0) { var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof TouchEvent && o.type === "touchend"); }

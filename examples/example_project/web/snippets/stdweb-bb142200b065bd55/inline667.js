@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_c381b8acbc2bfd333c2d1f1508cb4655075195be(Module, $0, $1) { $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);($0).setUTCMonth(($1)); }

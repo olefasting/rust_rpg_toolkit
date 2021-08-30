@@ -1,6 +1,8 @@
 pub use std::{
     collections::HashMap,
     iter::FromIterator,
+    fs,
+    io,
 };
 
 pub use macroquad::{
@@ -16,7 +18,8 @@ pub use macroquad::{
             AnimatedSprite,
             Animation,
             AnimationFrame,
-        }
+        },
+        coroutines::start_coroutine,
     },
     audio::{
         Sound,
@@ -41,6 +44,7 @@ pub use crate::{
         to_int_version,
         check_version_requirement,
     },
+    modules::load_modules,
     config::Config,
     uid::generate_id,
     resources::Resources,
@@ -73,6 +77,9 @@ pub use crate::{
     math::{
         Circle,
         URect,
+        rotate_vector,
+        deg_to_rad,
+        rad_to_deg,
     },
     nodes::{
         actor::{
@@ -114,6 +121,7 @@ pub use crate::{
     gui::{
         self,
         skins::GuiSkins,
+        MainMenuResult,
     },
     map::{
         Map,
@@ -123,6 +131,7 @@ pub use crate::{
         MapTileset,
         MapObject,
         MapTile,
+        convert_tiled_maps,
     },
     missions::{
         Mission,
@@ -134,6 +143,9 @@ pub use crate::{
         Dialogue,
         DialogueAction,
         DialogueRequirement,
+    },
+    helpers::{
+        sort_by_distance,
     },
     render::{
         draw_progress_bar,

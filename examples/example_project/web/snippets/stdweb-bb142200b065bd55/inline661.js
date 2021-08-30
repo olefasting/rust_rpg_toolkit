@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_c86a2fa4b5579ea9fe6147f75aae43914fa15939(Module, $0, $1) { $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){return($1).toTimeString();})()); }

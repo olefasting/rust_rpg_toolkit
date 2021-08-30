@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_e5c1d615ec43d32012bff72ea152369d20a119e5(Module, $0) { var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof HTMLCollection); }

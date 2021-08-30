@@ -1,7 +1,3 @@
-use std::{
-    io, fs,
-};
-
 use crate::prelude::*;
 
 use crate::resources::{MaterialInfo, TextureParams, SoundParams};
@@ -122,17 +118,17 @@ impl Default for ModuleDeclaration {
     }
 }
 
-pub async fn load_modules(game_params: &GameParams, resources: &mut Resources, scenario: &mut ScenarioParams) -> io::Result<()> {
+pub async fn load_modules(game_params: &GameParams, resources: &mut Resources, scenario: &mut ScenarioParams) -> Result<(), FileError> {
     let active_modules_file_path = &format!("{}/active_modules.json", game_params.modules_path);
     let mut loaded_modules: Vec<(String, String)> = Vec::new();
 
-    let bytes = fs::read(active_modules_file_path)?;
-    let active_modules: Vec<String> = serde_json::from_slice(&bytes)?;
+    let bytes = load_file(active_modules_file_path).await?;
+    let active_modules: Vec<String> = serde_json::from_slice(&bytes).unwrap();
     'module: for module_name in active_modules {
         let module_path = format!("{}/{}", game_params.modules_path, module_name);
         let module_file_path = format!("{}/{}.json", module_path, module_name);
-        let bytes = fs::read(&module_file_path)?;
-        let module_decl: ModuleDeclaration = serde_json::from_slice(&bytes)?;
+        let bytes = load_file(&module_file_path).await?;
+        let module_decl: ModuleDeclaration = serde_json::from_slice(&bytes).unwrap();
 
         if let Some(required_game_version) = &module_decl.required_game_version {
             if check_version_requirement(required_game_version, &game_params.game_version) == false {

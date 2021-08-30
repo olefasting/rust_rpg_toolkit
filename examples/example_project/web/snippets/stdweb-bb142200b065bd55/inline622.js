@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_aefaa9d37f5ee323edcd23f2b91f3aecdac17e52(Module, $0) { $0 = Module.STDWEB_PRIVATE.to_js($0);($0).focus(); }

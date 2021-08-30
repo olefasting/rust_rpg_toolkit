@@ -1,16 +1,4 @@
-use std::{
-    io,
-    fs,
-};
-
-use crate::{
-    gui::MainMenuResult,
-    modules::load_modules,
-    map::TiledMapDeclaration,
-    prelude::*,
-};
-
-use crate::prelude::coroutines::start_coroutine;
+use crate::prelude::*;
 
 fn load_map(local_player_id: &str, transition: SceneTransition) {
     let scenario = storage::get::<Scenario>();
@@ -139,6 +127,7 @@ pub struct GameParams {
     pub new_character_prototype_id: String,
     pub new_character_build_points: u32,
     pub clear_background_color: Color,
+    pub should_convert_tiled_maps: bool,
 }
 
 impl Default for GameParams {
@@ -152,6 +141,7 @@ impl Default for GameParams {
             new_character_prototype_id: "new_character_prototype".to_string(),
             new_character_build_points: 6,
             clear_background_color: color::BLACK,
+            should_convert_tiled_maps: false,
         }
     }
 }
@@ -171,59 +161,69 @@ pub fn setup_local_player() -> String {
     local_player_id
 }
 
-pub async fn load_resources(game_params: GameParams) -> io::Result<()> {
+pub async fn load_resources(game_params: GameParams) -> Result<(Resources, Scenario), FileError> {
     let assets_path = game_params.assets_path.clone();
-    let mut resources = Resources::new(&assets_path).await.unwrap();
-    let mut scenario_params = Scenario::load_params(&assets_path)?;
-    load_modules(&game_params, &mut resources, &mut scenario_params).await.unwrap();
-    storage::store(resources);
+    let mut resources = Resources::new(&assets_path).await?;
 
-    let tiled_maps_file_path = format!("{}/tiled_maps.json", assets_path);
-    let bytes = fs::read(&tiled_maps_file_path)?;
-    let tiled_maps: Vec<TiledMapDeclaration> = serde_json::from_slice(&bytes)?;
-    for decl in tiled_maps {
-        Map::load_tiled(&assets_path, decl.clone())?;
+    let bytes = load_file(&format!("{}/scenario.json", assets_path)).await?;
+    let mut scenario_params = serde_json::from_slice(&bytes).unwrap();
+
+    load_modules(&game_params, &mut resources, &mut scenario_params).await?;
+
+    if game_params.should_convert_tiled_maps {
+        convert_tiled_maps(&game_params.assets_path).await?;
     }
 
-    let scenario = Scenario::new(&assets_path, scenario_params)?;
+    let scenario = Scenario::new(&assets_path, scenario_params).await?;
+
+    Ok((resources, scenario))
+}
+
+#[cfg(not(any(target_family = "wasm", target_os = "android")))]
+pub async fn prepare_game_data(game_params: GameParams) {
+    let clear_background_color = game_params.clear_background_color.clone();
+    let coroutine = start_coroutine({
+        async move {
+            let (resources, scenario) = load_resources(game_params).await.unwrap();
+            storage::store(resources);
+            storage::store(scenario);
+        }
+    });
+
+    while coroutine.is_done() == false {
+        clear_background(clear_background_color);
+        draw_aligned_text(
+            "Loading game data...",
+            screen_width() / 2.0,
+            screen_height() / 2.0,
+            HorizontalAlignment::Center,
+            VerticalAlignment::Center,
+            TextParams {
+                ..Default::default()
+            },
+        );
+
+        next_frame().await;
+    }
+}
+
+#[cfg(target_family = "wasm")]
+pub async fn prepare_game_data(game_params: GameParams) {
+    let (resources, scenario) = load_resources(game_params).await.unwrap();
+    storage::store(resources);
     storage::store(scenario);
-    Ok(())
 }
 
 pub async fn run_game(game_params: GameParams) {
     storage::store(game_params.clone());
     check_env(&game_params);
 
-    let player_id = setup_local_player();
-
     let config = storage::get::<Config>();
     storage::store(GuiSkins::new(config.gui_scale));
 
-    {
-        let game_params = game_params.clone();
-        let clear_background_color = game_params.clear_background_color.clone();
-        let coroutine = start_coroutine({
-            async move {
-                load_resources(game_params).await.unwrap();
-            }
-        });
+    prepare_game_data(game_params.clone()).await;
 
-        while coroutine.is_done() == false {
-            clear_background(clear_background_color);
-            draw_aligned_text(
-                "Loading game data...",
-                screen_width() / 2.0,
-                screen_height() / 2.0,
-                HorizontalAlignment::Center,
-                VerticalAlignment::Center,
-                TextParams {
-                    ..Default::default()
-                },
-            );
-
-            next_frame().await;
-        }
-    }
+    let player_id = setup_local_player();
 
     #[allow(unused_assignments)]
     let mut scene_transition = None;

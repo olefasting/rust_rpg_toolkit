@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_b43becb32f3d675e0390f984e76c5de188bac53a(Module, $0, $1) { $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);var array=($0);var pointer=($1);Module.HEAPF32.set(array,pointer); }

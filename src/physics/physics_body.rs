@@ -4,7 +4,6 @@ use super::{
     ACTOR_TO_ACTOR_COLLISIONS,
     COLLISION_RESOLUTION,
 };
-use std::ops::{Add, Sub};
 
 #[derive(Clone)]
 pub struct PhysicsBody {
@@ -94,9 +93,9 @@ impl PhysicsBody {
     }
 
     pub fn integrate(&mut self) {
-        if let Some(mut collider) = self.get_offset_collider() {
+        if let Some(collider) = self.get_offset_collider() {
             self.last_collisions = Vec::new();
-            let mut movement = (self.velocity * 50.0) * get_frame_time();
+            let movement = (self.velocity * 50.0) * get_frame_time();
             let game_state = scene::find_node_by_type::<GameState>().unwrap();
             let collisions = game_state.map.get_collisions(collider.offset(self.velocity));
             if collisions.is_empty() == false {

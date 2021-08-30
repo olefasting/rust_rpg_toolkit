@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_337ad45e56250e065bd0592c889015c47caf07fe(Module, $0) { var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof HTMLOptionElement); }

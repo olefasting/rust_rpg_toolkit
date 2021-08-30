@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_d2799c0b8fe00873f8c1d4832af466b8200b9d14(Module, $0) { var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof Event && o.type === "popstate"); }

@@ -4,8 +4,6 @@ use std::{
 
 use crate::prelude::*;
 
-use super::Actor;
-
 #[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
 pub enum ActorAggression {
     #[serde(rename = "passive")]

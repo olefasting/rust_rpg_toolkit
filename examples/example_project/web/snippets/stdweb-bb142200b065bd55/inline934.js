@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_f369519306bd80be98acaa72e3383a1667afbeeb(Module, $0) { var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof DragEvent && o.type === "drag"); }

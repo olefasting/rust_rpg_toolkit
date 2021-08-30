@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_5e4e1b3b02f45b3fa75bd299300227b3c8cafa88(Module, $0, $1) { $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){return($1).altitudeAngle;})()); }

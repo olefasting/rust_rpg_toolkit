@@ -47,9 +47,10 @@ You can run the example project with `cargo run --example example_project`
 ```rust
 use rust_rpg_toolkit::prelude::*;
 
-// Used when determining whether module dependencies on game version are met
+const GAME_NAME: &'static str = "My Awesome Game";
 const GAME_VERSION: &'static str = "0.1.0";
 
+// path parameter is used as key for web storage, if targeting WASMM
 const CONFIG_PATH: &'static str = "config.json";
 
 fn window_conf() -> Conf {
@@ -57,8 +58,8 @@ fn window_conf() -> Conf {
     storage::store(config.clone());
 
     Conf {
-        window_title: "Capstone".to_owned(),
-        high_dpi: true,
+        window_title: GAME_NAME.to_owned(),
+        high_dpi: false,
         window_width: config.resolution.x as i32,
         window_height: config.resolution.y as i32,
         fullscreen: config.fullscreen,
@@ -69,6 +70,7 @@ fn window_conf() -> Conf {
 #[macroquad::main(window_conf)]
 async fn main() {
     let params = GameParams {
+        game_name: GAME_NAME.to_string(),
         game_version: GAME_VERSION.to_string(),
         ..Default::default()
     };

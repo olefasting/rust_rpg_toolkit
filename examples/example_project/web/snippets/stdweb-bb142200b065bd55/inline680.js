@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_46ffbf55cdfd0727e4e1268fe337ccb16d7f1370(Module, $0, $1) { $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);($0).setDate(($1)); }

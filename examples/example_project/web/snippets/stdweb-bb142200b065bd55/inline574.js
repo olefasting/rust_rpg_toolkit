@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_38dccafac99aaec329eb711e651d34bdc1558e25(Module, $0) { var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof PointerEvent && o.type === "lostpointercapture"); }

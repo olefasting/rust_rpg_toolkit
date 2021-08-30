@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_df4697739f13083d3632acec1e5cd1061696bf89(Module, $0) { var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof Event && o.type === "readystatechange"); }

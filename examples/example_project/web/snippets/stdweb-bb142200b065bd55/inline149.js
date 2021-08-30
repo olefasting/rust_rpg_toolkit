@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_60e0a6758ca35150f5b32e2508e2ccbb713f85ab(Module, $0, $1) { $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){return($1).crossOrigin;})()); }

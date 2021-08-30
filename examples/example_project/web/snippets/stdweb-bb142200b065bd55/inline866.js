@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_d859d3861f7f6f71d24fdd50817b1062b8e4b75f(Module, $0, $1) { $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);($0).lineWidth=($1); }

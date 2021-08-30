@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_22a62bc03ed4b2e530885eaee9c575a53d7a722d(Module, $0) { var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof MouseEvent && o.type === "mouseleave"); }

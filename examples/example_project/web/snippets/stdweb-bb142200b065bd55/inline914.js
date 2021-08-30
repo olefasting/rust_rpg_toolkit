@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_b3e706a9dc43209502127b6b6dae83603a14fc98(Module, $0, $1, $2, $3) { $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);$2 = Module.STDWEB_PRIVATE.to_js($2);$3 = Module.STDWEB_PRIVATE.to_js($3);($0).setDragImage(($1),($2),($3)); }

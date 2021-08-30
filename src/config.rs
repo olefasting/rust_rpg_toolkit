@@ -37,9 +37,9 @@ impl Config {
     }
 
     #[cfg(target_family = "wasm")]
-    pub fn load(_: &str) -> Self {
+    pub fn load(key: &str) -> Self {
         let web_storage = &mut quad_storage::STORAGE.lock().unwrap();
-        if let Some(json) = web_storage.get(Self::WEB_STORAGE_CONFIG_KEY) {
+        if let Some(json) = web_storage.get(key) {
             let config: Config = serde_json::from_str(&json)
                 .expect("Unable to parse config from web storage!");
             storage::store(config.clone());
@@ -56,10 +56,10 @@ impl Config {
     }
 
     #[cfg(target_family = "wasm")]
-    pub fn save(&self, _: &str) {
+    pub fn save(&self, key: &str) {
         let storage = &mut quad_storage::STORAGE.lock().unwrap();
         let json = serde_json::to_string_pretty(self)
             .expect("Error parsing config!");
-        storage.set(Self::WEB_STORAGE_CONFIG_KEY, &json)
+        storage.set(key, &json)
     }
 }

@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_0aced9e2351ced72f1ff99645a129132b16c0d3c(Module, $0) { var value = Module.STDWEB_PRIVATE.get_raw_value( $0 );return Module.STDWEB_PRIVATE.register_raw_value( value ); }

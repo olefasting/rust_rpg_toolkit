@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_1741481f01c50af6f4a3d04e48c3faed9c6f0abb(Module, $0) { var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof CanvasPattern); }

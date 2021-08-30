@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_8bda7828a5cd8d59960149c7575849e2b9b2599f(Module, $0, $1) { $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){return($1).font})()); }

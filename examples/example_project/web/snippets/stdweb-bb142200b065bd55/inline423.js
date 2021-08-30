@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_cb7189e661dbf1c8e1e071d2e1d328e60834cc2a(Module, $0) { return (Module.STDWEB_PRIVATE.acquire_js_reference( $0 ) instanceof Int16Array) | 0; }

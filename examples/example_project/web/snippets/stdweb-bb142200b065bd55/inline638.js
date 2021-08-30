@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_ed5514e1b259e6fbf2cde22911b4ac507d1e1e14(Module, $0) { $0 = Module.STDWEB_PRIVATE.to_js($0);($0).exitPointerLock(); }

@@ -1,8 +1,4 @@
 use crate::prelude::*;
-use std::{
-    ops::Deref,
-    path::Path,
-};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TiledMapCollisionDeclaration {
@@ -24,4 +20,14 @@ pub struct TiledMapDeclaration {
     pub export_path: String,
     pub collisions: Vec<TiledMapCollisionDeclaration>,
     pub tilesets: Vec<TiledTilesetDeclaration>,
+}
+
+pub async fn convert_tiled_maps(assets_path: &str) -> Result<(), FileError> {
+    let tiled_maps_file_path = format!("{}/tiled_maps.json", assets_path);
+    let bytes = load_file(&tiled_maps_file_path).await?;
+    let tiled_maps: Vec<TiledMapDeclaration> = serde_json::from_slice(&bytes).unwrap();
+    for decl in tiled_maps {
+        Map::load_tiled(&assets_path, decl.clone()).await?;
+    }
+    Ok(())
 }

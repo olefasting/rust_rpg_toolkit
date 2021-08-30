@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_5205203e0ee6937de27da979149b6dc460c8dc8e(Module, $0) { var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof ProgressEvent && o.type === "abort"); }

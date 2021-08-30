@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_9933a4d1efd55a34277f16b105b50b6f57078b9b(Module, $0) { var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof Touch); }

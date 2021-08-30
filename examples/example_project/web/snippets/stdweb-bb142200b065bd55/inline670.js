@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_188119f83960af4f74a93c5a9a0da2cd2479e064(Module, $0, $1) { $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);($0).setUTCHours(($1)); }

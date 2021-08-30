@@ -1,5 +1,3 @@
-use std::path::PathBuf;
-
 use quicli::prelude::*;
 use structopt::StructOpt;
 
@@ -26,7 +24,7 @@ fn main() -> CliResult {
     for decl in manifest {
         let in_path = format!("{}/{}", args.assets_folder, decl.path);
         let out_path = format!("{}/{}", args.assets_folder, decl.export_path);
-        Map::load_tiled(&args.assets_folder, decl.clone())?;
+        Map::load_tiled_sync(&args.assets_folder, decl.clone())?;
         println!("Successfully converted map '{}' and exported it to '{}'", in_path, out_path);
     }
 

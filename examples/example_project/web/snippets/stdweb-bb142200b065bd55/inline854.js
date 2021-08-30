@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_af879f7e9f6e3db499feff63c418b5e2a6c654ac(Module, $0, $1) { $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);($0).strokeStyle=($1); }

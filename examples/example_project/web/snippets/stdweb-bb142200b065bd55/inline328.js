@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_14b7d8534e7f9077ca896d4462c60baecdba94d4(Module, $0, $1) { $1 = Module.STDWEB_PRIVATE.to_js($1);Module.STDWEB_PRIVATE.from_js($0, (function(){return($1).bufferedAmount;})()); }

@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_72fc447820458c720c68d0d8e078ede631edd723(Module, $0, $1, $2) { console.error( 'Panic location:', Module.STDWEB_PRIVATE.to_js_string( $0, $1 ) + ':' + $2 ); }

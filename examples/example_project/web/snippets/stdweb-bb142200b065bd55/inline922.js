@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_fb161a18e1d9d20bfeb410f3c15335bbfbdf66c0(Module, $0, $1) { $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);($0).effectAllowed=($1); }

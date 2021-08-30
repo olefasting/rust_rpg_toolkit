@@ -2,7 +2,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Capstone - pre-alpha</title>
+    <title>Example Project</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -34,16 +34,33 @@
 <!-- script src="gl.js"></script -->
 
 <!-- script src="audio.js"></script -->
-<!-- script src="sapp_jsutils.js"></script -->
+<script src="sapp_jsutils.js"></script>
 <!-- script src="quad-url.js"></script -->
-<!-- script src="quad-storage.js"></script -->
+<script src="quad-storage.js"></script>
 
-<script>load("example_project.wasm");</script>
+<script type="module">
+    import bg from './example_project.js'
+    console.log('module', bg)
+    miniquad_add_plugin({
+        register_plugin(imports) {
+            console.log('register_plugin', imports, bg.imports)
+            imports.wbg = bg.imports.wbg
+        },
+        on_init() {
+            console.log('on_init', wasm_exports)
+            bg.set_wasm(wasm_exports)
+        }
+    })
+    bg(false).then(imports => {
+        console.log('imports', imports)
+        bg.imports = imports
+        load('./example_project_bg.wasm')
+    })
+</script>
 
-<script>
+<script type="module">
+    // This prevents right click from opening the OS context menu
     let can = document.getElementById('glcanvas');
-    //let ctx = can.getContext('webgl');
-
     can.addEventListener('contextmenu', function(e) {
         if (e.button === 2) {
             e.preventDefault();

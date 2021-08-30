@@ -1,5 +1,5 @@
 mod map;
-mod tiled;
+pub mod tiled;
 
 pub use map::{
     Map,
@@ -14,6 +14,7 @@ pub use map::{
 
 pub use tiled::{
     TiledMapDeclaration,
+    convert_tiled_maps,
 };
 
 pub const MAP_LAYER_GROUND: &'static str = "ground";

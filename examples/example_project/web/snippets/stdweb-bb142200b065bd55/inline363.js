@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_84339b1bf72a580059a6e0ff9499e53759aef5b9(Module, $0) { var o = Module.STDWEB_PRIVATE.acquire_js_reference( $0 );return (o instanceof MouseEvent && o.type === "click"); }

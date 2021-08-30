@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_7326ee86ac88c6072b7126311aacf503017bf3c9(Module, $0, $1) { $0 = Module.STDWEB_PRIVATE.to_js($0);$1 = Module.STDWEB_PRIVATE.to_js($1);($0).isMap=($1); }

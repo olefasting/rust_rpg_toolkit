@@ -1,0 +1,1 @@
+export function __cargo_web_snippet_9bff761493c933df4c2d45761b23dd43a2b1d746(Module, $0) { Module.STDWEB_PRIVATE.from_js($0, (function(){return new Image();})()); }
