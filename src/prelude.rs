@@ -49,12 +49,9 @@ pub use crate::{
     uid::generate_id,
     resources::Resources,
     noise_level::NoiseLevel,
-    scenario::{
-        Scenario,
-        ScenarioParams,
+    chapters::{
         Chapter,
         ChapterParams,
-        CurrentChapter,
         SceneTransition,
         SceneTransitionParams,
     },

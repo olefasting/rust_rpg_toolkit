@@ -5,12 +5,10 @@ use std::{
 use crate::prelude::*;
 
 #[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum ActorAggression {
-    #[serde(rename = "passive")]
     Passive,
-    #[serde(rename = "neutral")]
     Neutral,
-    #[serde(rename = "aggressive")]
     Aggressive,
 }
 

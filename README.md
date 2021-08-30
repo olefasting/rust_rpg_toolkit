@@ -8,18 +8,13 @@ either by modifying a game's data files directly, or by creating user modules, w
 
 ## Features
 
-- Easy definition and modification of game data and resources, with JSON
-- User modules, also made using JSON, that can extend or replace the game's data and resources
+- Easy definition and modification of game data and resources
+- Mod support out-of-the-box with modules that can extend or replace a game's data and resources
 - RPG mechanics, like character stats, items and an inventory system
 - Conversion from Tiled maps and instantiation of actors and items from map properties
 - Scriptable dialogue system
 - Scriptable mission and reward system
-- WebAssembly support
-
-I have decided to remove the save game feature and in stead go for a Diablo-style saving model, where characters and their progress are saved but not the maps.
-
-There really is no need to save scene state when we can save progress both on missions and waypoints on a per-character basis, in stead.
-
+- WebAssembly support with wasm-bindgen
 
 ## Contributing
 

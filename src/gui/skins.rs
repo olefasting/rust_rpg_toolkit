@@ -1,6 +1,7 @@
-use macroquad::prelude::*;
-
-use macroquad::ui::{root_ui, Skin};
+use crate::{
+    gui::*,
+    prelude::*,
+};
 
 #[derive(Debug, Clone)]
 pub struct GuiSkins {
@@ -12,13 +13,24 @@ pub struct GuiSkins {
 
 impl GuiSkins {
     pub fn new(scale: f32) -> Self {
+        let resources = storage::get::<Resources>();
+
+        let panel_01 = resources.images.get("panel_01").cloned().unwrap();
+
+        let editbox_01 = resources.images.get("editbox_01").unwrap();
+
+        let btn_01 = resources.images.get("btn_01").unwrap();
+        let btn_01_hover = resources.images.get("btn_01_hover").unwrap();
+        let btn_01_click = resources.images.get("btn_01_click").unwrap();
+
+        let btn_02 = resources.images.get("btn_02").unwrap();
+        let btn_02_hover = resources.images.get("btn_02_hover").unwrap();
+        let btn_02_click = resources.images.get("btn_02_click").unwrap();
+
         let default = {
             let window_style = root_ui()
                 .style_builder()
-                .background(Image::from_file_with_format(
-                    include_bytes!("../../assets/gui/wenrexa/MainPanel03.png"),
-                    None,
-                ))
+                .background(panel_01)
                 //.background_margin(RectOffset::new(52.0, 52.0, 52.0, 52.0))
                 .margin(RectOffset::new(15.0 * scale, 15.0 * scale, 15.0 * scale, 15.0 * scale))
                 .build();
@@ -34,20 +46,11 @@ impl GuiSkins {
 
             let button_style = root_ui()
                 .style_builder()
-                .background(Image::from_file_with_format(
-                    include_bytes!("../../assets/gui/wenrexa/Button04.png"),
-                    None,
-                ))
+                .background(btn_01.clone())
                 //.background_margin(RectOffset::new(15.0, 15.0, 15.0, 15.0))
                 .margin(RectOffset::new(15.0 * scale, 15.0 * scale, 5.0 * scale, 5.0 * scale))
-                .background_hovered(Image::from_file_with_format(
-                    include_bytes!("../../assets/gui/wenrexa/Button02.png"),
-                    None,
-                ))
-                .background_clicked(Image::from_file_with_format(
-                    include_bytes!("../../assets/gui/wenrexa/Button02.png"),
-                    None,
-                ))
+                .background_hovered(btn_01_hover.clone())
+                .background_clicked(btn_01_click.clone())
                 // .font(include_bytes!("../../assets/gui/fonts/MinimalPixel v2.ttf"))
                 // .unwrap()
                 .text_color(Color::from_rgba(200, 200, 160, 255))
@@ -74,20 +77,11 @@ impl GuiSkins {
 
             let button_style = root_ui()
                 .style_builder()
-                .background(Image::from_file_with_format(
-                    include_bytes!("../../assets/gui/wenrexa/Button04.png"),
-                    None,
-                ))
+                .background(btn_01.clone())
                 //.background_margin(RectOffset::new(15.0, 15.0, 15.0, 15.0))
                 .margin(RectOffset::new(8.0 * scale, 8.0 * scale, 2.0 * scale, 2.0 * scale))
-                .background_hovered(Image::from_file_with_format(
-                    include_bytes!("../../assets/gui/wenrexa/Button02.png"),
-                    None,
-                ))
-                .background_clicked(Image::from_file_with_format(
-                    include_bytes!("../../assets/gui/wenrexa/Button02.png"),
-                    None,
-                ))
+                .background_hovered(btn_01_hover.clone())
+                .background_clicked(btn_01_click.clone())
                 // .font(include_bytes!("../../assets/gui/fonts/MinimalPixel v2.ttf"))
                 // .unwrap()
                 .text_color(Color::from_rgba(200, 200, 160, 255))
@@ -120,20 +114,11 @@ impl GuiSkins {
 
             let button_style = root_ui()
                 .style_builder()
-                .background(Image::from_file_with_format(
-                    include_bytes!("../../assets/gui/wenrexa/Button11.png"),
-                    None,
-                ))
+                .background(btn_02.clone())
                 //.background_margin(RectOffset::new(15.0, 15.0, 15.0, 15.0))
                 .margin(RectOffset::new(8.0 * scale, 8.0 * scale, 2.0 * scale, 2.0 * scale))
-                .background_hovered(Image::from_file_with_format(
-                    include_bytes!("../../assets/gui/wenrexa/Button11.png"),
-                    None,
-                ))
-                .background_clicked(Image::from_file_with_format(
-                    include_bytes!("../../assets/gui/wenrexa/Button11.png"),
-                    None,
-                ))
+                .background_hovered(btn_02_hover.clone())
+                .background_clicked(btn_02_click.clone())
                 // .font(include_bytes!("../../assets/gui/fonts/MinimalPixel v2.ttf"))
                 // .unwrap()
                 .text_color(Color::from_rgba(200, 200, 160, 255))
@@ -147,10 +132,7 @@ impl GuiSkins {
 
             let editbox_style = root_ui()
                 .style_builder()
-                .background(Image::from_file_with_format(
-                    include_bytes!("../../assets/gui/wenrexa/Button11.png"),
-                    None,
-                ))
+                .background(editbox_01.clone())
                 .text_color(Color::from_rgba(200, 200, 160, 255))
                 .font_size((12 as f32 * scale) as u16)
                 .build();

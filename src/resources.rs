@@ -1,48 +1,50 @@
 use crate::prelude::*;
 
-use crate::render::{
-    NEAREST_FILTER_MODE,
-    LINEAR_FILTER_MODE,
-};
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct MaterialInfo {
+pub struct MaterialAssetParams {
     pub id: String,
     pub fragment_shader_path: String,
     pub vertex_shader_path: String,
 }
 
+fn default_filter_mode() -> FilterMode {
+    FilterMode::Nearest
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct TextureParams {
+pub struct TextureAssetParams {
     pub id: String,
     pub path: String,
-    #[serde(default = "TextureParams::default_filter_mode")]
-    pub filter_mode: String,
-}
-
-impl TextureParams {
-    fn default_filter_mode() -> String {
-        NEAREST_FILTER_MODE.to_string()
-    }
+    #[serde(default = "default_filter_mode", with = "json::FilterModeDef")]
+    pub filter_mode: FilterMode,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SoundParams {
+pub struct ImageAssetParams {
+    pub id: String,
+    pub path: String,
+    pub format: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SoundAssetParams {
     pub id: String,
     pub path: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ResourcesParams {
-    materials: Vec<MaterialInfo>,
-    textures: Vec<TextureParams>,
-    sound_effects: Vec<SoundParams>,
-    music: Vec<SoundParams>,
+pub struct AssetsParams {
+    materials: Vec<MaterialAssetParams>,
+    textures: Vec<TextureAssetParams>,
+    images: Vec<ImageAssetParams>,
+    sound_effects: Vec<SoundAssetParams>,
+    music: Vec<SoundAssetParams>,
 }
 
 pub struct Resources {
     pub materials: HashMap<String, Material>,
     pub textures: HashMap<String, Texture2D>,
+    pub images: HashMap<String, Image>,
     pub sound_effects: HashMap<String, Sound>,
     pub music: HashMap<String, Sound>,
     pub actors: HashMap<String, ActorParams>,
@@ -50,72 +52,19 @@ pub struct Resources {
     pub abilities: HashMap<String, AbilityParams>,
     pub missions: HashMap<String, MissionParams>,
     pub dialogue: HashMap<String, Dialogue>,
+    pub chapters: Vec<Chapter>,
 }
 
 impl Resources {
     pub const WHITE_TEXTURE_ID: &'static str = "__WHITE_TEXTURE__";
 
-    pub const CHARACTERS_TEXTURE_ID: &'static str = "characters";
-    pub const PROPS_TEXTURE_ID: &'static str = "props";
-    pub const GROUND_TILES_TEXTURE_ID: &'static str = "tiles";
-    pub const ITEMS_TEXTURE_ID: &'static str = "items";
-
-    pub async fn new(assets_path: &str) -> Result<Self, FileError> {
-        let resources_file_path = format!("{}/resources.json", assets_path);
-        let actors_file_path = format!("{}/actors.json", assets_path);
-        let items_file_path = format!("{}/items.json", assets_path);
-        let abilities_file_path = format!("{}/abilities.json", assets_path);
-        let missions_file_path = format!("{}/missions.json", assets_path);
-        let dialogue_file_path = format!("{}/dialogue.json", assets_path);
-
-        let mut textures = HashMap::new();
-        let white_texture = load_texture("assets/textures/white_texture.png").await?;
-        white_texture.set_filter(FilterMode::Nearest);
-        textures.insert(Self::WHITE_TEXTURE_ID.to_string(), white_texture);
-
-        let bytes = load_file(&resources_file_path).await?;
-        let resources: ResourcesParams = serde_json::from_slice(&bytes)
-            .expect(&format!("Error when parsing resource file '{}'!", resources_file_path));
-
-        let mut materials = HashMap::new();
-        for material_params in &resources.materials {
-            let vertex_shader = load_file(&format!("{}/{}", assets_path, material_params.vertex_shader_path)).await?;
-            let fragment_shader = load_file(&format!("{}/{}", assets_path, material_params.fragment_shader_path)).await?;
-
-            let material = load_material(
-                &String::from_utf8(vertex_shader).unwrap(),
-                &String::from_utf8(fragment_shader).unwrap(),
-                MaterialParams {
-                    ..Default::default()
-                },
-            ).unwrap();
-
-            materials.insert(material_params.id.clone(), material);
-        }
-
-        for texture_params in &resources.textures {
-            let texture = load_texture(&format!("{}/{}", assets_path, texture_params.path)).await?;
-            if texture_params.filter_mode == LINEAR_FILTER_MODE.to_string() {
-                texture.set_filter(FilterMode::Linear)
-            } else if texture_params.filter_mode == NEAREST_FILTER_MODE.to_string() {
-                texture.set_filter(FilterMode::Nearest);
-            } else {
-                assert!(false, "Invalid filter mode '{}'", texture_params.filter_mode);
-            }
-            textures.insert(texture_params.id.clone(), texture);
-        }
-
-        let mut sound_effects = HashMap::new();
-        for sound_params in &resources.sound_effects {
-            let sound = load_sound(&format!("{}/{}", assets_path, sound_params.path)).await?;
-            sound_effects.insert(sound_params.id.clone(), sound);
-        }
-
-        let mut music = HashMap::new();
-        for music_params in &resources.music {
-            let track = load_sound(&format!("assets/{}", music_params.path)).await?;
-            music.insert(music_params.id.clone(), track);
-        }
+    pub async fn new(data_path: &str) -> Result<Self, FileError> {
+        let assets_file_path = format!("{}/assets.json", data_path);
+        let actors_file_path = format!("{}/actors.json", data_path);
+        let items_file_path = format!("{}/items.json", data_path);
+        let abilities_file_path = format!("{}/abilities.json", data_path);
+        let missions_file_path = format!("{}/missions.json", data_path);
+        let dialogue_file_path = format!("{}/dialogue.json", data_path);
 
         let bytes = load_file(&actors_file_path).await?;
         let actor_data: Vec<ActorParams> = serde_json::from_slice(&bytes)
@@ -147,9 +96,75 @@ impl Resources {
         let abilities = HashMap::from_iter(
             ability_data.into_iter().map(|ability| (ability.id.clone(), ability)));
 
+        let bytes = load_file(&format!("{}/scenario.json", data_path)).await?;
+        let chapter_params: Vec<ChapterParams> = serde_json::from_slice(&bytes).unwrap();
+        let mut chapters = Vec::new();
+        for chapter_params in chapter_params {
+            let chapter = Chapter::new(chapter_params).await?;
+            chapters.push(chapter);
+        }
+
+        let bytes = load_file(&assets_file_path).await?;
+        let resources: AssetsParams = serde_json::from_slice(&bytes)
+            .expect(&format!("Error when parsing assets file '{}'!", assets_file_path));
+
+
+        let mut materials = HashMap::new();
+        for material_params in &resources.materials {
+            let vertex_shader = load_file(&material_params.vertex_shader_path).await?;
+            let fragment_shader = load_file(&material_params.fragment_shader_path).await?;
+
+            let material = load_material(
+                &String::from_utf8(vertex_shader).unwrap(),
+                &String::from_utf8(fragment_shader).unwrap(),
+                MaterialParams {
+                    ..Default::default()
+                },
+            ).unwrap();
+
+            materials.insert(material_params.id.clone(), material);
+        }
+
+        let mut textures = HashMap::new();
+        let white_image = Image::gen_image_color(32, 32, color::WHITE);
+        let white_texture = Texture2D::from_image(&white_image);
+        white_texture.set_filter(FilterMode::Nearest);
+        textures.insert(Self::WHITE_TEXTURE_ID.to_string(), white_texture);
+
+        for texture_params in &resources.textures {
+            let texture = load_texture(&texture_params.path).await?;
+            texture.set_filter(texture_params.filter_mode);
+            textures.insert(texture_params.id.clone(), texture);
+        }
+
+        let mut images = HashMap::new();
+        for image_params in &resources.images {
+            let bytes = load_file(&image_params.path).await?;
+            let format = match image_params.format.as_ref() {
+                Some(ext) => ImageFormat::from_extension(ext),
+                _ => None,
+            };
+
+            let image = Image::from_file_with_format(&bytes, format);
+            images.insert(image_params.id.clone(), image);
+        }
+
+        let mut sound_effects = HashMap::new();
+        for sound_params in &resources.sound_effects {
+            let sound = load_sound(&sound_params.path).await?;
+            sound_effects.insert(sound_params.id.clone(), sound);
+        }
+
+        let mut music = HashMap::new();
+        for music_params in &resources.music {
+            let track = load_sound(&music_params.path).await?;
+            music.insert(music_params.id.clone(), track);
+        }
+
         let resources = Resources {
             materials,
             textures,
+            images,
             sound_effects,
             music,
             actors,
@@ -157,6 +172,7 @@ impl Resources {
             abilities,
             missions,
             dialogue,
+            chapters,
         };
 
         Ok(resources)

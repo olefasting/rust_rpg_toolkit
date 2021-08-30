@@ -1,12 +1,12 @@
 use rust_rpg_toolkit::prelude::*;
 
-const GAME_NAME: &'static str = "example_project";
+const GAME_NAME: &'static str = "example-project";
 const GAME_VERSION: &'static str = "0.1.0";
 
-const CONFIG_PATH: &'static str = "examples/example_project/config.json";
-const ASSETS_PATH: &'static str = "examples/example_project/assets";
-const MODULES_PATH: &'static str = "examples/example_project/modules";
-const CHARACTERS_PATH: &'static str = "examples/example_project/characters";
+const CONFIG_PATH: &'static str = "config.json";
+const DATA_PATH: &'static str = "data";
+const MODULES_PATH: &'static str = "modules";
+const CHARACTERS_PATH: &'static str = "characters";
 
 pub fn window_conf() -> Conf {
     let config = Config::load(CONFIG_PATH);
@@ -27,7 +27,7 @@ async fn main() {
         game_name: GAME_NAME.to_string(),
         game_version: GAME_VERSION.to_string(),
         config_path: CONFIG_PATH.to_string(),
-        assets_path: ASSETS_PATH.to_string(),
+        data_path: DATA_PATH.to_string(),
         modules_path: MODULES_PATH.to_string(),
         characters_path: CHARACTERS_PATH.to_string(),
         ..Default::default()

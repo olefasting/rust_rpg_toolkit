@@ -8,7 +8,7 @@ use serde::{
 use crate::math::Circle;
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
+#[serde(untagged, rename_all = "snake_case")]
 pub enum Collider {
     Rectangle {
         #[serde(default)]

@@ -94,25 +94,20 @@ struct ModuleDataParams {
 ```
 
 ```rust
+#[serde(rename_all = "snake_case")]
 enum ModuleDataFileKind {
-    #[serde(rename = "actors")]
     Actors,
-    #[serde(rename = "dialogue")]
     Dialogue,
-    #[serde(rename = "missions")]
     Missions,
-    #[serde(rename = "items")]
     Items,
-    #[serde(rename = "abilities")]
     Abilities,
 }
 ```
 
 ```rust
+#[serde(rename_all = "snake_case")]
 enum ModuleIntegration {
-    #[serde(rename = "extend")]
     Extend,
-    #[serde(rename = "replace")]
     Replace,
 }
 ```

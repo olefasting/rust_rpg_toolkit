@@ -118,8 +118,12 @@ impl Into<SavedCharacter> for ActorParams {
             item_ids.push(id);
         }
 
-        let scenario = storage::get::<Scenario>();
-        let first_chapter = scenario.chapters.first().unwrap();
+        let current_chapter_index = 0;
+        let current_map_id= resources.chapters
+            .get(current_chapter_index)
+            .unwrap()
+            .initial_map_id
+            .clone();
 
         SavedCharacter {
             game_version: game_params.game_version.clone(),
@@ -134,8 +138,8 @@ impl Into<SavedCharacter> for ActorParams {
             items,
             active_missions: Vec::new(),
             completed_missions: Vec::new(),
-            current_chapter_index: first_chapter.index,
-            current_map_id: first_chapter.initial_map_id.clone(),
+            current_chapter_index: 0,
+            current_map_id,
         }
     }
 }
@@ -328,7 +332,7 @@ impl Actor {
             .map(|mission| mission.id.clone())
             .collect();
 
-        let current_chapter = storage::get::<CurrentChapter>();
+        let current_chapter = storage::get::<SceneTransitionParams>();
 
         SavedCharacter {
             game_version: game_params.game_version.clone(),

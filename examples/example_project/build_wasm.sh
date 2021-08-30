@@ -6,7 +6,7 @@ PROJECT_NAME="$1"
 set -e
 
 cargo build --target wasm32-unknown-unknown --release
-wasm-bindgen --out-dir target --target web "target/wasm32-unknown-unknown/release/${PROJECT_NAME}.wasm"
+wasm-bindgen --out-dir target --target web "target/wasm32-unknown-unknown/release/examples/${PROJECT_NAME}.wasm"
 sed -i 's/import.*from .env.;/init.set_wasm = w => wasm = w;/;s/imports\[.env.\] =.*/return imports;/' "target/${PROJECT_NAME}.js"
 
 cp target/example_project_bg.wasm web/

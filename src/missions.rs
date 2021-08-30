@@ -16,15 +16,11 @@ use crate::{
 const MISSION_MARKER_Y_OFFSET: f32 = 16.0;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(tag = "type")]
+#[serde(tag = "type", rename_all = "snake_case")]
 pub enum MissionObjective {
-    #[serde(rename = "kill")]
     Kill { actor_id: String },
-    #[serde(rename = "find_item")]
     FindItem { item_id: String },
-    #[serde(rename = "deliver_item")]
     DeliverItem { item_id: String },
-    #[serde(rename = "go_to_location")]
     GoToWaypoint { waypoint_id: String },
 }
 
@@ -61,24 +57,19 @@ impl MissionObjective {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(tag = "type")]
+#[serde(tag = "type", rename_all = "snake_case")]
 pub enum MissionReward {
-    #[serde(rename = "item")]
     Item { prototype_id: String, amount: u32 },
-    #[serde(rename = "credits")]
     Credits { amount: u32 },
     #[serde(rename = "xp", alias = "experience")]
     Experience { amount: u32 },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(tag = "type")]
+#[serde(tag = "type", rename_all = "snake_case")]
 pub enum MissionMarker {
-    #[serde(rename = "actor")]
     Actor { actor_id: String },
-    #[serde(rename = "item")]
     Item { item_id: String },
-    #[serde(rename = "location")]
     Location {
         #[serde(with = "json::def_vec2")]
         target: Vec2,

@@ -3,16 +3,12 @@ use std::cmp::Ordering;
 use crate::prelude::*;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum NoiseLevel {
-    #[serde(rename = "none")]
     None,
-    #[serde(rename = "silent")]
     Silent,
-    #[serde(rename = "moderate")]
     Moderate,
-    #[serde(rename = "loud")]
     Loud,
-    #[serde(rename = "extreme")]
     Extreme,
 }
 

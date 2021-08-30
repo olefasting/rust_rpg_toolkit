@@ -169,6 +169,7 @@ impl From<String> for MapCollisionKind {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(into = "json::MapDef", from = "json::MapDef")]
 pub struct Map {
+    pub id: String,
     #[serde(default = "Map::default_background_color", with = "json::ColorDef")]
     pub background_color: Color,
     #[serde(with = "json::def_vec2")]
@@ -192,10 +193,10 @@ impl Map {
         Ok(map)
     }
 
-    pub async fn load_tiled<P: AsRef<Path>>(path: P, export_path: Option<P>) -> Result<Self, FileError> {
+    pub async fn load_tiled<P: AsRef<Path>>(id: &str, path: P, export_path: Option<P>) -> Result<Self, FileError> {
         let bytes = load_file(path.as_ref().to_str().unwrap()).await?;
         let tiled_map: TiledMap = serde_json::from_slice(&bytes).unwrap();
-        let map = Map::from(tiled_map);
+        let map = Map::from_tiled(id, tiled_map);
 
         if let Some(export_path) = export_path {
             map.save(export_path).unwrap();
@@ -341,55 +342,11 @@ impl Map {
     }
 
     #[cfg(target_family = "wasm")]
-    pub fn save(&self, _: &str) -> io::Result<()> {
+    pub fn save<P: AsRef<Path>>(&self, _: P) -> io::Result<()> {
         Ok(())
     }
-}
 
-pub struct MapTileIterator<'a> {
-    rect: URect,
-    current: (u32, u32),
-    layer: &'a MapLayer,
-}
-
-impl<'a> MapTileIterator<'a> {
-    fn new(layer: &'a MapLayer, rect: URect) -> Self {
-        let current = (rect.x, rect.y);
-        MapTileIterator {
-            layer,
-            rect,
-            current,
-        }
-    }
-}
-
-impl<'a> Iterator for MapTileIterator<'a> {
-    type Item = (u32, u32, &'a Option<MapTile>);
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let next = if self.current.0 + 1 >= self.rect.x + self.rect.w {
-            (self.rect.x, self.current.1 + 1)
-        } else {
-            (self.current.0 + 1, self.current.1)
-        };
-
-        if self.current.1 >= self.rect.y + self.rect.h {
-            return None;
-        }
-
-        let i = (self.current.1 * self.layer.grid_size.x + self.current.0) as usize;
-        let res = Some((
-            self.current.0,
-            self.current.1,
-            &self.layer.tiles[i],
-        ));
-        self.current = next;
-        return res;
-    }
-}
-
-impl From<TiledMap> for Map {
-    fn from(tiled_map: TiledMap) -> Self {
+    pub fn from_tiled(id: &str, tiled_map: TiledMap) -> Self {
         let background_color = if let Some(background_color) = tiled_map.backgroundcolor {
             color_from_hex_string(&background_color)
         } else {
@@ -569,6 +526,7 @@ impl From<TiledMap> for Map {
         }
 
         Map {
+            id: id.to_string(),
             background_color,
             world_offset: Vec2::ZERO,
             grid_size,
@@ -578,5 +536,47 @@ impl From<TiledMap> for Map {
             draw_order,
             properties,
         }
+    }
+}
+
+pub struct MapTileIterator<'a> {
+    rect: URect,
+    current: (u32, u32),
+    layer: &'a MapLayer,
+}
+
+impl<'a> MapTileIterator<'a> {
+    fn new(layer: &'a MapLayer, rect: URect) -> Self {
+        let current = (rect.x, rect.y);
+        MapTileIterator {
+            layer,
+            rect,
+            current,
+        }
+    }
+}
+
+impl<'a> Iterator for MapTileIterator<'a> {
+    type Item = (u32, u32, &'a Option<MapTile>);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let next = if self.current.0 + 1 >= self.rect.x + self.rect.w {
+            (self.rect.x, self.current.1 + 1)
+        } else {
+            (self.current.0 + 1, self.current.1)
+        };
+
+        if self.current.1 >= self.rect.y + self.rect.h {
+            return None;
+        }
+
+        let i = (self.current.1 * self.layer.grid_size.x + self.current.0) as usize;
+        let res = Some((
+            self.current.0,
+            self.current.1,
+            &self.layer.tiles[i],
+        ));
+        self.current = next;
+        return res;
     }
 }

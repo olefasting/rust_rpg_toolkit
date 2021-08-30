@@ -1,15 +1,15 @@
-use macroquad::{
-    prelude::*,
-};
+use crate::prelude::*;
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum HorizontalAlignment {
     Left,
     Right,
     Center,
 }
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum VerticalAlignment {
     Top,
     Center,

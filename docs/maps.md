@@ -31,12 +31,10 @@ struct TiledMapCollisionDefinition {
 ```
 
 ```rust
+#[serde(rename_all = "snake_case")]
 enum MapCollisionKind {
-    #[serde(rename = "none")]
     None,
-    #[serde(rename = "barrier")]
     Barrier,
-    #[serde(rename = "solid")]
     Solid,
 }
 ```

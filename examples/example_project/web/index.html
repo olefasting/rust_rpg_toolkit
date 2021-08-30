@@ -31,15 +31,15 @@
 <!-- script src="https://not-fl3.github.io/miniquad-samples/mq_js_bundle.js"></script -->
 <!-- script src="https://github.com/not-fl3/miniquad/blob/master/native/sapp-wasm/js/gl.js"></script -->
 
-<!-- script src="gl.js"></script -->
+<!-- script src="gl.js"></--script -->
 
 <!-- script src="audio.js"></script -->
-<script src="sapp_jsutils.js"></script>
+<!-- script src="sapp_jsutils.js"></script -->
 <!-- script src="quad-url.js"></script -->
 <script src="quad-storage.js"></script>
 
 <script type="module">
-    import bg from './example_project.js'
+    import bg from './example-project.js'
     console.log('module', bg)
     miniquad_add_plugin({
         register_plugin(imports) {
@@ -54,7 +54,7 @@
     bg(false).then(imports => {
         console.log('imports', imports)
         bg.imports = imports
-        load('./example_project_bg.wasm')
+        load('./example-project_bg.wasm')
     })
 </script>
 

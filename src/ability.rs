@@ -1,17 +1,12 @@
 use crate::prelude::*;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-
+#[serde(rename_all = "snake_case")]
 pub enum DamageType {
-    #[serde(rename = "piercing")]
     Piercing,
-    #[serde(rename = "slashing")]
     Slashing,
-    #[serde(rename = "blunt")]
     Blunt,
-    #[serde(rename = "energy")]
     Energy,
-    #[serde(rename = "heat")]
     Heat,
 }
 

@@ -28,10 +28,9 @@ This might be removed in the future, to be replaced by a check if the `objective
 In the `rewards` field we define any rewards that will be given to the `player` upon completion.
 
 ```rust
+#[serde(rename_all = "snake_case")]
 enum MissionReward {
-    #[serde(rename = "item")]
     Item { prototype_id: String, amount: u32 },
-    #[serde(rename = "credits")]
     Credits { amount: u32 },
     #[serde(rename = "xp", alias = "experience")]
     Experience { amount: u32 },

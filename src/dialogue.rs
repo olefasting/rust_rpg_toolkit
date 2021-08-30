@@ -1,28 +1,20 @@
 use crate::prelude::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(tag = "type")]
+#[serde(tag = "type", rename_all = "snake_case")]
 pub enum DialogueRequirement {
-    #[serde(rename = "active_mission")]
     ActiveMission { mission_id: String },
-    #[serde(rename = "completed_mission")]
     CompletedMission { mission_id: String },
-    #[serde(rename = "is_in_faction")]
     IsInFaction { faction_id: String },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(tag = "type")]
+#[serde(tag = "type", rename_all = "snake_case")]
 pub enum DialogueAction {
-    #[serde(rename = "open_trade")]
     OpenTrade,
-    #[serde(rename = "start_mission")]
     StartMission { mission_id: String },
-    #[serde(rename = "complete_mission")]
     CompleteMission { mission_id: String },
-    #[serde(rename = "map_transition")]
     MapTransition { map_id: String },
-    #[serde(rename = "complete_chapter")]
     CompleteChapter,
 }
 

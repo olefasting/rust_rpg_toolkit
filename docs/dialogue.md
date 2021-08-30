@@ -34,12 +34,10 @@ The `requirements` field holds a set of requirements that must be met for this o
 
 ```rust
 #[serde(tag = "type")]
+#[serde(rename_all = "snake_case")]
 enum DialogueRequirement {
-    #[serde(rename = "active_mission")]
     ActiveMission { mission_id: String },
-    #[serde(rename = "completed_mission")]
     CompletedMission { mission_id: String },
-    #[serde(rename = "is_in_faction")]
     IsInFaction { faction_id: String },
 }
 ```
@@ -49,17 +47,12 @@ The `exclusions` field holds a set of exclusive `ActorDialogueRequirement` entri
 In the `action` field we define an optional action that will be applied on the `player` when the dialogue fires:
 
 ```rust
-#[serde(tag = "type")]
+#[serde(tag = "type", rename_all = "snake_case")]
 enum DialogueAction {
-    #[serde(rename = "open_trade")]
     OpenTrade,
-    #[serde(rename = "start_mission")]
     StartMission { mission_id: String },
-    #[serde(rename = "complete_mission")]
     CompleteMission { mission_id: String },
-    #[serde(rename = "map_transition")]
     MapTransition { map_id: String },
-    #[serde(rename = "complete_chapter")]
     CompleteChapter,
 }
 ```

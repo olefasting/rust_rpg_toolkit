@@ -1,0 +1,21 @@
+[
+  {
+    "title": "Chapter I",
+    "description": "Chapter I description",
+    "initial_map_id": "chapter_01_map_01",
+    "maps": [
+      {
+        "id": "chapter_01_map_01",
+        "title": "First Map",
+        "description": "First Map description",
+        "path": "data/maps/chapter_01_map_01.json"
+      },
+      {
+        "id": "chapter_01_map_02",
+        "title": "Second Map",
+        "description": "Second Map description",
+        "path": "data/maps/chapter_01_map_02.json"
+      }
+    ]
+  }
+]

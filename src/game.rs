@@ -1,28 +1,22 @@
+use std::sync::{Mutex, Arc};
+
 use crate::prelude::*;
 
 fn load_map(local_player_id: &str, transition: SceneTransition) {
     scene::clear();
 
-    let scenario = storage::get::<Scenario>();
+    let resources = storage::get::<Resources>();
     let SceneTransition { player, chapter_index, map_id } = transition;
 
-    let chapter = scenario.chapters.get(chapter_index)
-        .cloned()
+    let transition_params = SceneTransitionParams { chapter_index, map_id: map_id.clone() };
+    storage::store(transition_params);
+
+    let chapter = resources.chapters.get(chapter_index)
         .expect(&format!("Unable to load chapter '{}'!", chapter_index));
 
-    let map_data = chapter.maps.get(&map_id)
+    let map = chapter.maps.get(&map_id)
         .cloned()
         .expect(&format!("Unable to load map '{}' of chapter '{}'!", map_id, chapter.title));
-
-    let current_chapter = CurrentChapter {
-        chapter,
-        chapter_index,
-        map_id,
-    };
-
-    storage::store(current_chapter);
-
-    let map = map_data.map;
 
     let resources = storage::get::<Resources>();
     if let Some(layer) = map.layers.get("spawn_points") {
@@ -126,7 +120,7 @@ pub struct GameParams {
     pub game_name: String,
     pub game_version: String,
     pub config_path: String,
-    pub assets_path: String,
+    pub data_path: String,
     pub modules_path: String,
     pub characters_path: String,
     pub new_character_prototype_id: String,
@@ -140,7 +134,7 @@ impl Default for GameParams {
             game_name: "Unnamed Project".to_string(),
             game_version: "0.1.0".to_string(),
             config_path: "config.json".to_string(),
-            assets_path: "assets".to_string(),
+            data_path: "data".to_string(),
             modules_path: "modules".to_string(),
             characters_path: "characters".to_string(),
             new_character_prototype_id: "new_character_prototype".to_string(),
@@ -165,35 +159,26 @@ pub fn setup_local_player() -> String {
     local_player_id
 }
 
-pub async fn load_resources(game_params: GameParams) -> Result<(Resources, Scenario), FileError> {
-    let assets_path = game_params.assets_path.clone();
-    let mut resources = Resources::new(&assets_path).await?;
-
-    let bytes = load_file(&format!("{}/scenario.json", assets_path)).await?;
-    let mut scenario_params = serde_json::from_slice(&bytes).unwrap();
-
-    load_modules(&game_params, &mut resources, &mut scenario_params).await?;
-
-    let scenario = Scenario::new(&assets_path, scenario_params).await?;
-
-    Ok((resources, scenario))
+pub async fn load_resources(game_params: GameParams) -> Result<Resources, FileError> {
+    let resources = Resources::new(&game_params.data_path).await?;
+    Ok(resources)
 }
 
 #[cfg(not(any(target_family = "wasm", target_os = "android")))]
-pub async fn prepare_game_data(game_params: GameParams) {
-    let clear_background_color = game_params.clear_background_color.clone();
-    let coroutine = start_coroutine({
-        async move {
-            let (resources, scenario) = load_resources(game_params).await.unwrap();
-            storage::store(resources);
-            storage::store(scenario);
-        }
+pub async fn load_all_resources(game_params: GameParams) {
+    let bg_color = game_params.clear_background_color.clone();
+
+    let coroutine = start_coroutine(async move {
+        let mut resources = load_resources(game_params.clone()).await.unwrap();
+        load_modules(game_params, &mut resources).await.unwrap();
+
+        storage::store(resources);
     });
 
     while coroutine.is_done() == false {
-        clear_background(clear_background_color);
+        clear_background(bg_color);
         draw_aligned_text(
-            "Loading game data...",
+            "Loading game resources...",
             screen_width() / 2.0,
             screen_height() / 2.0,
             HorizontalAlignment::Center,
@@ -208,22 +193,27 @@ pub async fn prepare_game_data(game_params: GameParams) {
 }
 
 #[cfg(target_family = "wasm")]
-pub async fn prepare_game_data(game_params: GameParams) {
-    let (resources, scenario) = load_resources(game_params).await.unwrap();
+pub async fn load_all_resources(game_params: GameParams) {
+    let mut state = ResourceLoadingState::None;
+
+    let mut resources = load_resources(&mut state, game_params).await.unwrap();
+    load_modules(&mut state, &game_params, &mut resources).await.unwrap();
+
     storage::store(resources);
-    storage::store(scenario);
 }
 
 pub async fn run_game(game_params: GameParams) {
     storage::store(game_params.clone());
     check_env(&game_params);
 
-    {
-        let config = storage::get::<Config>();
-        storage::store(GuiSkins::new(config.gui_scale));
-    }
+    load_all_resources(game_params.clone()).await;
 
-    prepare_game_data(game_params.clone()).await;
+    let gui_skins = {
+        let config = storage::get::<Config>();
+        GuiSkins::new(config.gui_scale)
+    };
+
+    storage::store(gui_skins);
 
     let player_id = setup_local_player();
 

@@ -2,7 +2,6 @@
 #![feature(drain_filter)]
 #![feature(try_find)]
 #![feature(async_closure)]
-#![feature(hash_drain_filter)]
 
 pub mod resources;
 pub mod ability;
@@ -20,7 +19,7 @@ pub mod config;
 pub mod uid;
 pub mod modules;
 pub mod dialogue;
-pub mod scenario;
+pub mod chapters;
 pub mod saved_character;
 pub mod versions;
 pub mod game;

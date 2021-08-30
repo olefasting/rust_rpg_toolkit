@@ -1,4 +1,5 @@
 {
+  "id": "chapter_01_map_01",
   "background_color": {
     "red": 0.0,
     "green": 0.0,
@@ -140110,13 +140111,13 @@
             "y": 4.0
           },
           "properties": {
-            "color": {
-              "value": "#ffff0000",
-              "type": "color"
-            },
             "intensity": {
               "value": "0.1",
               "type": "string"
+            },
+            "color": {
+              "value": "#ffff0000",
+              "type": "color"
             }
           }
         }
@@ -140141,12 +140142,12 @@
             "y": 248.0
           },
           "properties": {
-            "instance_id": {
-              "value": "thug_01",
-              "type": "string"
-            },
             "prototype_id": {
               "value": "enemy_thug_boss",
+              "type": "string"
+            },
+            "instance_id": {
+              "value": "thug_01",
               "type": "string"
             }
           }
@@ -140188,12 +140189,12 @@
             "y": 253.0
           },
           "properties": {
-            "instance_id": {
-              "value": "thug_03",
-              "type": "string"
-            },
             "prototype_id": {
               "value": "enemy_thug",
+              "type": "string"
+            },
+            "instance_id": {
+              "value": "thug_03",
               "type": "string"
             }
           }
@@ -140301,30 +140302,6 @@
   ],
   "tilesets": [
     {
-      "id": "items",
-      "texture_id": "items",
-      "texture_size": {
-        "x": 64,
-        "y": 64
-      },
-      "tile_size": {
-        "x": 16,
-        "y": 16
-      },
-      "grid_size": {
-        "x": 4,
-        "y": 4
-      },
-      "first_tile_id": 501,
-      "tile_cnt": 16,
-      "properties": {
-        "texture_id": {
-          "value": "items",
-          "type": "string"
-        }
-      }
-    },
-    {
       "id": "neo_zero_tiles",
       "texture_id": "tiles",
       "texture_size": {
@@ -140368,6 +140345,30 @@
       "properties": {
         "texture_id": {
           "value": "props",
+          "type": "string"
+        }
+      }
+    },
+    {
+      "id": "items",
+      "texture_id": "items",
+      "texture_size": {
+        "x": 64,
+        "y": 64
+      },
+      "tile_size": {
+        "x": 16,
+        "y": 16
+      },
+      "grid_size": {
+        "x": 4,
+        "y": 4
+      },
+      "first_tile_id": 501,
+      "tile_cnt": 16,
+      "properties": {
+        "texture_id": {
+          "value": "items",
           "type": "string"
         }
       }

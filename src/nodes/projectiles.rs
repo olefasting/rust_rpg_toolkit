@@ -37,10 +37,9 @@ use crate::resources::Resources;
 use macroquad::audio::play_sound_once;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum ProjectileKind {
-    #[serde(rename = "bullet")]
     Bullet,
-    #[serde(rename = "beam")]
     Beam,
 }
 

@@ -8,9 +8,14 @@
       "kind": "actors",
       "path": "module_actors.json",
       "integration": "extend"
+    },
+    {
+      "kind": "scenario",
+      "path": "module_scenario.json",
+      "integration": "extend"
     }
   ],
-  "resources": {
+  "assets": {
     "materials": {
       "integration": "extend",
       "files": [
@@ -35,11 +40,5 @@
 
       ]
     }
-  },
-  "scenario": {
-    "integration": "extend",
-    "chapters": [
-
-    ]
   }
 }

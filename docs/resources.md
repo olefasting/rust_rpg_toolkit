@@ -8,7 +8,30 @@ Materials can be defined in the `materials` array, and they need a unique `id`, 
 
 ## Textures
 
-Textures can be defined in the `textures` array, and they need a unique `id` and a `path` to the texture. You can also define an optional `filter_mode`, with the available options being `nearest_neighbor` and `linear`, with `nearest_neighbor` being the default, if no `filter_mode` is defined.
+Textures hold image data that is stored in video RAM and can be defined in the `textures` array, and they need a unique `id` and a `path` to the texture. You can also define an optional `filter_mode`, with the available options being `nearest_neighbor` and `linear`, with `nearest_neighbor` being the default, if no `filter_mode` is defined.
+
+## Images
+
+Images hold image data that is stored in system RAM (mainly for use with UI). They can be defined in the `textures` array, and they need a unique `id` and a `path` to the texture. You can also define an optional `format`, with the following options:
+
+```rust
+#[serde(rename_all = "snake_case")]
+enum ImageFormatDef {
+    Png,
+    Jpeg,
+    Gif,
+    WebP,
+    Pnm,
+    Tiff,
+    Tga,
+    Dds,
+    Bmp,
+    Ico,
+    Hdr,
+    Farbfeld,
+    Avif,
+}
+```
 
 ## Sound Effects
 

@@ -33,8 +33,9 @@ pub async fn draw_main_menu(params: &GameParams) -> MainMenuResult {
                     },
                     MainMenuSelection::CreateCharacter => {
                         if let Some(player) = draw_create_character_menu().await {
-                            let chapter = storage::get::<Scenario>().chapters.first().cloned().unwrap();
-                            let (chapter_index, map_id) = (chapter.index, chapter.initial_map_id);
+                            let resources = storage::get::<Resources>();
+                            let chapter = resources.chapters.first().cloned().unwrap();
+                            let (chapter_index, map_id) = (0, chapter.initial_map_id);
                             let transition = SceneTransition { player, chapter_index, map_id };
                             result = Some(MainMenuResult::StartGame(transition));
                         }
@@ -296,9 +297,9 @@ pub async fn draw_create_character_menu() -> Option<SavedCharacter> {
 
 async fn draw_chapter_select_menu() -> Option<SceneTransitionParams> {
     let gui_skins = storage::get::<GuiSkins>();
-    let scenario = storage::get::<Scenario>();
 
     root_ui().push_skin(&gui_skins.default);
+
     loop {
         let gui_skins = storage::get::<GuiSkins>();
         let scale = gui_skins.scale;
@@ -316,12 +317,18 @@ async fn draw_chapter_select_menu() -> Option<SceneTransitionParams> {
 
                 ui.separator();
 
-                for chapter in scenario.chapters.clone() {
+                let resources = storage::get::<Resources>();
+
+                let mut i = 0;
+                for chapter in &resources.chapters {
                     if ui.button(None, &chapter.title.clone()) {
-                        let (chapter_index, map_id) = (chapter.index, chapter.initial_map_id);
-                        let params = SceneTransitionParams { chapter_index, map_id };
+                        let params = SceneTransitionParams {
+                            chapter_index: i,
+                            map_id: chapter.initial_map_id.clone(),
+                        };
                         result = Some(params);
                     }
+                    i += 0;
                 }
 
                 if ui.button(None, "Cancel") {

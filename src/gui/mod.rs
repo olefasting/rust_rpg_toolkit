@@ -8,6 +8,7 @@ pub use macroquad::{
             Window,
             Group,
         },
+        Skin,
     },
 };
 

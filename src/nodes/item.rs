@@ -1,12 +1,10 @@
 use crate::prelude::*;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum ItemKind {
-    #[serde(rename = "one_handed_weapon")]
     OneHandedWeapon,
-    #[serde(rename = "two_handed_weapon")]
     TwoHandedWeapon,
-    #[serde(rename = "misc")]
     Misc,
 }
 

@@ -9,6 +9,10 @@ pub fn draw_game_menu(game_state: &mut RefMut<GameState>) {
     widgets::Window::new(hash!(), vec2(x, y), vec2(150.0 * scale, 200.0 * scale))
         .titlebar(false)
         .ui(&mut *root_ui(), |ui| {
+            if ui.button(None, "Resume") {
+                game_state.should_show_game_menu = false;
+            }
+
             if ui.button(None, "Save") {
                 game_state.should_save_character = true;
                 game_state.should_show_game_menu = false;

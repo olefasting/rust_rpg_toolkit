@@ -1,12 +1,4 @@
-use macroquad::{
-    prelude::animation::Animation,
-    prelude::*,
-};
-
-use serde::{
-    Serialize,
-    Deserialize,
-};
+use crate::prelude::*;
 
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(remote = "Color")]
@@ -128,4 +120,13 @@ pub mod vec_animation {
         let helper = Vec::deserialize(deserializer)?;
         Ok(helper.iter().map(|Helper(external)| external.clone()).collect())
     }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(remote = "FilterMode")]
+pub enum FilterModeDef {
+    #[serde(alias = "linear")]
+    Linear,
+    #[serde(alias = "nearest_neighbor")]
+    Nearest,
 }
