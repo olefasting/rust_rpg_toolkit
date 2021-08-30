@@ -1,1 +1,0 @@
-export function __cargo_web_snippet_ac51dd761a6eb634458364061fb1a09311312f4c(Module, $0) { Module.STDWEB_PRIVATE.from_js($0, (function(){return new FileReader();})()); }
