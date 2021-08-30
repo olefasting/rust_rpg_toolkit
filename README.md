@@ -89,7 +89,7 @@ Check the [docs folder](https://github.com/olefasting/rust_rpg_toolkit/tree/mast
 
 The CLI crate currently just consists of a tiled map conversion tool, but it will be expanded as we go 
 
-# Credits for assets used in examples
+## Credits
 
 - [Wenrexa Minimal UI Kit](https://wenrexa.itch.io/kit-nesia2) (UI theme)
 - [Free UI Kit #4](https://wenrexa.itch.io/ui-different02) (UI theme)
