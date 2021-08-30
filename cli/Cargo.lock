@@ -954,7 +954,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "rust_rpg_toolkit"
+name = "rust-rpg-toolkit"
 version = "0.1.0"
 dependencies = [
  "chrono",
@@ -968,11 +968,11 @@ dependencies = [
 ]
 
 [[package]]
-name = "rust_rpg_toolset_cli"
+name = "rust-rpg-toolset-cli"
 version = "0.1.0"
 dependencies = [
  "quicli",
- "rust_rpg_toolkit",
+ "rust-rpg-toolkit",
  "structopt 0.3.22",
 ]
 

@@ -42,8 +42,6 @@ There really is no need to save scene state when we can save progress both on mi
 
 You will need to create a macroquad main loop. You don't need to depend on macroquad, though, as the library is exposed through `rust_rpg_toolkit::prelude::*`
 
-You can run the example project with `cargo run --example example_project`
-
 ```rust
 use rust_rpg_toolkit::prelude::*;
 
@@ -79,7 +77,11 @@ async fn main() {
 
 ```
 
-Any game you create should also have an assets folder. Copy the one included in this repo as a starting point...
+Any game you create should also have an assets folder. Copy the one included in the example project as a starting point...
+
+The example project can be built and run using the following cargo commad:
+
+`cargo run --example example-project`
 
 ## Further documentation
 

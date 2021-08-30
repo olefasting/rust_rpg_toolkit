@@ -1,5 +1,5 @@
 [package]
-name = "rust_rpg_toolkit"
+name = "rust-rpg-toolkit"
 version = "0.1.0"
 edition = "2018"
 authors = ["Ole A. Sjo Fasting <oasf@magus.no>"]
@@ -15,7 +15,7 @@ repository = "https://github.com/olefasting/rust_rpg_toolkit"
 opt-level = 3
 
 [[example]]
-name = "example_project"
+name = "example-project"
 path = "examples/example_project/src/main.rs"
 crate-type = ["bin"]
 

@@ -1,5 +1,3 @@
-use std::fs;
-
 use crate::prelude::*;
 
 const CHARACTER_SAVE_INTERVAL: f32 = 30.0;

@@ -1,6 +1,5 @@
 use std::{
     io,
-    fs,
 };
 
 use regex::Regex;

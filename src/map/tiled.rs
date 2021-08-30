@@ -1,7 +1,6 @@
 use std::path::{Path, PathBuf};
 
 use crate::prelude::*;
-use crate::json::tiled::TiledMap;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TileCollisionDefinition {

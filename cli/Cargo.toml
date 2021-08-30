@@ -1,5 +1,5 @@
 [package]
-name = "rust_rpg_toolset_cli"
+name = "rust-rpg-toolset-cli"
 version = "0.1.0"
 edition = "2018"
 
@@ -8,7 +8,7 @@ name = "mapconv"
 path = "mapconv/src/main.rs"
 
 [dependencies]
-rust_rpg_toolkit = { path = "../." }
+rust-rpg-toolkit = { path = "../." }
 
 quicli = "0.4.0"
 structopt = "0.3.22"
