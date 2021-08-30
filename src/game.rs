@@ -10,7 +10,7 @@ fn load_map(local_player_id: &str, transition: SceneTransition) {
         .cloned()
         .expect(&format!("Unable to load chapter '{}'!", chapter_index));
 
-    let map_data = chapter.maps.iter().find(|map| map.id == map_id)
+    let map_data = chapter.maps.get(&map_id)
         .cloned()
         .expect(&format!("Unable to load map '{}' of chapter '{}'!", map_id, chapter.title));
 

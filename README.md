@@ -89,6 +89,16 @@ Check the [docs folder](https://github.com/olefasting/rust_rpg_toolkit/tree/mast
 
 The CLI crate currently just consists of a tiled map conversion tool, but it will be expanded as we go 
 
+# Credits for assets used in examples
+
+- [Wenrexa Minimal UI Kit](https://wenrexa.itch.io/kit-nesia2) (UI theme)
+- [Free UI Kit #4](https://wenrexa.itch.io/ui-different02) (UI theme)
+- [Neo Zero Cyberpunk City Tileset](https://yunusyanin.itch.io/neo-zero-cyberpunk-city-tileset) (map tiles and props)
+- [Cyberpunk Top Down Game Asset Pack](https://rafazcruz.itch.io/cyberpunk-top-down-game-asset-pack) (currently not used but included in the repository)
+- [Cyberpunk Items 16x16](https://jeresikstus.itch.io/cyberpunk-items-16x16) (currently used for all item graphics)
+- [Animated Fires](https://stealthix.itch.io/animated-fires) (some animated fire effects)
+- [M4A1 Single sound by Kibblesbob](https://soundbible.com/1804-M4A1-Single.html) ([Creative Commons Attribution 3.0](https://creativecommons.org/licenses/by/3.0/))
+- [9mm Glock 17 sound by JKirsch](https://soundbible.com/1382-9mm-Glock-17.html) ([Creative Commons Attribution 3.0](https://creativecommons.org/licenses/by/3.0/))
 
 \
 \

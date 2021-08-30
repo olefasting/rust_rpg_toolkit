@@ -36,7 +36,7 @@ pub struct Chapter {
     pub title: String,
     pub description: String,
     pub initial_map_id: String,
-    pub maps: Vec<MapData>,
+    pub maps: HashMap<String, MapData>,
 }
 
 #[derive(Debug, Clone)]
@@ -60,7 +60,7 @@ impl Scenario {
                 .cloned()
                 .unwrap();
 
-            let mut  maps = Vec::new();
+            let mut  maps = HashMap::new();
             for map_info in chapter_params.maps {
                 let map = MapData {
                     id: map_info.id,
@@ -70,7 +70,7 @@ impl Scenario {
                     map: Map::load(&format!("{}/{}", assets_path, map_info.path)).await?,
                 };
 
-                maps.push(map);
+                maps.insert(map.id.clone(), map);
             }
 
             let chapter = Chapter {
