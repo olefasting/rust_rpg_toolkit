@@ -1,3 +1,5 @@
+use regex::Regex;
+
 pub fn check_version_requirement(required_version: &str, version: &str) -> bool {
     if required_version.starts_with("^") {
         return to_int_version(
@@ -16,9 +18,17 @@ pub fn get_toolkit_version() -> String {
 }
 
 pub fn to_int_version(version: &str) -> u32 {
-    let parts: Vec<&str> = version.split('.').collect();
-    let major = parts[0].parse::<u32>().unwrap();
-    let minor = parts[1].parse::<u32>().unwrap();
-    let patch = parts.get(2).cloned().unwrap_or("0").parse::<u32>().unwrap();
+    let regex = Regex::new(r"(?P<major>[0-9]+).(?P<minor>[0-9]+)(.(?P<patch>[0-9]+))?").unwrap();
+    let captures = regex.captures(version)
+        .expect(&format!("Invalid version string '{}'!", version));
+
+    let major = captures["major"].parse::<u32>().unwrap();
+    let minor = captures["minor"].parse::<u32>().unwrap();
+    let patch = if let Some(res) = captures.name("patch") {
+        res.as_str().parse::<u32>().unwrap()
+    } else {
+        0
+    };
+
     (major << 24) + (minor << 16) + patch
 }
