@@ -129,7 +129,6 @@ pub struct GameParams {
     pub assets_path: String,
     pub modules_path: String,
     pub characters_path: String,
-    pub tiled_manifest_path: Option<String>,
     pub new_character_prototype_id: String,
     pub new_character_build_points: u32,
     pub clear_background_color: Color,
@@ -144,7 +143,6 @@ impl Default for GameParams {
             assets_path: "assets".to_string(),
             modules_path: "modules".to_string(),
             characters_path: "characters".to_string(),
-            tiled_manifest_path: None,
             new_character_prototype_id: "new_character_prototype".to_string(),
             new_character_build_points: 6,
             clear_background_color: color::BLACK,
@@ -175,10 +173,6 @@ pub async fn load_resources(game_params: GameParams) -> Result<(Resources, Scena
     let mut scenario_params = serde_json::from_slice(&bytes).unwrap();
 
     load_modules(&game_params, &mut resources, &mut scenario_params).await?;
-
-    if let Some(manifest_path) = game_params.tiled_manifest_path {
-        convert_tiled_maps(&manifest_path).await?;
-    }
 
     let scenario = Scenario::new(&assets_path, scenario_params).await?;
 

@@ -25,7 +25,7 @@ regex = "1.5.4"
 hex = "0.4.3"
 serde = { version = "1.0.127", features = ["derive"] }
 serde_json = "1.0.66"
-gilrs = { version = "0.8.1", feature = ["serde-serialize", "wasm-bindgen"] }
+gilrs = { version = "0.8.1", features = ["serde-serialize", "wasm-bindgen"] }
 
 macroquad = { version = "0.3.8" }
 # macroquad-particles = { version = "0.1", features = ["nanoserde"] }

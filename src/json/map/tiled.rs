@@ -1,31 +1,16 @@
+use std::fmt;
+
 use crate::{
+    map::MapPropertyType,
     prelude::*,
 };
 
 #[derive(Debug, Clone, Deserialize)]
-pub enum TiledPropertyType {
-    #[serde(rename = "bool")]
-    BoolType,
-    #[serde(rename = "float")]
-    FloatType,
-    #[serde(rename = "integer")]
-    IntType,
-    #[serde(rename = "string")]
-    StringType,
-    #[serde(rename = "color")]
-    ColorType,
-    #[serde(rename = "object")]
-    ObjectType,
-    #[serde(rename = "file")]
-    FileType,
-}
-
-#[derive(Debug, Clone, Deserialize)]
-pub struct TileProperty {
+pub struct TiledProperty {
     pub name: String,
     pub value: String,
     #[serde(rename = "type")]
-    pub value_type: TiledPropertyType,
+    pub value_type: MapPropertyType,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -42,7 +27,7 @@ pub struct TiledObject {
     pub rotation: f32,
     pub ellipse: Option<bool>,
     pub polygon: Option<Vec<TiledPolyPoint>>,
-    pub properties: Option<Vec<TileProperty>>,
+    pub properties: Option<Vec<TiledProperty>>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -59,7 +44,8 @@ pub struct TiledTileset {
     pub imageheight: i32,
     pub margin: i32,
     pub name: String,
-    pub properties: Option<Vec<TileProperty>>,
+    #[serde(default)]
+    pub properties: Option<Vec<TiledProperty>>,
     pub spacing: i32,
     pub tileheight: i32,
     pub tilewidth: i32,
@@ -78,7 +64,7 @@ pub struct TiledLayer {
     #[serde(default)]
     pub objects: Vec<TiledObject>,
     #[serde(default)]
-    pub properties: Option<HashMap<String, TileProperty>>,
+    pub properties: Option<Vec<TiledProperty>>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -100,5 +86,5 @@ pub struct TiledMap {
     pub layers: Vec<TiledLayer>,
     pub tilesets: Vec<TiledTileset>,
     #[serde(default)]
-    pub properties: Option<HashMap<String, TileProperty>>,
+    pub properties: Option<Vec<TiledProperty>>,
 }

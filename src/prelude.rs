@@ -133,7 +133,6 @@ pub use crate::{
         MapTileset,
         MapObject,
         MapTile,
-        convert_tiled_maps,
     },
     missions::{
         Mission,

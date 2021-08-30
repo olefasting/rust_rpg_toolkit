@@ -2,15 +2,9 @@ pub mod tiled;
 
 use crate::prelude::*;
 
-use crate::map::{
-    Map,
-    MapLayerKind,
-    MapLayer,
-    MapTile,
-    MapObject,
-    MapTileset,
-    MapCollisionKind,
-};
+use crate::map::{Map, MapLayerKind, MapLayer, MapTile, MapObject, MapTileset, MapCollisionKind, MapProperty};
+
+pub use tiled::TiledMap;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MapDef {
@@ -24,6 +18,8 @@ pub struct MapDef {
     pub tile_size: Vec2,
     pub layers: Vec<MapLayerDef>,
     pub tilesets: Vec<MapTileset>,
+    #[serde(default, skip_serializing_if = "HashMap::is_empty")]
+    pub properties: HashMap<String, MapProperty>,
 }
 
 impl MapDef {
@@ -58,6 +54,7 @@ impl Into<MapDef> for Map {
                     objects,
                     tiles,
                     is_visible: layer.is_visible,
+                    properties: layer.properties.clone(),
                 };
                 Some(layer)
             } else {
@@ -65,16 +62,19 @@ impl Into<MapDef> for Map {
             }
         }).collect();
 
+        let tilesets = self.tilesets
+            .into_iter()
+            .map(|(_, tileset)| tileset)
+            .collect();
+
         MapDef {
             background_color: self.background_color,
             world_offset: self.world_offset,
             grid_size: self.grid_size,
             tile_size: self.tile_size,
             layers,
-            tilesets: self.tilesets
-                .into_iter()
-                .map(|(_, tileset)| tileset)
-                .collect(),
+            tilesets,
+            properties: self.properties,
         }
     }
 }
@@ -130,6 +130,7 @@ impl From<MapDef> for Map {
                         tiles,
                         objects: layer.objects.clone().unwrap_or(Vec::new()),
                         is_visible: layer.is_visible,
+                        properties: layer.properties.clone(),
                     };
                     (layer.id.clone(), layer)
                 }));
@@ -142,6 +143,7 @@ impl From<MapDef> for Map {
             layers,
             tilesets,
             draw_order,
+            properties: def.properties,
         }
     }
 }
@@ -158,6 +160,8 @@ pub struct MapLayerDef {
     pub objects: Option<Vec<MapObject>>,
     #[serde(default)]
     pub is_visible: bool,
+    #[serde(default, skip_serializing_if = "HashMap::is_empty")]
+    pub properties: HashMap<String, MapProperty>,
 }
 
 impl Default for MapLayerDef {
@@ -168,7 +172,8 @@ impl Default for MapLayerDef {
             kind: MapLayerKind::TileLayer,
             tiles: Some(Vec::new()),
             objects: None,
-            is_visible: true
+            is_visible: true,
+            properties: HashMap::new()
         }
     }
 }

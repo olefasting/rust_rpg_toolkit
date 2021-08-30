@@ -1,39 +1,31 @@
-use std::path::{
-    Path,
-    PathBuf,
-};
+use std::path::PathBuf;
 
 use quicli::prelude::*;
+
 use structopt::StructOpt;
 
 use rust_rpg_toolkit::{
-    map::*,
+    json::TiledMap,
     prelude::*,
 };
 
 #[derive(Debug, StructOpt)]
 struct Cli {
-    #[structopt(short = "m", default_value = "tiled_manifest.json")]
-    manifest: PathBuf,
+    #[structopt(short = "i")]
+    input: PathBuf,
+    #[structopt(short = "o")]
+    output: PathBuf,
 }
 
 fn main() -> CliResult {
     let args = Cli::from_args();
-    let folder_path = remove_filename(PathBuf::from(&args.manifest));
 
-    let content = read_file(&args.manifest)?;
-    let manifest: Vec<TiledMapDefinition> = serde_json::from_str(&content)?;
+    let json = read_file(&args.input)?;
+    let tiled_map: TiledMap = serde_json::from_str(&json)?;
 
-    println!("Using manifest '{}':", args.manifest.to_string_lossy());
+    Map::from(tiled_map).save(&args.output)?;
 
-    for mut def in manifest {
-        def.path = folder_path.join(Path::new(&def.path)).to_string_lossy().to_string();
-        def.export_path = folder_path.join(Path::new(&def.export_path)).to_string_lossy().to_string();
-
-        Map::load_tiled_sync(def.clone())?;
-
-        println!(" '{}' => '{}'", def.path, def.export_path);
-    }
+    println!("Success!");
 
     Ok(())
 }
