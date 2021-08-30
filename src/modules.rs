@@ -2,9 +2,6 @@ use crate::prelude::*;
 
 use crate::resources::{MaterialAssetParams, TextureAssetParams, SoundAssetParams};
 
-use std::sync::Mutex;
-use crate::chapters::MapParams;
-
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ModuleDataFileKind {

@@ -49,7 +49,7 @@ pub use crate::{
     uid::generate_id,
     resources::Resources,
     noise_level::NoiseLevel,
-    chapters::{
+    chapter::{
         Chapter,
         ChapterParams,
         SceneTransition,

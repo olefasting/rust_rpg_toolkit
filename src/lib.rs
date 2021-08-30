@@ -19,7 +19,7 @@ pub mod config;
 pub mod uid;
 pub mod modules;
 pub mod dialogue;
-pub mod chapters;
+pub mod chapter;
 pub mod saved_character;
 pub mod versions;
 pub mod game;

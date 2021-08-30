@@ -8,13 +8,13 @@ og the development.
 ## Table of Contents
 
 - [Data Types](data_types.md)
-- [Resources](resources.md)
 - [Abilities](abilities.md)
-- [Maps](maps.md)
 - [Actors](actors.md)
 - [Items](items.md)
 - [Dialogue](dialogue.md)
 - [Missions](missions.md)
+- [Maps](maps.md)
+- [assets](assets.md)
 - [Modules](modules.md)
 - [Physics](physics.md)
 - [Rendering](rendering.md)

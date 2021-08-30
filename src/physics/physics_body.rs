@@ -2,7 +2,6 @@ use crate::prelude::*;
 
 use super::{
     ACTOR_TO_ACTOR_COLLISIONS,
-    COLLISION_RESOLUTION,
 };
 
 #[derive(Clone)]

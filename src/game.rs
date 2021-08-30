@@ -1,5 +1,3 @@
-use std::sync::{Mutex, Arc};
-
 use crate::prelude::*;
 
 fn load_map(local_player_id: &str, transition: SceneTransition) {
