@@ -131,7 +131,7 @@ pub async fn load_modules(game_params: &GameParams, resources: &mut Resources, s
         let module_decl: ModuleDeclaration = serde_json::from_slice(&bytes).unwrap();
 
         if let Some(required_game_version) = &module_decl.required_game_version {
-            if check_version_requirement(required_game_version, &game_params.game_version) == false {
+            if check_version(required_game_version, &game_params.game_version) == false {
                 println!("WARNING: Module '{}' was not loaded as its game version requirement '{}' was unmet (game version is '{}')!", module_name, required_game_version, game_params.game_version);
                 continue 'module;
             }
@@ -139,7 +139,7 @@ pub async fn load_modules(game_params: &GameParams, resources: &mut Resources, s
 
         let toolkit_version = get_toolkit_version();
         if let Some(required_toolkit_version) = &module_decl.required_toolkit_version {
-            if check_version_requirement(required_toolkit_version, &toolkit_version) == false {
+            if check_version(required_toolkit_version, &toolkit_version) == false {
                 println!("WARNING: Module '{}' was not loaded as its toolkit version requirement '{}' was unmet (toolkit version is '{}')!", module_name, required_toolkit_version, get_toolkit_version());
                 continue 'module;
             }
@@ -149,7 +149,7 @@ pub async fn load_modules(game_params: &GameParams, resources: &mut Resources, s
             if loaded_modules.iter().find(|(name, version)| {
                 let name = name.clone();
                 if let Some(required_version) = &dependency.version {
-                    return name == dependency.name && check_version_requirement(required_version, version);
+                    return name == dependency.name && check_version(required_version, version);
                 }
                 name == dependency.name
             }).is_none() {

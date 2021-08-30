@@ -42,7 +42,7 @@ pub use crate::{
     versions::{
         get_toolkit_version,
         to_int_version,
-        check_version_requirement,
+        check_version,
     },
     modules::load_modules,
     config::Config,
@@ -148,6 +148,7 @@ pub use crate::{
     },
     helpers::{
         sort_by_distance,
+        remove_filename,
     },
     render::{
         draw_progress_bar,

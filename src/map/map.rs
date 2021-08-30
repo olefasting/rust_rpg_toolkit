@@ -50,24 +50,24 @@ impl Map {
         Ok(map)
     }
 
-    pub async fn load_tiled(assets_path: &str, decl: TiledMapDeclaration) -> Result<Self, FileError> {
-        let in_path = format!("{}/{}", assets_path, &decl.path);
-        let out_path = format!("{}/{}", assets_path, &decl.export_path);
-        let bytes = load_file(&in_path).await?;
+    pub async fn load_tiled(decl: TiledMapDeclaration) -> Result<Self, FileError> {
+        let bytes = load_file(&decl.path).await?;
         let tiled_map: RawTiledMap = serde_json::from_slice(&bytes).unwrap();
-        let map = Map::from_tiled(tiled_map, decl);
-        map.save(&out_path).unwrap();
+        let map = Map::from_tiled(tiled_map, decl.clone());
+
+        map.save(&decl.export_path).unwrap();
+
         Ok(map)
     }
 
 
-    pub fn load_tiled_sync(assets_path: &str, decl: TiledMapDeclaration) -> io::Result<Self> {
-        let in_path = format!("{}/{}", assets_path, &decl.path);
-        let out_path = format!("{}/{}", assets_path, &decl.export_path);
-        let bytes = fs::read(&in_path)?;
+    pub fn load_tiled_sync(decl: TiledMapDeclaration) -> io::Result<Self> {
+        let bytes = fs::read(&decl.path)?;
         let tiled_map: RawTiledMap = serde_json::from_slice(&bytes).unwrap();
-        let map = Map::from_tiled(tiled_map, decl);
-        map.save(&out_path)?;
+        let map = Map::from_tiled(tiled_map, decl.clone());
+
+        map.save(&decl.export_path)?;
+
         Ok(map)
     }
 

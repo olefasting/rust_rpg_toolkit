@@ -1,13 +1,10 @@
-# rpg_toolkit_cli
+# Rust RPG Toolkit CLI
 
 This crate contains various command line tools for use with the toolkit.
 
-For now, it only consists of a tiled map conversion tool.
+## mapconv
 
-
-To convert maps, compile and use this command:
-
-`mapconv -f <path to assets folder>`
+`mapconv -m <path to manifest>`
 
 \
 \

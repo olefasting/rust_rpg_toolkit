@@ -1,4 +1,7 @@
+use std::path::{Path, PathBuf};
+
 use crate::prelude::*;
+use crate::json::tiled::RawTiledMap;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TiledMapCollisionDeclaration {
@@ -22,12 +25,34 @@ pub struct TiledMapDeclaration {
     pub tilesets: Vec<TiledTilesetDeclaration>,
 }
 
-pub async fn convert_tiled_maps(assets_path: &str) -> Result<(), FileError> {
-    let tiled_maps_file_path = format!("{}/tiled_maps.json", assets_path);
-    let bytes = load_file(&tiled_maps_file_path).await?;
+pub async fn convert_tiled_maps(manifest_path: &str) -> Result<(), FileError> {
+    let folder_path = remove_filename(PathBuf::from(manifest_path));
+
+    let bytes = load_file(&manifest_path).await?;
     let tiled_maps: Vec<TiledMapDeclaration> = serde_json::from_slice(&bytes).unwrap();
-    for decl in tiled_maps {
-        Map::load_tiled(&assets_path, decl.clone()).await?;
+
+    for mut decl in tiled_maps {
+        decl.path = folder_path.join(Path::new(&decl.path)).to_string_lossy().to_string();
+        decl.export_path = folder_path.join(Path::new(&decl.export_path)).to_string_lossy().to_string();
+
+        Map::load_tiled(decl).await?;
     }
+
+    Ok(())
+}
+
+pub fn convert_tiled_maps_sync(manifest_path: &str) -> io::Result<()> {
+    let folder_path = remove_filename(PathBuf::from(manifest_path));
+
+    let bytes = fs::read(&manifest_path)?;
+    let tiled_maps: Vec<TiledMapDeclaration> = serde_json::from_slice(&bytes).unwrap();
+
+    for mut decl in tiled_maps {
+        decl.path = folder_path.join(Path::new(&decl.path)).to_string_lossy().to_string();
+        decl.export_path = folder_path.join(Path::new(&decl.export_path)).to_string_lossy().to_string();
+
+        Map::load_tiled_sync(decl)?;
+    }
+
     Ok(())
 }

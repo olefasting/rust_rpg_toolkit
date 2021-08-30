@@ -1,3 +1,8 @@
+use std::path::{
+    Path,
+    PathBuf,
+};
+
 use quicli::prelude::*;
 use structopt::StructOpt;
 
@@ -8,24 +13,26 @@ use rust_rpg_toolkit::{
 
 #[derive(Debug, StructOpt)]
 struct Cli {
-    #[structopt(short = "f", default_value = "assets")]
-    assets_folder: String,
+    #[structopt(short = "m", default_value = "tiled_manifest.json")]
+    manifest: PathBuf,
 }
 
 fn main() -> CliResult {
     let args = Cli::from_args();
+    let folder_path = remove_filename(PathBuf::from(&args.manifest));
 
-    let manifest_path = format!("{}/tiled_maps.json", args.assets_folder);
-    let content = read_file(&manifest_path)?;
+    let content = read_file(&args.manifest)?;
     let manifest: Vec<TiledMapDeclaration> = serde_json::from_str(&content)?;
 
-    println!("Converting maps using manifest file '{}'", manifest_path);
+    println!("Using manifest '{}':", args.manifest.to_string_lossy());
 
-    for decl in manifest {
-        let in_path = format!("{}/{}", args.assets_folder, decl.path);
-        let out_path = format!("{}/{}", args.assets_folder, decl.export_path);
-        Map::load_tiled_sync(&args.assets_folder, decl.clone())?;
-        println!("Successfully converted map '{}' and exported it to '{}'", in_path, out_path);
+    for mut decl in manifest {
+        decl.path = folder_path.join(Path::new(&decl.path)).to_string_lossy().to_string();
+        decl.export_path = folder_path.join(Path::new(&decl.export_path)).to_string_lossy().to_string();
+
+        Map::load_tiled_sync(decl.clone())?;
+
+        println!(" '{}' => '{}'", decl.path, decl.export_path);
     }
 
     Ok(())
