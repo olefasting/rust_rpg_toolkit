@@ -10,7 +10,6 @@ const CHARACTERS_PATH: &'static str = "examples/example_project/characters";
 
 pub fn window_conf() -> Conf {
     let config = Config::load(CONFIG_PATH);
-    storage::store(config.clone());
 
     Conf {
         window_title: GAME_NAME.to_owned(),
@@ -27,6 +26,7 @@ async fn main() {
     let game_params = GameParams {
         game_name: GAME_NAME.to_string(),
         game_version: GAME_VERSION.to_string(),
+        config_path: CONFIG_PATH.to_string(),
         assets_path: ASSETS_PATH.to_string(),
         modules_path: MODULES_PATH.to_string(),
         characters_path: CHARACTERS_PATH.to_string(),
@@ -34,7 +34,4 @@ async fn main() {
     };
 
     run_game(game_params).await;
-
-    let config = storage::get::<Config>();
-    config.save(CONFIG_PATH);
 }

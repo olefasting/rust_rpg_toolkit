@@ -1,11 +1,15 @@
 use crate::prelude::*;
 
 fn load_map(local_player_id: &str, transition: SceneTransition) {
+    scene::clear();
+
     let scenario = storage::get::<Scenario>();
     let SceneTransition { player, chapter_index, map_id } = transition;
+
     let chapter = scenario.chapters.get(chapter_index)
         .cloned()
         .expect(&format!("Unable to load chapter '{}'!", chapter_index));
+
     let map_data = chapter.maps.iter().find(|map| map.id == map_id)
         .cloned()
         .expect(&format!("Unable to load map '{}' of chapter '{}'!", map_id, chapter.title));
@@ -121,6 +125,7 @@ fn load_map(local_player_id: &str, transition: SceneTransition) {
 pub struct GameParams {
     pub game_name: String,
     pub game_version: String,
+    pub config_path: String,
     pub assets_path: String,
     pub modules_path: String,
     pub characters_path: String,
@@ -135,6 +140,7 @@ impl Default for GameParams {
         GameParams {
             game_name: "Unnamed Project".to_string(),
             game_version: "0.1.0".to_string(),
+            config_path: "config.json".to_string(),
             assets_path: "assets".to_string(),
             modules_path: "modules".to_string(),
             characters_path: "characters".to_string(),
@@ -218,25 +224,33 @@ pub async fn run_game(game_params: GameParams) {
     storage::store(game_params.clone());
     check_env(&game_params);
 
-    let config = storage::get::<Config>();
-    storage::store(GuiSkins::new(config.gui_scale));
+    {
+        let config = storage::get::<Config>();
+        storage::store(GuiSkins::new(config.gui_scale));
+    }
 
     prepare_game_data(game_params.clone()).await;
 
     let player_id = setup_local_player();
 
     #[allow(unused_assignments)]
-    let mut scene_transition = None;
-    match gui::draw_main_menu(&game_params).await {
+    let mut scene_transition = match gui::draw_main_menu(&game_params).await {
         MainMenuResult::StartGame(transition) =>
-            scene_transition = Some(transition),
-        MainMenuResult::Quit => return,
+            Some(transition),
+        MainMenuResult::Quit =>
+            None,
     };
 
     'outer: loop {
-        load_map(&player_id, scene_transition.unwrap());
+        if scene_transition.is_none() {
+            break 'outer;
+        }
+
+        load_map(&player_id, scene_transition.clone().unwrap());
 
         'inner: loop {
+            clear_background(game_params.clear_background_color);
+
             draw_gui();
             update_input();
 
@@ -254,16 +268,20 @@ pub async fn run_game(game_params: GameParams) {
                 if let Some(transition_params) = game_state.scene_transition.clone() {
                     let player = Actor::find_by_player_id(&game_state.local_player_id).unwrap();
                     scene_transition = Some(SceneTransition::new(player.to_export(), transition_params));
+                    game_state.scene_transition = None;
                     break 'inner;
                 }
             }
 
+            if scene_transition.is_none() {
+                scene::clear();
+                break 'outer;
+            }
+
             next_frame().await;
         }
-
-        if scene_transition.is_none() {
-            scene::clear();
-            break 'outer;
-        }
     }
+
+    let config = storage::get::<Config>();
+    config.save(&game_params.config_path);
 }

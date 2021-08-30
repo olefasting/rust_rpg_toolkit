@@ -28,24 +28,31 @@ impl Default for Config {
 impl Config {
     #[cfg(any(target_family = "unix", target_family = "windows"))]
     pub fn load(path: &str) -> Self {
-        let json = fs::read_to_string(path)
-            .expect(&format!("Unable to find config file '{}'!", path));
-        let mut config: Config = serde_json::from_str(&json)
-            .expect(&format!("Unable to parse config file '{}'!", path));
-        config.gui_scale = config.gui_scale.clamp(0.25, 5.0);
+        let config = if let Ok(json) = fs::read_to_string(path) {
+            let mut config: Config = serde_json::from_str(&json)
+                .expect(&format!("Unable to parse config file '{}'!", path));
+            config.gui_scale = config.gui_scale.clamp(0.25, 5.0);
+            config
+        } else {
+            Default::default()
+        };
+        storage::store(config.clone());
         config
     }
 
     #[cfg(target_family = "wasm")]
     pub fn load(key: &str) -> Self {
         let web_storage = &mut quad_storage::STORAGE.lock().unwrap();
-        if let Some(json) = web_storage.get(key) {
+        let config = if let Some(json) = web_storage.get(key) {
             let config: Config = serde_json::from_str(&json)
                 .expect("Unable to parse config from web storage!");
             storage::store(config.clone());
-            return config;
-        }
-        Default::default()
+            config
+        } else {
+            Default::default()
+        };
+        storage::store(config.clone());
+        config
     }
 
     #[cfg(any(target_family = "unix", target_family = "windows"))]

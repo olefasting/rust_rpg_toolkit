@@ -50,12 +50,10 @@ use rust_rpg_toolkit::prelude::*;
 const GAME_NAME: &'static str = "My Awesome Game";
 const GAME_VERSION: &'static str = "0.1.0";
 
-// path parameter is used as key for web storage, if targeting WASMM
 const CONFIG_PATH: &'static str = "config.json";
 
-fn window_conf() -> Conf {
+fn get_window_conf() -> Conf {
     let config = Config::load(CONFIG_PATH);
-    storage::store(config.clone());
 
     Conf {
         window_title: GAME_NAME.to_owned(),
@@ -67,18 +65,16 @@ fn window_conf() -> Conf {
     }
 }
 
-#[macroquad::main(window_conf)]
+#[macroquad::main(get_window_conf)]
 async fn main() {
     let params = GameParams {
         game_name: GAME_NAME.to_string(),
         game_version: GAME_VERSION.to_string(),
+        config_path: CONFIG_PATH.to_string(),
         ..Default::default()
     };
 
     run_game(params).await;
-
-    let config = storage::get::<Config>();
-    config.save(CONFIG_PATH);
 }
 
 ```

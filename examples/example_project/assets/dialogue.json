@@ -171,18 +171,12 @@
   },
   {
     "id": "dialogue_scared_woman_next_map",
-    "title": "What now?",
+    "title": "Test map transition",
     "body": [
-      "What do I do now...?"
+      "Test map transition"
     ],
     "response": [
-      "I can send you to the next map, if you want...!"
-    ],
-    "requirements": [
-      {
-        "type": "completed_mission",
-        "mission_id": "mission_kill_thugs_get_reward"
-      }
+      "Ok!"
     ],
     "action": {
       "type": "map_transition",
