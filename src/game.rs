@@ -157,17 +157,12 @@ pub fn setup_local_player() -> String {
     local_player_id
 }
 
-pub async fn load_resources(game_params: GameParams) -> Result<Resources, FileError> {
-    let resources = Resources::new(&game_params.data_path).await?;
-    Ok(resources)
-}
-
 #[cfg(not(any(target_family = "wasm", target_os = "android")))]
-pub async fn load_all_resources(game_params: GameParams) {
+pub async fn load_resources(game_params: GameParams) {
     let bg_color = game_params.clear_background_color.clone();
 
     let coroutine = start_coroutine(async move {
-        let mut resources = load_resources(game_params.clone()).await.unwrap();
+        let mut resources = Resources::new(&game_params.data_path).await.unwrap();
         load_modules(game_params, &mut resources).await.unwrap();
 
         storage::store(resources);
@@ -191,10 +186,10 @@ pub async fn load_all_resources(game_params: GameParams) {
 }
 
 #[cfg(target_family = "wasm")]
-pub async fn load_all_resources(game_params: GameParams) {
+pub async fn load_resources(game_params: GameParams) {
     let mut state = ResourceLoadingState::None;
 
-    let mut resources = load_resources(&mut state, game_params).await.unwrap();
+    let mut resources = Resources::new(&game_params.data_path).await.unwrap();
     load_modules(&mut state, &game_params, &mut resources).await.unwrap();
 
     storage::store(resources);
@@ -204,7 +199,7 @@ pub async fn run_game(game_params: GameParams) {
     storage::store(game_params.clone());
     check_env(&game_params);
 
-    load_all_resources(game_params.clone()).await;
+    load_resources(game_params.clone()).await;
 
     let gui_skins = {
         let config = storage::get::<Config>();

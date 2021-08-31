@@ -16,8 +16,13 @@ use super::GuiSkins;
 pub fn draw_character_window(player: &Actor) {
     let gui_skins = storage::get::<GuiSkins>();
     let scale = gui_skins.scale;
+
+    let size = vec2(300.0, 200.0) * scale;
+    let position = vec2(50.0, 150.0) * scale;
+
     root_ui().push_skin(&gui_skins.default);
-    widgets::Window::new(hash!(), vec2(50.0, 150.0) * scale, vec2(300.0, 200.0) * scale)
+
+    widgets::Window::new(hash!(), position, size)
         .titlebar(false)
         .ui(&mut *root_ui(), |ui| {
             ui.label(None, &format!("STR: {}", player.stats.strength));

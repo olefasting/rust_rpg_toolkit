@@ -21,6 +21,7 @@ mod game_menu;
 
 pub mod skins;
 pub mod main_menu;
+pub mod theme;
 
 use game_menu::draw_game_menu;
 use dialogue::draw_dialogue_window;
@@ -48,4 +49,26 @@ pub fn draw_gui() {
             }
         }
     }
+}
+
+pub fn new_rect_offset(left: f32, right: f32, top: f32, bottom: f32, scale: f32) -> RectOffset {
+    RectOffset {
+        left: left * scale,
+        right: right * scale,
+        top: top * scale,
+        bottom: bottom * scale,
+    }
+}
+
+pub fn get_scaled_font_size(font_size: u16, scale: f32) -> u16 {
+    (font_size as f32 * scale) as u16
+}
+
+pub fn get_centered(size: Vec2, bounds: Vec2) -> Vec2 {
+    (bounds - size) / 2.0
+}
+
+pub fn get_centered_on_screen(size: Vec2) -> Vec2 {
+    let bounds = vec2(screen_width(), screen_height());
+    get_centered(size, bounds)
 }

@@ -25,8 +25,13 @@ fn draw_entry(ui: &mut Ui, _scale: f32, player: &mut Actor, entry: &InventoryEnt
 pub fn draw_inventory_window(player: &mut Actor) {
     let gui_skins = storage::get::<GuiSkins>();
     let scale = gui_skins.scale;
+
+    let size = vec2(300.0, 300.0) * scale;
+    let position = vec2(50.0, 375.0) * scale;
+
     root_ui().push_skin(&gui_skins.inventory);
-    widgets::Window::new(hash!(), vec2(50.0 * scale, 375.0 * scale), vec2(300.0 * scale, 300.0 * scale))
+
+    widgets::Window::new(hash!(), position, size)
         .titlebar(false)
         .ui(&mut *root_ui(), |ui| {
             ui.label(None, &format!("credits: {}, weight: {}/{}", player.inventory.credits, player.inventory.get_total_weight(), player.stats.carry_capacity));
@@ -51,5 +56,6 @@ pub fn draw_inventory_window(player: &mut Actor) {
                 }
             }
         });
+
     root_ui().pop_skin();
 }

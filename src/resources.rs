@@ -27,6 +27,12 @@ pub struct ImageAssetParams {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FontAssetParams {
+    pub id: String,
+    pub path: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SoundAssetParams {
     pub id: String,
     pub path: String,
@@ -37,22 +43,24 @@ pub struct AssetsParams {
     materials: Vec<MaterialAssetParams>,
     textures: Vec<TextureAssetParams>,
     images: Vec<ImageAssetParams>,
+    fonts: Vec<FontAssetParams>,
     sound_effects: Vec<SoundAssetParams>,
     music: Vec<SoundAssetParams>,
 }
 
 pub struct Resources {
-    pub materials: HashMap<String, Material>,
-    pub textures: HashMap<String, Texture2D>,
-    pub images: HashMap<String, Image>,
-    pub sound_effects: HashMap<String, Sound>,
-    pub music: HashMap<String, Sound>,
     pub actors: HashMap<String, ActorParams>,
     pub items: HashMap<String, ItemParams>,
     pub abilities: HashMap<String, AbilityParams>,
     pub missions: HashMap<String, MissionParams>,
     pub dialogue: HashMap<String, Dialogue>,
     pub chapters: Vec<Chapter>,
+    pub materials: HashMap<String, Material>,
+    pub textures: HashMap<String, Texture2D>,
+    pub images: HashMap<String, Image>,
+    pub font_bytes: HashMap<String, Vec<u8>>,
+    pub sound_effects: HashMap<String, Sound>,
+    pub music: HashMap<String, Sound>,
 }
 
 impl Resources {
@@ -105,12 +113,12 @@ impl Resources {
         }
 
         let bytes = load_file(&assets_file_path).await?;
-        let resources: AssetsParams = serde_json::from_slice(&bytes)
+        let assets: AssetsParams = serde_json::from_slice(&bytes)
             .expect(&format!("Error when parsing assets file '{}'!", assets_file_path));
 
 
         let mut materials = HashMap::new();
-        for material_params in &resources.materials {
+        for material_params in &assets.materials {
             let vertex_shader = load_file(&material_params.vertex_shader_path).await?;
             let fragment_shader = load_file(&material_params.fragment_shader_path).await?;
 
@@ -131,14 +139,14 @@ impl Resources {
         white_texture.set_filter(FilterMode::Nearest);
         textures.insert(Self::WHITE_TEXTURE_ID.to_string(), white_texture);
 
-        for texture_params in &resources.textures {
+        for texture_params in &assets.textures {
             let texture = load_texture(&texture_params.path).await?;
             texture.set_filter(texture_params.filter_mode);
             textures.insert(texture_params.id.clone(), texture);
         }
 
         let mut images = HashMap::new();
-        for image_params in &resources.images {
+        for image_params in &assets.images {
             let bytes = load_file(&image_params.path).await?;
             let format = match image_params.format.as_ref() {
                 Some(ext) => ImageFormat::from_extension(ext),
@@ -149,32 +157,46 @@ impl Resources {
             images.insert(image_params.id.clone(), image);
         }
 
+        let mut font_bytes = HashMap::new();
+        for font_params in &assets.fonts {
+            let bytes = load_file(&font_params.path).await?;
+            font_bytes.insert(font_params.id.clone(), bytes);
+        }
+
         let mut sound_effects = HashMap::new();
-        for sound_params in &resources.sound_effects {
+        for sound_params in &assets.sound_effects {
             let sound = load_sound(&sound_params.path).await?;
             sound_effects.insert(sound_params.id.clone(), sound);
         }
 
         let mut music = HashMap::new();
-        for music_params in &resources.music {
+        for music_params in &assets.music {
             let track = load_sound(&music_params.path).await?;
             music.insert(music_params.id.clone(), track);
         }
 
         let resources = Resources {
-            materials,
-            textures,
-            images,
-            sound_effects,
-            music,
             actors,
             items,
             abilities,
             missions,
             dialogue,
             chapters,
+            materials,
+            textures,
+            images,
+            font_bytes,
+            sound_effects,
+            music,
         };
 
         Ok(resources)
+    }
+
+    pub fn get_font(&self, font_id: &str) -> Result<Font, FontError> {
+        let bytes = self.font_bytes.get(font_id)
+            .expect(&format!("No font with id '{}' was found!", font_id));
+        let font = load_ttf_font_from_bytes(&bytes)?;
+        Ok(font)
     }
 }
