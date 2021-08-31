@@ -645,6 +645,23 @@ impl BufferedDraw for Actor {
         }
         let game_state = scene::find_node_by_type::<GameState>().unwrap();
         if game_state.in_debug_mode {
+            if let Some(path) = self.behavior.current_path.clone() {
+                let mut previous: Option<Vec2> = None;
+                for p2 in path.nodes {
+                    if let Some(p1) = previous {
+                        draw_line(
+                            p1.x,
+                            p1.y,
+                            p2.x,
+                            p2.y,
+                            2.0,
+                            color::BLUE,
+                        );
+                    }
+                    previous = Some(p2);
+                }
+            }
+
             let center_position = if let Some(collider) = self.body.get_offset_collider() {
                 collider.get_center()
             } else {

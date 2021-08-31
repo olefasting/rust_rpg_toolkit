@@ -1,4 +1,4 @@
-use bracket_pathfinding::prelude::{Algorithm2D, BaseMap, SmallVec, Point, DistanceAlg, a_star_search, NavigationPath};
+use bracket_pathfinding::prelude::{Algorithm2D, BaseMap, SmallVec, Point, DistanceAlg, a_star_search};
 
 use crate::prelude::*;
 
@@ -332,14 +332,36 @@ impl Map {
         }
     }
 
-    pub fn get_path(&self, start: UVec2, end: UVec2) -> NavigationPath {
+    pub fn get_path(&self, start: UVec2, end: UVec2) -> Option<NavigationPath> {
         let start = Point::new(start.x, start.y);
         let end = Point::new(end.x, end.y);
-        a_star_search(
+
+        let res = a_star_search(
             self.point2d_to_index(start),
             self.point2d_to_index(end),
             self,
-        )
+        );
+
+        if res.success {
+            let p = self.index_to_point2d(res.destination);
+            let destination = self.to_position(uvec2(p.x as u32, p.y as u32));
+            let nodes = res.steps
+                .into_iter()
+                .map(|idx| {
+                    let p = self.index_to_point2d(idx);
+                    self.to_position(uvec2(p.x as u32, p.y as u32))
+                })
+                .collect();
+
+            let path = NavigationPath {
+                destination,
+                nodes,
+            };
+
+            return Some(path);
+        }
+
+        None
     }
 
     pub fn default_background_color() -> Color {
@@ -605,7 +627,7 @@ impl BaseMap for Map {
     fn get_pathing_distance(&self, idx1: usize, idx2: usize) -> f32 {
         let p1 = self.index_to_point2d(idx1);
         let p2 = self.index_to_point2d(idx2);
-        DistanceAlg::Pythagoras.distance2d(p1,p2)
+        DistanceAlg::Pythagoras.distance2d(p1, p2)
     }
 }
 
@@ -655,4 +677,10 @@ impl<'a> Iterator for MapTileIterator<'a> {
         self.current = next;
         return res;
     }
+}
+
+#[derive(Debug, Clone)]
+pub struct NavigationPath {
+    pub destination: Vec2,
+    pub nodes: Vec<Vec2>,
 }

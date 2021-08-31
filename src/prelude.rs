@@ -31,8 +31,6 @@ pub use macroquad::{
     prelude::*,
 };
 
-pub use bracket_pathfinding::prelude::NavigationPath;
-
 pub use serde::{
     Serialize,
     Deserialize,
@@ -132,6 +130,7 @@ pub use crate::{
         MapTileset,
         MapObject,
         MapTile,
+        NavigationPath,
     },
     missions::{
         Mission,

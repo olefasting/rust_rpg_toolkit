@@ -37,7 +37,7 @@ impl Default for ActorBehaviorParams {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct ActorBehavior {
     pub aggression: ActorAggression,
     pub home: Option<Vec2>,
@@ -47,6 +47,7 @@ pub struct ActorBehavior {
     pub flee_at_health_factor: f32,
     pub last_attacked_by: Option<(f32, String)>,
     pub is_in_combat: bool,
+    pub current_path: Option<NavigationPath>,
     investigating: Option<(f32, Vec2)>,
     investigate_cooldown_timer: f32,
 }
@@ -64,6 +65,7 @@ impl ActorBehavior {
             is_in_combat: false,
             investigating: None,
             investigate_cooldown_timer: INVESTIGATE_COOLDOWN,
+            current_path: None,
         }
     }
 }
@@ -225,6 +227,13 @@ pub fn apply_actor_behavior(actor: &mut Actor) {
         sort_by_distance(actor.body.position, &a.body.position, &b.body.position));
 
     unknowns.sort_by(|a, b| a.noise_level.cmp(&b.noise_level));
+
+   // if actor.behavior.current_path.is_none() {
+   //     let game_state = scene::find_node_by_type::<GameState>().unwrap();
+   //     let p1 = game_state.map.to_coords(actor.body.position);
+   //     let p2 = game_state.map.to_coords(target);
+   //     actor.behavior.current_path = game_state.map.get_path(p1, p2);
+   // }
 
     match actor.behavior.aggression {
         ActorAggression::Passive => {
