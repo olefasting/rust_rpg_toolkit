@@ -7,6 +7,10 @@
       <sourceFolder url="file://$MODULE_DIR$/examples" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/cli/rpg_toolkit_cli/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/macros/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/froggy/benches" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/froggy/examples" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/froggy/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/froggy/tests" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/macroquad-ldtk/target" />
       <excludeFolder url="file://$MODULE_DIR$/cli/rpg_toolkit_cli/target" />

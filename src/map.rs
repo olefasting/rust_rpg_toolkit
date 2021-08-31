@@ -1,3 +1,5 @@
+use bracket_pathfinding::prelude::{Algorithm2D, BaseMap, SmallVec, Point, DistanceAlg, a_star_search, NavigationPath};
+
 use crate::prelude::*;
 
 use crate::json::{
@@ -330,6 +332,16 @@ impl Map {
         }
     }
 
+    pub fn get_path(&self, start: UVec2, end: UVec2) -> NavigationPath {
+        let start = Point::new(start.x, start.y);
+        let end = Point::new(end.x, end.y);
+        a_star_search(
+            self.point2d_to_index(start),
+            self.point2d_to_index(end),
+            self,
+        )
+    }
+
     pub fn default_background_color() -> Color {
         color::BLACK
     }
@@ -536,6 +548,70 @@ impl Map {
             draw_order,
             properties,
         }
+    }
+}
+
+impl BaseMap for Map {
+    fn is_opaque(&self, idx: usize) -> bool {
+        let x = idx as u32 % self.grid_size.y;
+        let y = idx as u32 / self.grid_size.y;
+        for (layer_id, layer) in &self.layers {
+            if layer.collision == MapCollisionKind::Solid && self.get_tile(layer_id, x, y).is_some() {
+                return true;
+            }
+        }
+        false
+    }
+
+    fn get_available_exits(&self, idx: usize) -> SmallVec<[(usize, f32); 10]> {
+        let len = (self.grid_size.x * self.grid_size.y) as i32;
+        // N, E, S, W
+        let indices = (
+            idx as i32 - self.grid_size.x as i32,
+            idx as i32 + 1,
+            idx as i32 + self.grid_size.x as i32,
+            idx as i32 - 1,
+        );
+
+        let mut exits = (indices.0 >= 0, indices.1 < len, indices.2 < len, indices.3 >= 0);
+        for (_, layer) in &self.layers {
+            match layer.collision {
+                MapCollisionKind::None => continue,
+                _ => {
+                    if exits.0 == false || layer.tiles[indices.0 as usize].is_some() {
+                        exits.0 = false;
+                    }
+                    if exits.1 == false || layer.tiles[indices.1 as usize].is_some() {
+                        exits.1 = false;
+                    }
+                    if exits.2 == false || layer.tiles[indices.2 as usize].is_some() {
+                        exits.2 = false;
+                    }
+                    if exits.3 == false || layer.tiles[indices.3 as usize].is_some() {
+                        exits.3 = false;
+                    }
+                }
+            }
+        }
+
+        let mut result = SmallVec::new();
+        result.push((indices.0 as usize, if exits.0 { 1.0 } else { 0.0 }));
+        result.push((indices.1 as usize, if exits.1 { 1.0 } else { 0.0 }));
+        result.push((indices.2 as usize, if exits.2 { 1.0 } else { 0.0 }));
+        result.push((indices.3 as usize, if exits.3 { 1.0 } else { 0.0 }));
+        result
+    }
+
+    fn get_pathing_distance(&self, idx1: usize, idx2: usize) -> f32 {
+        let p1 = self.index_to_point2d(idx1);
+        let p2 = self.index_to_point2d(idx2);
+        DistanceAlg::Pythagoras.distance2d(p1,p2)
+    }
+}
+
+impl Algorithm2D for Map {
+    fn dimensions(&self) -> Point {
+        Point::new(self.grid_size.x, self.grid_size.y)
     }
 }
 

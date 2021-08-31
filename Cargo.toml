@@ -14,23 +14,29 @@ repository = "https://github.com/olefasting/rust_rpg_toolkit"
 [profile.dev.package."*"]
 opt-level = 3
 
+[workspace]
+members = ["cli"]
+
 [[example]]
 name = "example-project"
 path = "examples/example_project/src/main.rs"
 crate-type = ["bin"]
 
 [dependencies]
+# lazy_static = "1.4.0"
 chrono = "0.4.19"
 regex = "1.5.4"
 hex = "0.4.3"
 serde = { version = "1.0.127", features = ["derive"] }
 serde_json = "1.0.66"
-gilrs = { version = "0.8.1", features = ["serde-serialize", "wasm-bindgen"] }
 
 macroquad = { version = "0.3.8" }
 # macroquad-particles = { version = "0.1", features = ["nanoserde"] }
 # macroquad-profiler = "0.1"
 quad-storage = "0.1.0"
+
+gilrs = { version = "0.8.1", features = ["serde-serialize", "wasm-bindgen"] }
+bracket-pathfinding = "0.8.4"
 
 # [target.'cfg(target_arch = "wasm32")'.dependencies]
 # sapp-jsutils = "0.1.5"
