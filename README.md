@@ -27,11 +27,10 @@ release and publish on crates.io
 
 - [x] Re-design actor behavior system
 - [ ] Define basic, default AI behaviors
-- [ ] Design and expose API for implementing custom game UI in code
-- [ ] Make the active UI customizable through resource files
-- [ ] Crate a presentable default UI
 - [ ] Refactor collision detection
 - [ ] Polish pathfinding
+- [ ] Implement actor abilities (currently abilities are only implemented on items) 
+- [ ] Refactor the UI system
 - [ ] Finalize the WASM build process
 
 ## Contributing
