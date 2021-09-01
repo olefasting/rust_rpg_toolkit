@@ -15,13 +15,24 @@ either by modifying a game's data files directly, or by creating user modules, w
 - Mod support out-of-the-box with modules that can extend or replace a game's data and resources
 - RPG mechanics, like character stats, items and an inventory system
 - Conversion from Tiled maps and instantiation of actors and items from map properties
-- Scriptable dialogue system
-- Scriptable mission and reward system
+- Flexible AI behaviors, using [Mode](https://github.com/andrewtc/mode)
+- Dialogue system
+- Mission and reward system
 - WebAssembly support with wasm-bindgen
 
 ## Current Milestones
 
+These are the tasks that currently have priority. When these are done, the goal is to push out the first
+release and publish on crates.io
 
+- [x] Re-design actor behavior system
+- [ ] Define basic, default AI behaviors
+- [ ] Design and expose API for implementing custom game UI in code
+- [ ] Make the active UI customizable through resource files
+- [ ] Crate a presentable default UI
+- [ ] Refactor collision detection
+- [ ] Polish pathfinding
+- [ ] Finalize the WASM build process
 
 ## Contributing
 
