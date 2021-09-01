@@ -1,5 +1,8 @@
 # Rust RPG Toolkit
 
+**PLEASE NOTE:** this in early and very heavy development. API is subject to constant change, as it has newly transitioned
+from being a game project to a library.
+
 This crate allows you to create tile-based, 2D action RPGs, using Rust amd JSON. It started out as a game project but was
 separated into its own project, as it grew in scope. It uses JSON files for most of its game data and resources specification,
 so that games can be created with very little interaction with the Rust code. This has the benefit of making the end product
@@ -15,6 +18,10 @@ either by modifying a game's data files directly, or by creating user modules, w
 - Scriptable dialogue system
 - Scriptable mission and reward system
 - WebAssembly support with wasm-bindgen
+
+## Current Milestones
+
+
 
 ## Contributing
 

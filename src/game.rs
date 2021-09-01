@@ -12,103 +12,114 @@ fn load_map(local_player_id: &str, transition: SceneTransition) {
     let chapter = resources.chapters.get(chapter_index)
         .expect(&format!("Unable to load chapter '{}'!", chapter_index));
 
-    let map = chapter.maps.get(&map_id)
-        .cloned()
-        .expect(&format!("Unable to load map '{}' of chapter '{}'!", map_id, chapter.title));
+    let game_state = {
+        let map = chapter.maps.get(&map_id)
+            .cloned()
+            .expect(&format!("Unable to load map '{}' of chapter '{}'!", map_id, chapter.title));
 
-    let resources = storage::get::<Resources>();
-    if let Some(layer) = map.layers.get("spawn_points") {
-        for object in &layer.objects {
-            if object.name == "player" {
-                let mut actor = Actor::from_export(
-                    object.position,
-                    ActorControllerKind::local_player(&local_player_id),
-                    player.clone(),
-                );
+        GameState::add_node(&local_player_id, map)
+    };
 
-                actor.stats.recalculate_derived();
-                actor.stats.restore_vitals();
-
-                scene::add_node(actor);
-            } else if let Some(prototype_id) = object.properties.get("prototype_id") {
-                let params = resources.actors.get(&prototype_id.value).cloned()
-                    .expect(&format!("Unable to find actor with prototype id '{}'", prototype_id.value));
-                let instance_id = if let Some(instance_id) = object.properties.get("instance_id").cloned() {
-                    instance_id.value
-                } else {
-                    generate_id()
-                };
-
-                let mut actor = Actor::new(ActorControllerKind::Computer, ActorParams {
-                    id: instance_id,
-                    position: Some(object.position),
-                    ..params
-                });
-
-                actor.stats.recalculate_derived();
-                actor.stats.restore_vitals();
-
-                scene::add_node(actor);
-            }
-        }
-    }
-
-    if let Some(layer) = map.layers.get("light_sources") {
-        for object in &layer.objects {
-            let size = if let Some(size) = object.size {
-                size
-            } else {
-                LightSource::DEFAULT_SIZE
-            };
-
-            let color = if let Some(color) = object.properties.get("color") {
-                color_from_hex_string(&color.value)
-            } else {
-                LightSource::DEFAULT_COLOR
-            };
-
-            let intensity = if let Some(intensity) = object.properties.get("intensity") {
-                intensity.value.parse::<f32>().unwrap()
-            } else {
-                LightSource::DEFAULT_INTENSITY
-            };
-
-            LightSource::add_node(object.position, size, color, intensity);
-        }
-    }
-
-    if let Some(layer) = map.layers.get("items") {
-        for object in &layer.objects {
-            if let Some(prototype_id) = object.properties.get("prototype_id").cloned() {
-                if prototype_id.value == "credits".to_string() {
-                    let amount = object.properties.get("amount").unwrap();
-                    Credits::add_node(object.position, amount.value.parse::<u32>().unwrap());
-                } else {
-                    let params = resources.items.get(&prototype_id.value).cloned()
-                        .expect(&format!("Unable to find item with prototype id '{}'", &prototype_id.value));
-                    let instance_id = if let Some(instance_id) = object.properties.get("instance_id").cloned() {
-                        instance_id.value
-                    } else {
-                        generate_id()
-                    };
-
-                    Item::add_node(ItemParams {
-                        id: instance_id,
-                        position: Some(object.position),
-                        ..params
-                    });
-                }
-            }
-        }
-    }
-
-    GameState::add_node(&local_player_id, map);
     Camera::add_node();
     DrawBuffer::<Item>::add_node();
     DrawBuffer::<Credits>::add_node();
     Projectiles::add_node();
     ContinuousBeams::add_node();
     DrawBuffer::<Actor>::add_node();
+
+    {
+        let game_state = scene::get_node(game_state);
+        let resources = storage::get::<Resources>();
+        if let Some(layer) = game_state.map.layers.get("spawn_points") {
+            for object in &layer.objects {
+                if object.name == "player" {
+                    let mut actor = Actor::from_export(
+                        game_state.handle(),
+                        object.position,
+                        ActorControllerKind::local_player(&local_player_id),
+                        player.clone(),
+                    );
+
+                    actor.stats.recalculate_derived();
+                    actor.stats.restore_vitals();
+
+                    scene::add_node(actor);
+                } else if let Some(prototype_id) = object.properties.get("prototype_id") {
+                    let params = resources.actors.get(&prototype_id.value).cloned()
+                        .expect(&format!("Unable to find actor with prototype id '{}'", prototype_id.value));
+                    let instance_id = if let Some(instance_id) = object.properties.get("instance_id").cloned() {
+                        instance_id.value
+                    } else {
+                        generate_id()
+                    };
+
+                    let mut actor = Actor::new(
+                        game_state.handle(),
+                        ActorControllerKind::Computer,
+                        ActorParams {
+                            id: instance_id,
+                            position: Some(object.position),
+                            ..params
+                        });
+
+                    actor.stats.recalculate_derived();
+                    actor.stats.restore_vitals();
+
+                    scene::add_node(actor);
+                }
+            }
+        }
+
+        if let Some(layer) = game_state.map.layers.get("light_sources") {
+            for object in &layer.objects {
+                let size = if let Some(size) = object.size {
+                    size
+                } else {
+                    LightSource::DEFAULT_SIZE
+                };
+
+                let color = if let Some(color) = object.properties.get("color") {
+                    color_from_hex_string(&color.value)
+                } else {
+                    LightSource::DEFAULT_COLOR
+                };
+
+                let intensity = if let Some(intensity) = object.properties.get("intensity") {
+                    intensity.value.parse::<f32>().unwrap()
+                } else {
+                    LightSource::DEFAULT_INTENSITY
+                };
+
+                LightSource::add_node(object.position, size, color, intensity);
+            }
+        }
+
+        if let Some(layer) = game_state.map.layers.get("items") {
+            for object in &layer.objects {
+                if let Some(prototype_id) = object.properties.get("prototype_id").cloned() {
+                    if prototype_id.value == "credits".to_string() {
+                        let amount = object.properties.get("amount").unwrap();
+                        Credits::add_node(object.position, amount.value.parse::<u32>().unwrap());
+                    } else {
+                        let params = resources.items.get(&prototype_id.value).cloned()
+                            .expect(&format!("Unable to find item with prototype id '{}'", &prototype_id.value));
+                        let instance_id = if let Some(instance_id) = object.properties.get("instance_id").cloned() {
+                            instance_id.value
+                        } else {
+                            generate_id()
+                        };
+
+                        Item::add_node(ItemParams {
+                            id: instance_id,
+                            position: Some(object.position),
+                            ..params
+                        });
+                    }
+                }
+            }
+        }
+    }
+
     PostProcessing::add_node();
     Hud::add_node();
 }
@@ -211,7 +222,7 @@ pub async fn run_game(game_params: GameParams) {
     let player_id = setup_local_player();
 
     #[allow(unused_assignments)]
-    let mut scene_transition = match gui::draw_main_menu(&game_params).await {
+        let mut scene_transition = match gui::draw_main_menu(&game_params).await {
         MainMenuResult::StartGame(transition) =>
             Some(transition),
         MainMenuResult::Quit =>

@@ -83,10 +83,10 @@
     ],
     "credits": 25,
     "collider": {
-      "x": -8.0,
+      "x": -5.0,
       "y": 0.0,
-      "width": 16.0,
-      "height": 16.0
+      "width": 10.0,
+      "height": 10.0
     },
     "animation_player": {
       "texture_id": "characters",
@@ -144,10 +144,10 @@
     "credits": 25,
     "dialogue": "dialogue_guard_boss",
     "collider": {
-      "x": -8.0,
+      "x": -5.0,
       "y": 0.0,
-      "width": 16.0,
-      "height": 16.0
+      "width": 10.0,
+      "height": 10.0
     },
     "animation_player": {
       "texture_id": "characters",
@@ -205,10 +205,10 @@
     ],
     "credits": 25,
     "collider": {
-      "x": -8.0,
+      "x": -5.0,
       "y": 0.0,
-      "width": 16.0,
-      "height": 16.0
+      "width": 10.0,
+      "height": 10.0
     },
     "animation_player": {
       "texture_id": "characters",
@@ -266,10 +266,10 @@
     ],
     "credits": 25,
     "collider": {
-      "x": -8.0,
+      "x": -5.0,
       "y": 0.0,
-      "width": 16.0,
-      "height": 16.0
+      "width": 10.0,
+      "height": 10.0
     },
     "animation_player": {
       "texture_id": "characters",
@@ -324,10 +324,10 @@
     "items": [],
     "credits": 25,
     "collider": {
-      "x": -8.0,
+      "x": -5.0,
       "y": 0.0,
-      "width": 16.0,
-      "height": 16.0
+      "width": 10.0,
+      "height": 10.0
     },
     "animation_player": {
       "texture_id": "characters",
@@ -383,10 +383,10 @@
     "items": [],
     "credits": 25,
     "collider": {
-      "x": -8.0,
+      "x": -5.0,
       "y": 0.0,
-      "width": 16.0,
-      "height": 16.0
+      "width": 10.0,
+      "height": 10.0
     },
     "animation_player": {
       "texture_id": "characters",

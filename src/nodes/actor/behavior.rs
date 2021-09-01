@@ -4,6 +4,12 @@ use std::{
 
 use crate::prelude::*;
 
+use mode::{
+    Family,
+    Automaton,
+    Mode,
+};
+
 #[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ActorAggression {
@@ -23,6 +29,10 @@ pub struct ActorBehaviorParams {
     pub is_on_guard: bool,
     #[serde(default)]
     pub flee_at_health_factor: f32,
+    #[serde(skip)]
+    pub last_attacked_by: Option<String>,
+    #[serde(skip)]
+    pub current_path: Option<NavigationPath>,
 }
 
 impl Default for ActorBehaviorParams {
@@ -33,320 +43,33 @@ impl Default for ActorBehaviorParams {
             is_stationary: true,
             is_on_guard: false,
             flee_at_health_factor: 0.0,
-        }
-    }
-}
-
-#[derive(Clone)]
-pub struct ActorBehavior {
-    pub aggression: ActorAggression,
-    pub home: Option<Vec2>,
-    pub current_action: Option<String>,
-    pub is_stationary: bool,
-    pub is_on_guard: bool,
-    pub flee_at_health_factor: f32,
-    pub last_attacked_by: Option<(f32, String)>,
-    pub is_in_combat: bool,
-    pub current_path: Option<NavigationPath>,
-    investigating: Option<(f32, Vec2)>,
-    investigate_cooldown_timer: f32,
-    collision_cnt: u32,
-}
-
-impl ActorBehavior {
-    pub fn new(params: ActorBehaviorParams) -> Self {
-        ActorBehavior {
-            aggression: params.aggression,
-            home: params.home,
-            current_action: None,
-            is_stationary: params.is_stationary,
-            is_on_guard: params.is_on_guard,
-            flee_at_health_factor: params.flee_at_health_factor.clamp(0.0, 1.0),
             last_attacked_by: None,
-            is_in_combat: false,
-            investigating: None,
-            investigate_cooldown_timer: INVESTIGATE_COOLDOWN,
             current_path: None,
-            collision_cnt: 0,
         }
     }
 }
 
-const ATTACK_FORGET_AFTER: f32 = 25.0;
-const DESTINATION_REACHED_THRESHOLD: f32 = 16.0;
-const INVESTIGATE_COOLDOWN: f32 = 15.0;
-const INVESTIGATE_FORGET_AFTER: f32 = 15.0;
-const DROP_PATH_AFTER_COLLISIONS: u32 = 60;
-
-fn go_to(actor: &mut Actor, target: Vec2) {
-    actor.behavior.current_action = Some(format!("go to {}", target.to_string()));
-    if actor.body.position.distance(target) <= DESTINATION_REACHED_THRESHOLD {
-        actor.behavior.current_path = None;
-    } else if actor.behavior.current_path.is_none() {
-        let game_state = scene::find_node_by_type::<GameState>().unwrap();
-        let path = game_state.map.get_path(actor.body.position, target);
-        actor.behavior.current_path = Some(path);
-    }
+pub trait ActorBehavior : Mode<Family = ActorBehaviorFamily> {
+    fn update(self : Box<Self>) -> Box<dyn ActorBehavior>;
 }
 
-fn investigate(actor: &mut Actor, target: Vec2) {
-    actor.behavior.current_action = Some(format!("investigating {}", target.to_string()));
-    if actor.is_target_visible(target) {
-        actor.behavior.current_path = None;
-        actor.behavior.investigating = None;
-        actor.behavior.investigate_cooldown_timer = 0.0;
-    } else if actor.behavior.current_path.is_none() {
-        let game_state = scene::find_node_by_type::<GameState>().unwrap();
-        let path = game_state.map.get_path(actor.body.position, target);
-        actor.behavior.current_path = Some(path);
-    }
+pub struct ActorBehaviorFamily;
+
+impl Family for ActorBehaviorFamily {
+    type Base = dyn ActorBehavior;
+
+    type Mode = Box<dyn ActorBehavior>;
 }
 
-fn wander(actor: &mut Actor) {
-    actor.behavior.current_action = Some("wander".to_string());
-    let mut direction = actor.controller.move_direction;
-    if direction == Vec2::ZERO {
-        direction = vec2(rand::gen_range(-1.0, 1.0), rand::gen_range(-1.0, 1.0)).normalize_or_zero();
-    }
-    if actor.body.last_collisions.len() > 0 || actor.body.raycast( actor.body.position + direction * 32.0, false).is_some() {
-        let deg = if rand::gen_range(-1.0, 1.0) > 0.0 {
-            45.0
-        } else {
-            -45.0
-        };
-        direction = rotate_vector(direction, deg_to_rad(deg));
-    }
-    actor.controller.move_direction = direction;
+pub struct TestMode {}
+
+impl Mode for TestMode {
+    type Family = ActorBehaviorFamily;
 }
 
-fn equip_weapon(actor: &mut Actor) {
-    actor.behavior.current_action = Some("equip weapon".to_string());
-    let weapons = actor.inventory.get_all_of_kind(&[ItemKind::OneHandedWeapon, ItemKind::TwoHandedWeapon]);
-    let i = rand::gen_range(0, weapons.len() - 1);
-    if let Some(weapon) = weapons.get(i) {
-        actor.equip_item(&weapon.params.id);
-    }
-}
-
-fn flee(actor: &mut Actor, target: Vec2) {
-    actor.behavior.is_in_combat = true;
-    actor.behavior.current_action = Some(format!("flee"));
-    let mut direction = actor.controller.move_direction;
-    if actor.body.last_collisions.len() > 0 || actor.body.raycast( actor.body.position + direction * 32.0, false).is_some() {
-        direction = rotate_vector(direction, deg_to_rad(6.0));
-    } else {
-        let mut try_direction = actor.body.position.sub(target).normalize_or_zero();
-        let deg = if rand::gen_range(-1.0, 1.0) > 0.0 {
-            6.0
-        } else {
-            -6.0
-        };
-        for _ in 0..60 {
-            if actor.body.raycast( actor.body.position + try_direction * 32.0, false).is_some() {
-                try_direction = rotate_vector(direction, deg_to_rad(deg));
-                continue;
-            }
-            direction = try_direction;
-            break;
-        }
-    }
-    actor.controller.move_direction = direction;
-    actor.controller.should_sprint = true;
-}
-
-fn attack(actor: &mut Actor, target: Vec2) {
-    actor.behavior.is_in_combat = true;
-    actor.behavior.current_action = Some(format!("attack"));
-
-    let position = actor.body.position;
-    let distance = position.distance(target);
-
-    let mut ability = None;
-    if actor.primary_ability.is_some() {
-        ability = actor.primary_ability.as_mut();
-    } else if actor.secondary_ability.is_some() {
-        ability = actor.secondary_ability.as_mut();
-    }
-
-    if let Some(ability) = ability {
-        if distance > ability.range * 0.8 {
-            if actor.behavior.current_path.is_none() {
-                let game_state = scene::find_node_by_type::<GameState>().unwrap();
-                let path = game_state.map.get_path(position, target);
-                actor.behavior.current_path = Some(path);
-            }
-        } else {
-            actor.controller.aim_direction = target.sub(position).normalize_or_zero();
-            actor.controller.move_direction = Vec2::ZERO;
-            actor.behavior.current_path = None;
-            actor.controller.should_use_primary_ability = true;
-        }
-    } else {
-        return equip_weapon(actor);
-    }
-
-    if actor.controller.is_attacking() == false {
-        actor.controller.aim_direction = actor.controller.move_direction;
-    }
-}
-
-pub fn update_pathfinding(actor: &mut Actor) {
-    let mut direction = actor.controller.move_direction;
-    let position = actor.body.position;
-
-    let mut node = None;
-    if let Some(path) = actor.behavior.current_path.as_mut() {
-        if let Some(next) = path.nodes.first().cloned() {
-            if position.distance(next) <= DESTINATION_REACHED_THRESHOLD {
-                path.nodes.remove(0);
-                node = path.nodes.first().cloned();
-            } else {
-                node = Some(next);
-            }
-        }
-    }
-
-    if let Some(node) = node {
-        direction = node.sub(position).normalize_or_zero();
-    } else {
-        actor.behavior.current_path = None;
-    }
-
-    actor.controller.move_direction = direction;
-}
-
-pub fn apply_behavior(actor: &mut Actor) {
-    actor.controller.should_use_primary_ability = false;
-    actor.controller.should_use_secondary_ability = false;
-
-    if actor.body.last_collisions.len() > 0 {
-        actor.behavior.collision_cnt += 1;
-        if actor.behavior.collision_cnt >= DROP_PATH_AFTER_COLLISIONS {
-            actor.behavior.current_path = None;
-            actor.behavior.collision_cnt = 0;
-        }
-    } else {
-        actor.behavior.collision_cnt = 0;
-    }
-
-    let dt = get_frame_time();
-    actor.behavior.investigate_cooldown_timer += dt;
-
-    if let Some((timer, target)) = actor.behavior.investigating {
-        let timer = timer + dt;
-        if timer >= INVESTIGATE_FORGET_AFTER {
-            actor.behavior.investigating = None;
-        } else {
-            actor.behavior.investigating = Some((timer, target));
-        }
-    }
-    if let Some((timer, actor_id)) = actor.behavior.last_attacked_by.clone() {
-        let timer = timer + dt;
-        if timer >= ATTACK_FORGET_AFTER {
-            actor.behavior.last_attacked_by = None;
-        } else {
-            actor.behavior.last_attacked_by = Some((timer, actor_id));
-        }
-    }
-
-    let mut hostiles = Vec::new();
-    let mut allies = Vec::new();
-    let mut unknowns = Vec::new();
-
-    'node: for other in scene::find_nodes_by_type::<Actor>() {
-        let distance = actor.body.position.distance(other.body.position);
-        if let Some((_, attacker_id)) = actor.behavior.last_attacked_by.clone() {
-            if other.id == attacker_id {
-                hostiles.push(other);
-                continue 'node;
-            }
-        }
-
-        if actor.is_target_visible(other.body.position) {
-            for faction in &actor.factions {
-                if other.factions.contains(faction) {
-                    allies.push(other);
-                    continue 'node;
-                }
-            }
-            hostiles.push(other);
-        } else if distance <= other.noise_level.to_range() {
-            unknowns.push(other);
-        }
-    }
-
-    hostiles.sort_by(|a, b|
-        sort_by_distance(actor.body.position, &a.body.position, &b.body.position));
-
-    allies.sort_by(|a, b|
-        sort_by_distance(actor.body.position, &a.body.position, &b.body.position));
-
-    unknowns.sort_by(|a, b| a.noise_level.cmp(&b.noise_level));
-
-    match actor.behavior.aggression {
-        ActorAggression::Passive => {
-            if let Some((_, actor_id)) = actor.behavior.last_attacked_by.clone() {
-                if let Some(attacker) = hostiles.iter().find(|hostile| hostile.id == actor_id) {
-                    return flee(actor, attacker.body.position);
-                }
-            }
-        }
-        ActorAggression::Neutral => {
-            if let Some((_, actor_id)) = actor.behavior.last_attacked_by.clone() {
-                if let Some(attacker) = hostiles.iter().find(|hostile| hostile.id == actor_id) {
-                    if actor.stats.current_health > actor.stats.max_health * actor.behavior.flee_at_health_factor {
-                        return attack(actor, attacker.body.position);
-                    } else {
-                        return flee(actor, attacker.body.position);
-                    }
-                }
-            }
-        }
-        ActorAggression::Aggressive => {
-            if let Some((_, actor_id)) = actor.behavior.last_attacked_by.clone() {
-                if let Some(attacker) = hostiles.iter().find(|hostile| hostile.id == actor_id) {
-                    if actor.stats.current_health > actor.stats.max_health * actor.behavior.flee_at_health_factor {
-                        return attack(actor, attacker.body.position);
-                    } else {
-                        return flee(actor, attacker.body.position);
-                    }
-                }
-            }
-            if let Some(hostile) = hostiles.first() {
-                if actor.stats.current_health > actor.stats.max_health * actor.behavior.flee_at_health_factor {
-                    return attack(actor, hostile.body.position);
-                }
-            }
-        }
-    }
-
-    if actor.behavior.is_on_guard && actor.behavior.investigate_cooldown_timer >= INVESTIGATE_COOLDOWN {
-        if let Some((_, target)) = actor.behavior.investigating {
-            return investigate(actor, target);
-        } else if let Some(unknown) = unknowns.first() {
-            let target = (0.0, unknown.body.position);
-            actor.behavior.investigating = Some(target);
-            return investigate(actor, unknown.body.position);
-        }
-    }
-
-    if actor.behavior.is_stationary {
-        if let Some(home) = actor.behavior.home {
-            return go_to(actor, home);
-        }
-    } else {
-        return wander(actor);
-    }
-}
-
-impl Into<ActorBehaviorParams> for ActorBehavior {
-    fn into(self) -> ActorBehaviorParams {
-        ActorBehaviorParams {
-            aggression: self.aggression,
-            home: self.home,
-            is_stationary: self.is_stationary,
-            is_on_guard: self.is_on_guard,
-            flee_at_health_factor: self.flee_at_health_factor,
-        }
+impl ActorBehavior for TestMode {
+    fn update(mut self : Box<Self>) -> Box<dyn ActorBehavior> {
+        println!("test behavior");
+        self
     }
 }

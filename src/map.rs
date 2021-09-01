@@ -618,14 +618,12 @@ impl BaseMap for Map {
             }
         }
 
-        let result = vec![
-            (indices.0 as usize, if exits.0 { 1.0 } else { 0.0 }),
-            (indices.1 as usize, if exits.1 { 1.0 } else { 0.0 }),
-            (indices.2 as usize, if exits.2 { 1.0 } else { 0.0 }),
-            (indices.3 as usize, if exits.3 { 1.0 } else { 0.0 }),
-        ];
-
-        result.into()
+        let mut res = SmallVec::new();
+        if exits.0 { res.push((indices.0 as usize, 1.0)) }
+        if exits.1 { res.push((indices.1 as usize, 1.0)) }
+        if exits.2 { res.push((indices.2 as usize, 1.0)) }
+        if exits.3 { res.push((indices.3 as usize, 1.0)) }
+        res
     }
 
     fn get_pathing_distance(&self, idx1: usize, idx2: usize) -> f32 {

@@ -1,11 +1,13 @@
 use crate::prelude::*;
 
+use mode::Family;
+
 pub use behavior::{
     ActorAggression,
     ActorBehavior,
     ActorBehaviorParams,
-    apply_behavior,
-    update_pathfinding,
+    ActorBehaviorFamily,
+    TestMode,
 };
 pub use controller::{
     ActorController,
@@ -145,14 +147,13 @@ impl Into<SavedCharacter> for ActorParams {
     }
 }
 
-#[derive(Clone)]
 pub struct Actor {
     pub id: String,
     pub name: String,
     pub active_missions: Vec<Mission>,
     pub completed_missions: Vec<Mission>,
     pub noise_level: NoiseLevel,
-    pub behavior: ActorBehavior,
+    pub behavior: ActorBehaviorParams,
     pub stats: ActorStats,
     pub factions: Vec<String>,
     pub body: PhysicsBody,
@@ -164,7 +165,9 @@ pub struct Actor {
     pub experience: u32,
     pub dialogue: Option<Dialogue>,
     pub current_dialogue: Option<Dialogue>,
+    pub game_state: Handle<GameState>,
     animation_player: SpriteAnimationPlayer,
+    automaton: Automaton<ActorBehaviorFamily>,
     noise_level_timer: f32,
     can_level_up: bool,
 }
@@ -187,7 +190,7 @@ impl Actor {
     const PICK_UP_RADIUS: f32 = 36.0;
     const INTERACT_RADIUS: f32 = 36.0;
 
-    pub fn new(controller_kind: ActorControllerKind, params: ActorParams) -> Self {
+    pub fn new(game_state: Handle<GameState>, controller_kind: ActorControllerKind, params: ActorParams) -> Self {
         let position = params.position.unwrap_or_default();
         let dialogue = if let Some(dialogue_id) = params.dialogue_id.clone() {
             let resources = storage::get::<Resources>();
@@ -200,16 +203,15 @@ impl Actor {
 
         let inventory = Inventory::from_prototypes(&params.inventory);
 
+        let mode = Box::new(TestMode {});
+
         Actor {
             id: params.id.clone(),
             name: params.name.clone(),
             active_missions: Vec::new(),
             completed_missions: Vec::new(),
             noise_level: NoiseLevel::None,
-            behavior: ActorBehavior::new(ActorBehaviorParams {
-                home: Some(position),
-                ..params.behavior
-            }),
+            behavior: params.behavior.clone(),
             stats: params.clone().into(),
             factions: params.factions,
             body: PhysicsBody::new(position, 0.0, params.collider),
@@ -224,11 +226,13 @@ impl Actor {
             animation_player: SpriteAnimationPlayer::new(params.animation_player.clone()),
             noise_level_timer: 0.0,
             can_level_up: params.can_level_up,
+            automaton: ActorBehaviorFamily::automaton_with_mode(mode),
+            game_state,
         }
     }
 
-    pub fn add_node(controller_kind: ActorControllerKind, params: ActorParams) -> Handle<Self> {
-        scene::add_node(Self::new(controller_kind, params))
+    pub fn add_node(game_state: Handle<GameState>, controller_kind: ActorControllerKind, params: ActorParams) -> Handle<Self> {
+        scene::add_node(Self::new(game_state, controller_kind, params))
     }
 
     pub fn to_params(&self) -> ActorParams {
@@ -264,7 +268,7 @@ impl Actor {
         }
     }
 
-    pub fn from_export(position: Vec2, controller_kind: ActorControllerKind, export: SavedCharacter) -> Self {
+    pub fn from_export(game_state: Handle<GameState>, position: Vec2, controller_kind: ActorControllerKind, export: SavedCharacter) -> Self {
         let resources = storage::get::<Resources>();
 
         let active_missions = export.active_missions
@@ -291,13 +295,15 @@ impl Actor {
             None
         };
 
+        let mode = Box::new(TestMode {});
+
         Actor {
             id: export.actor.id.clone(),
             name: export.actor.name.clone(),
             active_missions,
             completed_missions,
             noise_level: NoiseLevel::None,
-            behavior: ActorBehavior::new(export.actor.behavior.clone()),
+            behavior: export.actor.behavior.clone(),
             stats: export.actor.clone().into(),
             factions: export.actor.factions,
             body,
@@ -312,6 +318,8 @@ impl Actor {
             animation_player: SpriteAnimationPlayer::new(export.actor.animation_player),
             noise_level_timer: 0.0,
             can_level_up: export.actor.can_level_up,
+            automaton: ActorBehaviorFamily::automaton_with_mode(mode),
+            game_state,
         }
     }
 
@@ -347,7 +355,7 @@ impl Actor {
     }
 
     pub fn take_damage(&mut self, actor_id: &str, _damage_type: DamageType, amount: f32) {
-        self.behavior.last_attacked_by = Some((0.0, actor_id.to_string()));
+        self.behavior.last_attacked_by = Some(actor_id.to_string());
         self.stats.current_health -= amount;
     }
 
@@ -450,8 +458,7 @@ impl Actor {
             }
             ActorControllerKind::RemotePlayer { player_id: _ } => {}
             ActorControllerKind::Computer => {
-                apply_behavior(self);
-                update_pathfinding(self);
+                Automaton::next(&mut self.automaton, |mode| mode.update());
             }
             ActorControllerKind::None => {}
         }
@@ -478,7 +485,7 @@ impl Actor {
                 for objective in &mut mission.objectives {
                     match &objective.0 {
                         MissionObjective::Kill { actor_id } => {
-                            let game_state = scene::find_node_by_type::<GameState>().unwrap();
+                            let game_state = scene::get_node(self.game_state);
                             if game_state.dead_actors.contains(actor_id) {
                                 objective.1 = true;
                             }
@@ -666,7 +673,8 @@ impl BufferedDraw for Actor {
                 None,
             );
         }
-        let game_state = scene::find_node_by_type::<GameState>().unwrap();
+
+        let game_state = scene::get_node(self.game_state);
         if game_state.in_debug_mode {
             if let Some(path) = self.behavior.current_path.clone() {
                 let mut previous: Option<Vec2> = None;
@@ -690,44 +698,44 @@ impl BufferedDraw for Actor {
             } else {
                 self.body.position
             };
-            if self.noise_level != NoiseLevel::None {
-                draw_aligned_text(
-                    &format!("noise level: {}", self.noise_level.to_string()),
-                    center_position.x,
-                    self.body.position.y - 50.0,
-                    HorizontalAlignment::Center,
-                    VerticalAlignment::Center,
-                    TextParams {
-                        ..Default::default()
-                    },
-                )
-            }
-            if let Some(action) = &self.behavior.current_action {
-                draw_aligned_text(
-                    action,
-                    center_position.x,
-                    center_position.y + 16.0,
-                    HorizontalAlignment::Center,
-                    VerticalAlignment::Top,
-                    Default::default(),
-                );
-            }
-            draw_circle_lines(
-                self.body.position.x,
-                self.body.position.y,
-                self.stats.view_distance,
-                2.0,
-                color::RED,
-            );
-            if self.noise_level != NoiseLevel::None {
-                draw_circle_lines(
-                    self.body.position.x,
-                    self.body.position.y,
-                    self.noise_level.to_range(),
-                    2.0,
-                    color::YELLOW,
-                )
-            }
+            // if self.noise_level != NoiseLevel::None {
+            //     draw_aligned_text(
+            //         &format!("noise level: {}", self.noise_level.to_string()),
+            //         center_position.x,
+            //         self.body.position.y - 50.0,
+            //         HorizontalAlignment::Center,
+            //         VerticalAlignment::Center,
+            //         TextParams {
+            //             ..Default::default()
+            //         },
+            //     )
+            // }
+            // if let Some(action) = &self.behavior.current_action {
+            //     draw_aligned_text(
+            //         action,
+            //         center_position.x,
+            //         center_position.y + 16.0,
+            //         HorizontalAlignment::Center,
+            //         VerticalAlignment::Top,
+            //         Default::default(),
+            //     );
+            // }
+            // draw_circle_lines(
+            //     self.body.position.x,
+            //     self.body.position.y,
+            //     self.stats.view_distance,
+            //     2.0,
+            //     color::RED,
+            // );
+            // if self.noise_level != NoiseLevel::None {
+            //     draw_circle_lines(
+            //         self.body.position.x,
+            //         self.body.position.y,
+            //         self.noise_level.to_range(),
+            //         2.0,
+            //         color::YELLOW,
+            //     )
+            // }
         }
     }
 
@@ -828,7 +836,7 @@ impl Node for Actor {
                     if let Some(other_collider) = actor.body.get_offset_collider() {
                         if collider.overlaps(other_collider) {
                             if let ActorControllerKind::Computer = actor.controller.kind {
-                                if actor.behavior.is_in_combat == false {
+                                if actor.controller.is_attacking() == false {
                                     node.current_dialogue = actor.dialogue.clone();
                                     node.controller.should_start_interaction = false; // stop this form firing twice
                                     break;

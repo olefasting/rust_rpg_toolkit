@@ -38,6 +38,11 @@ pub use serde::{
 
 pub use serde_json;
 
+pub use mode::{
+    self,
+    Automaton,
+};
+
 pub use crate::{
     versions::{
         get_toolkit_version,
@@ -82,13 +87,11 @@ pub use crate::{
         actor::{
             Actor,
             ActorParams,
-            ActorBehavior,
             ActorBehaviorParams,
             ActorStats,
             ActorController,
             ActorControllerKind,
-            apply_behavior,
-            update_pathfinding,
+
         },
         LightSource,
         Camera,

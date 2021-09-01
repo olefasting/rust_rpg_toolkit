@@ -635,6 +635,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "macroquad-particles"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8505dc035e4d68799a53a459afef0bc345410039325b5928af2e0d83eb15de40"
+dependencies = [
+ "macroquad",
+ "nanoserde",
+]
+
+[[package]]
 name = "macroquad_macro"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -694,6 +704,12 @@ dependencies = [
  "adler",
  "autocfg",
 ]
+
+[[package]]
+name = "mode"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "86d255527a1f15a7ad1d288a2bfdf7e465f85f66b18923b77fbe7cb3a9673cca"
 
 [[package]]
 name = "nanoserde"
@@ -1005,6 +1021,8 @@ dependencies = [
  "gilrs",
  "hex",
  "macroquad",
+ "macroquad-particles",
+ "mode",
  "quad-storage",
  "regex",
  "serde",

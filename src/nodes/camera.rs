@@ -117,7 +117,7 @@ impl Node for Camera {
     fn draw(node: RefMut<Self>) where Self: Sized {
         scene::set_camera(Camera2D {
             offset: vec2(0.0, 0.0),
-            target: vec2(node.position.x, node.position.y),
+            target: vec2(node.position.x.round(), node.position.y.round()),
             zoom: vec2(node.scale / screen_width(), node.scale / screen_height()) * 2.0,
             rotation: node.rotation,
             render_target: Some(node.render_target),
