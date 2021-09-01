@@ -50,6 +50,7 @@ pub struct ActorBehavior {
     pub current_path: Option<NavigationPath>,
     investigating: Option<(f32, Vec2)>,
     investigate_cooldown_timer: f32,
+    collision_cnt: u32,
 }
 
 impl ActorBehavior {
@@ -66,32 +67,38 @@ impl ActorBehavior {
             investigating: None,
             investigate_cooldown_timer: INVESTIGATE_COOLDOWN,
             current_path: None,
+            collision_cnt: 0,
         }
     }
 }
 
 const ATTACK_FORGET_AFTER: f32 = 25.0;
-const GO_TO_STOP_THRESHOLD: f32 = 8.0;
+const DESTINATION_REACHED_THRESHOLD: f32 = 16.0;
 const INVESTIGATE_COOLDOWN: f32 = 15.0;
 const INVESTIGATE_FORGET_AFTER: f32 = 15.0;
+const DROP_PATH_AFTER_COLLISIONS: u32 = 60;
 
 fn go_to(actor: &mut Actor, target: Vec2) {
     actor.behavior.current_action = Some(format!("go to {}", target.to_string()));
-    if actor.body.position.distance(target) > GO_TO_STOP_THRESHOLD {
-        actor.controller.move_direction = target.sub(actor.body.position).normalize_or_zero();
-    } else {
-        actor.controller.move_direction = Vec2::ZERO;
+    if actor.body.position.distance(target) <= DESTINATION_REACHED_THRESHOLD {
+        actor.behavior.current_path = None;
+    } else if actor.behavior.current_path.is_none() {
+        let game_state = scene::find_node_by_type::<GameState>().unwrap();
+        let path = game_state.map.get_path(actor.body.position, target);
+        actor.behavior.current_path = Some(path);
     }
 }
 
 fn investigate(actor: &mut Actor, target: Vec2) {
     actor.behavior.current_action = Some(format!("investigating {}", target.to_string()));
     if actor.is_target_visible(target) {
-        actor.controller.move_direction = Vec2::ZERO;
-        actor.behavior.investigate_cooldown_timer = 0.0;
+        actor.behavior.current_path = None;
         actor.behavior.investigating = None;
-    } else {
-        actor.controller.move_direction = target.sub(actor.body.position).normalize_or_zero();
+        actor.behavior.investigate_cooldown_timer = 0.0;
+    } else if actor.behavior.current_path.is_none() {
+        let game_state = scene::find_node_by_type::<GameState>().unwrap();
+        let path = game_state.map.get_path(actor.body.position, target);
+        actor.behavior.current_path = Some(path);
     }
 }
 
@@ -150,35 +157,81 @@ fn flee(actor: &mut Actor, target: Vec2) {
 fn attack(actor: &mut Actor, target: Vec2) {
     actor.behavior.is_in_combat = true;
     actor.behavior.current_action = Some(format!("attack"));
-    let distance = actor.body.position.distance(target);
-    let mut direction = target.sub(actor.body.position).normalize_or_zero();
-    if distance < actor.stats.view_distance * 0.8 {
-        if let Some(ability) = actor.primary_ability.as_mut() {
-            if distance < ability.range * 0.9 {
-                actor.controller.aim_direction = direction;
-                direction = Vec2::ZERO;
-                actor.controller.should_use_primary_ability = true;
-            }
-        } else if let Some(ability) = actor.secondary_ability.as_mut() {
-            if distance < ability.range * 0.9 {
-                actor.controller.aim_direction = direction;
-                direction = Vec2::ZERO;
-                actor.controller.should_use_secondary_ability = true;
+
+    let position = actor.body.position;
+    let distance = position.distance(target);
+
+    let mut ability = None;
+    if actor.primary_ability.is_some() {
+        ability = actor.primary_ability.as_mut();
+    } else if actor.secondary_ability.is_some() {
+        ability = actor.secondary_ability.as_mut();
+    }
+
+    if let Some(ability) = ability {
+        if distance > ability.range * 0.8 {
+            if actor.behavior.current_path.is_none() {
+                let game_state = scene::find_node_by_type::<GameState>().unwrap();
+                let path = game_state.map.get_path(position, target);
+                actor.behavior.current_path = Some(path);
             }
         } else {
-            equip_weapon(actor);
+            actor.controller.aim_direction = target.sub(position).normalize_or_zero();
+            actor.controller.move_direction = Vec2::ZERO;
+            actor.behavior.current_path = None;
+            actor.controller.should_use_primary_ability = true;
+        }
+    } else {
+        return equip_weapon(actor);
+    }
+
+    if actor.controller.is_attacking() == false {
+        actor.controller.aim_direction = actor.controller.move_direction;
+    }
+}
+
+pub fn update_pathfinding(actor: &mut Actor) {
+    let mut direction = actor.controller.move_direction;
+    let position = actor.body.position;
+
+    let mut node = None;
+    if let Some(path) = actor.behavior.current_path.as_mut() {
+        if let Some(next) = path.nodes.first().cloned() {
+            if position.distance(next) <= DESTINATION_REACHED_THRESHOLD {
+                path.nodes.remove(0);
+                node = path.nodes.first().cloned();
+            } else {
+                node = Some(next);
+            }
         }
     }
+
+    if let Some(node) = node {
+        direction = node.sub(position).normalize_or_zero();
+    } else {
+        actor.behavior.current_path = None;
+    }
+
     actor.controller.move_direction = direction;
 }
 
-pub fn apply_actor_behavior(actor: &mut Actor) {
-    actor.behavior.is_in_combat = false;
+pub fn apply_behavior(actor: &mut Actor) {
     actor.controller.should_use_primary_ability = false;
     actor.controller.should_use_secondary_ability = false;
 
+    if actor.body.last_collisions.len() > 0 {
+        actor.behavior.collision_cnt += 1;
+        if actor.behavior.collision_cnt >= DROP_PATH_AFTER_COLLISIONS {
+            actor.behavior.current_path = None;
+            actor.behavior.collision_cnt = 0;
+        }
+    } else {
+        actor.behavior.collision_cnt = 0;
+    }
+
     let dt = get_frame_time();
     actor.behavior.investigate_cooldown_timer += dt;
+
     if let Some((timer, target)) = actor.behavior.investigating {
         let timer = timer + dt;
         if timer >= INVESTIGATE_FORGET_AFTER {
@@ -199,6 +252,7 @@ pub fn apply_actor_behavior(actor: &mut Actor) {
     let mut hostiles = Vec::new();
     let mut allies = Vec::new();
     let mut unknowns = Vec::new();
+
     'node: for other in scene::find_nodes_by_type::<Actor>() {
         let distance = actor.body.position.distance(other.body.position);
         if let Some((_, attacker_id)) = actor.behavior.last_attacked_by.clone() {
@@ -207,6 +261,7 @@ pub fn apply_actor_behavior(actor: &mut Actor) {
                 continue 'node;
             }
         }
+
         if actor.is_target_visible(other.body.position) {
             for faction in &actor.factions {
                 if other.factions.contains(faction) {
@@ -228,13 +283,6 @@ pub fn apply_actor_behavior(actor: &mut Actor) {
 
     unknowns.sort_by(|a, b| a.noise_level.cmp(&b.noise_level));
 
-   // if actor.behavior.current_path.is_none() {
-   //     let game_state = scene::find_node_by_type::<GameState>().unwrap();
-   //     let p1 = game_state.map.to_coords(actor.body.position);
-   //     let p2 = game_state.map.to_coords(target);
-   //     actor.behavior.current_path = game_state.map.get_path(p1, p2);
-   // }
-
     match actor.behavior.aggression {
         ActorAggression::Passive => {
             if let Some((_, actor_id)) = actor.behavior.last_attacked_by.clone() {
@@ -242,7 +290,7 @@ pub fn apply_actor_behavior(actor: &mut Actor) {
                     return flee(actor, attacker.body.position);
                 }
             }
-        },
+        }
         ActorAggression::Neutral => {
             if let Some((_, actor_id)) = actor.behavior.last_attacked_by.clone() {
                 if let Some(attacker) = hostiles.iter().find(|hostile| hostile.id == actor_id) {
@@ -253,7 +301,7 @@ pub fn apply_actor_behavior(actor: &mut Actor) {
                     }
                 }
             }
-        },
+        }
         ActorAggression::Aggressive => {
             if let Some((_, actor_id)) = actor.behavior.last_attacked_by.clone() {
                 if let Some(attacker) = hostiles.iter().find(|hostile| hostile.id == actor_id) {
@@ -269,14 +317,15 @@ pub fn apply_actor_behavior(actor: &mut Actor) {
                     return attack(actor, hostile.body.position);
                 }
             }
-        },
+        }
     }
 
     if actor.behavior.is_on_guard && actor.behavior.investigate_cooldown_timer >= INVESTIGATE_COOLDOWN {
         if let Some((_, target)) = actor.behavior.investigating {
             return investigate(actor, target);
         } else if let Some(unknown) = unknowns.first() {
-            actor.behavior.investigating = Some((0.0, unknown.body.position));
+            let target = (0.0, unknown.body.position);
+            actor.behavior.investigating = Some(target);
             return investigate(actor, unknown.body.position);
         }
     }

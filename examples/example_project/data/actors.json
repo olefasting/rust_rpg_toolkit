@@ -201,7 +201,7 @@
     "perception": 8,
     "charisma": 6,
     "items": [
-      "pistol"
+      "sub_machine_gun"
     ],
     "credits": 25,
     "collider": {
@@ -262,7 +262,7 @@
     "perception": 8,
     "charisma": 6,
     "items": [
-      "shock_baton"
+      "pistol"
     ],
     "credits": 25,
     "collider": {

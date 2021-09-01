@@ -3,7 +3,6 @@ use std::ops::Sub;
 use macroquad::{
     experimental::{
         collections::storage,
-        scene::RefMut,
     },
     prelude::*,
 };
@@ -85,15 +84,15 @@ pub fn update_input() {
     }
 }
 
-pub fn apply_input(player_id: &str, node: &mut RefMut<Actor>) {
+pub fn apply_input(player_id: &str, actor: &mut Actor) {
     let mut game_state = scene::find_node_by_type::<GameState>().unwrap();
 
-    node.controller.should_use_primary_ability = false;
-    node.controller.should_use_secondary_ability = false;
-    node.controller.move_direction = Vec2::ZERO;
-    node.controller.should_start_interaction = false;
-    node.controller.should_pick_up_items = false;
-    node.controller.should_sprint = node.controller.is_sprint_locked && node.controller.should_sprint;
+    actor.controller.should_use_primary_ability = false;
+    actor.controller.should_use_secondary_ability = false;
+    actor.controller.move_direction = Vec2::ZERO;
+    actor.controller.should_start_interaction = false;
+    actor.controller.should_pick_up_items = false;
+    actor.controller.should_sprint = actor.controller.is_sprint_locked && actor.controller.should_sprint;
 
     if let Some(gamepad_id) = get_gamepad_id(player_id) {
         for event in InputEventIterator::new(gamepad_id) {
@@ -105,15 +104,15 @@ pub fn apply_input(player_id: &str, node: &mut RefMut<Actor>) {
                             if value > 0.0 {
                                 if game_state.should_show_game_menu {
                                     game_state.should_show_game_menu = false;
-                                } else if node.current_dialogue.is_some() {
-                                    node.current_dialogue = None;
+                                } else if actor.current_dialogue.is_some() {
+                                    actor.current_dialogue = None;
                                 }
                             }
                         },
                         Button::North => {},
                         Button::West => {
                             if value > 0.0 {
-                                node.controller.should_start_interaction = true;
+                                actor.controller.should_start_interaction = true;
                             }
                         },
                         Button::C => {},
@@ -143,8 +142,8 @@ pub fn apply_input(player_id: &str, node: &mut RefMut<Actor>) {
                         Button::LeftThumb => {},
                         Button::RightThumb => {
                             if value > 0.0 {
-                                node.controller.should_sprint = !node.controller.should_sprint;
-                                node.controller.is_sprint_locked = node.controller.should_sprint;
+                                actor.controller.should_sprint = !actor.controller.should_sprint;
+                                actor.controller.is_sprint_locked = actor.controller.should_sprint;
                             }
                         },
                         Button::DPadUp => {},
@@ -157,10 +156,10 @@ pub fn apply_input(player_id: &str, node: &mut RefMut<Actor>) {
                 EventType::AxisChanged(axis, value, _code) => {
                     match axis {
                         Axis::LeftStickX => {
-                            node.controller.move_direction.x = value;
+                            actor.controller.move_direction.x = value;
                         },
                         Axis::LeftStickY => {
-                            node.controller.move_direction.y = value;
+                            actor.controller.move_direction.y = value;
                         },
                         Axis::LeftZ => {}
                         Axis::RightStickX => {},
@@ -186,17 +185,17 @@ pub fn apply_input(player_id: &str, node: &mut RefMut<Actor>) {
         let gamepad = get_gamepad(gamepad_id);
 
         if let Some(axis_data) = gamepad.axis_data(Axis::LeftStickX) {
-            node.controller.move_direction.x = axis_data.value();
+            actor.controller.move_direction.x = axis_data.value();
         }
         if let Some(axis_data) = gamepad.axis_data(Axis::LeftStickY) {
-            node.controller.move_direction.y = -axis_data.value();
+            actor.controller.move_direction.y = -axis_data.value();
         }
 
         let mut aim_changed = false;
         if let Some(axis_data) = gamepad.axis_data(Axis::LeftZ) {
             let value = axis_data.value();
             if value != 0.0 {
-                node.controller.aim_direction.x = value;
+                actor.controller.aim_direction.x = value;
                 aim_changed = true;
             }
         }
@@ -204,62 +203,62 @@ pub fn apply_input(player_id: &str, node: &mut RefMut<Actor>) {
         if let Some(axis_data) = gamepad.axis_data(Axis::RightZ) {
             let value = axis_data.value();
             if value != 0.0 {
-                node.controller.aim_direction.y = value;
+                actor.controller.aim_direction.y = value;
                 aim_changed = true;
             }
         }
 
-        if aim_changed == false && node.controller.move_direction != Vec2::ZERO {
-            node.controller.aim_direction = node.controller.move_direction;
+        if aim_changed == false && actor.controller.move_direction != Vec2::ZERO {
+            actor.controller.aim_direction = actor.controller.move_direction;
         }
 
-        node.controller.should_use_primary_ability = gamepad.is_pressed(Button::RightTrigger);
-        node.controller.should_use_secondary_ability = gamepad.is_pressed(Button::LeftTrigger);
+        actor.controller.should_use_primary_ability = gamepad.is_pressed(Button::RightTrigger);
+        actor.controller.should_use_secondary_ability = gamepad.is_pressed(Button::LeftTrigger);
 
-        if node.controller.is_sprint_locked == false {
-            node.controller.should_sprint = gamepad.is_pressed(Button::East);
+        if actor.controller.is_sprint_locked == false {
+            actor.controller.should_sprint = gamepad.is_pressed(Button::East);
         }
 
-        node.controller.should_pick_up_items = gamepad.is_pressed(Button::North);
+        actor.controller.should_pick_up_items = gamepad.is_pressed(Button::North);
     } else {
         let mouse_position = get_mouse_in_world_space();
 
-        node.controller.should_use_primary_ability = is_mouse_button_down(MouseButton::Left);
-        node.controller.should_use_secondary_ability = is_mouse_button_down(MouseButton::Right);
+        actor.controller.should_use_primary_ability = is_mouse_button_down(MouseButton::Left);
+        actor.controller.should_use_secondary_ability = is_mouse_button_down(MouseButton::Right);
 
-        node.controller.move_direction = Vec2::ZERO;
+        actor.controller.move_direction = Vec2::ZERO;
         if is_key_down(KeyCode::Up) || is_key_down(KeyCode::W) {
-            node.controller.move_direction.y -= 1.0;
+            actor.controller.move_direction.y -= 1.0;
         }
         if is_key_down(KeyCode::Down) || is_key_down(KeyCode::S) {
-            node.controller.move_direction.y += 1.0;
+            actor.controller.move_direction.y += 1.0;
         }
         if is_key_down(KeyCode::Left) || is_key_down(KeyCode::A) {
-            node.controller.move_direction.x -= 1.0;
+            actor.controller.move_direction.x -= 1.0;
         }
         if is_key_down(KeyCode::Right) || is_key_down(KeyCode::D) {
-            node.controller.move_direction.x += 1.0;
+            actor.controller.move_direction.x += 1.0;
         }
 
         if is_key_pressed(KeyCode::CapsLock) {
-            node.controller.is_sprint_locked = !node.controller.is_sprint_locked;
+            actor.controller.is_sprint_locked = !actor.controller.is_sprint_locked;
         }
 
-        if node.controller.should_use_primary_ability || node.controller.should_use_secondary_ability {
-            node.controller.aim_direction = mouse_position.sub(node.body.position).normalize_or_zero();
+        if actor.controller.should_use_primary_ability || actor.controller.should_use_secondary_ability {
+            actor.controller.aim_direction = mouse_position.sub(actor.body.position).normalize_or_zero();
         } else {
-            node.controller.aim_direction = node.controller.move_direction;
+            actor.controller.aim_direction = actor.controller.move_direction;
         }
 
-        if node.controller.is_sprint_locked {
-            node.controller.should_sprint = true;
+        if actor.controller.is_sprint_locked {
+            actor.controller.should_sprint = true;
         } else {
-            node.controller.should_sprint = is_key_down(KeyCode::LeftShift);
+            actor.controller.should_sprint = is_key_down(KeyCode::LeftShift);
         }
 
-        node.controller.should_start_interaction = is_key_released(KeyCode::F);
+        actor.controller.should_start_interaction = is_key_released(KeyCode::F);
 
-        node.controller.should_pick_up_items = is_key_down(KeyCode::R);
+        actor.controller.should_pick_up_items = is_key_down(KeyCode::R);
 
         if is_key_released(KeyCode::C) {
             game_state.should_show_character_window = !game_state.should_show_character_window;
@@ -273,11 +272,11 @@ pub fn apply_input(player_id: &str, node: &mut RefMut<Actor>) {
         }
 
         if is_key_released(KeyCode::Escape) {
-            if node.current_dialogue.is_some()
+            if actor.current_dialogue.is_some()
                 || game_state.should_show_inventory_window
                 || game_state.should_show_character_window
                 || game_state.should_show_game_menu {
-                node.current_dialogue = None;
+                actor.current_dialogue = None;
                 game_state.should_show_inventory_window = false;
                 game_state.should_show_character_window = false;
                 game_state.should_show_game_menu = false;

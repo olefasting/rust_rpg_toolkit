@@ -140189,12 +140189,12 @@
             "y": 253.0
           },
           "properties": {
-            "prototype_id": {
-              "value": "enemy_thug",
-              "type": "string"
-            },
             "instance_id": {
               "value": "thug_03",
+              "type": "string"
+            },
+            "prototype_id": {
+              "value": "enemy_thug",
               "type": "string"
             }
           }
@@ -140206,11 +140206,11 @@
             "y": 546.3333
           },
           "properties": {
-            "instance_id": {
+            "prototype_id": {
               "value": "guard_boss",
               "type": "string"
             },
-            "prototype_id": {
+            "instance_id": {
               "value": "guard_boss",
               "type": "string"
             }
@@ -140302,30 +140302,6 @@
   ],
   "tilesets": [
     {
-      "id": "neo_zero_props",
-      "texture_id": "props",
-      "texture_size": {
-        "x": 160,
-        "y": 160
-      },
-      "tile_size": {
-        "x": 16,
-        "y": 16
-      },
-      "grid_size": {
-        "x": 10,
-        "y": 10
-      },
-      "first_tile_id": 401,
-      "tile_cnt": 100,
-      "properties": {
-        "texture_id": {
-          "value": "props",
-          "type": "string"
-        }
-      }
-    },
-    {
       "id": "neo_zero_tiles",
       "texture_id": "tiles",
       "texture_size": {
@@ -140345,6 +140321,30 @@
       "properties": {
         "texture_id": {
           "value": "tiles",
+          "type": "string"
+        }
+      }
+    },
+    {
+      "id": "neo_zero_props",
+      "texture_id": "props",
+      "texture_size": {
+        "x": 160,
+        "y": 160
+      },
+      "tile_size": {
+        "x": 16,
+        "y": 16
+      },
+      "grid_size": {
+        "x": 10,
+        "y": 10
+      },
+      "first_tile_id": 401,
+      "tile_cnt": 100,
+      "properties": {
+        "texture_id": {
+          "value": "props",
           "type": "string"
         }
       }

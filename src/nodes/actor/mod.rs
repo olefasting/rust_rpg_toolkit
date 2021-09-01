@@ -4,7 +4,8 @@ pub use behavior::{
     ActorAggression,
     ActorBehavior,
     ActorBehaviorParams,
-    apply_actor_behavior,
+    apply_behavior,
+    update_pathfinding,
 };
 pub use controller::{
     ActorController,
@@ -119,7 +120,7 @@ impl Into<SavedCharacter> for ActorParams {
         }
 
         let current_chapter_index = 0;
-        let current_map_id= resources.chapters
+        let current_map_id = resources.chapters
             .get(current_chapter_index)
             .unwrap()
             .initial_map_id
@@ -310,7 +311,7 @@ impl Actor {
             current_dialogue: None,
             animation_player: SpriteAnimationPlayer::new(export.actor.animation_player),
             noise_level_timer: 0.0,
-            can_level_up: export.actor.can_level_up
+            can_level_up: export.actor.can_level_up,
         }
     }
 
@@ -441,8 +442,19 @@ impl Actor {
         }
     }
 
-    fn apply_behavior(&mut self) {
-        apply_actor_behavior(self)
+    fn update_controller(&mut self) {
+        let controller_kind = self.controller.kind.clone();
+        match controller_kind {
+            ActorControllerKind::LocalPlayer { player_id } => {
+                apply_input(&player_id, self);
+            }
+            ActorControllerKind::RemotePlayer { player_id: _ } => {}
+            ActorControllerKind::Computer => {
+                apply_behavior(self);
+                update_pathfinding(self);
+            }
+            ActorControllerKind::None => {}
+        }
     }
 
     fn update_noise_level(&mut self) {
@@ -481,40 +493,51 @@ impl Actor {
                 }
             }
         }
-        let mut completed_missions = active_missions.drain_filter(|mission| {
-            if mission.no_autocompletion && mission.is_completed == false {
-                return false;
-            }
-            for (_, is_completed) in &mission.objectives {
-                if *is_completed == false {
+
+        let mut completed_missions: Vec<Mission> = active_missions.drain_filter(|mission| {
+            for (_, is_completed) in mission.objectives.clone() {
+                if is_completed == false {
                     return false;
                 }
             }
-            true
-        }).collect::<Vec<Mission>>();
-        let resources = storage::get::<Resources>();
-        for mission in &completed_missions {
-            for reward in &mission.rewards {
-                match reward {
-                    MissionReward::Item { prototype_id, amount } => {
-                        let params = resources.items.get(prototype_id).unwrap();
-                        for _ in 0..*amount {
-                            self.inventory.add_item(params.clone());
+
+            if mission.no_autocompletion == false {
+                mission.is_completed = true;
+            }
+
+            if mission.is_completed {
+                let resources = storage::get::<Resources>();
+                for reward in &mission.rewards {
+                    match reward {
+                        MissionReward::Item { prototype_id, amount } => {
+                            let params = resources.items.get(prototype_id).unwrap();
+                            for _ in 0..*amount {
+                                self.inventory.add_item(params.clone());
+                            }
+                        }
+                        MissionReward::Credits { amount } => {
+                            self.inventory.add_credits(*amount);
+                        }
+                        MissionReward::Experience { amount } => {
+                            self.add_experience(*amount);
                         }
                     }
-                    MissionReward::Credits { amount } => {
-                        self.inventory.add_credits(*amount);
-                    }
-                    MissionReward::Experience { amount } => {
-                        self.add_experience(*amount);
-                    }
                 }
+
+                return true;
             }
+
+            false
+        }).collect();
+
+        let resources = storage::get::<Resources>();
+        for mission in &completed_missions {
             for next_id in mission.next_mission_ids.clone() {
                 let params = resources.missions.get(&next_id).cloned().unwrap();
                 active_missions.push(Mission::new(params));
             }
         }
+
         self.active_missions = active_missions;
         self.completed_missions.append(&mut completed_missions);
     }
@@ -754,39 +777,30 @@ impl Node for Actor {
         if let Some(ability) = node.secondary_ability.as_mut() {
             ability.update();
         }
+
+        node.update_controller();
+
         {
-            let controller_kind = node.controller.kind.clone();
-            match controller_kind {
-                ActorControllerKind::LocalPlayer { player_id } => {
-                    apply_input(&player_id, &mut node);
+            let controller = node.controller.clone();
+            node.set_animation(controller.aim_direction, controller.move_direction == Vec2::ZERO);
+
+            if controller.should_use_primary_ability {
+                let mut primary_ability = node.primary_ability.clone();
+                let position = node.body.position.clone();
+                if let Some(ability) = &mut primary_ability {
+                    ability.activate(&mut *node, position, controller.aim_direction);
                 }
-                ActorControllerKind::RemotePlayer { player_id: _ } => {}
-                ActorControllerKind::Computer => {
-                    node.apply_behavior();
+                node.primary_ability = primary_ability;
+            }
+
+            if controller.should_use_primary_ability {
+                let mut secondary_ability = node.secondary_ability.clone();
+                let position = node.body.position.clone();
+                if let Some(ability) = &mut secondary_ability {
+                    ability.activate(&mut *node, position, controller.aim_direction);
                 }
-                ActorControllerKind::None => {}
+                node.secondary_ability = secondary_ability;
             }
-        }
-
-        let controller = node.controller.clone();
-        node.set_animation(controller.aim_direction, controller.move_direction == Vec2::ZERO);
-
-        if controller.should_use_primary_ability {
-            let mut primary_ability = node.primary_ability.clone();
-            let position = node.body.position.clone();
-            if let Some(ability) = &mut primary_ability {
-                ability.activate(&mut *node, position, controller.aim_direction);
-            }
-            node.primary_ability = primary_ability;
-        }
-
-        if controller.should_use_primary_ability {
-            let mut secondary_ability = node.secondary_ability.clone();
-            let position = node.body.position.clone();
-            if let Some(ability) = &mut secondary_ability {
-                ability.activate(&mut *node, position, controller.aim_direction);
-            }
-            node.secondary_ability = secondary_ability;
         }
 
         let collider = Collider::circle(0.0, 0.0, Self::PICK_UP_RADIUS).offset(node.body.position);
@@ -835,7 +849,7 @@ impl Node for Actor {
             }
         }
 
-        let direction = node.controller.move_direction.normalize_or_zero();
+        let direction = node.controller.move_direction;
         node.body.velocity = if direction != Vec2::ZERO {
             direction * if node.inventory.get_total_weight() >= node.stats.carry_capacity {
                 node.set_noise_level(Self::MOVE_NOISE_LEVEL);

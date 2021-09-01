@@ -129,7 +129,6 @@ impl Ability {
     }
 
     pub fn activate(&mut self, actor: &mut Actor, origin: Vec2, direction: Vec2) {
-        let direction = direction.normalize_or_zero();
         if self.cooldown_timer >= self.cooldown
             && (self.health_cost == 0.0 || actor.stats.current_health >= self.health_cost)
             && (self.stamina_cost == 0.0 || actor.stats.current_stamina >= self.stamina_cost)

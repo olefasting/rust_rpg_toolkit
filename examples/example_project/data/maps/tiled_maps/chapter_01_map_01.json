@@ -346,6 +346,78 @@
                  "width":0,
                  "x":1371,
                  "y":856
+                }, 
+                {
+                 "height":0,
+                 "id":33,
+                 "name":"thug",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"prototype_id",
+                         "type":"string",
+                         "value":"enemy_thug"
+                        }],
+                 "rotation":0,
+                 "type":"spawn_point",
+                 "visible":true,
+                 "width":0,
+                 "x":1632,
+                 "y":764
+                }, 
+                {
+                 "height":0,
+                 "id":34,
+                 "name":"thug",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"prototype_id",
+                         "type":"string",
+                         "value":"enemy_thug"
+                        }],
+                 "rotation":0,
+                 "type":"spawn_point",
+                 "visible":true,
+                 "width":0,
+                 "x":1441,
+                 "y":885
+                }, 
+                {
+                 "height":0,
+                 "id":35,
+                 "name":"thug",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"prototype_id",
+                         "type":"string",
+                         "value":"enemy_thug"
+                        }],
+                 "rotation":0,
+                 "type":"spawn_point",
+                 "visible":true,
+                 "width":0,
+                 "x":1527,
+                 "y":701
+                }, 
+                {
+                 "height":0,
+                 "id":36,
+                 "name":"thug",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"prototype_id",
+                         "type":"string",
+                         "value":"enemy_thug"
+                        }],
+                 "rotation":0,
+                 "type":"spawn_point",
+                 "visible":true,
+                 "width":0,
+                 "x":1453,
+                 "y":694
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -388,7 +460,7 @@
          "y":0
         }],
  "nextlayerid":13,
- "nextobjectid":33,
+ "nextobjectid":37,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.7.2",
@@ -397,7 +469,7 @@
         {
          "columns":20,
          "firstgid":1,
-         "image":"..\/..\/textures\/neo_zero_tiles.png",
+         "image":"..\/..\/..\/assets\/textures\/neo_zero_tiles.png",
          "imageheight":320,
          "imagewidth":320,
          "margin":0,
@@ -416,7 +488,7 @@
         {
          "columns":10,
          "firstgid":401,
-         "image":"..\/..\/textures\/neo_zero_props.png",
+         "image":"..\/..\/..\/assets\/textures\/neo_zero_props.png",
          "imageheight":160,
          "imagewidth":160,
          "margin":0,
@@ -435,7 +507,7 @@
         {
          "columns":4,
          "firstgid":501,
-         "image":"..\/..\/textures\/items.png",
+         "image":"..\/..\/..\/assets\/textures\/items.png",
          "imageheight":64,
          "imagewidth":64,
          "margin":0,

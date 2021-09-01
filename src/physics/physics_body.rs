@@ -35,6 +35,7 @@ impl PhysicsBody {
                         draw_circle_lines(x, y, r, 2.0, color::RED)
                 }
             }
+
             for (position, kind) in self.last_collisions.clone() {
                 draw_rectangle(
                     position.x,
@@ -43,6 +44,7 @@ impl PhysicsBody {
                     game_state.map.tile_size.y,
                     color::RED,
                 );
+
                 draw_aligned_text(
                     if kind == MapCollisionKind::Solid { "S" } else { "B" },
                     position.x + (game_state.map.tile_size.x / 2.0),
@@ -54,11 +56,13 @@ impl PhysicsBody {
                     },
                 );
             }
+
             let begin = if let Some(collider) = self.get_offset_collider() {
                 collider.get_center()
             } else {
                 self.position
             };
+
             let end = begin + self.velocity * 10.0;
             draw_line(
                 begin.x,
@@ -68,6 +72,7 @@ impl PhysicsBody {
                 2.0,
                 color::RED,
             );
+
             draw_aligned_text(
                 &format!("position: {}", self.position.to_string()),
                 screen_width() - 50.0,

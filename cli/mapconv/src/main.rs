@@ -6,7 +6,6 @@ use quicli::prelude::*;
 use structopt::StructOpt;
 
 use rust_rpg_toolkit::{
-    json::TiledMap,
     prelude::*,
 };
 
@@ -38,7 +37,7 @@ fn main() -> CliResult {
     let json = read_file(args.file)?;
     let tiled_map = serde_json::from_str(&json)?;
     let map = Map::from_tiled(&map_id, tiled_map);
-    map.save(args.output);
+    map.save(args.output).unwrap();
 
     println!("Success!");
 

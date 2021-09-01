@@ -332,36 +332,31 @@ impl Map {
         }
     }
 
-    pub fn get_path(&self, start: UVec2, end: UVec2) -> Option<NavigationPath> {
-        let start = Point::new(start.x, start.y);
-        let end = Point::new(end.x, end.y);
+    pub fn get_path(&self, start: Vec2, end: Vec2) -> NavigationPath {
+        let p1 = self.to_coords(start);
+        let p2 = self.to_coords(end);
 
-        let res = a_star_search(
-            self.point2d_to_index(start),
-            self.point2d_to_index(end),
+        let path = a_star_search(
+            self.point2d_to_index(Point::new(p1.x, p1.y)),
+            self.point2d_to_index(Point::new(p2.x, p2.y)),
             self,
         );
 
-        if res.success {
-            let p = self.index_to_point2d(res.destination);
-            let destination = self.to_position(uvec2(p.x as u32, p.y as u32));
-            let nodes = res.steps
-                .into_iter()
-                .map(|idx| {
-                    let p = self.index_to_point2d(idx);
-                    self.to_position(uvec2(p.x as u32, p.y as u32))
-                })
-                .collect();
+        let p = self.index_to_point2d(path.destination);
+        let destination = self.to_position(uvec2(p.x as u32, p.y as u32));
+        let nodes = path.steps
+            .into_iter()
+            .map(|idx| {
+                let p = self.index_to_point2d(idx);
+                self.to_position(uvec2(p.x as u32, p.y as u32))
+            })
+            .collect();
 
-            let path = NavigationPath {
-                destination,
-                nodes,
-            };
-
-            return Some(path);
+        NavigationPath {
+            destination,
+            nodes,
+            is_success: path.success,
         }
-
-        None
     }
 
     pub fn default_background_color() -> Color {
@@ -587,6 +582,7 @@ impl BaseMap for Map {
 
     fn get_available_exits(&self, idx: usize) -> SmallVec<[(usize, f32); 10]> {
         let len = (self.grid_size.x * self.grid_size.y) as i32;
+
         // N, E, S, W
         let indices = (
             idx as i32 - self.grid_size.x as i32,
@@ -595,7 +591,13 @@ impl BaseMap for Map {
             idx as i32 - 1,
         );
 
-        let mut exits = (indices.0 >= 0, indices.1 < len, indices.2 < len, indices.3 >= 0);
+        let mut exits = (
+            indices.0 >= 0 && indices.0 < len,
+            indices.1 >= 0 && indices.1 < len,
+            indices.2 >= 0 && indices.2 < len,
+            indices.3 >= 0 && indices.3 < len,
+        );
+
         for (_, layer) in &self.layers {
             match layer.collision {
                 MapCollisionKind::None => continue,
@@ -616,12 +618,14 @@ impl BaseMap for Map {
             }
         }
 
-        let mut result = SmallVec::new();
-        result.push((indices.0 as usize, if exits.0 { 1.0 } else { 0.0 }));
-        result.push((indices.1 as usize, if exits.1 { 1.0 } else { 0.0 }));
-        result.push((indices.2 as usize, if exits.2 { 1.0 } else { 0.0 }));
-        result.push((indices.3 as usize, if exits.3 { 1.0 } else { 0.0 }));
-        result
+        let result = vec![
+            (indices.0 as usize, if exits.0 { 1.0 } else { 0.0 }),
+            (indices.1 as usize, if exits.1 { 1.0 } else { 0.0 }),
+            (indices.2 as usize, if exits.2 { 1.0 } else { 0.0 }),
+            (indices.3 as usize, if exits.3 { 1.0 } else { 0.0 }),
+        ];
+
+        result.into()
     }
 
     fn get_pathing_distance(&self, idx1: usize, idx2: usize) -> f32 {
@@ -683,4 +687,5 @@ impl<'a> Iterator for MapTileIterator<'a> {
 pub struct NavigationPath {
     pub destination: Vec2,
     pub nodes: Vec<Vec2>,
+    pub is_success: bool,
 }

@@ -46,4 +46,9 @@ impl ActorController {
             is_sprint_locked: false,
         }
     }
+
+    pub fn is_attacking(&self) -> bool {
+        self.should_use_secondary_ability
+            || self.should_use_secondary_ability
+    }
 }

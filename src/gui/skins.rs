@@ -22,13 +22,13 @@ impl GuiSkins {
         let btn_01_hover = resources.images.get("btn_01_hover").unwrap();
         let btn_01_click = resources.images.get("btn_01_click").unwrap();
 
-        let btn_02 = resources.images.get("btn_02").unwrap();
-        let btn_02_hover = resources.images.get("btn_02_hover").unwrap();
-        let btn_02_click = resources.images.get("btn_02_click").unwrap();
-
-        let btn_03 = resources.images.get("btn_03").unwrap();
-        let btn_03_hover = resources.images.get("btn_03_hover").unwrap();
-        let btn_03_click = resources.images.get("btn_03_click").unwrap();
+        // let btn_02 = resources.images.get("btn_02").unwrap();
+        // let btn_02_hover = resources.images.get("btn_02_hover").unwrap();
+        // let btn_02_click = resources.images.get("btn_02_click").unwrap();
+        //
+        // let btn_03 = resources.images.get("btn_03").unwrap();
+        // let btn_03_hover = resources.images.get("btn_03_hover").unwrap();
+        // let btn_03_click = resources.images.get("btn_03_click").unwrap();
 
         let default = {
             let window_style = root_ui()
