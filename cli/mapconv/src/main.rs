@@ -5,9 +5,7 @@ use std::path::PathBuf;
 use quicli::prelude::*;
 use structopt::StructOpt;
 
-use rust_rpg_toolkit::{
-    prelude::*,
-};
+use rust_rpg_toolkit::prelude::*;
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "mapconv")]

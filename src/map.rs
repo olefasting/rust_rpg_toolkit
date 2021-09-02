@@ -260,7 +260,7 @@ impl Map {
     pub fn get_collisions(&self, collider: Collider) -> Vec<(Vec2, CollisionKind)> {
         let rect = self.to_grid(collider.with_padding(self.tile_size.x * 2.0).into());
         let mut collisions = Vec::new();
-        'layers: for (_, layer) in &self.layers {
+        for (_, layer) in &self.layers {
             if layer.is_visible {
                 if layer.collision != CollisionKind::None {
                     for (x, y, tile) in self.get_tiles(&layer.id, Some(rect)) {

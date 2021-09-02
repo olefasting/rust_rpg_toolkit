@@ -1,6 +1,12 @@
 pub use std::{
     collections::HashMap,
     iter::FromIterator,
+    ops::{
+        Add,
+        Sub,
+        Mul,
+        Div,
+    },
     fs,
     io,
 };
@@ -41,6 +47,7 @@ pub use serde_json;
 pub use mode::{
     self,
     Automaton,
+    Mode,
 };
 
 pub use crate::{
@@ -84,6 +91,13 @@ pub use crate::{
         deg_to_rad,
         rad_to_deg,
     },
+    behavior_sets::{
+        self,
+        DEFAULT_BEHAVIOR_SET_ID,
+        ActorBehaviorConstructor,
+        register_behavior_set,
+        get_behavior_set,
+    },
     nodes::{
         actor::{
             Actor,
@@ -92,7 +106,9 @@ pub use crate::{
             ActorStats,
             ActorController,
             ActorControllerKind,
-
+            ActorBehavior,
+            ActorBehaviorFamily,
+            ActorAggression,
         },
         LightSource,
         Camera,

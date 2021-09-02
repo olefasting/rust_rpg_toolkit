@@ -7,7 +7,6 @@ pub use behavior::{
     ActorBehavior,
     ActorBehaviorParams,
     ActorBehaviorFamily,
-    IdleMode,
 };
 pub use controller::{
     ActorController,
@@ -203,7 +202,9 @@ impl Actor {
 
         let inventory = Inventory::from_prototypes(&params.inventory);
 
-        let mode = Box::new(IdleMode {});
+        let behavior_set_id = &params.behavior.behavior_set_id;
+        let behavior_constructor = get_behavior_set(behavior_set_id)
+            .expect(&format!("No behavior set with id '{}' was found in the directory!", behavior_set_id));
 
         Actor {
             id: params.id.clone(),
@@ -226,7 +227,7 @@ impl Actor {
             animation_player: SpriteAnimationPlayer::new(params.animation_player.clone()),
             noise_level_timer: 0.0,
             can_level_up: params.can_level_up,
-            automaton: ActorBehaviorFamily::automaton_with_mode(mode),
+            automaton: ActorBehaviorFamily::automaton_with_mode(behavior_constructor()),
             game_state,
         }
     }
@@ -295,7 +296,9 @@ impl Actor {
             None
         };
 
-        let mode = Box::new(IdleMode {});
+        let behavior_set_id = &export.actor.behavior.behavior_set_id;
+        let behavior_constructor = get_behavior_set(&behavior_set_id)
+            .expect(&format!("No behavior set with id '{}' was found in the directory!", behavior_set_id));
 
         Actor {
             id: export.actor.id.clone(),
@@ -318,7 +321,7 @@ impl Actor {
             animation_player: SpriteAnimationPlayer::new(export.actor.animation_player),
             noise_level_timer: 0.0,
             can_level_up: export.actor.can_level_up,
-            automaton: ActorBehaviorFamily::automaton_with_mode(mode),
+            automaton: ActorBehaviorFamily::automaton_with_mode(behavior_constructor()),
             game_state,
         }
     }

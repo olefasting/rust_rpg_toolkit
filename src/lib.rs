@@ -26,3 +26,4 @@ pub mod game;
 pub mod prelude;
 pub mod inventory;
 pub mod noise_level;
+pub mod behavior_sets;
