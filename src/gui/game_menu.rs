@@ -20,6 +20,10 @@ pub fn draw_game_menu(game_state: &mut RefMut<GameState>) {
                 game_state.should_show_game_menu = false;
             }
 
+            if ui.button(None, "Main Menu") {
+                game_state.should_go_to_main_menu = true;
+            }
+
             if ui.button(None, "Quit") {
                 game_state.should_quit = true;
             }

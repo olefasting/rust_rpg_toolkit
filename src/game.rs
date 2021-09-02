@@ -1,8 +1,6 @@
 use crate::prelude::*;
 
 fn load_map(local_player_id: &str, transition: SceneTransition) {
-    scene::clear();
-
     let resources = storage::get::<Resources>();
     let SceneTransition { player, chapter_index, map_id } = transition;
 
@@ -220,18 +218,16 @@ pub async fn run_game(game_params: GameParams) {
     storage::store(gui_skins);
 
     let player_id = setup_local_player();
-
-    #[allow(unused_assignments)]
-        let mut scene_transition = match gui::draw_main_menu(&game_params).await {
-        MainMenuResult::StartGame(transition) =>
-            Some(transition),
-        MainMenuResult::Quit =>
-            None,
-    };
+    let mut scene_transition = None;
 
     'outer: loop {
+        scene::clear();
+
         if scene_transition.is_none() {
-            break 'outer;
+            scene_transition = match gui::draw_main_menu(&game_params).await {
+                MainMenuResult::StartGame(transition) => Some(transition),
+                MainMenuResult::Quit => break,
+            };
         }
 
         load_map(&player_id, scene_transition.clone().unwrap());
@@ -249,6 +245,11 @@ pub async fn run_game(game_params: GameParams) {
                     game_state.should_save_character = false;
                 }
 
+                if game_state.should_go_to_main_menu {
+                    scene_transition = None;
+                    continue 'outer;
+                }
+
                 if game_state.should_quit {
                     break 'outer;
                 }
@@ -262,7 +263,6 @@ pub async fn run_game(game_params: GameParams) {
             }
 
             if scene_transition.is_none() {
-                scene::clear();
                 break 'outer;
             }
 
@@ -270,6 +270,7 @@ pub async fn run_game(game_params: GameParams) {
         }
     }
 
+    scene::clear();
     let config = storage::get::<Config>();
     config.save(&game_params.config_path);
 }

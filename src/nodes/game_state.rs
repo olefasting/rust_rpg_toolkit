@@ -12,6 +12,7 @@ pub struct GameState {
     pub in_debug_mode: bool,
     pub scene_transition: Option<SceneTransitionParams>,
     pub should_save_character: bool,
+    pub should_go_to_main_menu: bool,
     pub should_quit: bool,
     character_save_timer: f32,
 }
@@ -29,6 +30,7 @@ impl GameState {
             scene_transition: None,
             should_quit: false,
             should_save_character: false,
+            should_go_to_main_menu: false,
             character_save_timer: 0.0,
         }
     }
