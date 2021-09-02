@@ -61,15 +61,16 @@
     }
   },
   {
-    "id": "neutral_guard",
+    "id": "aggressive_guard",
     "name": "Guard",
     "behavior": {
-      "aggression": "neutral",
+      "aggression": "aggressive",
       "is_stationary": true,
       "is_on_guard": true
     },
     "factions": [
-      "guards"
+      "guards",
+      "bystanders"
     ],
     "strength": 12,
     "dexterity": 12,
@@ -124,12 +125,13 @@
     "id": "guard_boss",
     "name": "Guard Boss",
     "behavior": {
-      "aggression": "neutral",
+      "aggression": "aggressive",
       "is_stationary": true,
       "is_on_guard": true
     },
     "factions": [
-      "guards"
+      "guards",
+      "bystanders"
     ],
     "strength": 12,
     "dexterity": 12,

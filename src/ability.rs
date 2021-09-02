@@ -128,27 +128,31 @@ impl Ability {
         }
     }
 
-    pub fn activate(&mut self, actor: &mut Actor, origin: Vec2, direction: Vec2) {
+    pub fn activate(&mut self, node: &mut RefMut<Actor>, origin: Vec2, direction: Vec2) {
         if self.cooldown_timer >= self.cooldown
-            && (self.health_cost == 0.0 || actor.stats.current_health >= self.health_cost)
-            && (self.stamina_cost == 0.0 || actor.stats.current_stamina >= self.stamina_cost)
-            && (self.energy_cost == 0.0 || actor.stats.current_energy >= self.energy_cost) {
+            && (self.health_cost == 0.0 || node.stats.current_health >= self.health_cost)
+            && (self.stamina_cost == 0.0 || node.stats.current_stamina >= self.stamina_cost)
+            && (self.energy_cost == 0.0 || node.stats.current_energy >= self.energy_cost) {
+            
             self.cooldown_timer = 0.0;
-            actor.set_noise_level(self.noise_level);
-            actor.stats.current_health -= self.health_cost;
-            actor.stats.current_stamina -= self.stamina_cost;
-            actor.stats.current_energy -= self.energy_cost;
+
+            node.set_noise_level(self.noise_level);
+            node.stats.current_health -= self.health_cost;
+            node.stats.current_stamina -= self.stamina_cost;
+            node.stats.current_energy -= self.energy_cost;
+
             match self.delivery.clone() {
                 AbilityDelivery::ContinuousBeam => {
                     let mut continuous_beams = scene::find_node_by_type::<ContinuousBeams>().unwrap();
-                    let end = actor.body.position + direction * self.range;
+                    let end = node.body.position + direction * self.range;
                     continuous_beams.spawn(
-                        &actor.id,
-                        &actor.factions,
+                        &node.id,
+                        node.handle(),
+                        &node.factions,
                         &self.effects,
                         self.color_override,
                         self.size_override,
-                        actor.body.position,
+                        node.body.position,
                         end,
                     );
                 },
@@ -159,8 +163,9 @@ impl Ability {
                 } => {
                     let mut projectiles = scene::find_node_by_type::<Projectiles>().unwrap();
                     projectiles.spawn(
-                        &actor.id,
-                        &actor.factions,
+                        &node.id,
+                        node.handle(),
+                        &node.factions,
                         projectile_kind,
                         &self.effects,
                         self.color_override,
@@ -178,8 +183,8 @@ impl Ability {
                 },
                 AbilityDelivery::Melee => {
                     let collider = Collider::circle(
-                        actor.body.position.x,
-                        actor.body.position.y,
+                        node.body.position.x,
+                        node.body.position.y,
                         self.range,
                     );
                     let mut hit_success = false;
@@ -197,7 +202,7 @@ impl Ability {
                         };
                         if hit_success {
                             for effect in self.effects.clone() {
-                                other_actor.apply_effect(&actor.id, &actor.factions, effect);
+                                other_actor.apply_effect(&node.id, node.handle(), &node.factions, effect);
                             }
                         }
                     }

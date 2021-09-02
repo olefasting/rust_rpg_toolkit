@@ -180163,25 +180163,25 @@
             "y": 248.0
           },
           "properties": {
-            "prototype_id": {
-              "value": "enemy_thug_boss",
-              "type": "string"
-            },
             "instance_id": {
               "value": "thug_01",
+              "type": "string"
+            },
+            "prototype_id": {
+              "value": "enemy_thug_boss",
               "type": "string"
             }
           }
         },
         {
-          "name": "neutral_guard",
+          "name": "guard",
           "position": {
-            "x": 1004.0,
-            "y": 537.3333
+            "x": 949.3333,
+            "y": 600.6667
           },
           "properties": {
             "prototype_id": {
-              "value": "neutral_guard",
+              "value": "aggressive_guard",
               "type": "string"
             }
           }
@@ -180221,7 +180221,7 @@
           }
         },
         {
-          "name": "neutral_guard",
+          "name": "guard_boss",
           "position": {
             "x": 927.0,
             "y": 546.3333
@@ -180328,6 +180328,32 @@
           "properties": {
             "prototype_id": {
               "value": "enemy_thug",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "name": "guard",
+          "position": {
+            "x": 1008.0,
+            "y": 538.0
+          },
+          "properties": {
+            "prototype_id": {
+              "value": "aggressive_guard",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "name": "guard",
+          "position": {
+            "x": 997.3333,
+            "y": 586.0
+          },
+          "properties": {
+            "prototype_id": {
+              "value": "aggressive_guard",
               "type": "string"
             }
           }

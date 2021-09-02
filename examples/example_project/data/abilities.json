@@ -15,7 +15,7 @@
       {
         "type": "damage",
         "damage_type": "piercing",
-        "amount": 50.0
+        "amount": 150.0
       }
     ]
   },
@@ -35,7 +35,7 @@
       {
         "type": "damage",
         "damage_type": "piercing",
-        "amount": 50.0
+        "amount": 150.0
       }
     ]
   },

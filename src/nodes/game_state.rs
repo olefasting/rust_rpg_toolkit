@@ -40,19 +40,21 @@ impl GameState {
     #[cfg(not(any(target_family = "wasm", target_os = "android")))]
     pub fn save_player_character(&mut self) {
         let game_params = storage::get::<GameParams>();
-        let player = Actor::find_by_player_id(&self.local_player_id).unwrap();
-        let json = serde_json::to_string_pretty(&player.to_export()).unwrap();
-        let path = format!("{}/{}.json", game_params.characters_path, player.name);
-        fs::write(&path, json).unwrap()
+        if let Some(player) = Actor::find_by_player_id(&self.local_player_id) {
+            let json = serde_json::to_string_pretty(&player.to_export()).unwrap();
+            let path = format!("{}/{}.json", game_params.characters_path, player.name);
+            fs::write(&path, json).unwrap()
+        }
     }
 
     #[cfg(target_family = "wasm")]
     pub fn save_player_character(&self) {
         let game_params = storage::get::<GameParams>();
-        let player = Actor::find_by_player_id(&self.local_player_id).unwrap();
-        let json = serde_json::to_string_pretty(&player.to_export()).unwrap();
-        let mut storage = quad_storage::STORAGE.lock().unwrap();
-        storage.set(&format!("{}_character", game_params.game_name), &json);
+        if let Some(player) = Actor::find_by_player_id(&self.local_player_id) {
+            let json = serde_json::to_string_pretty(&player.to_export()).unwrap();
+            let mut storage = quad_storage::STORAGE.lock().unwrap();
+            storage.set(&format!("{}_character", game_params.game_name), &json);
+        }
     }
 }
 

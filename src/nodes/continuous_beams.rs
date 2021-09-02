@@ -19,6 +19,7 @@ use crate::ability::Effect;
 
 pub struct ContinuousBeam {
     pub actor_id: String,
+    pub actor: Handle<Actor>,
     pub factions: Vec<String>,
     pub effects: Vec<Effect>,
     pub color: Color,
@@ -50,6 +51,7 @@ impl ContinuousBeams {
     pub fn spawn(
         &mut self,
         actor_id: &str,
+        actor: Handle<Actor>,
         factions: &[String],
         effects: &[Effect],
         color_override: Option<Color>,
@@ -59,6 +61,7 @@ impl ContinuousBeams {
     ) {
         let beam = ContinuousBeam {
             actor_id: actor_id.to_string(),
+            actor,
             factions: factions.to_vec(),
             effects: effects.to_vec(),
             color: color_override.unwrap_or(Self::DEFAULT_COLOR),
@@ -86,7 +89,7 @@ impl Node for ContinuousBeams {
                 };
                 if beam_collision_check(position, beam.origin, beam.end, beam.width,Self::WIDTH_TOLERANCE_FACTOR) {
                     for effect in beam.effects.clone() {
-                        if other_actor.apply_effect(&beam.actor_id, &beam.factions, effect) {
+                        if other_actor.apply_effect(&beam.actor_id, beam.actor, &beam.factions, effect) {
                             if beam.origin.distance(position) < beam.origin.distance(cutoff) {
                                 cutoff = position;
                             }

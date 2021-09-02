@@ -216,20 +216,20 @@
                 {
                  "height":0,
                  "id":10,
-                 "name":"neutral_guard",
+                 "name":"guard",
                  "point":true,
                  "properties":[
                         {
                          "name":"prototype_id",
                          "type":"string",
-                         "value":"neutral_guard"
+                         "value":"aggressive_guard"
                         }],
                  "rotation":0,
                  "type":"spawn_point",
                  "visible":true,
                  "width":0,
-                 "x":1004,
-                 "y":537.333333333333
+                 "x":949.333333333333,
+                 "y":600.666666666667
                 }, 
                 {
                  "height":0,
@@ -280,7 +280,7 @@
                 {
                  "height":0,
                  "id":16,
-                 "name":"neutral_guard",
+                 "name":"guard_boss",
                  "point":true,
                  "properties":[
                         {
@@ -430,6 +430,42 @@
                  "width":0,
                  "x":1384.33333333333,
                  "y":698
+                }, 
+                {
+                 "height":0,
+                 "id":37,
+                 "name":"guard",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"prototype_id",
+                         "type":"string",
+                         "value":"aggressive_guard"
+                        }],
+                 "rotation":0,
+                 "type":"spawn_point",
+                 "visible":true,
+                 "width":0,
+                 "x":1008,
+                 "y":538
+                }, 
+                {
+                 "height":0,
+                 "id":38,
+                 "name":"guard",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"prototype_id",
+                         "type":"string",
+                         "value":"aggressive_guard"
+                        }],
+                 "rotation":0,
+                 "type":"spawn_point",
+                 "visible":true,
+                 "width":0,
+                 "x":997.333333333333,
+                 "y":586
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -472,7 +508,7 @@
          "y":0
         }],
  "nextlayerid":15,
- "nextobjectid":37,
+ "nextobjectid":39,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.7.2",

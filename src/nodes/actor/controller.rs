@@ -29,7 +29,7 @@ pub struct ActorController {
     pub should_dash: bool,
     pub should_sprint: bool,
     pub is_sprint_locked: bool,
-    pub current_path: Option<NavigationPath>,
+    pub equip_weapon: Option<String>,
 }
 
 impl ActorController {
@@ -45,12 +45,12 @@ impl ActorController {
             should_dash: false,
             should_sprint: false,
             is_sprint_locked: false,
-            current_path: None,
+            equip_weapon: None,
         }
     }
 
     pub fn is_attacking(&self) -> bool {
-        self.should_use_secondary_ability
+        self.should_use_primary_ability
             || self.should_use_secondary_ability
     }
 }

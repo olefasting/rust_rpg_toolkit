@@ -15,9 +15,9 @@ pub enum NoiseLevel {
 impl NoiseLevel {
     const RADIUS_NONE: f32 = 0.0;
     const RADIUS_SILENT: f32 = 64.0;
-    const RADIUS_MODERATE: f32 = 192.0;
-    const RADIUS_LOUD: f32 = 416.0;
-    const RADIUS_EXTREME: f32 = 1024.0;
+    const RADIUS_MODERATE: f32 = 360.0;
+    const RADIUS_LOUD: f32 = 720.0;
+    const RADIUS_EXTREME: f32 = 1440.0;
 
     pub fn to_range(self) -> f32 {
         match self {

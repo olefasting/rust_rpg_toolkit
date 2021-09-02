@@ -107,7 +107,6 @@ impl PhysicsBody {
                         (collider, kind)
                     })
                     .collect();
-                return;
             }
 
             #[cfg(feature = "collision_between_actors")]
@@ -120,13 +119,13 @@ impl PhysicsBody {
                             }
                         }
                     }
-                    if collisions.len() > 0 {
-                        self.last_collisions.append(&mut collisions);
-                        return;
-                    }
+                    self.last_collisions.append(&mut collisions);
                 }
 
-            self.position += movement;
+
+            if self.last_collisions.is_empty() {
+                self.position += movement;
+            }
         }
     }
 }

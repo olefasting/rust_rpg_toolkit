@@ -14,6 +14,7 @@ pub enum ProjectileKind {
 
 pub struct Projectile {
     actor_id: String,
+    actor: Handle<Actor>,
     factions: Vec<String>,
     kind: ProjectileKind,
     effects: Vec<Effect>,
@@ -30,6 +31,7 @@ pub struct Projectile {
 impl Projectile {
     pub fn new(
         actor_id: &str,
+        actor: Handle<Actor>,
         factions: &[String],
         kind: ProjectileKind,
         effects: Vec<Effect>,
@@ -43,6 +45,7 @@ impl Projectile {
     ) -> Self {
         Projectile {
             actor_id: actor_id.to_string(),
+            actor,
             factions: factions.to_vec(),
             kind,
             effects,
@@ -104,6 +107,7 @@ impl Projectiles {
     pub fn spawn(
         &mut self,
         actor_id: &str,
+        actor: Handle<Actor>,
         factions: &[String],
         kind: ProjectileKind,
         effects: &[Effect],
@@ -143,6 +147,7 @@ impl Projectiles {
 
         self.active.push(Projectile::new(
             actor_id,
+            actor,
             factions,
             kind,
             effects.to_vec(),
@@ -174,7 +179,7 @@ impl Node for Projectiles {
                 if let Some(other_collider) = other_actor.body.get_offset_collider() {
                     if collider.overlaps(other_collider) {
                         for effect in projectile.effects.clone() {
-                            if other_actor.apply_effect(&projectile.actor_id, &projectile.factions, effect) {
+                            if other_actor.apply_effect(&projectile.actor_id, projectile.actor, &projectile.factions, effect) {
                                 projectile.play_on_hit_sound_effect();
                                 return false;
                             } else {

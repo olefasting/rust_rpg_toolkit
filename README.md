@@ -26,9 +26,9 @@ These are the tasks that currently have priority. When these are done, the goal 
 release and publish on crates.io
 
 - [x] Re-design actor behavior system
-- [ ] Define basic, default AI behaviors
+- [x] Define basic, default AI behaviors
 - [ ] Refactor collision detection
-- [ ] Polish pathfinding
+- [x] Polish pathfinding
 - [ ] Implement actor abilities (currently abilities are only implemented on items)
 - [ ] Refactor the UI system
 - [ ] Finalize the WASM build process
@@ -95,6 +95,10 @@ The example project can be built and run using the following cargo commad:
 
 `cargo run --example example-project`
 
+### CLI
+
+The CLI crate currently just consists of a tiled map conversion tool, but it will be expanded as we go
+
 ### Further documentation
 
 Check the [docs folder](https://github.com/olefasting/rust_rpg_toolkit/tree/master/docs) for more documentation.
@@ -102,10 +106,6 @@ Check the [docs folder](https://github.com/olefasting/rust_rpg_toolkit/tree/mast
 ## Contributing
 
 Contributions are more than welcome. Feel free to create a PR or an issue.
-
-## CLI
-
-The CLI crate currently just consists of a tiled map conversion tool, but it will be expanded as we go 
 
 ## Credits
 

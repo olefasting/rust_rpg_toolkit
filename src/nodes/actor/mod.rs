@@ -354,11 +354,12 @@ impl Actor {
         }
     }
 
-    pub fn take_damage(&mut self, _actor_id: &str, _damage_type: DamageType, amount: f32) {
+    pub fn take_damage(&mut self, actor_id: &str, actor: Handle<Actor>, _damage_type: DamageType, amount: f32) {
+        self.behavior.attackers.insert(actor_id.to_string(), actor);
         self.stats.current_health -= amount;
     }
 
-    pub fn apply_effect(&mut self, actor_id: &str, factions: &[String], effect: Effect) -> bool {
+    pub fn apply_effect(&mut self, actor_id: &str, actor: Handle<Actor>, factions: &[String], effect: Effect) -> bool {
         match effect {
             Effect::Damage { damage_type, amount } => {
                 if actor_id != self.id {
@@ -367,7 +368,7 @@ impl Actor {
                             return false;
                         }
                     }
-                    self.take_damage(actor_id, damage_type, amount);
+                    self.take_damage(actor_id, actor, damage_type, amount);
                     return true;
                 }
                 return false;
@@ -661,22 +662,22 @@ impl BufferedDraw for Actor {
 
         let game_state = scene::get_node(self.game_state);
         if game_state.in_debug_mode {
-            if let Some(path) = self.controller.current_path.clone() {
-                let mut previous: Option<Vec2> = None;
-                for p2 in path.nodes {
-                    if let Some(p1) = previous {
-                        draw_line(
-                            p1.x,
-                            p1.y,
-                            p2.x,
-                            p2.y,
-                            2.0,
-                            color::BLUE,
-                        );
-                    }
-                    previous = Some(p2);
-                }
-            }
+            // if let Some(path) = self.behavior.current_path.clone() {
+            //     let mut previous: Option<Vec2> = None;
+            //     for p2 in path.nodes {
+            //         if let Some(p1) = previous {
+            //             draw_line(
+            //                 p1.x,
+            //                 p1.y,
+            //                 p2.x,
+            //                 p2.y,
+            //                 2.0,
+            //                 color::BLUE,
+            //             );
+            //         }
+            //         previous = Some(p2);
+            //     }
+            // }
 
             // let center_position = if let Some(collider) = self.body.get_offset_collider() {
             //     collider.get_center()
@@ -778,6 +779,23 @@ impl Node for Actor {
         node.controller.should_pick_up_items = false;
         node.controller.should_sprint = node.controller.is_sprint_locked && node.controller.should_sprint;
 
+        {
+            let game_state = scene::get_node(node.game_state);
+            let mut i: usize = 0;
+            let mut keys = node.behavior.attackers.keys().cloned().collect::<Vec<String>>();
+            while i < node.behavior.attackers.keys().len() {
+                let actor_id = keys[i].clone();
+                if game_state.dead_actors.contains(&actor_id) {
+                    node.behavior.attackers.remove(&actor_id);
+                    keys.remove(i);
+                } else {
+                    i += 1;
+                }
+            }
+        }
+
+        node.behavior.collisions = node.body.last_collisions.clone();
+
         let controller_kind = node.controller.kind.clone();
         match controller_kind {
             ActorControllerKind::LocalPlayer { player_id } => {
@@ -785,13 +803,41 @@ impl Node for Actor {
             }
             ActorControllerKind::RemotePlayer { player_id: _ } => {}
             ActorControllerKind::Computer => {
-                let behavior = node.behavior.clone();
+                let params = node.behavior.clone();
+                let factions = node.factions.clone();
+                let stats = node.stats.clone();
                 let position = node.body.position.clone();
                 let mut controller = node.controller.clone();
-                Automaton::next(&mut node.automaton, |mode| mode.update(behavior, position, &mut controller));
+                let primary_ability = node.primary_ability.clone();
+                let secondary_ability = node.primary_ability.clone();
+                let inventory = node.inventory.clone();
+                let equipped_items = node.equipped_items.clone();
+                Automaton::next(&mut node.automaton, |mode| mode.update(
+                    params,
+                    &factions,
+                    stats,
+                    position,
+                    &mut controller,
+                    primary_ability,
+                    secondary_ability,
+                    inventory,
+                    equipped_items,
+                ));
                 node.controller = controller;
             }
             ActorControllerKind::None => {}
+        }
+
+        if node.controller.is_attacking() == false {
+            node.controller.aim_direction = node.controller.move_direction;
+        }
+
+        {
+            let equip_weapon = node.controller.equip_weapon.clone();
+            if let Some(weapon_id) = equip_weapon {
+                node.equip_item(&weapon_id);
+                node.controller.equip_weapon = None;
+            }
         }
 
         {
@@ -802,16 +848,16 @@ impl Node for Actor {
                 let mut primary_ability = node.primary_ability.clone();
                 let position = node.body.position.clone();
                 if let Some(ability) = &mut primary_ability {
-                    ability.activate(&mut *node, position, controller.aim_direction);
+                    ability.activate(&mut node, position, controller.aim_direction);
                 }
                 node.primary_ability = primary_ability;
             }
 
-            if controller.should_use_primary_ability {
+            if controller.should_use_secondary_ability {
                 let mut secondary_ability = node.secondary_ability.clone();
                 let position = node.body.position.clone();
                 if let Some(ability) = &mut secondary_ability {
-                    ability.activate(&mut *node, position, controller.aim_direction);
+                    ability.activate(&mut node, position, controller.aim_direction);
                 }
                 node.secondary_ability = secondary_ability;
             }
