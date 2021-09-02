@@ -2,14 +2,19 @@
 name = "rust-rpg-toolkit"
 version = "0.1.0"
 edition = "2018"
-authors = ["Ole A. Sjo Fasting <oasf@magus.no>"]
+authors = ["Ole A. Sjo Fasting <oasf@polygo.no>"]
 description = "An engine for creating action RPGs with Rust and/or JSON"
 documentation = "https://github.com/olefasting/rust_rpg_toolkit/tree/master/docs"
 readme = "./README.md"
 keywords = ["game", "engine", "sdk"]
 categories = ["game-engines"]
-license = "Apache-2.0/MIT"
+license = "MIT"
 repository = "https://github.com/olefasting/rust_rpg_toolkit"
+
+[features]
+default = ["navigation_layers"]
+navigation_layers = []
+collision_between_actors = []
 
 [profile.dev.package."*"]
 opt-level = 3

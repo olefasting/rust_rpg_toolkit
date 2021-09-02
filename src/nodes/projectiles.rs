@@ -3,38 +3,7 @@ use std::ops::{
     Mul,
 };
 
-use macroquad::{
-    experimental::{
-        scene::{
-            Node,
-            Handle,
-            RefMut,
-        },
-        collections::storage,
-    },
-    color,
-    prelude::*,
-};
-
-use serde::{
-    Serialize,
-    Deserialize,
-};
-
-use crate::{
-    nodes::{
-        Actor,
-        GameState,
-    },
-    physics::Collider,
-    render::{
-        Viewport,
-    },
-};
-use crate::map::MapCollisionKind;
-use crate::ability::Effect;
-use crate::resources::Resources;
-use macroquad::audio::play_sound_once;
+use crate::prelude::*;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -200,7 +169,7 @@ impl Node for Projectiles {
             if projectile.distance_traveled > projectile.range {
                 return false;
             }
-            let collider = Collider::circle(0.0, 0.0, projectile.size / 2.0).offset(projectile.position);
+            let collider = Collider::circle(0.0, 0.0, projectile.size / 2.0).with_offset(projectile.position);
             'outer: for mut other_actor in scene::find_nodes_by_type::<Actor>() {
                 if let Some(other_collider) = other_actor.body.get_offset_collider() {
                     if collider.overlaps(other_collider) {
@@ -217,7 +186,7 @@ impl Node for Projectiles {
             }
             let game_state = scene::find_node_by_type::<GameState>().unwrap();
             for (_, kind) in game_state.map.get_collisions(collider) {
-                if kind == MapCollisionKind::Solid {
+                if kind == CollisionKind::Solid {
                     projectile.play_on_hit_sound_effect();
                     return false;
                 }

@@ -7,7 +7,7 @@ pub use behavior::{
     ActorBehavior,
     ActorBehaviorParams,
     ActorBehaviorFamily,
-    TestMode,
+    IdleMode,
 };
 pub use controller::{
     ActorController,
@@ -203,7 +203,7 @@ impl Actor {
 
         let inventory = Inventory::from_prototypes(&params.inventory);
 
-        let mode = Box::new(TestMode {});
+        let mode = Box::new(IdleMode {});
 
         Actor {
             id: params.id.clone(),
@@ -295,7 +295,7 @@ impl Actor {
             None
         };
 
-        let mode = Box::new(TestMode {});
+        let mode = Box::new(IdleMode {});
 
         Actor {
             id: export.actor.id.clone(),
@@ -354,8 +354,7 @@ impl Actor {
         }
     }
 
-    pub fn take_damage(&mut self, actor_id: &str, _damage_type: DamageType, amount: f32) {
-        self.behavior.last_attacked_by = Some(actor_id.to_string());
+    pub fn take_damage(&mut self, _actor_id: &str, _damage_type: DamageType, amount: f32) {
         self.stats.current_health -= amount;
     }
 
@@ -441,26 +440,12 @@ impl Actor {
 
     pub fn is_target_visible(&self, target: Vec2) -> bool {
         self.body.position.distance(target) <= self.stats.view_distance
-            && self.body.raycast(target, true).is_none()
+            && self.body.raycast(target, true, true).is_none()
     }
 
     pub fn add_experience(&mut self, amount: u32) {
         if self.can_level_up {
             self.experience += amount;
-        }
-    }
-
-    fn update_controller(&mut self) {
-        let controller_kind = self.controller.kind.clone();
-        match controller_kind {
-            ActorControllerKind::LocalPlayer { player_id } => {
-                apply_input(&player_id, self);
-            }
-            ActorControllerKind::RemotePlayer { player_id: _ } => {}
-            ActorControllerKind::Computer => {
-                Automaton::next(&mut self.automaton, |mode| mode.update());
-            }
-            ActorControllerKind::None => {}
         }
     }
 
@@ -676,7 +661,7 @@ impl BufferedDraw for Actor {
 
         let game_state = scene::get_node(self.game_state);
         if game_state.in_debug_mode {
-            if let Some(path) = self.behavior.current_path.clone() {
+            if let Some(path) = self.controller.current_path.clone() {
                 let mut previous: Option<Vec2> = None;
                 for p2 in path.nodes {
                     if let Some(p1) = previous {
@@ -693,11 +678,11 @@ impl BufferedDraw for Actor {
                 }
             }
 
-            let center_position = if let Some(collider) = self.body.get_offset_collider() {
-                collider.get_center()
-            } else {
-                self.body.position
-            };
+            // let center_position = if let Some(collider) = self.body.get_offset_collider() {
+            //     collider.get_center()
+            // } else {
+            //     self.body.position
+            // };
             // if self.noise_level != NoiseLevel::None {
             //     draw_aligned_text(
             //         &format!("noise level: {}", self.noise_level.to_string()),
@@ -786,7 +771,28 @@ impl Node for Actor {
             ability.update();
         }
 
-        node.update_controller();
+        node.controller.should_use_primary_ability = false;
+        node.controller.should_use_secondary_ability = false;
+        node.controller.move_direction = Vec2::ZERO;
+        node.controller.should_start_interaction = false;
+        node.controller.should_pick_up_items = false;
+        node.controller.should_sprint = node.controller.is_sprint_locked && node.controller.should_sprint;
+
+        let controller_kind = node.controller.kind.clone();
+        match controller_kind {
+            ActorControllerKind::LocalPlayer { player_id } => {
+                apply_input(&player_id, &mut node);
+            }
+            ActorControllerKind::RemotePlayer { player_id: _ } => {}
+            ActorControllerKind::Computer => {
+                let behavior = node.behavior.clone();
+                let position = node.body.position.clone();
+                let mut controller = node.controller.clone();
+                Automaton::next(&mut node.automaton, |mode| mode.update(behavior, position, &mut controller));
+                node.controller = controller;
+            }
+            ActorControllerKind::None => {}
+        }
 
         {
             let controller = node.controller.clone();
@@ -811,7 +817,7 @@ impl Node for Actor {
             }
         }
 
-        let collider = Collider::circle(0.0, 0.0, Self::PICK_UP_RADIUS).offset(node.body.position);
+        let collider = Collider::circle(0.0, 0.0, Self::PICK_UP_RADIUS).with_offset(node.body.position);
         for credits in scene::find_nodes_by_type::<Credits>() {
             if collider.contains(credits.position) {
                 node.inventory.credits += credits.amount;
@@ -831,7 +837,7 @@ impl Node for Actor {
             if node.current_dialogue.is_some() {
                 node.current_dialogue = None;
             } else {
-                let collider = Collider::circle(0.0, 0.0, Self::INTERACT_RADIUS).offset(node.body.position);
+                let collider = Collider::circle(0.0, 0.0, Self::INTERACT_RADIUS).with_offset(node.body.position);
                 for actor in scene::find_nodes_by_type::<Actor>() {
                     if let Some(other_collider) = actor.body.get_offset_collider() {
                         if collider.overlaps(other_collider) {

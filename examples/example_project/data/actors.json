@@ -23,10 +23,10 @@
     ],
     "credits": 100,
     "collider": {
-      "x": -7.0,
-      "y": 0.0,
-      "width": 14.0,
-      "height": 14.0
+      "x": -5.0,
+      "y": -5.0,
+      "width": 10.0,
+      "height": 10.0
     },
     "animation_player": {
       "texture_id": "player",
@@ -84,7 +84,7 @@
     "credits": 25,
     "collider": {
       "x": -5.0,
-      "y": 0.0,
+      "y": -5.0,
       "width": 10.0,
       "height": 10.0
     },
@@ -145,7 +145,7 @@
     "dialogue": "dialogue_guard_boss",
     "collider": {
       "x": -5.0,
-      "y": 0.0,
+      "y": -5.0,
       "width": 10.0,
       "height": 10.0
     },
@@ -206,7 +206,7 @@
     "credits": 25,
     "collider": {
       "x": -5.0,
-      "y": 0.0,
+      "y": -5.0,
       "width": 10.0,
       "height": 10.0
     },
@@ -267,7 +267,7 @@
     "credits": 25,
     "collider": {
       "x": -5.0,
-      "y": 0.0,
+      "y": -5.0,
       "width": 10.0,
       "height": 10.0
     },
@@ -325,7 +325,7 @@
     "credits": 25,
     "collider": {
       "x": -5.0,
-      "y": 0.0,
+      "y": -5.0,
       "width": 10.0,
       "height": 10.0
     },
@@ -384,7 +384,7 @@
     "credits": 25,
     "collider": {
       "x": -5.0,
-      "y": 0.0,
+      "y": -5.0,
       "width": 10.0,
       "height": 10.0
     },

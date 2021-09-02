@@ -1,6 +1,6 @@
 # Docs
 
-This folder contain documentation for the project.
+This folder contains documentation for the project.
 
 Not everything is documented yet and the API is under constant change, as we are in an early phase
 og the development.

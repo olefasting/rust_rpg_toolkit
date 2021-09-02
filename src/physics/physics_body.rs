@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 use super::{
-    ACTOR_TO_ACTOR_COLLISIONS,
+    CollisionKind,
 };
 
 #[derive(Clone)]
@@ -10,7 +10,7 @@ pub struct PhysicsBody {
     pub rotation: f32,
     pub velocity: Vec2,
     pub collider: Option<Collider>,
-    pub last_collisions: Vec<(Vec2, MapCollisionKind)>,
+    pub last_collisions: Vec<(Collider, CollisionKind)>,
 }
 
 impl PhysicsBody {
@@ -25,7 +25,7 @@ impl PhysicsBody {
     }
 
     pub fn debug_draw(&mut self) {
-        let game_state  = scene::find_node_by_type::<GameState>().unwrap();
+        let game_state = scene::find_node_by_type::<GameState>().unwrap();
         if game_state.in_debug_mode {
             if let Some(collider) = self.get_offset_collider() {
                 match collider {
@@ -36,19 +36,24 @@ impl PhysicsBody {
                 }
             }
 
-            for (position, kind) in self.last_collisions.clone() {
-                draw_rectangle(
+            for (collider, kind) in self.last_collisions.clone() {
+                match collider {
+                    Collider::Rectangle { x, y, w, h } =>
+                        draw_rectangle(x, y, w, h,color::RED),
+                    Collider::Circle { x, y, r } =>
+                        draw_circle(x, y, r, color::RED),
+                }
+
+                let position = collider.get_center();
+                draw_aligned_text(
+                    match kind {
+                        CollisionKind::Actor => "A",
+                        CollisionKind::Barrier => "B",
+                        CollisionKind::Solid => "S",
+                        CollisionKind::None => "?",
+                    },
                     position.x,
                     position.y,
-                    game_state.map.tile_size.x,
-                    game_state.map.tile_size.y,
-                    color::RED,
-                );
-
-                draw_aligned_text(
-                    if kind == MapCollisionKind::Solid { "S" } else { "B" },
-                    position.x + (game_state.map.tile_size.x / 2.0),
-                    position.y + (game_state.map.tile_size.y / 2.0),
                     HorizontalAlignment::Center,
                     VerticalAlignment::Center,
                     TextParams {
@@ -72,25 +77,16 @@ impl PhysicsBody {
                 2.0,
                 color::RED,
             );
-
-            draw_aligned_text(
-                &format!("position: {}", self.position.to_string()),
-                screen_width() - 50.0,
-                150.0,
-                HorizontalAlignment::Right,
-                VerticalAlignment::Top,
-                Default::default(),
-            );
         }
     }
 
-    pub fn raycast(&self, dest: Vec2, ignore_barriers: bool) -> Option<Vec2> {
-        raycast(self.position, dest, ignore_barriers)
+    pub fn raycast(&self, dest: Vec2, ignore_barriers: bool, ignore_actors: bool) -> Option<Vec2> {
+        raycast(self.position, dest, ignore_barriers, ignore_actors)
     }
 
     pub fn get_offset_collider(&self) -> Option<Collider> {
         if let Some(collider) = self.collider {
-            Some(collider.offset(self.position))
+            Some(collider.with_offset(self.position))
         } else {
             None
         }
@@ -101,22 +97,34 @@ impl PhysicsBody {
             self.last_collisions = Vec::new();
             let movement = (self.velocity * 50.0) * get_frame_time();
             let game_state = scene::find_node_by_type::<GameState>().unwrap();
-            let collisions = game_state.map.get_collisions(collider.offset(self.velocity));
-            if collisions.is_empty() == false {
-                self.last_collisions = collisions;
+            let collisions = game_state.map.get_collisions(collider.with_offset(movement));
+            if collisions.len() > 0 {
+                let tile_size = game_state.map.tile_size;
+                self.last_collisions = collisions
+                    .into_iter()
+                    .map(|(position, kind)| {
+                        let collider = Collider::rect(position.x, position.y, tile_size.x, tile_size.y);
+                        (collider, kind)
+                    })
+                    .collect();
                 return;
             }
 
-
-            if ACTOR_TO_ACTOR_COLLISIONS {
-                for actor in scene::find_node_by_type::<Actor>() {
-                    if let Some(other_collider) = actor.body.get_offset_collider() {
-                        if collider.offset(self.velocity).overlaps(other_collider) {
-                            return;
+            #[cfg(feature = "collision_between_actors")]
+                {
+                    let mut collisions = Vec::new();
+                    for actor in scene::find_nodes_by_type::<Actor>() {
+                        if let Some(other_collider) = actor.body.get_offset_collider() {
+                            if collider.with_offset(self.velocity).overlaps(other_collider) {
+                                collisions.push((other_collider, CollisionKind::Actor));
+                            }
                         }
                     }
+                    if collisions.len() > 0 {
+                        self.last_collisions.append(&mut collisions);
+                        return;
+                    }
                 }
-            }
 
             self.position += movement;
         }

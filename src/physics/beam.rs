@@ -1,11 +1,4 @@
-use macroquad::prelude::*;
-
-use crate::{
-    nodes::GameState,
-    physics::Collider,
-    helpers::sort_by_distance,
-};
-use crate::map::MapCollisionKind;
+use crate::prelude::*;
 
 pub fn beam_collision_check(point: Vec2, origin: Vec2, end: Vec2, width: f32, tolerance: f32) -> bool {
     let va = origin - end;
@@ -29,7 +22,7 @@ pub fn get_beam_end(origin: Vec2, end: Vec2, width: f32, tolerance: f32) -> Vec2
         .into_iter()
         .filter_map(|(position, kind)| {
             let position = position + tile_size / 2.0;
-            if kind == MapCollisionKind::Solid && beam_collision_check(position, origin, end, width, tolerance) {
+            if kind == CollisionKind::Solid && beam_collision_check(position, origin, end, width, tolerance) {
                 Some(position)
             } else {
                 None

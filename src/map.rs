@@ -12,6 +12,7 @@ pub const MAP_LAYER_SOLIDS: &'static str = "solids";
 pub const MAP_LAYER_BARRIERS: &'static str = "barriers";
 pub const MAP_LAYER_ITEMS: &'static str = "items";
 pub const MAP_LAYER_SPAWN_POINTS: &'static str = "spawn_points";
+pub const MAP_LAYER_NAVIGATION: &'static str = "navigation";
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum MapLayerKind {
@@ -31,8 +32,8 @@ impl Default for MapLayerKind {
 pub struct MapLayer {
     pub id: String,
     pub kind: MapLayerKind,
-    #[serde(default, skip_serializing_if = "MapCollisionKind::is_none")]
-    pub collision: MapCollisionKind,
+    #[serde(default, skip_serializing_if = "CollisionKind::is_none")]
+    pub collision: CollisionKind,
     #[serde(with = "json::def_uvec2")]
     pub grid_size: UVec2,
     pub tiles: Vec<Option<MapTile>>,
@@ -47,7 +48,7 @@ impl Default for MapLayer {
     fn default() -> Self {
         MapLayer {
             id: "".to_string(),
-            collision: MapCollisionKind::None,
+            collision: CollisionKind::None,
             kind: MapLayerKind::TileLayer,
             grid_size: UVec2::ZERO,
             tiles: Vec::new(),
@@ -130,39 +131,14 @@ impl MapTileset {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub enum MapCollisionKind {
-    #[serde(rename = "none")]
-    None,
-    #[serde(rename = "barrier")]
-    Barrier,
-    #[serde(rename = "solid")]
-    Solid,
-}
-
-impl MapCollisionKind {
-    pub fn is_none(&self) -> bool {
-        match self {
-            Self::None => true,
-            _ => false,
-        }
-    }
-}
-
-impl Default for MapCollisionKind {
-    fn default() -> Self {
-        MapCollisionKind::None
-    }
-}
-
-impl From<String> for MapCollisionKind {
+impl From<String> for CollisionKind {
     fn from(str: String) -> Self {
         if str == "barrier".to_string() {
-            MapCollisionKind::Barrier
+            CollisionKind::Barrier
         } else if str == "solid".to_string() {
-            MapCollisionKind::Solid
+            CollisionKind::Solid
         } else {
-            MapCollisionKind::None
+            CollisionKind::None
         }
     }
 }
@@ -209,14 +185,14 @@ impl Map {
 
     pub fn to_grid(&self, rect: Rect) -> URect {
         let p = self.to_coords(rect.point());
-        let w = ((rect.w / self.tile_size.x) as u32 + 1).clamp(0, self.grid_size.x - p.x);
-        let h = ((rect.h / self.tile_size.y) as u32 + 1).clamp(0, self.grid_size.y - p.y);
+        let w = ((rect.w / self.tile_size.x) as u32).clamp(0, self.grid_size.x - p.x - 1);
+        let h = ((rect.h / self.tile_size.y) as u32).clamp(0, self.grid_size.y - p.y - 1);
         URect::new(p.x, p.y, w, h)
     }
 
     pub fn to_coords(&self, position: Vec2) -> UVec2 {
-        let x = ((position.x - self.world_offset.x) as u32 / self.tile_size.x as u32).clamp(0, self.grid_size.x);
-        let y = ((position.y - self.world_offset.y) as u32 / self.tile_size.y as u32).clamp(0, self.grid_size.y);
+        let x = (((position.x - self.world_offset.x) / self.tile_size.x) as u32).clamp(0, self.grid_size.x - 1);
+        let y = (((position.y - self.world_offset.y) / self.tile_size.y) as u32).clamp(0, self.grid_size.y - 1);
         uvec2(x, y)
     }
 
@@ -226,35 +202,6 @@ impl Map {
             point.y as f32 * self.tile_size.y + self.world_offset.y,
         )
     }
-
-    pub fn get_collisions(&self, collider: Collider) -> Vec<(Vec2, MapCollisionKind)> {
-        let rect = self.to_grid(collider.with_padding(self.tile_size.x).into());
-        let mut collisions = Vec::new();
-        'layers: for (_, layer) in &self.layers {
-            if layer.is_visible {
-                match layer.collision {
-                    MapCollisionKind::None => continue 'layers,
-                    _ => for (x, y, tile) in self.get_tiles(&layer.id, Some(rect)) {
-                        if let Some(_) = tile {
-                            if Collider::rect(
-                                x as f32 * self.tile_size.x,
-                                y as f32 * self.tile_size.y,
-                                self.tile_size.x as f32,
-                                self.tile_size.y as f32,
-                            ).overlaps(collider) {
-                                collisions.push((
-                                    self.to_position(uvec2(x, y)),
-                                    layer.collision.clone(),
-                                ));
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        collisions
-    }
-
     pub fn get_tile(&self, layer_id: &str, x: u32, y: u32) -> &Option<MapTile> {
         let layer = self.layers
             .get(layer_id)
@@ -274,6 +221,68 @@ impl Map {
             .expect(&format!("No layer with id '{}'!", layer_id));
 
         MapTileIterator::new(layer, rect)
+    }
+
+    pub fn get_path(&self, start: Vec2, end: Vec2) -> Option<NavigationPath> {
+        let p1 = self.to_coords(start);
+        let p2 = self.to_coords(end);
+
+        let mut path = a_star_search(
+            self.point2d_to_index(Point::new(p1.x, p1.y)),
+            self.point2d_to_index(Point::new(p2.x, p2.y)),
+            self,
+        );
+
+        if path.success {
+            path.steps.remove(0);
+
+            let p = self.index_to_point2d(path.destination);
+            let destination = self.to_position(uvec2(p.x as u32, p.y as u32));
+            let nodes = path.steps
+                .into_iter()
+                .map(|idx| {
+                    let p = self.index_to_point2d(idx);
+                    self.to_position(uvec2(p.x as u32, p.y as u32)) + self.tile_size / 2.0
+                })
+                .collect();
+
+            let path = NavigationPath {
+                destination,
+                nodes,
+            };
+
+            return Some(path);
+        }
+
+        None
+    }
+
+    pub fn get_collisions(&self, collider: Collider) -> Vec<(Vec2, CollisionKind)> {
+        let rect = self.to_grid(collider.with_padding(self.tile_size.x * 2.0).into());
+        let mut collisions = Vec::new();
+        'layers: for (_, layer) in &self.layers {
+            if layer.is_visible {
+                if layer.collision != CollisionKind::None {
+                    for (x, y, tile) in self.get_tiles(&layer.id, Some(rect)) {
+                        if let Some(_) = tile {
+                            let tile_position = self.to_position(uvec2(x, y));
+                            if Collider::rect(
+                                tile_position.x,
+                                tile_position.y,
+                                self.tile_size.x,
+                                self.tile_size.y,
+                            ).overlaps(collider) {
+                                collisions.push((
+                                    tile_position,
+                                    layer.collision.clone(),
+                                ));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        collisions
     }
 
     pub fn draw(&self, rect: Option<URect>) {
@@ -329,33 +338,6 @@ impl Map {
                     }
                 }
             }
-        }
-    }
-
-    pub fn get_path(&self, start: Vec2, end: Vec2) -> NavigationPath {
-        let p1 = self.to_coords(start);
-        let p2 = self.to_coords(end);
-
-        let path = a_star_search(
-            self.point2d_to_index(Point::new(p1.x, p1.y)),
-            self.point2d_to_index(Point::new(p2.x, p2.y)),
-            self,
-        );
-
-        let p = self.index_to_point2d(path.destination);
-        let destination = self.to_position(uvec2(p.x as u32, p.y as u32));
-        let nodes = path.steps
-            .into_iter()
-            .map(|idx| {
-                let p = self.index_to_point2d(idx);
-                self.to_position(uvec2(p.x as u32, p.y as u32))
-            })
-            .collect();
-
-        NavigationPath {
-            destination,
-            nodes,
-            is_success: path.success,
         }
     }
 
@@ -428,10 +410,10 @@ impl Map {
         for tiled_layer in &tiled_map.layers {
             let collision = match &tiled_layer.properties {
                 Some(props) => match props.into_iter().find(|prop| prop.name == "collision".to_string()) {
-                    Some(collision) => MapCollisionKind::from(collision.value.clone()),
-                    _ => MapCollisionKind::None,
+                    Some(collision) => CollisionKind::from(collision.value.clone()),
+                    _ => CollisionKind::None,
                 },
-                _ => MapCollisionKind::None,
+                _ => CollisionKind::None,
             };
 
             let mut tiles = Vec::new();
@@ -573,7 +555,7 @@ impl BaseMap for Map {
         let x = idx as u32 % self.grid_size.y;
         let y = idx as u32 / self.grid_size.y;
         for (layer_id, layer) in &self.layers {
-            if layer.collision == MapCollisionKind::Solid && self.get_tile(layer_id, x, y).is_some() {
+            if layer.collision == CollisionKind::Solid && self.get_tile(layer_id, x, y).is_some() {
                 return true;
             }
         }
@@ -583,46 +565,92 @@ impl BaseMap for Map {
     fn get_available_exits(&self, idx: usize) -> SmallVec<[(usize, f32); 10]> {
         let len = (self.grid_size.x * self.grid_size.y) as i32;
 
-        // N, E, S, W
-        let indices = (
-            idx as i32 - self.grid_size.x as i32,
-            idx as i32 + 1,
-            idx as i32 + self.grid_size.x as i32,
-            idx as i32 - 1,
-        );
+        let n = idx as i32 - self.grid_size.x as i32;
+        let e = idx as i32 + 1;
+        let s = idx as i32 + self.grid_size.x as i32;
+        let w = idx as i32 - 1;
+        let ne = n + 1;
+        let se = s + 1;
+        let sw = s - 1;
+        let nw = n - 1;
 
+        // N, NE, E, SE, S, SW, W, NW
         let mut exits = (
-            indices.0 >= 0 && indices.0 < len,
-            indices.1 >= 0 && indices.1 < len,
-            indices.2 >= 0 && indices.2 < len,
-            indices.3 >= 0 && indices.3 < len,
+            n >= 0 && n < len,
+            ne >= 0 && ne < len,
+            e >= 0 && e < len,
+            se >= 0 && se < len,
+            s >= 0 && s < len,
+            sw >= 0 && sw < len,
+            w >= 0 && w < len,
+            nw >= 0 && nw < len,
         );
 
+        #[cfg(feature = "navigation_layers")]
+        if let Some(layer) = self.layers.get(MAP_LAYER_NAVIGATION) {
+            exits.0 = exits.0 == true && layer.tiles[n as usize].is_some();
+            exits.2 = exits.2 == true && layer.tiles[e as usize].is_some();
+            exits.4 = exits.4 == true && layer.tiles[s as usize].is_some();
+            exits.6 = exits.6 == true && layer.tiles[w as usize].is_some();
+            exits.1 = exits.1 == true && exits.0 == true && exits.2 == true && layer.tiles[ne as usize].is_some();
+            exits.3 = exits.3 == true && exits.2 == true && exits.4 == true && layer.tiles[se as usize].is_some();
+            exits.5 = exits.5 == true && exits.4 == true && exits.6 == true && layer.tiles[sw as usize].is_some();
+            exits.7 = exits.7 == true && exits.6 == true && exits.0 == true && layer.tiles[nw as usize].is_some();
+        }
+
+        #[cfg(not(feature = "navigation_layers"))]
         for (_, layer) in &self.layers {
             match layer.collision {
-                MapCollisionKind::None => continue,
+                CollisionKind::None => continue,
                 _ => {
-                    if exits.0 == false || layer.tiles[indices.0 as usize].is_some() {
+                    if exits.0 == false || layer.tiles[n as usize].is_some() {
                         exits.0 = false;
+                        exits.1 = false;
+                        exits.7 = false;
                     }
-                    if exits.1 == false || layer.tiles[indices.1 as usize].is_some() {
+                    if exits.1 == false || layer.tiles[ne as usize].is_some() {
                         exits.1 = false;
                     }
-                    if exits.2 == false || layer.tiles[indices.2 as usize].is_some() {
+                    if exits.2 == false || layer.tiles[e as usize].is_some() {
                         exits.2 = false;
-                    }
-                    if exits.3 == false || layer.tiles[indices.3 as usize].is_some() {
+                        exits.1 = false;
                         exits.3 = false;
+                    }
+                    if exits.3 == false || layer.tiles[se as usize].is_some() {
+                        exits.3 = false;
+                    }
+                    if exits.4 == false || layer.tiles[s as usize].is_some() {
+                        exits.4 = false;
+                        exits.3 = false;
+                        exits.5 = false;
+                    }
+                    if exits.5 == false || layer.tiles[sw as usize].is_some() {
+                        exits.5 = false;
+                    }
+                    if exits.6 == false || layer.tiles[w as usize].is_some() {
+                        exits.6 = false;
+                        exits.5 = false;
+                        exits.7 = false;
+                    }
+                    if exits.7 == false || layer.tiles[nw as usize].is_some() {
+                        exits.7 = false;
+                    }
+                    if exits == (false, false, false, false, false, false, false, false) {
+                        break;
                     }
                 }
             }
         }
 
         let mut res = SmallVec::new();
-        if exits.0 { res.push((indices.0 as usize, 1.0)) }
-        if exits.1 { res.push((indices.1 as usize, 1.0)) }
-        if exits.2 { res.push((indices.2 as usize, 1.0)) }
-        if exits.3 { res.push((indices.3 as usize, 1.0)) }
+        if exits.0 { res.push((n as usize, 1.0)) }
+        if exits.1 { res.push((ne as usize, 1.0)) }
+        if exits.2 { res.push((e as usize, 1.0)) }
+        if exits.3 { res.push((se as usize, 1.0)) }
+        if exits.4 { res.push((s as usize, 1.0)) }
+        if exits.5 { res.push((sw as usize, 1.0)) }
+        if exits.6 { res.push((w as usize, 1.0)) }
+        if exits.7 { res.push((nw as usize, 1.0)) }
         res
     }
 
@@ -685,5 +713,4 @@ impl<'a> Iterator for MapTileIterator<'a> {
 pub struct NavigationPath {
     pub destination: Vec2,
     pub nodes: Vec<Vec2>,
-    pub is_success: bool,
 }

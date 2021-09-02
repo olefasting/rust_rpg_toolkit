@@ -2,7 +2,7 @@ pub mod tiled;
 
 use crate::prelude::*;
 
-use crate::map::{Map, MapLayerKind, MapLayer, MapTile, MapObject, MapTileset, MapCollisionKind, MapProperty};
+use crate::map::{Map, MapLayerKind, MapLayer, MapTile, MapObject, MapTileset, MapProperty};
 
 pub use tiled::TiledMap;
 
@@ -155,8 +155,8 @@ impl From<MapDef> for Map {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MapLayerDef {
     pub id: String,
-    #[serde(default, skip_serializing_if = "MapCollisionKind::is_none")]
-    pub collision: MapCollisionKind,
+    #[serde(default, skip_serializing_if = "CollisionKind::is_none")]
+    pub collision: CollisionKind,
     pub kind: MapLayerKind,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub tiles: Option<Vec<u32>>,
@@ -172,7 +172,7 @@ impl Default for MapLayerDef {
     fn default() -> Self {
         MapLayerDef {
             id: "".to_string(),
-            collision: MapCollisionKind::None,
+            collision: CollisionKind::None,
             kind: MapLayerKind::TileLayer,
             tiles: Some(Vec::new()),
             objects: None,

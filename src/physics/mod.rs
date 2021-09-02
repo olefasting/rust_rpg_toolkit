@@ -1,3 +1,5 @@
+use crate::prelude::*;
+
 mod physics_body;
 mod collider;
 mod beam;
@@ -16,6 +18,31 @@ pub use beam::{
 
 pub use raycast::raycast;
 
-pub const ACTOR_TO_ACTOR_COLLISIONS: bool = false;
-
 pub const COLLISION_RESOLUTION: f32 = 2.5;
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum CollisionKind {
+    #[serde(rename = "none")]
+    None,
+    #[serde(rename = "barrier")]
+    Barrier,
+    #[serde(rename = "solid")]
+    Solid,
+    #[serde(rename = "actor")]
+    Actor,
+}
+
+impl CollisionKind {
+    pub fn is_none(&self) -> bool {
+        match self {
+            Self::None => true,
+            _ => false,
+        }
+    }
+}
+
+impl Default for CollisionKind {
+    fn default() -> Self {
+        CollisionKind::None
+    }
+}

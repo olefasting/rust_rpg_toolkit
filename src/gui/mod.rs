@@ -21,7 +21,6 @@ mod game_menu;
 
 pub mod skins;
 pub mod main_menu;
-pub mod theme;
 
 use game_menu::draw_game_menu;
 use dialogue::draw_dialogue_window;

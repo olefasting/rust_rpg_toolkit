@@ -48,7 +48,7 @@ impl Collider {
         }
     }
 
-    pub fn offset(self, offset: Vec2) -> Collider {
+    pub fn with_offset(self, offset: Vec2) -> Collider {
         match self {
             Collider::Rectangle { x, y, w, h } =>
                 Collider::Rectangle { x: x + offset.x, y: y + offset.y, w, h },

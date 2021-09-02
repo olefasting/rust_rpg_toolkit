@@ -29,6 +29,7 @@ pub struct ActorController {
     pub should_dash: bool,
     pub should_sprint: bool,
     pub is_sprint_locked: bool,
+    pub current_path: Option<NavigationPath>,
 }
 
 impl ActorController {
@@ -44,6 +45,7 @@ impl ActorController {
             should_dash: false,
             should_sprint: false,
             is_sprint_locked: false,
+            current_path: None,
         }
     }
 

@@ -67,6 +67,7 @@ pub use crate::{
     physics::{
         Collider,
         PhysicsBody,
+        CollisionKind,
         raycast,
     },
     inventory::{
@@ -130,7 +131,6 @@ pub use crate::{
         Map,
         MapLayer,
         MapLayerKind,
-        MapCollisionKind,
         MapTileset,
         MapObject,
         MapTile,

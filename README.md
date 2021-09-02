@@ -29,15 +29,28 @@ release and publish on crates.io
 - [ ] Define basic, default AI behaviors
 - [ ] Refactor collision detection
 - [ ] Polish pathfinding
-- [ ] Implement actor abilities (currently abilities are only implemented on items) 
+- [ ] Implement actor abilities (currently abilities are only implemented on items)
 - [ ] Refactor the UI system
 - [ ] Finalize the WASM build process
 
-## Contributing
+## Using the library
 
-Contributions are more than welcome. Feel free to create a PR or an issue.
+This has not been published on crates.io yet, and it will not be done until a more stable beta stage.
+If you want to try it out, you might still do so, by depending on this git repository:
 
-## Example
+```toml
+[dependencies]
+rust-rpg-toolkit = { git = "https://github.com/olefasting/rust_rpg_toolkit.git" }
+```
+
+### Crate features
+
+- `navigation_layers` This is a default feature and when this is enabled, the pathfinding algorithm will use a map layer named `navigation` to determine valid tiles.
+  This is recommended, as it increases performance and because navigation will only work properly for actors with colliders that are smaller than a tile.
+- `collision_between_actors` If this is enabled, actors will collide with other actors, not just the map.
+  This is not recommended at this stage, as navigation does not take other actors into consideration.
+
+### Example
 
 You will need to create a macroquad main loop. You don't need to depend on macroquad, though, as the library is exposed through `rust_rpg_toolkit::prelude::*`
 
@@ -82,9 +95,13 @@ The example project can be built and run using the following cargo commad:
 
 `cargo run --example example-project`
 
-## Further documentation
+### Further documentation
 
 Check the [docs folder](https://github.com/olefasting/rust_rpg_toolkit/tree/master/docs) for more documentation.
+
+## Contributing
+
+Contributions are more than welcome. Feel free to create a PR or an issue.
 
 ## CLI
 
