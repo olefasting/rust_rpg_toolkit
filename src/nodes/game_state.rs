@@ -63,7 +63,7 @@ impl GameState {
 impl Node for GameState {
     fn update(mut node: RefMut<Self>) where Self: Sized {
         if Actor::find_by_player_id(&node.local_player_id).is_none() {
-            node.should_show_game_menu = is_key_released(KeyCode::Escape);
+            node.should_go_to_main_menu = true;
         }
 
         node.character_save_timer += get_frame_time();
