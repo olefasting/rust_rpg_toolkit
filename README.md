@@ -121,6 +121,6 @@ The CLI crate currently just consists of a tiled map conversion tool, but it wil
 
 \
 \
-License: MIT
+License: MIT (excluding assets from external sources)
 
 Copyright 2021 Ole A. Sjo Fasting and [Magus](http://magus.no)
