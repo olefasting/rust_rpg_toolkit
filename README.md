@@ -117,6 +117,7 @@ The CLI crate currently just consists of a tiled map conversion tool, but it wil
 - [Animated Fires](https://stealthix.itch.io/animated-fires) (some animated fire effects)
 - [M4A1 Single sound by Kibblesbob](https://soundbible.com/1804-M4A1-Single.html) ([Creative Commons Attribution 3.0](https://creativecommons.org/licenses/by/3.0/))
 - [9mm Glock 17 sound by JKirsch](https://soundbible.com/1382-9mm-Glock-17.html) ([Creative Commons Attribution 3.0](https://creativecommons.org/licenses/by/3.0/))
+- Other sounds from [SciFi Weapons Pro](https://sidearm-studios.itch.io/sci-fi-weapon-sounds-pro), which is a paid asset pack. This means that you will not be able to redistribute these.
 
 \
 \
