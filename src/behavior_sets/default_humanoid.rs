@@ -21,8 +21,8 @@ impl ActorBehavior for IdleMode {
         stats: ActorStats,
         position: Vec2,
         _: &mut ActorController,
-        _: PrimaryAbility,
-        _: Option<Ability>,
+        _: Option<f32>,
+        _: Option<f32>,
         _: Inventory,
         _: EquippedItems,
     ) -> Box<dyn ActorBehavior> {
@@ -134,8 +134,8 @@ impl ActorBehavior for GoToMode {
         _: ActorStats,
         position: Vec2,
         controller: &mut ActorController,
-        _: PrimaryAbility,
-        _: Option<Ability>,
+        _: Option<f32>,
+        _: Option<f32>,
         _: Inventory,
         _: EquippedItems,
     ) -> Box<dyn ActorBehavior> {
@@ -185,21 +185,17 @@ impl ActorBehavior for AttackMode {
         _: ActorStats,
         position: Vec2,
         controller: &mut ActorController,
-        primary_ability: PrimaryAbility,
-        secondary_ability: Option<Ability>,
+        weapon_range: Option<f32>,
+        selected_ability_range: Option<f32>,
         _: Inventory,
         _: EquippedItems,
     ) -> Box<dyn ActorBehavior> {
         if let Some(target) = scene::try_get_node(self.target) {
-            if primary_ability.main_hand.is_none() && primary_ability.offhand.is_none() {
-                return Box::new(EquipWeaponMode {});
-            }
-
             let distance = position.distance(target.body.position);
-            if let Some(ability) = primary_ability.main_hand {
-                if distance <= ability.range * 0.9 {
+            if let Some(weapon_range) = weapon_range {
+                if distance <= weapon_range * 0.9 {
                     self.path = None;
-                    controller.should_use_primary_ability = true;
+                    controller.should_use_weapon = true;
                 } else {
                     self.path = if let Some(path) = self.path.clone() {
                         process_path(position, controller, path)
@@ -208,12 +204,16 @@ impl ActorBehavior for AttackMode {
                         game_state.map.get_path(position, target.body.position)
                     }
                 }
+            } else {
+                return EquipWeaponMode::new();
             }
-            if let Some(ability) = secondary_ability {
-                if distance <= ability.range * 0.9 {
-                    controller.should_use_secondary_ability = true;
+
+            if let Some(ability_range) = selected_ability_range {
+                if distance <= ability_range * 0.9 {
+                    controller.should_use_selected_ability = true;
                 }
             }
+
             controller.aim_direction = target.body.position.sub(position).normalize_or_zero();
         } else {
             return IdleMode::new();
@@ -248,8 +248,8 @@ impl ActorBehavior for FleeMode {
         stats: ActorStats,
         position: Vec2,
         controller: &mut ActorController,
-        _: PrimaryAbility,
-        _: Option<Ability>,
+        _: Option<f32>,
+        _: Option<f32>,
         _: Inventory,
         _: EquippedItems,
     ) -> Box<dyn ActorBehavior> {
@@ -291,8 +291,8 @@ impl ActorBehavior for InvestigateMode {
         stats: ActorStats,
         position: Vec2,
         controller: &mut ActorController,
-        _: PrimaryAbility,
-        _: Option<Ability>,
+        _: Option<f32>,
+        _: Option<f32>,
         _: Inventory,
         _: EquippedItems,
     ) -> Box<dyn ActorBehavior> {
@@ -332,8 +332,8 @@ impl ActorBehavior for EquipWeaponMode {
         _: ActorStats,
         _: Vec2,
         controller: &mut ActorController,
-        _: PrimaryAbility,
-        _: Option<Ability>,
+        _: Option<f32>,
+        _: Option<f32>,
         inventory: Inventory,
         _: EquippedItems,
     ) -> Box<dyn ActorBehavior> {

@@ -61,8 +61,8 @@ pub trait ActorBehavior: Mode<Family=ActorBehaviorFamily> {
         stats: ActorStats,
         position: Vec2,
         controller: &mut ActorController,
-        primary_ability: PrimaryAbility,
-        secondary_ability: Option<Ability>,
+        weapon_range: Option<f32>,
+        selected_ability_range: Option<f32>,
         inventory: Inventory,
         equipped_items: EquippedItems,
     ) -> Box<dyn ActorBehavior>;

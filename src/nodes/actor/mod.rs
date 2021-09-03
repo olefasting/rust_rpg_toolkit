@@ -158,8 +158,8 @@ pub struct Actor {
     pub body: PhysicsBody,
     pub inventory: Inventory,
     pub equipped_items: EquippedItems,
-    pub primary_ability: PrimaryAbility,
-    pub secondary_ability: Option<Ability>,
+    pub weapon_ability: PrimaryAbility,
+    pub selected_ability: Option<Ability>,
     pub controller: ActorController,
     pub experience: u32,
     pub dialogue: Option<Dialogue>,
@@ -218,8 +218,8 @@ impl Actor {
             body: PhysicsBody::new(position, 0.0, params.collider),
             inventory,
             equipped_items: params.equipped_items,
-            primary_ability: PrimaryAbility { main_hand: None, offhand: None },
-            secondary_ability: None,
+            weapon_ability: PrimaryAbility { main_hand: None, offhand: None },
+            selected_ability: None,
             controller: ActorController::new(controller_kind),
             experience: params.experience,
             dialogue,
@@ -312,8 +312,8 @@ impl Actor {
             body,
             inventory: Inventory::from_saved(&export.actor.inventory, &export.items),
             equipped_items: export.actor.equipped_items,
-            primary_ability: PrimaryAbility { main_hand: None, offhand: None },
-            secondary_ability: None,
+            weapon_ability: PrimaryAbility { main_hand: None, offhand: None },
+            selected_ability: None,
             controller: ActorController::new(controller_kind),
             experience: export.actor.experience,
             dialogue,
@@ -563,17 +563,17 @@ impl Actor {
             match slot {
                 EquipmentSlot::MainHand => {
                     self.equipped_items.main_hand = Some(entry.params.id.clone());
-                    self.primary_ability.main_hand = entry.get_actor_ability();
+                    self.weapon_ability.main_hand = entry.get_actor_ability();
                 }
                 EquipmentSlot::OffHand => {
                     self.equipped_items.off_hand = Some(entry.params.id.clone());
-                    self.primary_ability.offhand = entry.get_actor_ability();
+                    self.weapon_ability.offhand = entry.get_actor_ability();
                 }
                 EquipmentSlot::BothHands => {
                     self.equipped_items.main_hand = Some(entry.params.id.clone());
                     self.equipped_items.off_hand = Some(entry.params.id.clone());
-                    self.primary_ability.main_hand = entry.get_actor_ability();
-                    self.primary_ability.offhand = None;
+                    self.weapon_ability.main_hand = entry.get_actor_ability();
+                    self.weapon_ability.offhand = None;
                 }
                 EquipmentSlot::None => {}
             }
@@ -622,13 +622,13 @@ impl Actor {
         if let Some(found_id) = self.equipped_items.main_hand.clone() {
             if found_id == item_id.to_string() {
                 self.equipped_items.main_hand = None;
-                self.primary_ability.main_hand = None;
+                self.weapon_ability.main_hand = None;
             }
         }
         if let Some(found_id) = self.equipped_items.off_hand.clone() {
             if found_id == item_id.to_string() {
                 self.equipped_items.off_hand = None;
-                self.primary_ability.offhand = None;
+                self.weapon_ability.offhand = None;
             }
         }
         if let Some(entry) = self.inventory.items.iter_mut().find(|entry| entry.params.id == item_id.to_string()) {
@@ -768,19 +768,19 @@ impl Node for Actor {
         node.update_noise_level();
         node.update_missions();
 
-        if let Some(ability) = node.primary_ability.main_hand.as_mut() {
+        if let Some(ability) = node.weapon_ability.main_hand.as_mut() {
             ability.update();
         }
-        if let Some(ability) = node.primary_ability.offhand.as_mut() {
-            ability.update();
-        }
-
-        if let Some(ability) = node.secondary_ability.as_mut() {
+        if let Some(ability) = node.weapon_ability.offhand.as_mut() {
             ability.update();
         }
 
-        node.controller.should_use_primary_ability = false;
-        node.controller.should_use_secondary_ability = false;
+        if let Some(ability) = node.selected_ability.as_mut() {
+            ability.update();
+        }
+
+        node.controller.should_use_weapon = false;
+        node.controller.should_use_selected_ability = false;
         node.controller.move_direction = Vec2::ZERO;
         node.controller.should_start_interaction = false;
         node.controller.should_pick_up_items = false;
@@ -815,8 +815,20 @@ impl Node for Actor {
                 let stats = node.stats.clone();
                 let position = node.body.position.clone();
                 let mut controller = node.controller.clone();
-                let primary_ability = node.primary_ability.clone();
-                let secondary_ability = node.secondary_ability.clone();
+                let weapon_range = if let Some(ability) = &node.weapon_ability.main_hand {
+                    Some(ability.range)
+                } else if let Some(ability) = &node.weapon_ability.offhand {
+                    Some(ability.range)
+                } else {
+                    None
+                };
+
+                let selected_ability_range = if let Some(ability) = &node.selected_ability {
+                    Some(ability.range)
+                } else {
+                    None
+                };
+
                 let inventory = node.inventory.clone();
                 let equipped_items = node.equipped_items.clone();
                 Automaton::next(&mut node.automaton, |mode| mode.update(
@@ -825,8 +837,8 @@ impl Node for Actor {
                     stats,
                     position,
                     &mut controller,
-                    primary_ability,
-                    secondary_ability,
+                    weapon_range,
+                    selected_ability_range,
                     inventory,
                     equipped_items,
                 ));
@@ -851,8 +863,8 @@ impl Node for Actor {
             let controller = node.controller.clone();
             node.set_animation(controller.aim_direction, controller.move_direction == Vec2::ZERO);
 
-            if controller.should_use_primary_ability {
-                let mut primary_ability = node.primary_ability.clone();
+            if controller.should_use_weapon {
+                let mut primary_ability = node.weapon_ability.clone();
                 let position = node.body.position.clone();
                 if let Some(ability) = &mut primary_ability.main_hand {
                     ability.activate(&mut node, position, controller.aim_direction);
@@ -860,16 +872,16 @@ impl Node for Actor {
                 if let Some(ability) = &mut primary_ability.offhand {
                     ability.activate(&mut node, position, controller.aim_direction);
                 }
-                node.primary_ability = primary_ability;
+                node.weapon_ability = primary_ability;
             }
 
-            if controller.should_use_secondary_ability {
-                let mut secondary_ability = node.secondary_ability.clone();
+            if controller.should_use_selected_ability {
+                let mut secondary_ability = node.selected_ability.clone();
                 let position = node.body.position.clone();
                 if let Some(ability) = &mut secondary_ability {
                     ability.activate(&mut node, position, controller.aim_direction);
                 }
-                node.secondary_ability = secondary_ability;
+                node.selected_ability = secondary_ability;
             }
         }
 

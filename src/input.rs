@@ -205,8 +205,8 @@ pub fn apply_input(player_id: &str, node: &mut RefMut<Actor>) {
             node.controller.aim_direction = node.controller.move_direction;
         }
 
-        node.controller.should_use_primary_ability = gamepad.is_pressed(Button::RightTrigger);
-        node.controller.should_use_secondary_ability = gamepad.is_pressed(Button::LeftTrigger);
+        node.controller.should_use_weapon = gamepad.is_pressed(Button::RightTrigger);
+        node.controller.should_use_selected_ability = gamepad.is_pressed(Button::LeftTrigger);
 
         if node.controller.is_sprint_locked == false {
             node.controller.should_sprint = gamepad.is_pressed(Button::East);
@@ -216,8 +216,8 @@ pub fn apply_input(player_id: &str, node: &mut RefMut<Actor>) {
     } else {
         let mouse_position = get_mouse_in_world_space();
 
-        node.controller.should_use_primary_ability = is_mouse_button_down(MouseButton::Left);
-        node.controller.should_use_secondary_ability = is_mouse_button_down(MouseButton::Right);
+        node.controller.should_use_weapon = is_mouse_button_down(MouseButton::Left);
+        node.controller.should_use_selected_ability = is_mouse_button_down(MouseButton::Right);
 
         node.controller.move_direction = Vec2::ZERO;
         if is_key_down(KeyCode::Up) || is_key_down(KeyCode::W) {
@@ -237,7 +237,7 @@ pub fn apply_input(player_id: &str, node: &mut RefMut<Actor>) {
             node.controller.is_sprint_locked = !node.controller.is_sprint_locked;
         }
 
-        if node.controller.should_use_primary_ability || node.controller.should_use_secondary_ability {
+        if node.controller.should_use_weapon || node.controller.should_use_selected_ability {
             node.controller.aim_direction = mouse_position.sub(node.body.position).normalize_or_zero();
         } else {
             node.controller.aim_direction = node.controller.move_direction;
