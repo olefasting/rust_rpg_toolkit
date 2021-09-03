@@ -99,10 +99,15 @@ impl PhysicsBody {
             if movement != Vec2::ZERO {
                 let game_state = scene::find_node_by_type::<GameState>().unwrap();
                 let viewport = storage::get::<Viewport>();
+
+                #[cfg(feature = "collision_between_actors")]
                 let nearby_actors = scene::find_nodes_by_type::<Actor>()
                     .into_iter()
                     .filter(|actor| actor.is_in_frustum(&viewport.get_frustum()))
                     .collect();
+
+                #[cfg(not(feature = "collision_between_actors"))]
+                let nearby_actors = Vec::new();
 
                 let mut x_collisions = Vec::new();
                 let resolution = if movement.x > 0.0 {

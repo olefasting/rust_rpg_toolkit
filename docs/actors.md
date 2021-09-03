@@ -57,6 +57,8 @@ struct ActorBehaviorParams {
     pub aggression: ActorAggression,
     #[serde(default)]
     pub home: Option<Vec2>,
+    #[serde(default, rename = "behavior_set")]
+    pub behavior_set_id: String,
     #[serde(default)]
     pub is_stationary: bool,
     #[serde(default)]
@@ -75,6 +77,10 @@ action. Another factor that controls what might trigger such an action, is the `
 actor will react to loud sounds nearby, by trying to investigate what caused them.
 An actor's `current_health` will be multiplied by `flee_at_health_factor` and the result will be the threshold at which an actor
 flees from combat. If it is set to `0`, the actor will never flee.
+
+The behavior set the actor will use, is determined by the `behavior_set` field. This determines the set of behavior states that
+is used to control the actor, according to all the other parameters. The default set is called `default_humanoid` and most actors
+will use this. Bosses, for example, will need their own behavior sets.
 
 The `position` field will only apply if spawning an actor from code. When actors are spawned from prototypes, based on a spawn
 point defined on a map, the position will be set to the spawn point position and any value in the `position` field discarded.
