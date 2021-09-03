@@ -45,9 +45,6 @@ rust-rpg-toolkit = { git = "https://github.com/olefasting/rust_rpg_toolkit.git" 
 
 ### Crate features
 
-- `navigation_layers` This is a default feature and when this is enabled, the pathfinding algorithm will use a map layer named `navigation` to determine valid tiles.
-  This is recommended, as it increases performance and because navigation will only work properly for actors with colliders that are smaller than a tile (granted the
-  navigation layers are made properly).
 - `collision_between_actors` If this is enabled, actors will collide with other actors, not just the map.
   This is not recommended at this stage, as navigation does not take other actors into consideration.
 
