@@ -5,6 +5,8 @@ use mode::{
     Mode,
 };
 
+use crate::nodes::actor::PrimaryAbility;
+
 #[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ActorAggression {
@@ -59,7 +61,7 @@ pub trait ActorBehavior: Mode<Family=ActorBehaviorFamily> {
         stats: ActorStats,
         position: Vec2,
         controller: &mut ActorController,
-        primary_ability: Option<Ability>,
+        primary_ability: PrimaryAbility,
         secondary_ability: Option<Ability>,
         inventory: Inventory,
         equipped_items: EquippedItems,

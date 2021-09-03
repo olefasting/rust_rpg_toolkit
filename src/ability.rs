@@ -133,7 +133,7 @@ impl Ability {
             && (self.health_cost == 0.0 || node.stats.current_health >= self.health_cost)
             && (self.stamina_cost == 0.0 || node.stats.current_stamina >= self.stamina_cost)
             && (self.energy_cost == 0.0 || node.stats.current_energy >= self.energy_cost) {
-            
+
             self.cooldown_timer = 0.0;
 
             node.set_noise_level(self.noise_level);

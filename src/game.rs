@@ -204,6 +204,8 @@ pub async fn load_resources(game_params: GameParams) {
     storage::store(resources);
 }
 
+// This will run the game and it can also be used as a blueprint for how to implement
+// your own game loop, so that you get better access to the internals
 pub async fn run_game(game_params: GameParams) {
     storage::store(game_params.clone());
     check_env(&game_params);
@@ -271,6 +273,7 @@ pub async fn run_game(game_params: GameParams) {
     }
 
     scene::clear();
+
     let config = storage::get::<Config>();
     config.save(&game_params.config_path);
 }

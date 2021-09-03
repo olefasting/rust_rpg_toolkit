@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use crate::nodes::actor::PrimaryAbility;
 
 pub struct IdleMode;
 
@@ -20,7 +21,7 @@ impl ActorBehavior for IdleMode {
         stats: ActorStats,
         position: Vec2,
         _: &mut ActorController,
-        _: Option<Ability>,
+        _: PrimaryAbility,
         _: Option<Ability>,
         _: Inventory,
         _: EquippedItems,
@@ -133,7 +134,7 @@ impl ActorBehavior for GoToMode {
         _: ActorStats,
         position: Vec2,
         controller: &mut ActorController,
-        _: Option<Ability>,
+        _: PrimaryAbility,
         _: Option<Ability>,
         _: Inventory,
         _: EquippedItems,
@@ -184,18 +185,18 @@ impl ActorBehavior for AttackMode {
         _: ActorStats,
         position: Vec2,
         controller: &mut ActorController,
-        primary_ability: Option<Ability>,
+        primary_ability: PrimaryAbility,
         secondary_ability: Option<Ability>,
         _: Inventory,
         _: EquippedItems,
     ) -> Box<dyn ActorBehavior> {
         if let Some(target) = scene::try_get_node(self.target) {
-            if primary_ability.is_none() && secondary_ability.is_none() {
+            if primary_ability.main_hand.is_none() && primary_ability.offhand.is_none() {
                 return Box::new(EquipWeaponMode {});
             }
 
             let distance = position.distance(target.body.position);
-            if let Some(ability) = primary_ability {
+            if let Some(ability) = primary_ability.main_hand {
                 if distance <= ability.range * 0.9 {
                     self.path = None;
                     controller.should_use_primary_ability = true;
@@ -247,7 +248,7 @@ impl ActorBehavior for FleeMode {
         stats: ActorStats,
         position: Vec2,
         controller: &mut ActorController,
-        _: Option<Ability>,
+        _: PrimaryAbility,
         _: Option<Ability>,
         _: Inventory,
         _: EquippedItems,
@@ -290,7 +291,7 @@ impl ActorBehavior for InvestigateMode {
         stats: ActorStats,
         position: Vec2,
         controller: &mut ActorController,
-        _: Option<Ability>,
+        _: PrimaryAbility,
         _: Option<Ability>,
         _: Inventory,
         _: EquippedItems,
@@ -331,7 +332,7 @@ impl ActorBehavior for EquipWeaponMode {
         _: ActorStats,
         _: Vec2,
         controller: &mut ActorController,
-        _: Option<Ability>,
+        _: PrimaryAbility,
         _: Option<Ability>,
         inventory: Inventory,
         _: EquippedItems,

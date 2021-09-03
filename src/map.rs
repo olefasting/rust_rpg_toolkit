@@ -234,7 +234,9 @@ impl Map {
         );
 
         if path.success {
-            path.steps.remove(0);
+            if path.steps.len() > 0 {
+                path.steps.remove(0);
+            }
 
             let p = self.index_to_point2d(path.destination);
             let destination = self.to_position(uvec2(p.x as u32, p.y as u32));
@@ -586,6 +588,7 @@ impl BaseMap for Map {
             nw >= 0 && nw < len,
         );
 
+        // Navigation layers
         // if let Some(layer) = self.layers.get(MAP_LAYER_NAVIGATION) {
         //     exits.0 = exits.0 == true && layer.tiles[n as usize].is_some();
         //     exits.2 = exits.2 == true && layer.tiles[e as usize].is_some();
@@ -606,33 +609,41 @@ impl BaseMap for Map {
                         exits.1 = false;
                         exits.7 = false;
                     }
+
                     if exits.1 == false || layer.tiles[ne as usize].is_some() {
                         exits.1 = false;
                     }
+
                     if exits.2 == false || layer.tiles[e as usize].is_some() {
                         exits.2 = false;
                         exits.1 = false;
                         exits.3 = false;
                     }
+
                     if exits.3 == false || layer.tiles[se as usize].is_some() {
                         exits.3 = false;
                     }
+
                     if exits.4 == false || layer.tiles[s as usize].is_some() {
                         exits.4 = false;
                         exits.3 = false;
                         exits.5 = false;
                     }
+
                     if exits.5 == false || layer.tiles[sw as usize].is_some() {
                         exits.5 = false;
                     }
+
                     if exits.6 == false || layer.tiles[w as usize].is_some() {
                         exits.6 = false;
                         exits.5 = false;
                         exits.7 = false;
                     }
+
                     if exits.7 == false || layer.tiles[nw as usize].is_some() {
                         exits.7 = false;
                     }
+
                     if exits == (false, false, false, false, false, false, false, false) {
                         break;
                     }
@@ -697,13 +708,16 @@ impl<'a> Iterator for MapTileIterator<'a> {
         }
 
         let i = (self.current.1 * self.layer.grid_size.x + self.current.0) as usize;
+
         let res = Some((
             self.current.0,
             self.current.1,
             &self.layer.tiles[i],
         ));
+
         self.current = next;
-        return res;
+
+        res
     }
 }
 
