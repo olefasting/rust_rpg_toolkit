@@ -586,19 +586,17 @@ impl BaseMap for Map {
             nw >= 0 && nw < len,
         );
 
-        #[cfg(feature = "navigation_layers")]
-        if let Some(layer) = self.layers.get(MAP_LAYER_NAVIGATION) {
-            exits.0 = exits.0 == true && layer.tiles[n as usize].is_some();
-            exits.2 = exits.2 == true && layer.tiles[e as usize].is_some();
-            exits.4 = exits.4 == true && layer.tiles[s as usize].is_some();
-            exits.6 = exits.6 == true && layer.tiles[w as usize].is_some();
-            exits.1 = exits.1 == true && exits.0 == true && exits.2 == true && layer.tiles[ne as usize].is_some();
-            exits.3 = exits.3 == true && exits.2 == true && exits.4 == true && layer.tiles[se as usize].is_some();
-            exits.5 = exits.5 == true && exits.4 == true && exits.6 == true && layer.tiles[sw as usize].is_some();
-            exits.7 = exits.7 == true && exits.6 == true && exits.0 == true && layer.tiles[nw as usize].is_some();
-        }
+        // if let Some(layer) = self.layers.get(MAP_LAYER_NAVIGATION) {
+        //     exits.0 = exits.0 == true && layer.tiles[n as usize].is_some();
+        //     exits.2 = exits.2 == true && layer.tiles[e as usize].is_some();
+        //     exits.4 = exits.4 == true && layer.tiles[s as usize].is_some();
+        //     exits.6 = exits.6 == true && layer.tiles[w as usize].is_some();
+        //     exits.1 = exits.1 == true && exits.0 == true && exits.2 == true && layer.tiles[ne as usize].is_some();
+        //     exits.3 = exits.3 == true && exits.2 == true && exits.4 == true && layer.tiles[se as usize].is_some();
+        //     exits.5 = exits.5 == true && exits.4 == true && exits.6 == true && layer.tiles[sw as usize].is_some();
+        //     exits.7 = exits.7 == true && exits.6 == true && exits.0 == true && layer.tiles[nw as usize].is_some();
+        // }
 
-        #[cfg(not(feature = "navigation_layers"))]
         for (_, layer) in &self.layers {
             match layer.collision {
                 CollisionKind::None => continue,

@@ -15,8 +15,9 @@ use super::{
 
 pub fn raycast(origin: Vec2, end: Vec2, ignore_barriers: bool, ignore_actors: bool) -> Option<Vec2> {
     if origin.distance(end) > COLLISION_RESOLUTION {
-        let direction = end.sub(origin).normalize_or_zero();
         let game_state = scene::find_node_by_type::<GameState>().unwrap();
+
+        let direction = end.sub(origin).normalize_or_zero();
         let collider = Collider::circle(0.0, 0.0, 1.0);
         let change = direction * COLLISION_RESOLUTION;
         let mut current = origin;
@@ -28,7 +29,7 @@ pub fn raycast(origin: Vec2, end: Vec2, ignore_barriers: bool, ignore_actors: bo
                 }
             }
             if ignore_actors == false {
-                for actor in scene::find_nodes_by_type::<Actor>() {
+                for actor in  scene::find_nodes_by_type::<Actor>() {
                     if let Some(other_collider) = actor.body.get_offset_collider() {
                         if other_collider.contains(current) {
                             return Some(current);

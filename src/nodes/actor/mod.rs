@@ -178,8 +178,8 @@ impl Actor {
 
     const ENCUMBERED_SPEED_FACTOR: f32 = 0.1;
 
-    const SPRINT_SPEED_FACTOR: f32 = 2.0;
-    const SPRINT_STAMINA_COST: f32 = 10.0;
+    const SPRINT_SPEED_FACTOR: f32 = 1.5;
+    const SPRINT_STAMINA_COST: f32 = 3.0;
 
     const MOVE_NOISE_LEVEL: NoiseLevel = NoiseLevel::Silent;
     const SPRINT_NOISE_LEVEL: NoiseLevel = NoiseLevel::Moderate;

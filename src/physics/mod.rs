@@ -18,7 +18,7 @@ pub use beam::{
 
 pub use raycast::raycast;
 
-pub const COLLISION_RESOLUTION: f32 = 2.5;
+pub const COLLISION_RESOLUTION: f32 = 0.25;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum CollisionKind {

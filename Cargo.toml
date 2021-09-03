@@ -12,8 +12,7 @@ license = "MIT"
 repository = "https://github.com/olefasting/rust_rpg_toolkit"
 
 [features]
-default = ["navigation_layers"]
-navigation_layers = []
+default = []
 collision_between_actors = []
 
 [profile.dev.package."*"]

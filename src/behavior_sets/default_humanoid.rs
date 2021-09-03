@@ -196,16 +196,16 @@ impl ActorBehavior for AttackMode {
 
             let distance = position.distance(target.body.position);
             if let Some(ability) = primary_ability {
-                if distance > ability.range * 0.9 {
+                if distance <= ability.range * 0.9 {
+                    self.path = None;
+                    controller.should_use_primary_ability = true;
+                } else {
                     self.path = if let Some(path) = self.path.clone() {
                         process_path(position, controller, path)
                     } else {
                         let game_state = scene::find_node_by_type::<GameState>().unwrap();
                         game_state.map.get_path(position, target.body.position)
                     }
-                } else {
-                    self.path = None;
-                    controller.should_use_primary_ability = true;
                 }
             }
             if let Some(ability) = secondary_ability {
