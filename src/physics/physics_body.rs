@@ -93,98 +93,124 @@ impl PhysicsBody {
     }
 
     pub fn integrate(&mut self) {
-        if let Some(collider) = self.get_offset_collider() {
-            let mut movement = (self.velocity * 50.0) * get_frame_time();
+        if let Some(mut collider) = self.get_offset_collider() {
+            let movement = (self.velocity * 50.0) * get_frame_time();
 
             if movement != Vec2::ZERO {
                 let game_state = scene::find_node_by_type::<GameState>().unwrap();
                 let viewport = storage::get::<Viewport>();
 
                 #[cfg(feature = "collision_between_actors")]
-                let nearby_actors = scene::find_nodes_by_type::<Actor>()
+                    let nearby_actors = scene::find_nodes_by_type::<Actor>()
                     .into_iter()
                     .filter(|actor| actor.is_in_frustum(&viewport.get_frustum()))
                     .collect();
 
-                #[cfg(not(feature = "collision_between_actors"))]
-                let nearby_actors = Vec::new();
+                let increment = vec2(
+                    if movement.x > 0.0 {
+                        COLLISION_RESOLUTION
+                    } else {
+                        -COLLISION_RESOLUTION
+                    },
+                    if movement.y > 0.0 {
+                        COLLISION_RESOLUTION
+                    } else {
+                        -COLLISION_RESOLUTION
+                    },
+                );
 
                 let mut x_collisions = Vec::new();
-                let resolution = if movement.x > 0.0 {
-                    COLLISION_RESOLUTION
-                } else {
-                    -COLLISION_RESOLUTION
-                };
-
-                let x_movement = check_axis(collider, &mut x_collisions, vec2(movement.x, 0.0), vec2(resolution, 0.0), true, &nearby_actors, &game_state);
-
                 let mut y_collisions = Vec::new();
-                let resolution = if movement.y > 0.0 {
-                    COLLISION_RESOLUTION
-                } else {
-                    -COLLISION_RESOLUTION
-                };
 
-                movement = check_axis(collider, &mut y_collisions, vec2(x_movement.x, movement.y), vec2(0.0, resolution), false, &nearby_actors, &game_state);
+                let mut final_movement = Vec2::ZERO;
+
+                while final_movement.x != movement.x {
+                    x_collisions.clear();
+
+                    let modified_increment = if final_movement.x.abs() < movement.x.abs() - increment.x.abs() {
+                        vec2(increment.x, 0.0)
+                    } else {
+                        vec2(movement.x - final_movement.x, 0.0)
+                    };
+
+                    let modified_collider = collider.with_offset(modified_increment);
+
+                    #[cfg(feature = "collision_between_actors")]
+                        {
+                            let mut actor_collisions = check_actor_collisions(modified_collider, &nearby_actors);
+                            x_collisions.append(&mut actor_collisions);
+                        }
+
+                    let mut map_collisions = check_map_collision(modified_collider, &game_state);
+                    x_collisions.append(&mut map_collisions);
+
+                    if x_collisions.len() > 0 {
+                        break;
+                    }
+
+                    final_movement += modified_increment;
+                    collider = modified_collider;
+                }
+
+                while final_movement.y != movement.y {
+                    y_collisions.clear();
+
+                    let modified_increment = if final_movement.y.abs() < movement.y.abs() - increment.y.abs() {
+                        vec2(0.0, increment.y)
+                    } else {
+                        vec2(0.0, movement.y - final_movement.y)
+                    };
+
+                    let modified_collider = collider.with_offset(modified_increment);
+
+                    #[cfg(feature = "collision_between_actors")]
+                        {
+                            let mut actor_collisions = check_actor_collisions(modified_collider, &nearby_actors);
+                            y_collisions.append(&mut actor_collisions);
+                        }
+
+                    let mut map_collisions = check_map_collision(modified_collider, &game_state);
+                    y_collisions.append(&mut map_collisions);
+
+                    if y_collisions.len() > 0 {
+                        break;
+                    }
+
+                    final_movement += modified_increment;
+                    collider = modified_collider;
+                }
 
                 self.last_collisions = Vec::new();
                 self.last_collisions.append(&mut x_collisions);
                 self.last_collisions.append(&mut y_collisions);
 
-                self.position += movement;
+                self.position += final_movement;
             }
         }
     }
 }
 
-fn check_axis(collider: Collider, collisions: &mut Vec<(Collider, CollisionKind)>, movement: Vec2, increment: Vec2, is_x: bool, nearby_actors: &Vec<RefMut<Actor>>, game_state: &RefMut<GameState>) -> Vec2 {
-    let mut final_movement = if is_x {
-        vec2(0.0, 0.0)
-    } else {
-        vec2(movement.x, 0.0)
-    };
+fn check_map_collision(collider: Collider, game_state: &RefMut<GameState>) -> Vec<(Collider, CollisionKind)> {
+    let tile_size = game_state.map.tile_size;
+    let collisions = game_state.map.get_collisions(collider);
 
-    while final_movement != movement {
-        collisions.clear();
+    collisions
+        .into_iter()
+        .map(|(position, kind)| {
+            let collider = Collider::rect(position.x, position.y, tile_size.x, tile_size.y);
+            (collider, kind)
+        })
+        .collect()
+}
 
-        let mut modified_movement =
-            if final_movement.length() < (movement - increment).length() {
-                final_movement + increment
-            } else {
-                movement
-            };
-
-        let map_collisions = game_state.map.get_collisions(collider.with_offset(modified_movement));
-
-        if map_collisions.len() > 0 {
-            let tile_size = game_state.map.tile_size;
-            let mut map_collisions = map_collisions
-                .into_iter()
-                .map(|(position, kind)| {
-                    let collider = Collider::rect(position.x, position.y, tile_size.x, tile_size.y);
-                    (collider, kind)
-                })
-                .collect();
-            collisions.append(&mut map_collisions);
-        }
-
-        #[cfg(feature = "collision_between_actors")]
-            {
-                for actor in nearby_actors {
-                    if let Some(other_collider) = actor.body.get_offset_collider() {
-                        if collider.with_offset(modified_movement).overlaps(other_collider) {
-                            collisions.push((other_collider, CollisionKind::Actor));
-                        }
-                    }
-                }
+fn check_actor_collisions(collider: Collider, actors: &Vec<RefMut<Actor>>) -> Vec<(Collider, CollisionKind)> {
+    let mut collisions = Vec::new();
+    for actor in actors {
+        if let Some(other_collider) = actor.body.get_offset_collider() {
+            if collider.overlaps(other_collider) {
+                collisions.push((other_collider, CollisionKind::Actor));
             }
-
-        if collisions.len() > 0 {
-            break;
         }
-
-        final_movement = modified_movement;
     }
-
-    final_movement
+    collisions
 }

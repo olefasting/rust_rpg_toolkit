@@ -15,7 +15,7 @@ either by modifying a game's data files directly, or by creating user modules, w
 - Mod support out-of-the-box with modules that can extend or replace a game's data and resources
 - RPG mechanics, like character stats, items and an inventory system
 - Conversion from Tiled maps and instantiation of actors and items from map properties
-- Flexible AI behaviors, using [Mode](https://github.com/andrewtc/mode)
+- Flexible AI behaviors
 - Dialogue system
 - Mission and reward system
 - WebAssembly support with wasm-bindgen
@@ -27,7 +27,7 @@ release and publish on crates.io
 
 - [x] Re-design actor behavior system
 - [x] Define basic, default AI behaviors
-- [ ] Refactor collision detection
+- [X] Refactor collision detection
 - [x] Polish pathfinding
 - [ ] Implement actor abilities (currently abilities are only implemented on items)
 - [ ] Refactor the UI system
