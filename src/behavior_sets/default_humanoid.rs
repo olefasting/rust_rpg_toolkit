@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use crate::nodes::actor::PrimaryAbility;
+use crate::nodes::actor::EquippedWeaponsAbilities;
 
 pub struct IdleMode;
 

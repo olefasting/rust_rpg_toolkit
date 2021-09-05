@@ -77,7 +77,7 @@ impl GuiSkins {
         let inventory = {
             let label_style = root_ui()
                 .style_builder()
-                .margin(new_rect_offset(0.0, 0.0, 5.0, 5.0, scale))
+                .margin(new_rect_offset(0.0, 0.0, 0.0, 0.0, scale))
                 .text_color(Color::from_rgba(255, 255, 160, 255))
                 .font_size(get_scaled_font_size(12, scale))
                 .build();
@@ -92,15 +92,9 @@ impl GuiSkins {
                 .font_size(get_scaled_font_size(12, scale))
                 .build();
 
-            let group_style = root_ui()
-                .style_builder()
-                .margin(new_rect_offset(0.0, 0.0, 5.0, 5.0, scale))
-                .build();
-
             Skin {
                 label_style,
                 button_style,
-                group_style,
                 ..default.clone()
             }
         };

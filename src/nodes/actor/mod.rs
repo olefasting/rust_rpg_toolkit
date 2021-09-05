@@ -158,7 +158,7 @@ pub struct Actor {
     pub body: PhysicsBody,
     pub inventory: Inventory,
     pub equipped_items: EquippedItems,
-    pub weapon_ability: PrimaryAbility,
+    pub weapon_ability: EquippedWeaponsAbilities,
     pub selected_ability: Option<Ability>,
     pub controller: ActorController,
     pub experience: u32,
@@ -218,7 +218,7 @@ impl Actor {
             body: PhysicsBody::new(position, 0.0, params.collider),
             inventory,
             equipped_items: params.equipped_items,
-            weapon_ability: PrimaryAbility { main_hand: None, offhand: None },
+            weapon_ability: EquippedWeaponsAbilities { main_hand: None, offhand: None },
             selected_ability: None,
             controller: ActorController::new(controller_kind),
             experience: params.experience,
@@ -312,7 +312,7 @@ impl Actor {
             body,
             inventory: Inventory::from_saved(&export.actor.inventory, &export.items),
             equipped_items: export.actor.equipped_items,
-            weapon_ability: PrimaryAbility { main_hand: None, offhand: None },
+            weapon_ability: EquippedWeaponsAbilities { main_hand: None, offhand: None },
             selected_ability: None,
             controller: ActorController::new(controller_kind),
             experience: export.actor.experience,
@@ -953,7 +953,7 @@ impl Node for Actor {
 }
 
 #[derive(Clone)]
-pub struct PrimaryAbility {
+pub struct EquippedWeaponsAbilities {
     pub main_hand: Option<Ability>,
     pub offhand: Option<Ability>,
 }
