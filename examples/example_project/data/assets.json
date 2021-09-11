@@ -62,6 +62,26 @@
       "path": "assets/gui/macroquad_example_assets/editbox_background.png"
     },
     {
+      "id": "checkbox_01",
+      "path": "assets/gui/macroquad_example_assets/checkbox_background.png"
+    },
+    {
+      "id": "checkbox_01_click",
+      "path": "assets/gui/macroquad_example_assets/checkbox_clicked_background.png"
+    },
+    {
+      "id": "checkbox_01_hover",
+      "path": "assets/gui/macroquad_example_assets/checkbox_hovered_background.png"
+    },
+    {
+      "id": "checkbox_01_selected",
+      "path": "assets/gui/macroquad_example_assets/checkbox_background_selected.png"
+    },
+    {
+      "id": "checkbox_01_selected_hover",
+      "path": "assets/gui/macroquad_example_assets/checkbox_hovered_background_selected.png"
+    },
+    {
       "id": "btn_01",
       "path": "assets/gui/macroquad_example_assets/button_background_2.png"
     },

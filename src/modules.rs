@@ -1,3 +1,7 @@
+use std::{
+    path::{Path, PathBuf},
+};
+
 use crate::prelude::*;
 
 use crate::resources::{MaterialAssetParams, TextureAssetParams, SoundAssetParams};
@@ -113,6 +117,12 @@ pub async fn load_modules(game_params: GameParams, resources: &mut Resources) ->
     'module: for module_name in active_modules {
         let module_path = format!("{}/{}", game_params.modules_path, module_name);
         let module_file_path = format!("{}/{}.json", module_path, module_name);
+
+        if Path::new(&module_path).exists() == false || Path::new(&module_file_path).exists() == false {
+            println!("WARNING: Module '{}' could not be found, even though it is listed in the active modules file!", module_name);
+            continue 'module;
+        }
+
         let bytes = load_file(&module_file_path).await?;
         let module_params: ModuleParams = serde_json::from_slice(&bytes).unwrap();
 
@@ -351,4 +361,24 @@ pub async fn load_modules(game_params: GameParams, resources: &mut Resources) ->
     }
 
     Ok(())
+}
+
+pub fn get_available_module_names() -> io::Result<Vec<String>> {
+    let mut res = Vec::new();
+
+    let game_params = storage::get::<GameParams>();
+    for entry in fs::read_dir(&game_params.modules_path)? {
+        if let Ok(entry) = entry {
+            let path = entry.path();
+            if path.is_dir() {
+                let name = path.file_name().unwrap().to_str().unwrap();
+                let module_file_path = path.join(Path::new(&format!("{}.json", name)));
+                if module_file_path.exists() {
+                    res.push(name.to_string());
+                }
+            }
+        }
+    }
+
+    Ok(res)
 }

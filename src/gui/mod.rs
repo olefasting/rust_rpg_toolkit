@@ -21,11 +21,14 @@ mod game_menu;
 
 pub mod skins;
 pub mod main_menu;
+pub mod helpers;
 
 use game_menu::draw_game_menu;
 use dialogue::draw_dialogue_window;
 use inventory::draw_inventory_window;
 use character::draw_character_window;
+
+pub use helpers::draw_checkbox;
 
 pub use main_menu::{
     draw_main_menu,

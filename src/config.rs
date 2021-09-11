@@ -24,12 +24,16 @@ impl Default for Config {
 }
 
 impl Config {
+    pub const MIN_GUI_SCALE: f32 = 0.1;
+    pub const MAX_GUI_SCALE: f32 = 5.0;
+    pub const GUI_SCALE_STEP: f32 = 0.1;
+
     #[cfg(any(target_family = "unix", target_family = "windows"))]
     pub fn load(path: &str) -> Self {
         let config = if let Ok(json) = fs::read_to_string(path) {
             let mut config: Config = serde_json::from_str(&json)
                 .expect(&format!("Unable to parse config file '{}'!", path));
-            config.gui_scale = config.gui_scale.clamp(0.25, 5.0);
+            config.gui_scale = config.gui_scale.clamp(Self::MIN_GUI_SCALE, Self::MAX_GUI_SCALE);
             config
         } else {
             Default::default()

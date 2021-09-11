@@ -12,20 +12,39 @@ pub fn draw_game_menu(game_state: &mut RefMut<GameState>) {
     widgets::Window::new(hash!(), position, size)
         .titlebar(false)
         .ui(&mut *root_ui(), |ui| {
-            if ui.button(None, "Resume") {
+            let btn_size = vec2(100.0, 32.0) * scale;
+
+            let resume_btn = widgets::Button::new("Resume")
+                .size(btn_size)
+                .ui(ui);
+
+            if resume_btn {
                 game_state.should_show_game_menu = false;
             }
 
-            if ui.button(None, "Save") {
+            let save_btn = widgets::Button::new("Save")
+                .size(btn_size)
+                .ui(ui);
+
+            if save_btn {
                 game_state.should_save_character = true;
                 game_state.should_show_game_menu = false;
             }
 
-            if ui.button(None, "Main Menu") {
+            let main_menu_btn = widgets::Button::new("Main Menu")
+                .size(btn_size)
+                .ui(ui);
+
+            if main_menu_btn {
                 game_state.should_go_to_main_menu = true;
             }
 
-            if ui.button(None, "Quit") {
+            let quit_btn = widgets::Button::new("Quit")
+                .size(btn_size)
+                .position(vec2(0.0, 118.0) * scale)
+                .ui(ui);
+
+            if quit_btn {
                 game_state.should_quit = true;
             }
         });
