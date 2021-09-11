@@ -142,6 +142,7 @@ impl Into<SavedCharacter> for ActorParams {
             completed_missions: Vec::new(),
             current_chapter_index: 0,
             current_map_id,
+            is_permadeath: false,
         }
     }
 }
@@ -326,7 +327,7 @@ impl Actor {
         }
     }
 
-    pub fn to_export(&self) -> SavedCharacter {
+    pub fn to_export(&self, is_permadeath: bool) -> SavedCharacter {
         let game_params = storage::get::<GameParams>();
         let actor = self.to_params();
         let items = self.inventory.items
@@ -354,6 +355,7 @@ impl Actor {
             completed_missions,
             current_chapter_index: current_chapter.chapter_index,
             current_map_id: current_chapter.map_id.clone(),
+            is_permadeath,
         }
     }
 

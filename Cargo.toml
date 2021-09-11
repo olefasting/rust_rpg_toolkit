@@ -34,7 +34,7 @@ hex = "0.4.3"
 serde = { version = "1.0.127", features = ["derive"] }
 serde_json = "1.0.66"
 
-macroquad = { version = "0.3.8" }
+macroquad = "0.3.8"
 macroquad-particles = { version = "0.1", features = ["nanoserde"] }
 # macroquad-profiler = "0.1"
 quad-storage = "0.1.0"

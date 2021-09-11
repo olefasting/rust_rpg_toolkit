@@ -46,6 +46,10 @@
   ],
   "images": [
     {
+      "id": "blank_image",
+      "path": "assets/gui/blank_image.png"
+    },
+    {
       "id": "panel_01",
       "path": "assets/gui/macroquad_example_assets/window_background_2.png"
     },
@@ -68,6 +72,10 @@
     {
       "id": "btn_01_click",
       "path": "assets/gui/macroquad_example_assets/button_hovered_background_2.png"
+    },
+    {
+      "id": "btn_01_inactive",
+      "path": "assets/gui/macroquad_example_assets/button_background_2_inactive.png"
     },
     {
       "id": "btn_02",

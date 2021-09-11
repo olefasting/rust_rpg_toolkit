@@ -29,7 +29,7 @@ pub fn draw_inventory_window(player: &mut Actor) {
     let size = vec2(300.0, 300.0) * scale;
     let position = vec2(50.0, 375.0) * scale;
 
-    root_ui().push_skin(&gui_skins.inventory);
+    root_ui().push_skin(&gui_skins.default);
 
     widgets::Window::new(hash!(), position, size)
         .titlebar(false)

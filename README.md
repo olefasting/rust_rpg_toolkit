@@ -11,7 +11,7 @@ either by modifying a game's data files directly, or by creating user modules, w
 
 ## Features
 
-- Easy definition and modification of game data and resources
+- Easy definition and modification of game data and resources, without having to tuch source code
 - Mod support out-of-the-box with modules that can extend or replace a game's data and resources
 - RPG mechanics, like character stats, items and an inventory system
 - Conversion from Tiled maps and instantiation of actors and items from map properties

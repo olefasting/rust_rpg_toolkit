@@ -14,11 +14,13 @@ pub struct GameState {
     pub should_save_character: bool,
     pub should_go_to_main_menu: bool,
     pub should_quit: bool,
+    pub is_permadeath: bool,
+    pub character_name: String,
     character_save_timer: f32,
 }
 
 impl GameState {
-    pub fn new(local_player_id: &str, map: Map) -> GameState {
+    pub fn new(local_player_id: &str, map: Map, player: ActorParams, is_permadeath: bool) -> GameState {
         GameState {
             map,
             dead_actors: Vec::new(),
@@ -32,18 +34,20 @@ impl GameState {
             should_save_character: false,
             should_go_to_main_menu: false,
             character_save_timer: 0.0,
+            character_name: player.name,
+            is_permadeath,
         }
     }
 
-    pub fn add_node(local_player_id: &str, map: Map) -> Handle<Self> {
-        scene::add_node(Self::new(local_player_id, map))
+    pub fn add_node(local_player_id: &str, map: Map, player: ActorParams, is_permadeath: bool) -> Handle<Self> {
+        scene::add_node(Self::new(local_player_id, map, player, is_permadeath))
     }
 
     #[cfg(not(any(target_family = "wasm", target_os = "android")))]
     pub fn save_player_character(&mut self) {
         let game_params = storage::get::<GameParams>();
         if let Some(player) = Actor::find_by_player_id(&self.local_player_id) {
-            let json = serde_json::to_string_pretty(&player.to_export()).unwrap();
+            let json = serde_json::to_string_pretty(&player.to_export(self.is_permadeath)).unwrap();
             let path = format!("{}/{}.json", game_params.characters_path, player.name);
             fs::write(&path, json).unwrap()
         }
@@ -53,7 +57,7 @@ impl GameState {
     pub fn save_player_character(&self) {
         let game_params = storage::get::<GameParams>();
         if let Some(player) = Actor::find_by_player_id(&self.local_player_id) {
-            let json = serde_json::to_string_pretty(&player.to_export()).unwrap();
+            let json = serde_json::to_string_pretty(&player.to_export(self.is_permadeath)).unwrap();
             let mut storage = quad_storage::STORAGE.lock().unwrap();
             storage.set(&format!("{}_character", game_params.game_name), &json);
         }
@@ -64,6 +68,7 @@ impl Node for GameState {
     fn update(mut node: RefMut<Self>) where Self: Sized {
         if Actor::find_by_player_id(&node.local_player_id).is_none() {
             node.should_go_to_main_menu = true;
+            // TODO: Delete character if permadeath
         }
 
         node.character_save_timer += get_frame_time();

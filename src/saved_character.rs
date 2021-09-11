@@ -15,6 +15,7 @@ pub struct SavedCharacter {
     pub completed_missions: Vec<String>,
     pub current_chapter_index: usize,
     pub current_map_id: String,
+    pub is_permadeath: bool,
 }
 
 #[cfg(not(any(target_family = "wasm", target_os = "android")))]
@@ -47,4 +48,19 @@ pub async fn get_available_characters(_: &str) -> io::Result<Vec<SavedCharacter>
         return Ok(vec![character]);
     }
     Ok(Vec::new())
+}
+
+#[cfg(not(any(target_family = "wasm", target_os = "android")))]
+pub fn delete_character(name: &str) {
+    let game_params = storage::get::<GameParams>();
+    let path = format!("{}/{}.json", game_params.characters_path, name);
+    fs::remove_file(path).unwrap();
+}
+
+#[cfg(target_family = "wasm")]
+pub fn delete_character(name: &str) {
+    let game_params = storage::get::<GameParams>();
+    let storage = &mut quad_storage::STORAGE.lock().unwrap();
+    let save_name = format!("{}_character", game_params.game_name);
+    storage.remove(save_name);
 }

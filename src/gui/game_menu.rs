@@ -7,7 +7,8 @@ pub fn draw_game_menu(game_state: &mut RefMut<GameState>) {
     let size = vec2(150.0, 200.0) * scale;
     let position = get_centered_on_screen(size);
 
-    root_ui().push_skin(&gui_skins.default);
+    root_ui().push_skin(&gui_skins.main_menu);
+
     widgets::Window::new(hash!(), position, size)
         .titlebar(false)
         .ui(&mut *root_ui(), |ui| {

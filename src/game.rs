@@ -15,7 +15,7 @@ fn load_map(local_player_id: &str, transition: SceneTransition) {
             .cloned()
             .expect(&format!("Unable to load map '{}' of chapter '{}'!", map_id, chapter.title));
 
-        GameState::add_node(&local_player_id, map)
+        GameState::add_node(&local_player_id, map, player.actor.clone(), player.is_permadeath)
     };
 
     Camera::add_node();
@@ -258,7 +258,7 @@ pub async fn run_game(game_params: GameParams) {
 
                 if let Some(transition_params) = game_state.scene_transition.clone() {
                     let player = Actor::find_by_player_id(&game_state.local_player_id).unwrap();
-                    scene_transition = Some(SceneTransition::new(player.to_export(), transition_params));
+                    scene_transition = Some(SceneTransition::new(player.to_export(game_state.is_permadeath), transition_params));
                     game_state.scene_transition = None;
                     break 'inner;
                 }

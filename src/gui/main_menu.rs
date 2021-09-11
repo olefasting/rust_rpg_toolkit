@@ -1,8 +1,6 @@
 use crate::gui::*;
 
-use crate::saved_character::{
-    get_available_characters,
-};
+use crate::saved_character::{get_available_characters, delete_character};
 
 enum MainMenuSelection {
     StartGame,
@@ -20,12 +18,14 @@ pub enum MainMenuResult {
 pub async fn draw_main_menu(params: &GameParams) -> MainMenuResult {
     let mut result = None;
 
+    let gui_skins = storage::get::<GuiSkins>();
+
+    root_ui().push_skin(&gui_skins.main_menu);
+
     loop {
         match draw_main_menu_root().await {
             MainMenuSelection::StartGame => {
-                let characters = get_available_characters(&params.characters_path).await.unwrap_or(Vec::new());
-
-                match draw_character_select_menu(&characters).await {
+                match draw_character_select_menu().await {
                     MainMenuSelection::SelectCharacter(player) => {
                         if let Some(transition_params) = draw_chapter_select_menu().await {
                             let transition = SceneTransition::new(player, transition_params);
@@ -63,10 +63,6 @@ pub async fn draw_main_menu(params: &GameParams) -> MainMenuResult {
 }
 
 async fn draw_main_menu_root() -> MainMenuSelection {
-    let gui_skins = storage::get::<GuiSkins>();
-
-    root_ui().push_skin(&gui_skins.default);
-
     loop {
         let gui_skins = storage::get::<GuiSkins>();
         let scale = gui_skins.scale;
@@ -89,7 +85,6 @@ async fn draw_main_menu_root() -> MainMenuSelection {
             });
 
         if let Some(selection) = selection {
-            root_ui().pop_skin();
             return selection;
         }
 
@@ -97,44 +92,125 @@ async fn draw_main_menu_root() -> MainMenuSelection {
     }
 }
 
-async fn draw_character_select_menu(available_characters: &[SavedCharacter]) -> MainMenuSelection {
-    let gui_skins = storage::get::<GuiSkins>();
+async fn draw_delete_character_modal(name: &str, scale: f32) -> bool {
+    let mut res = None;
 
-    root_ui().push_skin(&gui_skins.default);
+    let size = vec2(200.0, 200.0) * scale;
+    let position = get_centered_on_screen(size);
+
+    loop {
+        widgets::Window::new(hash!(name), position, size)
+            .titlebar(false)
+            .ui(&mut *root_ui(), |ui| {
+                ui.label(None, &format!("Are you sure you want to delete '{}'?", name));
+
+                if ui.button(None, "Yes") {
+                    res = Some(true);
+                }
+
+                if ui.button(None, "No") {
+                    res = Some(false);
+                }
+            });
+
+        if let Some(res) = res {
+            return res;
+        }
+
+        next_frame().await;
+    }
+}
+
+async fn draw_character_select_menu() -> MainMenuSelection {
+    let mut characters = {
+        let game_params = storage::get::<GameParams>();
+        get_available_characters(&game_params.characters_path).await.unwrap_or(Vec::new())
+    };
+
+    characters.sort_by(|a, b| a.actor.name.cmp(&b.actor.name));
+
+    let mut delete_character_index = None;
 
     loop {
         let gui_skins = storage::get::<GuiSkins>();
         let scale = gui_skins.scale;
 
-        let size = vec2(200.0, 300.0) * scale;
+        let size = vec2(250.0, 300.0) * scale;
         let position = get_centered_on_screen(size);
 
         let mut result = None;
 
-        widgets::Window::new(hash!(), position, size)
-            .titlebar(false)
-            .ui(&mut *root_ui(), |ui| {
-                ui.label(None, "New Game");
+        if let Some(i) = delete_character_index {
+            let character: SavedCharacter = characters.get(i).cloned().unwrap();
 
-                ui.separator();
+            let size = vec2(200.0, 150.0) * scale;
+            let position = get_centered_on_screen(size);
 
-                for character in available_characters {
-                    if ui.button(None, &character.actor.name) {
-                        result = Some(MainMenuSelection::SelectCharacter(character.clone()));
+            widgets::Window::new(hash!(), position, size)
+                .titlebar(false)
+                .ui(&mut *root_ui(), |ui| {
+                    ui.label(None, "Do you want to delete");
+                    ui.label(None, &format!("'{}'?", &character.actor.name));
+
+                    if ui.button(vec2(12.0, 70.0) * scale, "Yes") {
+                        delete_character(&character.actor.name);
+                        characters.remove(i);
+                        delete_character_index = None;
                     }
-                }
 
-                if ui.button(None, "Create Character") {
-                    result = Some(MainMenuSelection::CreateCharacter);
-                }
+                    if ui.button(vec2(68.0, 70.0) * scale, "Cancel") {
+                        delete_character_index = None;
+                    }
+                });
+        } else {
+            widgets::Window::new(hash!(), position, size)
+                .titlebar(false)
+                .ui(&mut *root_ui(), |ui| {
+                    ui.label(None, "New Game");
 
-                if ui.button(None, "Cancel") {
-                    result = Some(MainMenuSelection::Cancel);
-                }
-            });
+                    ui.separator();
+
+                    ui.push_skin(&gui_skins.default);
+
+                    Group::new(hash!(), vec2(200.0, 22.0) * scale).position(vec2(0.0, 30.0) * scale).ui(ui, |ui| {
+                        ui.push_skin(&gui_skins.label_button);
+                        if ui.button(vec2(2.0, 0.0) * scale, "Create character") {
+                            result = Some(MainMenuSelection::CreateCharacter);
+                        }
+                        ui.pop_skin();
+                    });
+
+                    Group::new(hash!(), vec2(200.0, 150.0) * scale).position(vec2(0.0, 58.0) * scale).ui(ui, |ui| {
+                        for i in 0..characters.len() {
+                            let character = characters.get(i).cloned().unwrap();
+
+                            let y_offset = i as f32 * 22.0;
+
+                            ui.push_skin(&gui_skins.label_button);
+                            if ui.button(vec2(2.0, y_offset) * scale, &character.actor.name) {
+                                result = Some(MainMenuSelection::SelectCharacter(character.clone()));
+                            }
+                            ui.pop_skin();
+
+                            ui.push_skin(&gui_skins.condensed_button);
+                            if ui.button(vec2(170.0, y_offset) * scale, "X") {
+                                delete_character_index = Some(i);
+                            }
+                            ui.pop_skin();
+                        }
+                    });
+
+                    ui.pop_skin();
+
+                    ui.separator();
+
+                    if ui.button(vec2(0.0, 220.0) * scale, "Cancel") {
+                        result = Some(MainMenuSelection::Cancel);
+                    }
+                });
+        }
 
         if let Some(selection) = result {
-            root_ui().pop_skin();
             return selection;
         }
 
@@ -142,26 +218,37 @@ async fn draw_character_select_menu(available_characters: &[SavedCharacter]) -> 
     }
 }
 
-fn draw_character_attribute(ui: &mut Ui, scale: f32, name: &str, value: &mut u32, build_points: &mut u32) {
-    let size = vec2(250.0, 20.0) * scale;
+fn draw_character_attribute(ui: &mut Ui, i: usize, name: &str, value: &mut u32, build_points: &mut u32, scale: f32) {
+    let y_offset = i as f32 * 22.0 + 28.0;
 
-    Group::new(hash!(name), size).ui(ui, |ui| {
-        let position = vec2(60.0, 0.0);
+    ui.label(vec2(2.0, y_offset) * scale, &format!("{}: {}", name, value));
 
-        ui.label(None, &format!("{}: {}", name, value));
-        if ui.button(position * scale, "-") {
-            if *value > 6 {
-                *value -= 1;
-                *build_points += 1;
-            }
+    let gui_skins = storage::get::<GuiSkins>();
+    ui.push_skin(&gui_skins.condensed_button);
+
+    if *value > 6 {
+        if ui.button(vec2(54.0, y_offset) * scale, "-") {
+            *value -= 1;
+            *build_points += 1;
         }
-        if ui.button(vec2(position.x + 22.0, position.y) * scale, "+") {
-            if *build_points > 0 {
-                *value += 1;
-                *build_points -= 1;
-            }
+    } else {
+        ui.push_skin(&gui_skins.condensed_button_inactive);
+        ui.button(vec2(54.0, y_offset) * scale, "-");
+        ui.pop_skin();
+    }
+
+    if *build_points > 0 {
+        if ui.button(vec2(68.0, y_offset) * scale, "+") {
+            *value += 1;
+            *build_points -= 1;
         }
-    });
+    } else {
+        ui.push_skin(&gui_skins.condensed_button_inactive);
+        ui.button(vec2(68.0, y_offset) * scale, "+");
+        ui.pop_skin();
+    }
+
+    ui.pop_skin();
 }
 
 pub async fn draw_create_character_menu() -> Option<SavedCharacter> {
@@ -171,48 +258,79 @@ pub async fn draw_create_character_menu() -> Option<SavedCharacter> {
 
     let mut build_points = game_params.new_character_build_points;
     let mut character = resources.actors.get(&game_params.new_character_prototype_id).cloned().unwrap();
+    let mut is_permadeath = false;
 
-    root_ui().push_skin(&gui_skins.character);
+    let mut should_show_build_points_warning = false;
+    let mut should_show_name_warning = false;
+
+    root_ui().push_skin(&gui_skins.default);
 
     loop {
         let gui_skins = storage::get::<GuiSkins>();
         let scale = gui_skins.scale;
 
-        let size = vec2(250.0, 320.0) * scale;
+        let size = vec2(320.0, 350.0) * scale;
         let position = get_centered_on_screen(size);
 
         let mut result = None;
         let mut should_cancel = false;
 
+        let is_name_in_use = get_available_characters(&game_params.characters_path)
+            .await
+            .unwrap()
+            .into_iter()
+            .find(|existing| existing.actor.name == character.name)
+            .is_some();
+
         widgets::Window::new(hash!(), position, size)
             .titlebar(false)
             .ui(&mut *root_ui(), |ui| {
+
                 ui.label(None, "Create Character");
+
                 ui.separator();
 
                 ui.input_text(hash!(), "", &mut character.name);
                 ui.separator();
 
                 ui.label(None, &format!("Build points: {}", build_points));
-                ui.separator();
 
-                draw_character_attribute(ui, scale, "STR", &mut character.strength, &mut build_points);
-                draw_character_attribute(ui, scale, "DEX", &mut character.dexterity, &mut build_points);
-                draw_character_attribute(ui, scale, "CON", &mut character.constitution, &mut build_points);
-                draw_character_attribute(ui, scale, "INT", &mut character.intelligence, &mut build_points);
-                draw_character_attribute(ui, scale, "WIL", &mut character.willpower, &mut build_points);
-                draw_character_attribute(ui, scale, "PER", &mut character.perception, &mut build_points);
-                draw_character_attribute(ui, scale, "CHA", &mut character.charisma, &mut build_points);
+                if should_show_build_points_warning {
+                    ui.push_skin(&gui_skins.warning_text);
+                    ui.label(None, "You have unspent build points!");
+                    ui.pop_skin();
+                } else if should_show_name_warning {
+                    ui.push_skin(&gui_skins.warning_text);
+                    ui.label(None, "Name is already in use!");
+                    ui.pop_skin();
+                }
 
-                ui.separator();
+                Group::new(hash!(), vec2(135.0, 200.0) * scale).position(vec2(0.0, 64.0) * scale).ui(ui, |ui| {
+                    draw_character_attribute(ui, 0, "STR", &mut character.strength, &mut build_points, scale);
+                    draw_character_attribute(ui, 1, "DEX", &mut character.dexterity, &mut build_points, scale);
+                    draw_character_attribute(ui, 2, "CON", &mut character.constitution, &mut build_points, scale);
+                    draw_character_attribute(ui, 3, "INT", &mut character.intelligence, &mut build_points, scale);
+                    draw_character_attribute(ui, 4, "WIL", &mut character.willpower, &mut build_points, scale);
+                    draw_character_attribute(ui, 5, "PER", &mut character.perception, &mut build_points, scale);
+                    draw_character_attribute(ui, 6, "CHA", &mut character.charisma, &mut build_points, scale);
+                });
 
-                if ui.button(vec2(0.0, 255.0) * scale, "Done") {
-                    if build_points == 0 {
-                        result = Some(character.clone().into());
+                if is_name_in_use || build_points > 0 {
+                    ui.push_skin(&gui_skins.inactive_button);
+                    if ui.button(vec2(0.0, 275.0) * scale, "Done") {
+                        should_show_name_warning = is_name_in_use;
+                        should_show_build_points_warning = build_points > 0;
+                    }
+                    ui.pop_skin();
+                } else {
+                    if ui.button(vec2(0.0, 275.0) * scale, "Done") {
+                        let mut export: SavedCharacter = character.clone().into();
+                        export.is_permadeath = is_permadeath;
+                        result = Some(export);
                     }
                 }
 
-                if ui.button(vec2(40.0, 255.0) * scale, "Cancel") {
+                if ui.button(vec2(52.0, 275.0) * scale, "Cancel") {
                     result = None;
                     should_cancel = true;
                 }
@@ -231,10 +349,6 @@ pub async fn draw_create_character_menu() -> Option<SavedCharacter> {
 }
 
 async fn draw_chapter_select_menu() -> Option<SceneTransitionParams> {
-    let gui_skins = storage::get::<GuiSkins>();
-
-    root_ui().push_skin(&gui_skins.default);
-
     loop {
         let gui_skins = storage::get::<GuiSkins>();
         let scale = gui_skins.scale;
@@ -254,8 +368,8 @@ async fn draw_chapter_select_menu() -> Option<SceneTransitionParams> {
 
                 let resources = storage::get::<Resources>();
 
-                let mut i = 0;
-                for chapter in &resources.chapters {
+                for i in 0..resources.chapters.len() {
+                    let chapter = resources.chapters.get(i).unwrap();
                     if ui.button(None, &chapter.title.clone()) {
                         let params = SceneTransitionParams {
                             chapter_index: i,
@@ -263,7 +377,6 @@ async fn draw_chapter_select_menu() -> Option<SceneTransitionParams> {
                         };
                         result = Some(params);
                     }
-                    i += 0;
                 }
 
                 if ui.button(None, "Cancel") {
@@ -272,7 +385,6 @@ async fn draw_chapter_select_menu() -> Option<SceneTransitionParams> {
             });
 
         if result.is_some() || should_cancel {
-            root_ui().pop_skin();
             if should_cancel {
                 return None;
             } else {
