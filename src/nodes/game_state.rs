@@ -20,7 +20,7 @@ pub struct GameState {
 }
 
 impl GameState {
-    pub fn new(local_player_id: &str, map: Map, player: ActorParams, is_permadeath: bool) -> GameState {
+    pub fn new(local_player_id: &str, map: Map, player: &SavedCharacter) -> GameState {
         GameState {
             map,
             dead_actors: Vec::new(),
@@ -34,13 +34,13 @@ impl GameState {
             should_save_character: false,
             should_go_to_main_menu: false,
             character_save_timer: 0.0,
-            character_name: player.name,
-            is_permadeath,
+            character_name: player.actor.name.clone(),
+            is_permadeath: player.is_permadeath,
         }
     }
 
-    pub fn add_node(local_player_id: &str, map: Map, player: ActorParams, is_permadeath: bool) -> Handle<Self> {
-        scene::add_node(Self::new(local_player_id, map, player, is_permadeath))
+    pub fn add_node(local_player_id: &str, map: Map, player: &SavedCharacter) -> Handle<Self> {
+        scene::add_node(Self::new(local_player_id, map, player))
     }
 
     #[cfg(not(any(target_family = "wasm", target_os = "android")))]
@@ -48,7 +48,7 @@ impl GameState {
         let game_params = storage::get::<GameParams>();
         if let Some(player) = Actor::find_by_player_id(&self.local_player_id) {
             let json = serde_json::to_string_pretty(&player.to_export(self.is_permadeath)).unwrap();
-            let path = format!("{}/{}.json", game_params.characters_path, player.name);
+            let path = format!("{}/{}.json", game_params.characters_path, &self.character_name);
             fs::write(&path, json).unwrap()
         }
     }
@@ -68,7 +68,9 @@ impl Node for GameState {
     fn update(mut node: RefMut<Self>) where Self: Sized {
         if Actor::find_by_player_id(&node.local_player_id).is_none() {
             node.should_go_to_main_menu = true;
-            // TODO: Delete character if permadeath
+            if node.is_permadeath {
+                delete_character(&node.character_name);
+            }
         }
 
         node.character_save_timer += get_frame_time();

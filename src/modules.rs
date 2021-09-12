@@ -1,5 +1,5 @@
 use std::{
-    path::{Path, PathBuf},
+    path::Path,
 };
 
 use crate::prelude::*;
@@ -363,11 +363,9 @@ pub async fn load_modules(game_params: GameParams, resources: &mut Resources) ->
     Ok(())
 }
 
-pub fn get_available_modules() -> io::Result<HashMap<String, ModuleParams>> {
+pub fn get_available_modules(modules_path: &str) -> io::Result<HashMap<String, ModuleParams>> {
     let mut res = HashMap::new();
-
-    let game_params = storage::get::<GameParams>();
-    for entry in fs::read_dir(&game_params.modules_path)? {
+    for entry in fs::read_dir(modules_path)? {
         if let Ok(entry) = entry {
             let path = entry.path();
             if path.is_dir() {

@@ -1,6 +1,7 @@
 use crate::gui::*;
+use macroquad::ui::Id;
 
-pub fn draw_checkbox<P: Into<Option<Vec2>>>(ui: &mut Ui, position: P, label: &str, value: &mut bool) {
+pub fn draw_checkbox<P: Into<Option<Vec2>>>(ui: &mut Ui, id: Id, position: P, label: &str, value: &mut bool) {
     let gui_skins = storage::get::<GuiSkins>();
     let scale = gui_skins.scale;
 
@@ -13,7 +14,7 @@ pub fn draw_checkbox<P: Into<Option<Vec2>>>(ui: &mut Ui, position: P, label: &st
     ui.separator();
 
     let size = (vec2(16.0, 0.0) * scale) + ui.calc_size(label);
-    let mut group = widgets::Group::new(hash!(label, "checkbox"), size);
+    let mut group = widgets::Group::new(id, size);
 
     if let Some(position) = position.into() {
         group = group.position(position);

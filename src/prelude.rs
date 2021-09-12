@@ -56,7 +56,11 @@ pub use crate::{
         to_int_version,
         check_version,
     },
-    modules::load_modules,
+    modules::{
+        load_modules,
+        ModuleParams,
+        get_available_modules,
+    },
     config::Config,
     uid::generate_id,
     resources::Resources,
@@ -68,6 +72,7 @@ pub use crate::{
         SceneTransitionParams,
     },
     saved_character::{
+        delete_character,
         SavedCharacter,
         get_available_characters,
     },

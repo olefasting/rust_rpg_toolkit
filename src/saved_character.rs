@@ -54,7 +54,7 @@ pub async fn get_available_characters(_: &str) -> io::Result<Vec<SavedCharacter>
 pub fn delete_character(name: &str) {
     let game_params = storage::get::<GameParams>();
     let path = format!("{}/{}.json", game_params.characters_path, name);
-    fs::remove_file(path).unwrap();
+    fs::remove_file(path);
 }
 
 #[cfg(target_family = "wasm")]

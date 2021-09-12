@@ -5,8 +5,6 @@ use mode::{
     Mode,
 };
 
-use crate::nodes::actor::EquippedWeaponsAbilities;
-
 #[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ActorAggression {

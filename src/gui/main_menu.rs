@@ -1,10 +1,6 @@
-use crate::gui::*;
-
-use crate::saved_character::{get_available_characters, delete_character};
 use regex::Regex;
-use crate::modules::{ModuleParams, get_available_modules};
-use macroquad::ui::Drag;
-use crate::gui::main_menu::LoadOrderChange::LoadAfter;
+
+use crate::gui::*;
 
 enum MainMenuSelection {
     StartGame,
@@ -21,7 +17,7 @@ pub enum MainMenuResult {
     Quit,
 }
 
-pub async fn draw_main_menu(params: &GameParams) -> MainMenuResult {
+pub async fn draw_main_menu() -> MainMenuResult {
     let mut result = None;
 
     loop {
@@ -341,6 +337,10 @@ pub async fn draw_create_character_menu() -> Option<SavedCharacter> {
                     draw_character_attribute(ui, 6, "CHA", &mut character.charisma, &mut build_points);
                 });
 
+                Group::new(hash!(), vec2(165.0, 154.0) * scale).position(vec2(100.0, 84.0) * scale).ui(ui, |ui| {
+                    draw_checkbox(ui, hash!(), vec2(0.0, 130.0) * scale, "Hardcore", &mut is_permadeath);
+                });
+
                 if should_show_build_points_warning {
                     ui.push_skin(&gui_skins.warning_label);
                     ui.label(vec2(0.0, 243.0) * scale, "You have unspent build points!");
@@ -522,7 +522,7 @@ async fn draw_settings_menu() {
                 ui.same_line(58.0 * scale);
                 ui.editbox(hash!(), vec2(42.0, 18.0) * scale, &mut resolution_y_str);
 
-                draw_checkbox(ui, None, "Fullscreen", &mut fullscreen_cfg);
+                draw_checkbox(ui, hash!(), None, "Fullscreen", &mut fullscreen_cfg);
 
                 ui.separator();
 
@@ -636,9 +636,9 @@ fn draw_module_entry(ui: &mut Ui, i: usize, name: &str, params: &ModuleParams, v
     let size = vec2(260.0, 24.0) * scale;
     let position = vec2(0.0, i as f32 * 28.0) * scale;
 
-    let id = (i as u64 + 1) * 2;
+    let (entry_id, drop_before_id) = module_index_to_id(i);
 
-    widgets::Group::new(id + 1, vec2(size.x, 4.0 * scale))
+    widgets::Group::new(drop_before_id, vec2(size.x, 4.0 * scale))
         .position(position)
         .draggable(false)
         .hoverable(is_dragging && *value)
@@ -646,12 +646,12 @@ fn draw_module_entry(ui: &mut Ui, i: usize, name: &str, params: &ModuleParams, v
 
     let label = format!("{} ({}) [{}]", params.title, name, params.version);
 
-    let drag = widgets::Group::new(id, size)
+    let drag = widgets::Group::new(entry_id, size)
         .position(position + vec2(0.0, 4.0 * scale))
         .draggable(*value)
         .hoverable(is_dragging && *value)
         .ui(ui, |ui| {
-            draw_checkbox(ui, vec2(2.0, 0.0), &label, value);
+            draw_checkbox(ui, hash!(), vec2(2.0, 0.0), &label, value);
         });
 
     ui.pop_skin();
@@ -663,6 +663,25 @@ fn draw_module_entry(ui: &mut Ui, i: usize, name: &str, params: &ModuleParams, v
 enum LoadOrderChange {
     LoadBefore { i: usize, target_i: usize },
     LoadAfter { i: usize, target_i: usize },
+}
+
+// Returns a modules index in the active_modules vector, calculated from either the entry
+// id, or the id of the drop-zone before the entry, as well as a bool that will be true
+// if the id was for the modules entry in the module list
+fn id_to_module_index(id: u64) -> (usize, bool) {
+    if id % 2 == 0 {
+        ((id as usize / 2) - 1, true)
+    } else {
+        (((id as usize - 1) / 2) - 1, false)
+    }
+}
+
+// Returns two ids, the first for the group holding the module entry in the list and the
+// second for the drop-zone before the entry, letting you drop a module before another in
+// the load order
+fn module_index_to_id(i: usize) -> (u64, u64) {
+    let id = (i as u64 + 1) * 2;
+    (id, id + 1)
 }
 
 async fn draw_modules_menu() {
@@ -679,9 +698,10 @@ async fn draw_modules_menu() {
     let size = vec2(320.0, 320.0) * scale;
     let position = get_centered_on_screen(size);
 
-    let available_modules = get_available_modules().unwrap();
-
     let game_params = storage::get::<GameParams>();
+
+    let available_modules = get_available_modules(&game_params.modules_path).unwrap();
+
     let active_modules_file_path = format!("{}/active_modules.json", &game_params.modules_path);
     let bytes = load_file(&active_modules_file_path).await.unwrap();
     let mut active_modules = serde_json::from_slice::<Vec<String>>(&bytes)
@@ -691,7 +711,7 @@ async fn draw_modules_menu() {
         .collect::<Vec<String>>();
 
     let mut module_state: HashMap<String, bool> = HashMap::from_iter(
-        available_modules.iter().map(|(module, _)| (module.clone(), active_modules.contains(module))));
+        available_modules.iter().map(|(name, _)| (name.clone(), active_modules.contains(name))));
 
     let mut is_dragging = false;
     let mut load_order_change = None;
@@ -710,23 +730,23 @@ async fn draw_modules_menu() {
                     let mut i = 0;
                     for name in &active_modules {
                         if let Some(module) = available_modules.get(name) {
-                            let mut value = module_state.get_mut(name).unwrap();
+                            let value = module_state.get_mut(name).unwrap();
 
                             match draw_module_entry(ui, i, &name, &module, value, is_dragging) {
                                 Drag::Dropped(_, Some(id)) => {
                                     is_dragging = false;
-                                    load_order_change = if id % 2 == 0 {
-                                        let target_i = (id as usize / 2) - 1;
+
+                                    let (target_i, is_entry) = id_to_module_index(id);
+                                    load_order_change = if is_entry {
                                         Some(LoadOrderChange::LoadAfter { i, target_i })
                                     } else {
-                                        let target_i = ((id as usize - 1) / 2) - 1;
                                         Some(LoadOrderChange::LoadBefore { i, target_i })
                                     };
                                 }
                                 Drag::Dropped(_, _) => {
                                     is_dragging = false;
                                 }
-                                Drag::Dragging(pos, id) => {
+                                Drag::Dragging(_pos, _id) => {
                                     is_dragging = true;
                                 }
                                 _ => {}
@@ -738,8 +758,9 @@ async fn draw_modules_menu() {
 
                     for (name, module) in &available_modules {
                         if active_modules.contains(name) == false {
-                            let mut value = module_state.get_mut(name).unwrap();
+                            let value = module_state.get_mut(name).unwrap();
                             draw_module_entry(ui, i, &name, &module, value, false);
+
                             i += 1;
                         }
                     }
@@ -798,9 +819,9 @@ async fn draw_modules_menu() {
 
         active_modules.retain(|module| *module_state.get(module).unwrap_or(&false));
 
-        for (module, state) in &module_state {
-            if *state && active_modules.contains(module) == false {
-                active_modules.push(module.clone());
+        for (name, state) in &module_state {
+            if *state && active_modules.contains(name) == false {
+                active_modules.push(name.clone());
             }
         }
 

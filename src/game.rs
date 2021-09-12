@@ -15,7 +15,7 @@ fn load_map(local_player_id: &str, transition: SceneTransition) {
             .cloned()
             .expect(&format!("Unable to load map '{}' of chapter '{}'!", map_id, chapter.title));
 
-        GameState::add_node(&local_player_id, map, player.actor.clone(), player.is_permadeath)
+        GameState::add_node(&local_player_id, map, &player)
     };
 
     Camera::add_node();
@@ -152,13 +152,13 @@ impl Default for GameParams {
 }
 
 #[cfg(not(any(target_family = "wasm", target_os = "android")))]
-fn check_env(params: &GameParams) {
+fn check_paths(params: &GameParams) {
     fs::create_dir_all(&params.characters_path)
         .expect(&format!("Unable to create characters directory '{}'!", params.characters_path));
 }
 
 #[cfg(target_family = "wasm")]
-pub fn check_env(_params: &GameParams) {}
+pub fn check_paths(_params: &GameParams) {}
 
 pub fn setup_local_player() -> String {
     let local_player_id = generate_id();
@@ -208,7 +208,7 @@ pub async fn load_resources(game_params: GameParams) {
 // your own game loop, so that you get better access to the internals
 pub async fn run_game(game_params: GameParams) {
     storage::store(game_params.clone());
-    check_env(&game_params);
+    check_paths(&game_params);
 
     load_resources(game_params.clone()).await;
 
@@ -226,7 +226,7 @@ pub async fn run_game(game_params: GameParams) {
         scene::clear();
 
         if scene_transition.is_none() {
-            scene_transition = match gui::draw_main_menu(&game_params).await {
+            scene_transition = match gui::draw_main_menu().await {
                 MainMenuResult::StartGame(transition) => Some(transition),
                 MainMenuResult::Quit => break,
             };
@@ -248,11 +248,13 @@ pub async fn run_game(game_params: GameParams) {
                 }
 
                 if game_state.should_go_to_main_menu {
+                    game_state.save_player_character();
                     scene_transition = None;
                     continue 'outer;
                 }
 
                 if game_state.should_quit {
+                    game_state.save_player_character();
                     break 'outer;
                 }
 

@@ -98,13 +98,15 @@ impl PhysicsBody {
 
             if movement != Vec2::ZERO {
                 let game_state = scene::find_node_by_type::<GameState>().unwrap();
-                let viewport = storage::get::<Viewport>();
 
                 #[cfg(feature = "collision_between_actors")]
-                    let nearby_actors = scene::find_nodes_by_type::<Actor>()
-                    .into_iter()
-                    .filter(|actor| actor.is_in_frustum(&viewport.get_frustum()))
-                    .collect();
+                    let nearby_actors = {
+                    let viewport = storage::get::<Viewport>();
+                    scene::find_nodes_by_type::<Actor>()
+                        .into_iter()
+                        .filter(|actor| actor.is_in_frustum(&viewport.get_frustum()))
+                        .collect()
+                };
 
                 let increment = vec2(
                     if movement.x > 0.0 {
