@@ -2,7 +2,9 @@ use crate::gui::*;
 
 use crate::saved_character::{get_available_characters, delete_character};
 use regex::Regex;
-use crate::modules::{ModuleParams, get_available_module_names};
+use crate::modules::{ModuleParams, get_available_modules};
+use macroquad::ui::Drag;
+use crate::gui::main_menu::LoadOrderChange::LoadAfter;
 
 enum MainMenuSelection {
     StartGame,
@@ -482,7 +484,7 @@ async fn draw_settings_menu() {
     let config = &*storage::get::<Config>();
     let mut config = config.clone();
 
-    let mut should_restart = false;
+    let mut will_require_restart = false;
 
     let mut should_save = false;
     let mut should_cancel = false;
@@ -558,7 +560,7 @@ async fn draw_settings_menu() {
                     ui.pop_skin();
                 }
 
-                if should_restart {
+                if will_require_restart {
                     ui.push_skin(&gui_skins.warning_label);
                     ui.label(vec2(0.0, 213.0) * scale, "Changes require a restart!");
                     ui.pop_skin();
@@ -594,7 +596,7 @@ async fn draw_settings_menu() {
             resolution_y_str.parse().unwrap(),
         );
 
-        should_restart = resolution != config.resolution || fullscreen_cfg != config.fullscreen;
+        will_require_restart = resolution != config.resolution || fullscreen_cfg != config.fullscreen;
 
         if gui_scale_regex.is_match(&gui_scale_str) == false {
             gui_scale_str = config.gui_scale.to_string();
@@ -625,11 +627,49 @@ async fn draw_settings_menu() {
     }
 }
 
+fn draw_module_entry(ui: &mut Ui, i: usize, name: &str, params: &ModuleParams, value: &mut bool, is_dragging: bool) -> Drag {
+    let gui_skins = storage::get::<GuiSkins>();
+    let scale = gui_skins.scale;
+
+    ui.push_skin(&gui_skins.module_list_entry);
+
+    let size = vec2(260.0, 24.0) * scale;
+    let position = vec2(0.0, i as f32 * 28.0) * scale;
+
+    let id = (i as u64 + 1) * 2;
+
+    widgets::Group::new(id + 1, vec2(size.x, 4.0 * scale))
+        .position(position)
+        .draggable(false)
+        .hoverable(is_dragging && *value)
+        .ui(ui, |_| {});
+
+    let label = format!("{} ({}) [{}]", params.title, name, params.version);
+
+    let drag = widgets::Group::new(id, size)
+        .position(position + vec2(0.0, 4.0 * scale))
+        .draggable(*value)
+        .hoverable(is_dragging && *value)
+        .ui(ui, |ui| {
+            draw_checkbox(ui, vec2(2.0, 0.0), &label, value);
+        });
+
+    ui.pop_skin();
+
+    drag
+}
+
+#[derive(Debug, Copy, Clone)]
+enum LoadOrderChange {
+    LoadBefore { i: usize, target_i: usize },
+    LoadAfter { i: usize, target_i: usize },
+}
+
 async fn draw_modules_menu() {
     let gui_skins = storage::get::<GuiSkins>();
     root_ui().push_skin(&gui_skins.default);
 
-    let mut should_restart = false;
+    let mut will_require_restart = false;
 
     let mut should_save = false;
     let mut should_cancel = false;
@@ -639,18 +679,22 @@ async fn draw_modules_menu() {
     let size = vec2(320.0, 320.0) * scale;
     let position = get_centered_on_screen(size);
 
-    let available_modules = get_available_module_names().unwrap();
+    let available_modules = get_available_modules().unwrap();
 
     let game_params = storage::get::<GameParams>();
     let active_modules_file_path = format!("{}/active_modules.json", &game_params.modules_path);
     let bytes = load_file(&active_modules_file_path).await.unwrap();
-    let active_modules = serde_json::from_slice::<Vec<String>>(&bytes)
+    let mut active_modules = serde_json::from_slice::<Vec<String>>(&bytes)
         .unwrap()
         .into_iter()
-        .filter(|module| available_modules.contains(module))
+        .filter(|module| available_modules.contains_key(module))
         .collect::<Vec<String>>();
 
-    let mut module_state: HashMap<String, bool> = HashMap::from_iter(available_modules.iter().map(|module| (module.clone(), active_modules.contains(module))));
+    let mut module_state: HashMap<String, bool> = HashMap::from_iter(
+        available_modules.iter().map(|(module, _)| (module.clone(), active_modules.contains(module))));
+
+    let mut is_dragging = false;
+    let mut load_order_change = None;
 
     loop {
         widgets::Window::new(hash!(), position, size)
@@ -660,12 +704,48 @@ async fn draw_modules_menu() {
                 ui.label(None, "Modules");
                 ui.pop_skin();
 
-                for module in &available_modules {
-                    let mut mutref = module_state.get_mut(module).unwrap();
-                    draw_checkbox(ui, None, module, mutref);
-                }
+                let size = vec2(270.0, 220.0) * scale;
 
-                if should_restart {
+                widgets::Group::new(hash!(), size).position(vec2(0.0, 26.0) * scale).ui(ui, |ui| {
+                    let mut i = 0;
+                    for name in &active_modules {
+                        if let Some(module) = available_modules.get(name) {
+                            let mut value = module_state.get_mut(name).unwrap();
+
+                            match draw_module_entry(ui, i, &name, &module, value, is_dragging) {
+                                Drag::Dropped(_, Some(id)) => {
+                                    is_dragging = false;
+                                    load_order_change = if id % 2 == 0 {
+                                        let target_i = (id as usize / 2) - 1;
+                                        Some(LoadOrderChange::LoadAfter { i, target_i })
+                                    } else {
+                                        let target_i = ((id as usize - 1) / 2) - 1;
+                                        Some(LoadOrderChange::LoadBefore { i, target_i })
+                                    };
+                                }
+                                Drag::Dropped(_, _) => {
+                                    is_dragging = false;
+                                }
+                                Drag::Dragging(pos, id) => {
+                                    is_dragging = true;
+                                }
+                                _ => {}
+                            }
+
+                            i += 1;
+                        }
+                    }
+
+                    for (name, module) in &available_modules {
+                        if active_modules.contains(name) == false {
+                            let mut value = module_state.get_mut(name).unwrap();
+                            draw_module_entry(ui, i, &name, &module, value, false);
+                            i += 1;
+                        }
+                    }
+                });
+
+                if will_require_restart {
                     ui.push_skin(&gui_skins.warning_label);
                     ui.label(vec2(0.0, 213.0) * scale, "Changes require a restart!");
                     ui.pop_skin();
@@ -687,12 +767,48 @@ async fn draw_modules_menu() {
                 should_cancel = cancel_btn;
             });
 
+        if let Some(load_order_change) = load_order_change {
+            match load_order_change {
+                LoadOrderChange::LoadBefore { i, target_i } => {
+                    let entry = active_modules.remove(i);
+
+                    let target_i = if i < target_i {
+                        target_i - 1
+                    } else {
+                        target_i
+                    };
+
+                    active_modules.insert(target_i, entry);
+                }
+                LoadOrderChange::LoadAfter { i, target_i } => {
+                    let entry = active_modules.remove(i);
+
+                    let target_i = if i < target_i {
+                        target_i
+                    } else {
+                        target_i + 1
+                    };
+
+                    active_modules.insert(target_i, entry);
+                }
+            };
+        }
+
+        load_order_change = None;
+
+        active_modules.retain(|module| *module_state.get(module).unwrap_or(&false));
+
+        for (module, state) in &module_state {
+            if *state && active_modules.contains(module) == false {
+                active_modules.push(module.clone());
+            }
+        }
+
         if should_save || should_cancel {
             root_ui().pop_skin();
 
             #[cfg(not(any(target_os = "android", target_family = "wasm")))]
             if should_save {
-                let active_modules = available_modules.into_iter().filter(|module| module_state.get(module).cloned().unwrap_or(false)).collect();
                 let json = serde_json::to_string_pretty(&active_modules).unwrap();
                 fs::write(active_modules_file_path, &json).unwrap();
             }

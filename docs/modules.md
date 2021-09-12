@@ -3,7 +3,7 @@
 Modules can be used to extend the game without having to edit the game's data files directly.
 They are placed in the `modules` directory, inside the game folder, and added to the array in the `modules/active_modules.json` file. Load order is also determined by the order of this array.
 
-Each module folder must contain a module declaration json-file, with the same name as the module, where the module data- and resource files are declared.
+Each module folder must contain a module declaration json-file, named `module.json`, where the module data and resource files are declared.
 
 ```rust
 struct ModuleDeclaration {

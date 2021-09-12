@@ -1,5 +1,5 @@
 {
-  "display_name": "Test Module",
+  "title": "Another Test Module",
   "description": "Test Module description",
   "version": "0.1.0",
   "dependencies": [

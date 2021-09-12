@@ -29,8 +29,6 @@ pub fn draw_checkbox<P: Into<Option<Vec2>>>(ui: &mut Ui, position: P, label: &st
             *value = !*value;
         }
 
-        //ui.same_line(16.0 * scale);
-
         ui.label(vec2(16.0, 0.0) * scale, label);
     });
 

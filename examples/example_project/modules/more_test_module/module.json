@@ -1,0 +1,44 @@
+{
+  "title": "More Test Module",
+  "description": "Test Module description",
+  "version": "0.1.0",
+  "required_game_version": "0.1",
+  "data": [
+    {
+      "kind": "actors",
+      "path": "module_actors.json",
+      "integration": "extend"
+    },
+    {
+      "kind": "scenario",
+      "path": "module_scenario.json",
+      "integration": "extend"
+    }
+  ],
+  "assets": {
+    "materials": {
+      "integration": "extend",
+      "files": [
+
+      ]
+    },
+    "textures": {
+      "integration": "extend",
+      "files": [
+
+      ]
+    },
+    "sound_effects": {
+      "integration": "extend",
+      "files": [
+
+      ]
+    },
+    "music": {
+      "integration": "extend",
+      "files": [
+
+      ]
+    }
+  }
+}

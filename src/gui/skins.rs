@@ -7,6 +7,7 @@ pub struct GuiSkins {
     pub scale: f32,
     pub default: Skin,
     pub main_menu: Skin,
+    pub module_list_entry: Skin,
     pub checkbox: Skin,
     pub checkbox_selected: Skin,
     pub header_label: Skin,
@@ -96,6 +97,7 @@ impl GuiSkins {
                 .style_builder()
                 .margin(new_rect_offset(0.0, 0.0, 0.0, 0.0, scale))
                 .color(Color::from_rgba(0, 0, 0, 0))
+                .color_hovered(Color::from_rgba(0, 0, 0, 0))
                 .build();
 
             let scrollbar_style = root_ui()
@@ -152,6 +154,35 @@ impl GuiSkins {
             }
         };
 
+        let module_list_entry = {
+            let group_style = root_ui()
+                .style_builder()
+                .color(Color::from_rgba(0, 0, 0, 0))
+                .color_hovered(Color::from_rgba(255, 255, 255, 255))
+                .build();
+
+            let scrollbar_style = root_ui()
+                .style_builder()
+                .color(Color::from_rgba(0, 0,0, 0))
+                .color_hovered(Color::from_rgba(0, 0,0, 0))
+                .color_clicked(Color::from_rgba(0, 0,0, 0))
+                .build();
+
+            let scrollbar_handle_style = root_ui()
+                .style_builder()
+                .color(Color::from_rgba(0, 0,0, 0))
+                .color_hovered(Color::from_rgba(0, 0,0, 0))
+                .color_clicked(Color::from_rgba(0, 0,0, 0))
+                .build();
+
+            Skin {
+                group_style,
+                scrollbar_style,
+                scrollbar_handle_style,
+                ..default.clone()
+            }
+        };
+
         let checkbox = {
             let button_style = root_ui()
                 .style_builder()
@@ -160,12 +191,6 @@ impl GuiSkins {
                 .background_clicked(checkbox_01_click.clone())
                 .background_margin(new_rect_offset(6.0, 6.0, 6.0, 6.0, scale))
                 //.margin(new_rect_offset(-4.0, -4.0, -4.0, -4.0, scale))
-                .build();
-
-            let group_style = root_ui()
-                .style_builder()
-                .margin(new_rect_offset(0.0, 0.0, 0.0, 0.0, scale))
-                .color(Color::from_rgba(0, 0, 0, 0))
                 .build();
 
             let scrollbar_style = root_ui()
@@ -184,7 +209,6 @@ impl GuiSkins {
 
             Skin {
                 button_style,
-                group_style,
                 scrollbar_style,
                 scrollbar_handle_style,
                 ..default.clone()
@@ -359,6 +383,7 @@ impl GuiSkins {
             scale,
             default,
             main_menu,
+            module_list_entry,
             checkbox,
             checkbox_selected,
             header_label,
