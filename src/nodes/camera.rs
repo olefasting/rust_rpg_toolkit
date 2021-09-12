@@ -83,6 +83,17 @@ impl Camera {
     pub fn get_render_target(&self) -> &RenderTarget {
         &self.render_target
     }
+
+    fn get_camera(&self) -> Camera2D {
+        Camera2D {
+            offset: vec2(0.0, 0.0),
+            target: vec2(self.position.x.round(), self.position.y.round()),
+            zoom: vec2(self.scale / screen_width(), self.scale / screen_height()) * 2.0,
+            rotation: self.rotation,
+            render_target: Some(self.render_target),
+            ..Camera2D::default()
+        }
+    }
 }
 
 impl Node for Camera {
@@ -115,13 +126,6 @@ impl Node for Camera {
     }
 
     fn draw(node: RefMut<Self>) where Self: Sized {
-        scene::set_camera(Camera2D {
-            offset: vec2(0.0, 0.0),
-            target: vec2(node.position.x.round(), node.position.y.round()),
-            zoom: vec2(node.scale / screen_width(), node.scale / screen_height()) * 2.0,
-            rotation: node.rotation,
-            render_target: Some(node.render_target),
-            ..Camera2D::default()
-        });
+        scene::set_camera(0, Some(node.get_camera()));
     }
 }

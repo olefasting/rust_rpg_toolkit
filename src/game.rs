@@ -212,10 +212,7 @@ pub async fn run_game(game_params: GameParams) {
 
     load_resources(game_params.clone()).await;
 
-    let gui_skins = {
-        let config = storage::get::<Config>();
-        GuiSkins::new(config.gui_scale)
-    };
+    let gui_skins = GuiSkins::new();
 
     storage::store(gui_skins);
 

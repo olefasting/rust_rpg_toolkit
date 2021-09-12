@@ -14,10 +14,9 @@ use crate::gui::get_centered_on_screen;
 
 pub fn draw_dialogue_window(player: &mut Actor) {
     let gui_skins = storage::get::<GuiSkins>();
-    let scale = gui_skins.scale;
     let interaction = player.current_dialogue.clone();
 
-    let size = vec2(400.0, 350.0) * scale;
+    let size = vec2(400.0, 350.0) ;
     let position = get_centered_on_screen(size);
 
     if let Some(interaction) = interaction {
@@ -53,7 +52,7 @@ pub fn draw_dialogue_window(player: &mut Actor) {
                     }
                 } else {
                     for mut option in options {
-                        if ui.button(None, &option.title.clone()) {
+                        if ui.button(None, &*option.title.clone()) {
                             option.should_apply = true;
                             player.current_dialogue = Some(option);
                         }

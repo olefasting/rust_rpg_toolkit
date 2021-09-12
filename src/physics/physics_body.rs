@@ -205,6 +205,7 @@ fn check_map_collision(collider: Collider, game_state: &RefMut<GameState>) -> Ve
         .collect()
 }
 
+#[cfg(feature = "collision_between_actors")]
 fn check_actor_collisions(collider: Collider, actors: &Vec<RefMut<Actor>>) -> Vec<(Collider, CollisionKind)> {
     let mut collisions = Vec::new();
     for actor in actors {

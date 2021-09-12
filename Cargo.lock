@@ -620,9 +620,9 @@ dependencies = [
 
 [[package]]
 name = "macroquad"
-version = "0.3.8"
+version = "0.3.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "01cd857aa6338beb13b14bc26e662652e2d78b9341ed82ee91ef2c7fceb35ed3"
+checksum = "5c11792fb3af71339e4354ee3dbde4bbe5731dac266cc087b414338dfb1ca1bd"
 dependencies = [
  "bumpalo",
  "fontdue",
@@ -645,10 +645,19 @@ dependencies = [
 ]
 
 [[package]]
-name = "macroquad_macro"
-version = "0.1.5"
+name = "macroquad-profiler"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6ecb8935bc6a74b8374439c0bd8d2857ae1499fde9fbba76bb00722f7213b42d"
+checksum = "e01f1d4404977fe93fe244853658011a7c50652f8a969c4ac443a1d4cfb135fb"
+dependencies = [
+ "macroquad",
+]
+
+[[package]]
+name = "macroquad_macro"
+version = "0.1.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "15db41b6abd0156c498868ec69f8973731ef75874768ac234980422579e70805"
 
 [[package]]
 name = "maybe-uninit"
@@ -1022,6 +1031,7 @@ dependencies = [
  "hex",
  "macroquad",
  "macroquad-particles",
+ "macroquad-profiler",
  "mode",
  "quad-storage",
  "regex",

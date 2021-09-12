@@ -4,9 +4,7 @@ use crate::{
 
 #[derive(Debug, Clone)]
 pub struct GuiSkins {
-    pub scale: f32,
     pub default: Skin,
-    pub main_menu: Skin,
     pub module_list_entry: Skin,
     pub checkbox: Skin,
     pub checkbox_selected: Skin,
@@ -21,7 +19,7 @@ pub struct GuiSkins {
 }
 
 impl GuiSkins {
-    pub fn new(scale: f32) -> Self {
+    pub fn new() -> Self {
         let resources = storage::get::<Resources>();
 
         let panel_01 = resources.images.get("panel_01").cloned().unwrap();
@@ -53,37 +51,37 @@ impl GuiSkins {
             let window_style = root_ui()
                 .style_builder()
                 .background(panel_01.clone())
-                .margin(new_rect_offset(-10.0, -10.0, -10.0, -10.0, scale))
-                .background_margin(new_rect_offset(35.0, 35.0, 35.0, 35.0, scale))
+                .background_margin(RectOffset::new(100.0, 100.0, 100.0, 100.0))
+                .margin(RectOffset::new(-75.0, -75.0, -75.0, -75.0))
                 .build();
 
             let label_style = root_ui()
                 .style_builder()
-                .margin(new_rect_offset(0.0, 0.0, 4.0, 4.0, scale))
+                .margin(RectOffset::new(0.0, 0.0, 4.0, 4.0))
                 .text_color(Color::from_rgba(255, 255, 160, 255))
-                .font_size(get_scaled_font_size(14, scale))
+                .font_size(16)
                 .build();
 
             let button_style = root_ui()
                 .style_builder()
-                .margin(new_rect_offset(8.0, 8.0, 2.0, 2.0, scale))
-                .background_margin(new_rect_offset(4.0, 4.0, 4.0, 4.0, scale))
+                .margin(RectOffset::new(8.0, 8.0, 2.0, 2.0))
+                .background_margin(RectOffset::new(8.0, 8.0, 4.0, 4.0))
                 .background(btn_01.clone())
                 .background_hovered(btn_01_hover.clone())
                 .background_clicked(btn_01_click.clone())
                 // .font(include_bytes!("../../assets/gui/fonts/MinimalPixel v2.ttf"))
                 // .unwrap()
                 .text_color(Color::from_rgba(200, 200, 160, 255))
-                .font_size(get_scaled_font_size(14, scale))
+                .font_size(16)
                 .build();
 
             let editbox_style = root_ui()
                 .style_builder()
                 .background(editbox_01.clone())
-                .margin(new_rect_offset(10.0, 10.0, 0.0, -4.0, scale))
-                .background_margin(new_rect_offset(4.0, 4.0, 4.0, 4.0, scale))
+                .margin(RectOffset::new(10.0, 10.0, 0.0, -4.0))
+                .background_margin(RectOffset::new(4.0, 4.0, 4.0, 4.0))
                 .text_color(Color::from_rgba(200, 200, 160, 255))
-                .font_size(get_scaled_font_size(14, scale))
+                .font_size(16)
                 .build();
 
             let checkbox_style = root_ui()
@@ -95,7 +93,7 @@ impl GuiSkins {
 
             let group_style = root_ui()
                 .style_builder()
-                .margin(new_rect_offset(0.0, 0.0, 0.0, 0.0, scale))
+                .margin(RectOffset::new(0.0, 0.0, 0.0, 0.0))
                 .color(Color::from_rgba(0, 0, 0, 0))
                 .color_hovered(Color::from_rgba(0, 0, 0, 0))
                 .build();
@@ -123,34 +121,8 @@ impl GuiSkins {
                 group_style,
                 scrollbar_style,
                 scrollbar_handle_style,
-                scroll_multiplier: scale * 10.0,
+                scroll_multiplier: 10.0,
                 ..root_ui().default_skin()
-            }
-        };
-
-        let main_menu = {
-            let label_style = root_ui()
-                .style_builder()
-                .margin(new_rect_offset(0.0, 0.0, 5.0, 5.0, scale))
-                .text_color(Color::from_rgba(255, 255, 160, 255))
-                .font_size(get_scaled_font_size(16, scale))
-                .build();
-
-            let button_style = root_ui()
-                .style_builder()
-                .background(btn_01.clone())
-                .margin(new_rect_offset(10.0, 10.0, 0.0, 0.0, scale))
-                .background_margin(new_rect_offset(6.0, 6.0, 6.0, 6.0, scale))
-                .background_hovered(btn_01_hover.clone())
-                .background_clicked(btn_01_click.clone())
-                .text_color(Color::from_rgba(200, 200, 160, 255))
-                .font_size(get_scaled_font_size(16, scale))
-                .build();
-
-            Skin {
-                label_style,
-                button_style,
-                ..default.clone()
             }
         };
 
@@ -189,8 +161,7 @@ impl GuiSkins {
                 .background(checkbox_01.clone())
                 .background_hovered(checkbox_01_hover.clone())
                 .background_clicked(checkbox_01_click.clone())
-                .background_margin(new_rect_offset(6.0, 6.0, 6.0, 6.0, scale))
-                //.margin(new_rect_offset(-4.0, -4.0, -4.0, -4.0, scale))
+                .background_margin(RectOffset::new(2.0, 2.0, 2.0, 2.0))
                 .build();
 
             let scrollbar_style = root_ui()
@@ -221,8 +192,8 @@ impl GuiSkins {
                 .background(checkbox_01_selected.clone())
                 .background_hovered(checkbox_01_selected_hover.clone())
                 .background_clicked(checkbox_01_click.clone())
-                .background_margin(new_rect_offset(6.0, 6.0, 6.0, 6.0, scale))
-                //.margin(new_rect_offset(-4.0, -4.0, -4.0, -4.0, scale))
+                .background_margin(RectOffset::new(2.0, 2.0, 2.0, 2.0))
+                //.margin(RectOffset::new(-4.0, -4.0, -4.0, -4.0))
                 .build();
 
             Skin {
@@ -234,9 +205,9 @@ impl GuiSkins {
         let header_label = {
             let label_style = root_ui()
                 .style_builder()
-                .margin(new_rect_offset(0.0, 0.0, 5.0, 5.0, scale))
+                .margin(RectOffset::new(0.0, 0.0, 5.0, 5.0))
                 .text_color(Color::from_rgba(255, 255, 160, 255))
-                .font_size(get_scaled_font_size(17, scale))
+                .font_size(18)
                 .build();
 
             Skin {
@@ -248,9 +219,9 @@ impl GuiSkins {
         let warning_label = {
             let label_style = root_ui()
                 .style_builder()
-                .margin(new_rect_offset(0.0, 0.0, 5.0, 5.0, scale))
+                .margin(RectOffset::new(0.0, 0.0, 5.0, 5.0))
                 .text_color(color::RED)
-                .font_size(get_scaled_font_size(14, scale))
+                .font_size(16)
                 .build();
 
             Skin {
@@ -262,13 +233,13 @@ impl GuiSkins {
         let inactive_button = {
             let button_style = root_ui()
                 .style_builder()
-                .margin(new_rect_offset(8.0, 8.0, 2.0, 2.0, scale))
-                .background_margin(new_rect_offset(4.0, 4.0, 4.0, 4.0, scale))
+                .margin(RectOffset::new(8.0, 8.0, 2.0, 2.0))
+                .background_margin(RectOffset::new(4.0, 4.0, 4.0, 4.0))
                 .background(btn_01_inactive.clone())
                 .background_hovered(btn_01_inactive.clone())
                 .background_clicked(btn_01_inactive.clone())
                 .text_color(Color::from_rgba(200, 200, 160, 255))
-                .font_size(get_scaled_font_size(14, scale))
+                .font_size(16)
                 .build();
 
             Skin {
@@ -283,10 +254,10 @@ impl GuiSkins {
                 .background(blank_image.clone())
                 .background_hovered(blank_image.clone())
                 .background_clicked(blank_image.clone())
-                .margin(new_rect_offset(0.0, 0.0, 2.0, 0.0, scale))
-                .background_margin(new_rect_offset(0.0, 0.0, 0.0, 0.0, scale))
+                .margin(RectOffset::new(0.0, 0.0, 2.0, 0.0))
+                .background_margin(RectOffset::new(0.0, 0.0, 0.0, 0.0))
                 .text_color(Color::from_rgba(255, 255, 160, 255))
-                .font_size(get_scaled_font_size(14, scale))
+                .font_size(16)
                 .build();
 
             Skin {
@@ -301,10 +272,10 @@ impl GuiSkins {
                 .background(btn_01.clone())
                 .background_hovered(btn_01_hover.clone())
                 .background_clicked(btn_01_click.clone())
-                .margin(new_rect_offset(2.0, 2.0, -2.0, -2.0, scale))
-                .background_margin(new_rect_offset(4.0, 4.0, 4.0, 4.0, scale))
+                .margin(RectOffset::new(2.0, 2.0, -2.0, -2.0))
+                .background_margin(RectOffset::new(4.0, 4.0, 4.0, 4.0))
                 .text_color(Color::from_rgba(255, 255, 160, 255))
-                .font_size(get_scaled_font_size(14, scale))
+                .font_size(16)
                 .build();
 
             Skin {
@@ -319,10 +290,10 @@ impl GuiSkins {
                 .background(btn_01_inactive.clone())
                 .background_hovered(btn_01_inactive.clone())
                 .background_clicked(btn_01_inactive.clone())
-                .margin(new_rect_offset(2.0, 2.0, -2.0, -2.0, scale))
-                .background_margin(new_rect_offset(4.0, 4.0, 4.0, 4.0, scale))
+                .margin(RectOffset::new(2.0, 2.0, -2.0, -2.0))
+                .background_margin(RectOffset::new(4.0, 4.0, 4.0, 4.0))
                 .text_color(Color::from_rgba(255, 255, 160, 255))
-                .font_size(get_scaled_font_size(14, scale))
+                .font_size(16)
                 .build();
 
             Skin {
@@ -335,10 +306,10 @@ impl GuiSkins {
             let editbox_style = root_ui()
                 .style_builder()
                 .background(editbox_01.clone())
-                .margin(new_rect_offset(10.0, 10.0, 0.0, -4.0, scale))
-                .background_margin(new_rect_offset(4.0, 4.0, 4.0, 4.0, scale))
+                .margin(RectOffset::new(10.0, 10.0, 0.0, -4.0))
+                .background_margin(RectOffset::new(4.0, 4.0, 4.0, 4.0))
                 .text_color(Color::from_rgba(200, 200, 160, 255))
-                .font_size(get_scaled_font_size(18, scale))
+                .font_size(18)
                 .build();
 
             Skin {
@@ -351,10 +322,10 @@ impl GuiSkins {
             let editbox_style = root_ui()
                 .style_builder()
                 .background(editbox_01.clone())
-                .margin(new_rect_offset(10.0, 10.0, 0.0, -4.0, scale))
-                .background_margin(new_rect_offset(4.0, 4.0, 4.0, 4.0, scale))
+                .margin(RectOffset::new(10.0, 10.0, 0.0, -4.0))
+                .background_margin(RectOffset::new(4.0, 4.0, 4.0, 4.0))
                 .text_color(Color::from_rgba(200, 200, 160, 255))
-                .font_size(get_scaled_font_size(14, scale))
+                .font_size(16)
                 .build();
 
             let scrollbar_style = root_ui()
@@ -380,9 +351,7 @@ impl GuiSkins {
         };
 
         GuiSkins {
-            scale,
             default,
-            main_menu,
             module_list_entry,
             checkbox,
             checkbox_selected,

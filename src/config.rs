@@ -6,8 +6,6 @@ pub struct Config {
     pub resolution: UVec2,
     #[serde(default)]
     pub fullscreen: bool,
-    #[serde(default)]
-    pub gui_scale: f32,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub post_processing: Option<String>,
 }
@@ -17,7 +15,6 @@ impl Default for Config {
         Config {
             resolution: uvec2(1920, 1080),
             fullscreen: true,
-            gui_scale: 1.0,
             post_processing: None,
         }
     }
@@ -30,11 +27,9 @@ impl Config {
 
     #[cfg(any(target_family = "unix", target_family = "windows"))]
     pub fn load(path: &str) -> Self {
-        let config = if let Ok(json) = fs::read_to_string(path) {
-            let mut config: Config = serde_json::from_str(&json)
-                .expect(&format!("Unable to parse config file '{}'!", path));
-            config.gui_scale = config.gui_scale.clamp(Self::MIN_GUI_SCALE, Self::MAX_GUI_SCALE);
-            config
+        let config: Config = if let Ok(json) = fs::read_to_string(path) {
+            serde_json::from_str(&json)
+                .expect(&format!("Unable to parse config file '{}'!", path))
         } else {
             Default::default()
         };

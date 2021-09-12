@@ -51,16 +51,17 @@ pub async fn get_available_characters(_: &str) -> io::Result<Vec<SavedCharacter>
 }
 
 #[cfg(not(any(target_family = "wasm", target_os = "android")))]
-pub fn delete_character(name: &str) {
+pub fn delete_character(name: &str) -> bool {
     let game_params = storage::get::<GameParams>();
     let path = format!("{}/{}.json", game_params.characters_path, name);
-    fs::remove_file(path);
+    fs::remove_file(path).is_ok()
 }
 
 #[cfg(target_family = "wasm")]
-pub fn delete_character(name: &str) {
+pub fn delete_character(name: &str) -> bool {
     let game_params = storage::get::<GameParams>();
     let storage = &mut quad_storage::STORAGE.lock().unwrap();
     let save_name = format!("{}_character", game_params.game_name);
     storage.remove(save_name);
+    true
 }

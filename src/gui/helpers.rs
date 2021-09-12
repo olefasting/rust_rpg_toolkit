@@ -3,7 +3,6 @@ use macroquad::ui::Id;
 
 pub fn draw_checkbox<P: Into<Option<Vec2>>>(ui: &mut Ui, id: Id, position: P, label: &str, value: &mut bool) {
     let gui_skins = storage::get::<GuiSkins>();
-    let scale = gui_skins.scale;
 
     if *value {
         ui.push_skin(&gui_skins.checkbox_selected);
@@ -13,7 +12,7 @@ pub fn draw_checkbox<P: Into<Option<Vec2>>>(ui: &mut Ui, id: Id, position: P, la
 
     ui.separator();
 
-    let size = (vec2(16.0, 0.0) * scale) + ui.calc_size(label);
+    let size = (vec2(24.0, 0.0) ) + ui.calc_size(label);
     let mut group = widgets::Group::new(id, size);
 
     if let Some(position) = position.into() {
@@ -22,15 +21,14 @@ pub fn draw_checkbox<P: Into<Option<Vec2>>>(ui: &mut Ui, id: Id, position: P, la
 
     group.ui(ui, |ui| {
         let checkbox = widgets::Button::new("")
-            .size(vec2(12.0, 12.0) * scale)
-            .position(vec2(0.0, 6.0) * scale)
+            .size(vec2(18.0, 18.0) )
             .ui(ui);
 
         if checkbox {
             *value = !*value;
         }
 
-        ui.label(vec2(16.0, 0.0) * scale, label);
+        ui.label(vec2(24.0, 0.0) , label);
     });
 
     ui.pop_skin();

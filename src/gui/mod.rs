@@ -37,7 +37,6 @@ pub use main_menu::{
 };
 
 pub fn draw_gui() {
-    let _gui_skins = storage::get::<GuiSkins>();
     if let Some(mut game_state) = scene::find_node_by_type::<GameState>() {
         if let Some(mut player) = Actor::find_by_player_id(&game_state.local_player_id) {
             if game_state.should_show_character_window {
@@ -52,19 +51,6 @@ pub fn draw_gui() {
             }
         }
     }
-}
-
-pub fn new_rect_offset(left: f32, right: f32, top: f32, bottom: f32, scale: f32) -> RectOffset {
-    RectOffset {
-        left: left * scale,
-        right: right * scale,
-        top: top * scale,
-        bottom: bottom * scale,
-    }
-}
-
-pub fn get_scaled_font_size(font_size: u16, scale: f32) -> u16 {
-    (font_size as f32 * scale) as u16
 }
 
 pub fn get_centered(size: Vec2, bounds: Vec2) -> Vec2 {

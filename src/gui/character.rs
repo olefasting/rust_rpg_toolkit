@@ -15,10 +15,9 @@ use super::GuiSkins;
 
 pub fn draw_character_window(player: &Actor) {
     let gui_skins = storage::get::<GuiSkins>();
-    let scale = gui_skins.scale;
 
-    let size = vec2(300.0, 200.0) * scale;
-    let position = vec2(50.0, 150.0) * scale;
+    let size = vec2(300.0, 200.0) ;
+    let position = vec2(50.0, 150.0) ;
 
     root_ui().push_skin(&gui_skins.default);
 

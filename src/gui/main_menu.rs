@@ -1,3 +1,5 @@
+use std::ops::Deref;
+
 use regex::Regex;
 
 use crate::gui::*;
@@ -68,11 +70,9 @@ pub async fn draw_main_menu() -> MainMenuResult {
 async fn draw_main_menu_root() -> MainMenuSelection {
     loop {
         let gui_skins = storage::get::<GuiSkins>();
-        root_ui().push_skin(&gui_skins.main_menu);
+        root_ui().push_skin(&gui_skins.default);
 
-        let scale = gui_skins.scale;
-
-        let size = vec2(200.0, 200.0) * scale;
+        let size = vec2(250.0, 250.0);
         let position = get_centered_on_screen(size);
 
         let mut selection = None;
@@ -80,7 +80,7 @@ async fn draw_main_menu_root() -> MainMenuSelection {
         widgets::Window::new(hash!(), position, size)
             .titlebar(false)
             .ui(&mut *root_ui(), |ui| {
-                let btn_size = vec2(150.0, 32.0) * scale;
+                let btn_size = vec2(200.0, 32.0);
 
                 let start_game_btn = widgets::Button::new("Start Game")
                     .size(btn_size)
@@ -108,7 +108,7 @@ async fn draw_main_menu_root() -> MainMenuSelection {
 
                 let quit_btn = widgets::Button::new("Quit")
                     .size(btn_size)
-                    .position(vec2(0.0, 118.0) * scale)
+                    .position(vec2(0.0, 168.0))
                     .ui(ui);
 
                 if quit_btn {
@@ -139,17 +139,10 @@ async fn draw_character_select_menu() -> MainMenuSelection {
     let mut delete_character_index = None;
 
     loop {
-        let scale = gui_skins.scale;
-
-        let size = vec2(250.0, 300.0) * scale;
-        let position = get_centered_on_screen(size);
-
-        let mut result = None;
-
         if let Some(i) = delete_character_index {
             let character: SavedCharacter = characters.get(i).cloned().unwrap();
 
-            let size = vec2(200.0, 150.0) * scale;
+            let size = vec2(200.0, 150.0);
             let position = get_centered_on_screen(size);
 
             widgets::Window::new(hash!(), position, size)
@@ -159,8 +152,8 @@ async fn draw_character_select_menu() -> MainMenuSelection {
                     ui.label(None, &format!("'{}'?", &character.actor.name));
 
                     let yes_btn = widgets::Button::new("Yes")
-                        .position(vec2(0.0, 68.0) * scale)
-                        .size(vec2(72.0, 28.0) * scale)
+                        .position(vec2(0.0, 68.0))
+                        .size(vec2(72.0, 28.0))
                         .ui(ui);
 
                     if yes_btn {
@@ -170,8 +163,8 @@ async fn draw_character_select_menu() -> MainMenuSelection {
                     }
 
                     let cancel_btn = widgets::Button::new("Cancel")
-                        .position(vec2(77.0, 68.0) * scale)
-                        .size(vec2(72.0, 28.0) * scale)
+                        .position(vec2(77.0, 68.0))
+                        .size(vec2(72.0, 28.0))
                         .ui(ui);
 
                     if cancel_btn {
@@ -179,37 +172,34 @@ async fn draw_character_select_menu() -> MainMenuSelection {
                     }
                 });
         } else {
+            let size = vec2(400.0, 500.0);
+            let position = get_centered_on_screen(size);
+
+            let mut result = None;
+
             widgets::Window::new(hash!(), position, size)
                 .titlebar(false)
                 .ui(&mut *root_ui(), |ui| {
                     ui.push_skin(&gui_skins.header_label);
-                    ui.label(None, "New Game");
+                    ui.label(None, "Start Game");
                     ui.pop_skin();
 
                     ui.separator();
 
-                    Group::new(hash!(), vec2(200.0, 22.0) * scale).position(vec2(0.0, 30.0) * scale).ui(ui, |ui| {
-                        ui.push_skin(&gui_skins.label_button);
-                        if ui.button(vec2(2.0, 0.0) * scale, "Create character") {
-                            result = Some(MainMenuSelection::CreateCharacter);
-                        }
-                        ui.pop_skin();
-                    });
-
-                    Group::new(hash!(), vec2(200.0, 150.0) * scale).position(vec2(0.0, 58.0) * scale).ui(ui, |ui| {
+                    Group::new(hash!(), vec2(350.0, 372.0)).position(vec2(0.0, 45.0)).ui(ui, |ui| {
                         for i in 0..characters.len() {
                             let character = characters.get(i).cloned().unwrap();
 
                             let y_offset = i as f32 * 22.0;
 
                             ui.push_skin(&gui_skins.label_button);
-                            if ui.button(vec2(2.0, y_offset) * scale, &character.actor.name) {
+                            if ui.button(vec2(2.0, y_offset), character.actor.name.deref()) {
                                 result = Some(MainMenuSelection::SelectCharacter(character.clone()));
                             }
                             ui.pop_skin();
 
                             ui.push_skin(&gui_skins.condensed_button);
-                            if ui.button(vec2(170.0, y_offset) * scale, "X") {
+                            if ui.button(vec2(320.0, y_offset), "X") {
                                 delete_character_index = Some(i);
                             }
                             ui.pop_skin();
@@ -218,15 +208,31 @@ async fn draw_character_select_menu() -> MainMenuSelection {
 
                     ui.separator();
 
-                    if ui.button(vec2(0.0, 220.0) * scale, "Cancel") {
+                    let btn_size = vec2(170.0, 28.0);
+
+                    let new_btn = widgets::Button::new("New")
+                        .size(btn_size)
+                        .position(vec2(0.0, 425.0))
+                        .ui(ui);
+
+                    if new_btn {
+                        result = Some(MainMenuSelection::CreateCharacter);
+                    }
+
+                    let cancel_btn = widgets::Button::new("Cancel")
+                        .size(btn_size)
+                        .position(vec2(175.0, 425.0))
+                        .ui(ui);
+
+                    if cancel_btn {
                         result = Some(MainMenuSelection::Cancel);
                     }
                 });
-        }
 
-        if let Some(selection) = result {
-            root_ui().pop_skin();
-            return selection;
+            if let Some(selection) = result {
+                root_ui().pop_skin();
+                return selection;
+            }
         }
 
         next_frame().await;
@@ -235,33 +241,32 @@ async fn draw_character_select_menu() -> MainMenuSelection {
 
 fn draw_character_attribute(ui: &mut Ui, i: usize, name: &str, value: &mut u32, build_points: &mut u32) {
     let gui_skins = storage::get::<GuiSkins>();
-    let scale = gui_skins.scale;
 
     let y_offset = i as f32 * 22.0;
 
-    ui.label(vec2(2.0, y_offset - 2.0) * scale, &format!("{}: {}", name, value));
+    ui.label(vec2(2.0, y_offset - 2.0), &format!("{}: {}", name, value));
 
     ui.push_skin(&gui_skins.condensed_button);
 
     if *value > 6 {
-        if ui.button(vec2(58.0, y_offset) * scale, "-") {
+        if ui.button(vec2(58.0, y_offset), "-") {
             *value -= 1;
             *build_points += 1;
         }
     } else {
         ui.push_skin(&gui_skins.condensed_button_inactive);
-        ui.button(vec2(58.0, y_offset) * scale, "-");
+        ui.button(vec2(58.0, y_offset), "-");
         ui.pop_skin();
     }
 
     if *build_points > 0 {
-        if ui.button(vec2(74.0, y_offset) * scale, "+") {
+        if ui.button(vec2(74.0, y_offset), "+") {
             *value += 1;
             *build_points -= 1;
         }
     } else {
         ui.push_skin(&gui_skins.condensed_button_inactive);
-        ui.button(vec2(74.0, y_offset) * scale, "+");
+        ui.button(vec2(74.0, y_offset), "+");
         ui.pop_skin();
     }
 
@@ -300,9 +305,8 @@ pub async fn draw_create_character_menu() -> Option<SavedCharacter> {
 
     loop {
         let gui_skins = storage::get::<GuiSkins>();
-        let scale = gui_skins.scale;
 
-        let size = vec2(320.0, 350.0) * scale;
+        let size = vec2(320.0, 350.0);
         let position = get_centered_on_screen(size);
 
         let mut result = None;
@@ -327,7 +331,7 @@ pub async fn draw_create_character_menu() -> Option<SavedCharacter> {
 
                 ui.label(None, &format!("Build points: {}", build_points));
 
-                Group::new(hash!(), vec2(96.0, 154.0) * scale).position(vec2(0.0, 84.0) * scale).ui(ui, |ui| {
+                Group::new(hash!(), vec2(96.0, 154.0)).position(vec2(0.0, 84.0)).ui(ui, |ui| {
                     draw_character_attribute(ui, 0, "STR", &mut character.strength, &mut build_points);
                     draw_character_attribute(ui, 1, "DEX", &mut character.dexterity, &mut build_points);
                     draw_character_attribute(ui, 2, "CON", &mut character.constitution, &mut build_points);
@@ -337,27 +341,27 @@ pub async fn draw_create_character_menu() -> Option<SavedCharacter> {
                     draw_character_attribute(ui, 6, "CHA", &mut character.charisma, &mut build_points);
                 });
 
-                Group::new(hash!(), vec2(165.0, 154.0) * scale).position(vec2(100.0, 84.0) * scale).ui(ui, |ui| {
-                    draw_checkbox(ui, hash!(), vec2(0.0, 130.0) * scale, "Hardcore", &mut is_permadeath);
+                Group::new(hash!(), vec2(165.0, 154.0)).position(vec2(100.0, 84.0)).ui(ui, |ui| {
+                    draw_checkbox(ui, hash!(), vec2(0.0, 130.0), "Hardcore", &mut is_permadeath);
                 });
 
                 if should_show_build_points_warning {
                     ui.push_skin(&gui_skins.warning_label);
-                    ui.label(vec2(0.0, 243.0) * scale, "You have unspent build points!");
+                    ui.label(vec2(0.0, 243.0), "You have unspent build points!");
                     ui.pop_skin();
                 } else if should_show_name_warning {
                     ui.push_skin(&gui_skins.warning_label);
-                    ui.label(vec2(0.0, 243.0) * scale, "Name is already in use!");
+                    ui.label(vec2(0.0, 243.0), "Name is already in use!");
                     ui.pop_skin();
                 }
 
-                let btn_size = vec2(133.0, 28.0) * scale;
+                let btn_size = vec2(133.0, 28.0);
 
                 if is_name_in_use || build_points > 0 {
                     ui.push_skin(&gui_skins.inactive_button);
                     let done_btn = widgets::Button::new("Done")
                         .size(btn_size)
-                        .position(vec2(0.0, 275.0) * scale)
+                        .position(vec2(0.0, 275.0))
                         .ui(ui);
 
                     if done_btn {
@@ -368,7 +372,7 @@ pub async fn draw_create_character_menu() -> Option<SavedCharacter> {
                 } else {
                     let done_btn = widgets::Button::new("Done")
                         .size(btn_size)
-                        .position(vec2(0.0, 275.0) * scale)
+                        .position(vec2(0.0, 275.0))
                         .ui(ui);
 
                     if done_btn {
@@ -380,7 +384,7 @@ pub async fn draw_create_character_menu() -> Option<SavedCharacter> {
 
                 let cancel_btn = widgets::Button::new("Cancel")
                     .size(btn_size)
-                    .position(vec2(138.0, 275.0) * scale)
+                    .position(vec2(138.0, 275.0))
                     .ui(ui);
 
                 if cancel_btn {
@@ -408,9 +412,7 @@ async fn draw_chapter_select_menu() -> Option<SceneTransitionParams> {
         let gui_skins = storage::get::<GuiSkins>();
         root_ui().push_skin(&gui_skins.default);
 
-        let scale = gui_skins.scale;
-
-        let size = vec2(200.0, 250.0) * scale;
+        let size = vec2(200.0, 250.0);
         let position = get_centered_on_screen(size);
 
         let mut result = None;
@@ -427,7 +429,7 @@ async fn draw_chapter_select_menu() -> Option<SceneTransitionParams> {
 
                 let resources = storage::get::<Resources>();
 
-                widgets::Group::new(hash!(), vec2(150.0, 144.0) * scale).position(vec2(0.0, 27.0) * scale).ui(ui, |ui| {
+                widgets::Group::new(hash!(), vec2(150.0, 144.0)).position(vec2(0.0, 27.0)).ui(ui, |ui| {
                     let len = resources.chapters.len();
 
                     let btn_width = if len > 4 {
@@ -439,8 +441,8 @@ async fn draw_chapter_select_menu() -> Option<SceneTransitionParams> {
                     for i in 0..len {
                         let chapter = resources.chapters.get(i).unwrap();
 
-                        let chapter_btn = widgets::Button::new(&chapter.title)
-                            .size(vec2(btn_width, 28.0) * scale)
+                        let chapter_btn = widgets::Button::new(chapter.title.deref())
+                            .size(vec2(btn_width, 28.0))
                             .ui(ui);
 
                         if chapter_btn {
@@ -454,8 +456,8 @@ async fn draw_chapter_select_menu() -> Option<SceneTransitionParams> {
                 });
 
                 let cancel_btn = widgets::Button::new("Cancel")
-                    .position(vec2(0.0, 175.0) * scale)
-                    .size(vec2(150.0, 28.0) * scale)
+                    .position(vec2(0.0, 175.0))
+                    .size(vec2(150.0, 28.0))
                     .ui(ui);
 
                 if cancel_btn {
@@ -481,17 +483,14 @@ async fn draw_settings_menu() {
     let gui_skins = storage::get::<GuiSkins>();
     root_ui().push_skin(&gui_skins.default);
 
-    let config = &*storage::get::<Config>();
-    let mut config = config.clone();
+    let mut config = storage::get::<Config>().deref().clone();
 
     let mut will_require_restart = false;
 
     let mut should_save = false;
     let mut should_cancel = false;
 
-    let scale = gui_skins.scale;
-
-    let size = vec2(320.0, 320.0) * scale;
+    let size = vec2(320.0, 320.0);
     let position = get_centered_on_screen(size);
 
     let mut resolution_x_str = config.resolution.x.to_string();
@@ -499,11 +498,7 @@ async fn draw_settings_menu() {
 
     let mut fullscreen_cfg = config.fullscreen;
 
-    let mut gui_scale_str = config.gui_scale.to_string();
-
     let resolution_regex = Regex::new(r"^[0-9]*$").unwrap();
-
-    let gui_scale_regex = Regex::new(r"^[0-5]?.?[0-9]*$").unwrap();
 
     loop {
         widgets::Window::new(hash!(), position, size)
@@ -514,67 +509,67 @@ async fn draw_settings_menu() {
                 ui.pop_skin();
 
                 ui.label(None, "Resolution");
-                ui.editbox(hash!(), vec2(42.0, 18.0) * scale, &mut resolution_x_str);
+                ui.editbox(hash!(), vec2(42.0, 18.0), &mut resolution_x_str);
 
-                ui.same_line(48.0 * scale);
+                ui.same_line(48.0);
                 ui.label(None, "x");
 
-                ui.same_line(58.0 * scale);
-                ui.editbox(hash!(), vec2(42.0, 18.0) * scale, &mut resolution_y_str);
+                ui.same_line(58.0);
+                ui.editbox(hash!(), vec2(42.0, 18.0), &mut resolution_y_str);
 
                 draw_checkbox(ui, hash!(), None, "Fullscreen", &mut fullscreen_cfg);
 
                 ui.separator();
 
-                ui.label(None, "UI Scale");
-                ui.editbox(hash!(), vec2(32.0, 18.0) * scale, &mut gui_scale_str);
-
-                ui.same_line(36.0 * scale);
-                if config.gui_scale > Config::MIN_GUI_SCALE {
-                    ui.push_skin(&gui_skins.condensed_button);
-                    if ui.button(None, "-") {
-                        let new_scale = ((config.gui_scale - Config::GUI_SCALE_STEP) * 100.0).round() / 100.0;
-                        config.gui_scale = new_scale.clamp(Config::MIN_GUI_SCALE, Config::MAX_GUI_SCALE);
-                        gui_scale_str = config.gui_scale.to_string();
-                    }
-                    ui.pop_skin();
-                } else {
-                    ui.push_skin(&gui_skins.condensed_button_inactive);
-                    ui.button(None, "-");
-                    ui.pop_skin();
-                }
-
-
-                ui.same_line(52.0 * scale);
-                if config.gui_scale < Config::MAX_GUI_SCALE {
-                    ui.push_skin(&gui_skins.condensed_button);
-                    if ui.button(None, "+") {
-                        let new_scale = ((config.gui_scale + Config::GUI_SCALE_STEP) * 100.0).round() / 100.0;
-                        config.gui_scale = new_scale.clamp(Config::MIN_GUI_SCALE, Config::MAX_GUI_SCALE);
-                        gui_scale_str = config.gui_scale.to_string();
-                    }
-                    ui.pop_skin();
-                } else {
-                    ui.push_skin(&gui_skins.condensed_button_inactive);
-                    ui.button(None, "+");
-                    ui.pop_skin();
-                }
+                // ui.label(None, "UI Scale");
+                // ui.editbox(hash!(), vec2(32.0, 18.0), &mut gui_scale_str);
+                //
+                // ui.same_line(36.0);
+                // if config.gui_scale > Config::MIN_GUI_SCALE {
+                //     ui.push_skin(&gui_skins.condensed_button);
+                //     if ui.button(None, "-") {
+                //         let new_scale = ((config.gui_scale - Config::GUI_SCALE_STEP) * 100.0).round() / 100.0;
+                //         config.gui_scale = new_scale.clamp(Config::MIN_GUI_SCALE, Config::MAX_GUI_SCALE);
+                //         gui_scale_str = config.gui_scale.to_string();
+                //     }
+                //     ui.pop_skin();
+                // } else {
+                //     ui.push_skin(&gui_skins.condensed_button_inactive);
+                //     ui.button(None, "-");
+                //     ui.pop_skin();
+                // }
+                //
+                //
+                // ui.same_line(52.0);
+                // if config.gui_scale < Config::MAX_GUI_SCALE {
+                //     ui.push_skin(&gui_skins.condensed_button);
+                //     if ui.button(None, "+") {
+                //         let new_scale = ((config.gui_scale + Config::GUI_SCALE_STEP) * 100.0).round() / 100.0;
+                //         config.gui_scale = new_scale.clamp(Config::MIN_GUI_SCALE, Config::MAX_GUI_SCALE);
+                //         gui_scale_str = config.gui_scale.to_string();
+                //     }
+                //     ui.pop_skin();
+                // } else {
+                //     ui.push_skin(&gui_skins.condensed_button_inactive);
+                //     ui.button(None, "+");
+                //     ui.pop_skin();
+                // }
 
                 if will_require_restart {
                     ui.push_skin(&gui_skins.warning_label);
-                    ui.label(vec2(0.0, 213.0) * scale, "Changes require a restart!");
+                    ui.label(vec2(0.0, 213.0), "Changes require a restart!");
                     ui.pop_skin();
                 }
 
-                let btn_size = vec2(132.0, 28.0) * scale;
+                let btn_size = vec2(132.0, 28.0);
 
                 let save_btn = widgets::Button::new("Save")
-                    .position(vec2(0.0, 245.0) * scale)
+                    .position(vec2(0.0, 245.0))
                     .size(btn_size)
                     .ui(ui);
 
                 let cancel_btn = widgets::Button::new("Cancel")
-                    .position(vec2(137.0, 245.0) * scale)
+                    .position(vec2(137.0, 245.0))
                     .size(btn_size)
                     .ui(ui);
 
@@ -598,10 +593,6 @@ async fn draw_settings_menu() {
 
         will_require_restart = resolution != config.resolution || fullscreen_cfg != config.fullscreen;
 
-        if gui_scale_regex.is_match(&gui_scale_str) == false {
-            gui_scale_str = config.gui_scale.to_string();
-        }
-
         if should_save || should_cancel {
             root_ui().pop_skin();
 
@@ -613,10 +604,6 @@ async fn draw_settings_menu() {
 
                 config.fullscreen = fullscreen_cfg;
 
-                config.gui_scale = gui_scale_str.parse().unwrap();
-
-                let gui_skins = GuiSkins::new(config.gui_scale);
-                storage::store(gui_skins);
                 storage::store(config.clone());
             }
 
@@ -629,16 +616,15 @@ async fn draw_settings_menu() {
 
 fn draw_module_entry(ui: &mut Ui, i: usize, name: &str, params: &ModuleParams, value: &mut bool, is_dragging: bool) -> Drag {
     let gui_skins = storage::get::<GuiSkins>();
-    let scale = gui_skins.scale;
 
     ui.push_skin(&gui_skins.module_list_entry);
 
-    let size = vec2(260.0, 24.0) * scale;
-    let position = vec2(0.0, i as f32 * 28.0) * scale;
+    let size = vec2(550.0, 24.0);
+    let position = vec2(0.0, i as f32 * 28.0);
 
     let (entry_id, drop_before_id) = module_index_to_id(i);
 
-    widgets::Group::new(drop_before_id, vec2(size.x, 4.0 * scale))
+    widgets::Group::new(drop_before_id, vec2(size.x, 4.0))
         .position(position)
         .draggable(false)
         .hoverable(is_dragging && *value)
@@ -647,11 +633,11 @@ fn draw_module_entry(ui: &mut Ui, i: usize, name: &str, params: &ModuleParams, v
     let label = format!("{} ({}) [{}]", params.title, name, params.version);
 
     let drag = widgets::Group::new(entry_id, size)
-        .position(position + vec2(0.0, 4.0 * scale))
+        .position(position + vec2(0.0, 4.0))
         .draggable(*value)
         .hoverable(is_dragging && *value)
         .ui(ui, |ui| {
-            draw_checkbox(ui, hash!(), vec2(2.0, 0.0), &label, value);
+            draw_checkbox(ui, hash!(entry_id, "checkbox"), vec2(2.0, 0.0), &label, value);
         });
 
     ui.pop_skin();
@@ -693,9 +679,7 @@ async fn draw_modules_menu() {
     let mut should_save = false;
     let mut should_cancel = false;
 
-    let scale = gui_skins.scale;
-
-    let size = vec2(320.0, 320.0) * scale;
+    let size = vec2(500.0, 600.0);
     let position = get_centered_on_screen(size);
 
     let game_params = storage::get::<GameParams>();
@@ -724,9 +708,9 @@ async fn draw_modules_menu() {
                 ui.label(None, "Modules");
                 ui.pop_skin();
 
-                let size = vec2(270.0, 220.0) * scale;
+                let size = vec2(450.0, 550.0);
 
-                widgets::Group::new(hash!(), size).position(vec2(0.0, 26.0) * scale).ui(ui, |ui| {
+                widgets::Group::new(hash!(), size).position(vec2(0.0, 26.0)).ui(ui, |ui| {
                     let mut i = 0;
                     for name in &active_modules {
                         if let Some(module) = available_modules.get(name) {
@@ -768,19 +752,19 @@ async fn draw_modules_menu() {
 
                 if will_require_restart {
                     ui.push_skin(&gui_skins.warning_label);
-                    ui.label(vec2(0.0, 213.0) * scale, "Changes require a restart!");
+                    ui.label(vec2(0.0, 493.0), "Changes require a restart!");
                     ui.pop_skin();
                 }
 
-                let btn_size = vec2(132.0, 28.0) * scale;
+                let btn_size = vec2(222.0, 32.0);
 
                 let save_btn = widgets::Button::new("Save")
-                    .position(vec2(0.0, 245.0) * scale)
+                    .position(vec2(0.0, 520.0))
                     .size(btn_size)
                     .ui(ui);
 
                 let cancel_btn = widgets::Button::new("Cancel")
-                    .position(vec2(137.0, 245.0) * scale)
+                    .position(vec2(226.0, 520.0))
                     .size(btn_size)
                     .ui(ui);
 
@@ -813,6 +797,8 @@ async fn draw_modules_menu() {
                     active_modules.insert(target_i, entry);
                 }
             };
+
+            will_require_restart = true;
         }
 
         load_order_change = None;
@@ -822,6 +808,7 @@ async fn draw_modules_menu() {
         for (name, state) in &module_state {
             if *state && active_modules.contains(name) == false {
                 active_modules.push(name.clone());
+                will_require_restart = true;
             }
         }
 

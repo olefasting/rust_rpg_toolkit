@@ -14,7 +14,6 @@ impl Hud {
 
 impl Node for Hud {
     fn draw(_node: RefMut<Self>) {
-        let config = storage::get::<Config>();
         let game_state = scene::find_node_by_type::<GameState>().unwrap();
 
         push_camera_state();
@@ -26,7 +25,7 @@ impl Node for Hud {
             draw_aligned_text(
                 "DEBUG MODE",
                 screen_width() / 2.0,
-                50.0 * config.gui_scale,
+                50.0,
                 HorizontalAlignment::Center,
                 VerticalAlignment::Top,
                 TextParams {
@@ -38,7 +37,7 @@ impl Node for Hud {
             draw_aligned_text(
                 &format!("fps: {}", get_fps()),
                 screen_width() - 50.0,
-                50.0 * config.gui_scale,
+                50.0,
                 HorizontalAlignment::Right,
                 VerticalAlignment::Top,
                 Default::default(),
@@ -139,8 +138,8 @@ impl Node for Hud {
                     if len > 0 {
                         draw_aligned_text(
                             "Active missions:",
-                            screen_width() - 50.0 * config.gui_scale,
-                            250.0 * config.gui_scale,
+                            screen_width() - 50.0,
+                            250.0,
                             HorizontalAlignment::Right,
                             VerticalAlignment::Center,
                             Default::default(),
@@ -151,8 +150,8 @@ impl Node for Hud {
                         let mission = player.active_missions.get(i).unwrap();
                         draw_aligned_text(
                             &mission.title,
-                            screen_width() - 50.0 * config.gui_scale,
-                            (300.0 * config.gui_scale) + i as f32 * (50.0 * config.gui_scale),
+                            screen_width() - 50.0,
+                            (300.0) + i as f32 * (50.0),
                             HorizontalAlignment::Right,
                             VerticalAlignment::Center,
                             Default::default(),
@@ -164,8 +163,8 @@ impl Node for Hud {
                     if len > 0 {
                         draw_aligned_text(
                             "Completed missions:",
-                            screen_width() - 50.0 * config.gui_scale,
-                            400.0 * config.gui_scale,
+                            screen_width() - 50.0,
+                            400.0,
                             HorizontalAlignment::Right,
                             VerticalAlignment::Center,
                             Default::default(),
@@ -176,8 +175,8 @@ impl Node for Hud {
                         let mission = player.completed_missions.get(i).unwrap();
                         draw_aligned_text(
                             &mission.title,
-                            screen_width() - 50.0 * config.gui_scale,
-                            450.0 * config.gui_scale + i as f32 * (50.0 * config.gui_scale),
+                            screen_width() - 50.0,
+                            450.0 + i as f32 * (50.0),
                             HorizontalAlignment::Right,
                             VerticalAlignment::Center,
                             Default::default(),
@@ -188,9 +187,9 @@ impl Node for Hud {
                 pop_camera_state();
 
 
-                let height = (Actor::HEALTH_BAR_HEIGHT * viewport.scale) * config.gui_scale;
+                let height = Actor::HEALTH_BAR_HEIGHT * viewport.scale;
                 let (position, offset_y, alignment, length, height, border) =
-                    (vec2(10.0 * config.gui_scale, 10.0 * config.gui_scale), height / 2.0, HorizontalAlignment::Left, (Actor::HEALTH_BAR_LENGTH * viewport.scale) * config.gui_scale, height, viewport.scale);
+                    (vec2(10.0, 10.0), height / 2.0, HorizontalAlignment::Left, (Actor::HEALTH_BAR_LENGTH * viewport.scale), height, viewport.scale);
 
                 draw_progress_bar(
                     player.stats.current_health,
