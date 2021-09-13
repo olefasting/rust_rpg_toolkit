@@ -116,13 +116,13 @@ pub(crate) async fn draw_create_character_menu() -> Option<SavedCharacter> {
                     ui.pop_skin();
                 }
 
-                let btn_size = vec2(133.0, 28.0);
+                let btn_size = vec2(133.0, 32.0);
 
                 if is_name_in_use || build_points > 0 {
                     ui.push_skin(&gui_skins.inactive_button);
                     let done_btn = widgets::Button::new("Done")
                         .size(btn_size)
-                        .position(vec2(0.0, 275.0))
+                        .position(vec2(0.0, 271.0))
                         .ui(ui);
 
                     if done_btn {
@@ -133,7 +133,7 @@ pub(crate) async fn draw_create_character_menu() -> Option<SavedCharacter> {
                 } else {
                     let done_btn = widgets::Button::new("Done")
                         .size(btn_size)
-                        .position(vec2(0.0, 275.0))
+                        .position(vec2(0.0, 271.0))
                         .ui(ui);
 
                     if done_btn {
@@ -145,7 +145,7 @@ pub(crate) async fn draw_create_character_menu() -> Option<SavedCharacter> {
 
                 let cancel_btn = widgets::Button::new("Cancel")
                     .size(btn_size)
-                    .position(vec2(138.0, 275.0))
+                    .position(vec2(138.0, 271.0))
                     .ui(ui);
 
                 if cancel_btn {

@@ -30,7 +30,7 @@ fn draw_module_entry(ui: &mut Ui, i: usize, name: &str, params: &ModuleParams, v
 
     ui.push_skin(&gui_skins.module_list_entry);
 
-    let size = vec2(550.0, 24.0);
+    let size = vec2(450.0, 24.0);
     let position = vec2(0.0, i as f32 * 28.0);
 
     let (entry_id, drop_before_id) = module_index_to_id(i);
@@ -96,7 +96,7 @@ pub(crate) async fn draw_module_management_menu() {
 
                 let size = vec2(450.0, 550.0);
 
-                widgets::Group::new(hash!(), size).position(vec2(0.0, 26.0)).ui(ui, |ui| {
+                widgets::Group::new(hash!(), size).position(vec2(0.0, 48.0)).ui(ui, |ui| {
                     let mut i = 0;
                     for name in &active_modules {
                         if let Some(module) = available_modules.get(name) {

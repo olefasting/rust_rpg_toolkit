@@ -3,15 +3,16 @@ use crate::gui::*;
 pub fn draw_confirmation_modal(ui: &mut Ui, body: Vec<String>) -> Option<bool> {
     let mut res = None;
 
-    let body_lines = body.len();
-
-    let mut size = vec2(0.0, 16.0 * body_lines as f32 + 50.0 + 32.0);
+    let mut size = vec2(0.0, GuiSkins::BUTTON_HEIGHT + GuiSkins::ELEMENT_MARGIN + GuiSkins::WINDOW_MARGIN_Y * 2.0);
 
     for line in &body {
-        let width = ui.calc_size(line).x + 50.0;
-        if width > size.x {
-            size.x = width;
+        let line_size = ui.calc_size(line);
+
+        if line_size.x + 50.0 > size.x {
+            size.x = line_size.x + 50.0;
         }
+
+        size.y += line_size.y;
     }
 
     let position = get_centered_on_screen(size);
