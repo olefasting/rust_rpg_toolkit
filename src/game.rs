@@ -160,12 +160,6 @@ fn check_paths(params: &GameParams) {
 #[cfg(target_family = "wasm")]
 pub fn check_paths(_params: &GameParams) {}
 
-pub fn setup_local_player() -> String {
-    let local_player_id = generate_id();
-    map_gamepad(&local_player_id);
-    local_player_id
-}
-
 #[cfg(not(any(target_family = "wasm", target_os = "android")))]
 pub async fn load_resources(game_params: GameParams) {
     let bg_color = game_params.clear_background_color.clone();
@@ -213,10 +207,11 @@ pub async fn run_game(game_params: GameParams) {
     load_resources(game_params.clone()).await;
 
     let gui_skins = GuiSkins::new();
-
     storage::store(gui_skins);
 
-    let player_id = setup_local_player();
+    let local_player_id = generate_id();
+    map_gamepad(&local_player_id);
+
     let mut scene_transition = None;
 
     'outer: loop {
@@ -229,7 +224,7 @@ pub async fn run_game(game_params: GameParams) {
             };
         }
 
-        load_map(&player_id, scene_transition.clone().unwrap());
+        load_map(&local_player_id, scene_transition.clone().unwrap());
 
         'inner: loop {
             clear_background(game_params.clear_background_color);
@@ -240,8 +235,8 @@ pub async fn run_game(game_params: GameParams) {
             {
                 let mut game_state = scene::find_node_by_type::<GameState>().unwrap();
                 if game_state.should_save_character {
-                    game_state.save_player_character();
                     game_state.should_save_character = false;
+                    game_state.save_player_character();
                 }
 
                 if game_state.should_go_to_main_menu {

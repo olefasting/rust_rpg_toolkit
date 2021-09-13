@@ -143,7 +143,7 @@ pub use crate::{
     },
     gui::{
         self,
-        skins::GuiSkins,
+        GuiSkins,
         MainMenuResult,
         draw_gui,
         draw_main_menu,

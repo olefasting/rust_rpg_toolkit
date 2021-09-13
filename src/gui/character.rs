@@ -1,17 +1,4 @@
-use macroquad::{
-    ui::{
-        hash, root_ui,
-        widgets::{self},
-    },
-    experimental::collections::storage,
-    prelude::*,
-};
-
-use crate::{
-    nodes::Actor,
-};
-
-use super::GuiSkins;
+use crate::gui::*;
 
 pub fn draw_character_window(player: &Actor) {
     let gui_skins = storage::get::<GuiSkins>();

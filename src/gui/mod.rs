@@ -19,17 +19,18 @@ mod inventory;
 mod character;
 mod dialogue;
 mod game_menu;
+mod skins;
+mod main_menu;
+mod checkbox;
+mod confirmation_modal;
 
-pub mod skins;
-pub mod main_menu;
-pub mod helpers;
-
-use game_menu::draw_game_menu;
-use dialogue::draw_dialogue_window;
-use inventory::draw_inventory_window;
-use character::draw_character_window;
-
-pub use helpers::draw_checkbox;
+pub use game_menu::draw_game_menu;
+pub use dialogue::draw_dialogue_window;
+pub use inventory::draw_inventory_window;
+pub use character::draw_character_window;
+pub use skins::GuiSkins;
+pub use checkbox::draw_checkbox;
+pub use confirmation_modal::draw_confirmation_modal;
 
 pub use main_menu::{
     draw_main_menu,

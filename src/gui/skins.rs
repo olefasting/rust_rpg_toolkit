@@ -12,6 +12,7 @@ pub struct GuiSkins {
     pub warning_label: Skin,
     pub inactive_button: Skin,
     pub label_button: Skin,
+    pub label_button_highlighted: Skin,
     pub condensed_button: Skin,
     pub condensed_button_inactive: Skin,
     pub big_editbox: Skin,
@@ -19,6 +20,11 @@ pub struct GuiSkins {
 }
 
 impl GuiSkins {
+    pub const WINDOW_MARGIN_X: f32 = 25.0;
+    pub const WINDOW_MARGIN_Y: f32 = 25.0;
+    pub const ELEMENT_MARGIN: f32 = 4.0;
+    pub const BUTTON_HEIGHT: f32 = 32.0;
+
     pub fn new() -> Self {
         let resources = storage::get::<Resources>();
 
@@ -51,8 +57,8 @@ impl GuiSkins {
             let window_style = root_ui()
                 .style_builder()
                 .background(panel_01.clone())
-                .background_margin(RectOffset::new(100.0, 100.0, 100.0, 100.0))
-                .margin(RectOffset::new(-75.0, -75.0, -75.0, -75.0))
+                .background_margin(RectOffset::new(52.0, 52.0, 52.0, 52.0))
+                .margin(RectOffset::new(-27.0, -27.0, -27.0, -27.0))
                 .build();
 
             let label_style = root_ui()
@@ -64,6 +70,8 @@ impl GuiSkins {
 
             let button_style = root_ui()
                 .style_builder()
+                .margin(RectOffset::new(8.0, 8.0, 2.0, 2.0))
+                .background_margin(RectOffset::new(8.0, 8.0, 4.0, 4.0))
                 .margin(RectOffset::new(8.0, 8.0, 2.0, 2.0))
                 .background_margin(RectOffset::new(8.0, 8.0, 4.0, 4.0))
                 .background(btn_01.clone())
@@ -234,7 +242,7 @@ impl GuiSkins {
             let button_style = root_ui()
                 .style_builder()
                 .margin(RectOffset::new(8.0, 8.0, 2.0, 2.0))
-                .background_margin(RectOffset::new(4.0, 4.0, 4.0, 4.0))
+                .background_margin(RectOffset::new(8.0, 8.0, 4.0, 4.0))
                 .background(btn_01_inactive.clone())
                 .background_hovered(btn_01_inactive.clone())
                 .background_clicked(btn_01_inactive.clone())
@@ -257,6 +265,24 @@ impl GuiSkins {
                 .margin(RectOffset::new(0.0, 0.0, 2.0, 0.0))
                 .background_margin(RectOffset::new(0.0, 0.0, 0.0, 0.0))
                 .text_color(Color::from_rgba(255, 255, 160, 255))
+                .font_size(16)
+                .build();
+
+            Skin {
+                button_style,
+                ..default.clone()
+            }
+        };
+
+        let label_button_highlighted = {
+            let button_style = root_ui()
+                .style_builder()
+                .background(blank_image.clone())
+                .background_hovered(blank_image.clone())
+                .background_clicked(blank_image.clone())
+                .margin(RectOffset::new(0.0, 0.0, 2.0, 0.0))
+                .background_margin(RectOffset::new(0.0, 0.0, 0.0, 0.0))
+                .text_color(Color::from_rgba(255, 255, 255, 255))
                 .font_size(16)
                 .build();
 
@@ -359,6 +385,7 @@ impl GuiSkins {
             warning_label,
             inactive_button,
             label_button,
+            label_button_highlighted,
             condensed_button,
             condensed_button_inactive,
             big_editbox,

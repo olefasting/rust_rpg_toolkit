@@ -1,16 +1,4 @@
-use macroquad::{
-    ui::{
-        hash, root_ui,
-        widgets::{self},
-    },
-    experimental::collections::storage,
-    prelude::*,
-};
-
-use crate::nodes::Actor;
-
-use super::GuiSkins;
-use crate::gui::get_centered_on_screen;
+use crate::gui::*;
 
 pub fn draw_dialogue_window(player: &mut Actor) {
     let gui_skins = storage::get::<GuiSkins>();
