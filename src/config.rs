@@ -8,6 +8,9 @@ pub struct Config {
     pub fullscreen: bool,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub post_processing: Option<String>,
+
+    #[serde(default, skip)]
+    path: String,
 }
 
 impl Default for Config {
@@ -16,6 +19,7 @@ impl Default for Config {
             resolution: uvec2(1920, 1080),
             fullscreen: true,
             post_processing: None,
+            path: "".to_string(),
         }
     }
 }
@@ -27,12 +31,13 @@ impl Config {
 
     #[cfg(any(target_family = "unix", target_family = "windows"))]
     pub fn load(path: &str) -> Self {
-        let config: Config = if let Ok(json) = fs::read_to_string(path) {
+        let mut config: Config = if let Ok(json) = fs::read_to_string(path) {
             serde_json::from_str(&json)
                 .expect(&format!("Unable to parse config file '{}'!", path))
         } else {
             Default::default()
         };
+        config.path = path.to_string();
         storage::store(config.clone());
         config
     }
@@ -41,8 +46,9 @@ impl Config {
     pub fn load(key: &str) -> Self {
         let web_storage = &mut quad_storage::STORAGE.lock().unwrap();
         let config = if let Some(json) = web_storage.get(key) {
-            let config: Config = serde_json::from_str(&json)
+            let mut config: Config = serde_json::from_str(&json)
                 .expect("Unable to parse config from web storage!");
+            config.path = key.to_string();
             storage::store(config.clone());
             config
         } else {
@@ -53,17 +59,18 @@ impl Config {
     }
 
     #[cfg(any(target_family = "unix", target_family = "windows"))]
-    pub fn save(&self, path: &str) {
+    pub fn save(&self) {
+        assert_eq!(self.path.is_empty(), false, "Config path is not set!");
         let json = serde_json::to_string_pretty(self)
             .expect("Error parsing config!");
-        fs::write(path, &json).expect("Error saving config to file!");
+        fs::write(&self.path, &json).expect("Error saving config to file!");
     }
 
     #[cfg(target_family = "wasm")]
-    pub fn save(&self, key: &str) {
+    pub fn save(&self) {
         let storage = &mut quad_storage::STORAGE.lock().unwrap();
         let json = serde_json::to_string_pretty(self)
             .expect("Error parsing config!");
-        storage.set(key, &json)
+        storage.set(self.path, &json)
     }
 }

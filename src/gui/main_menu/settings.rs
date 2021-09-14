@@ -130,6 +130,7 @@ pub(crate) async fn draw_settings_menu() {
                 config.fullscreen = fullscreen_cfg;
 
                 storage::store(config.clone());
+                config.save();
             }
 
             return;

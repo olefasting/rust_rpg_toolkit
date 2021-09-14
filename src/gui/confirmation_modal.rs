@@ -25,7 +25,7 @@ pub fn draw_confirmation_modal(ui: &mut Ui, body: Vec<String>) -> Option<bool> {
             }
 
             let buttons_y = size.y - GuiSkins::WINDOW_MARGIN_Y * 2.0 - GuiSkins::BUTTON_HEIGHT;
-            let buttons_size = vec2((size.x - GuiSkins::WINDOW_MARGIN_Y * 2.0 - GuiSkins::ELEMENT_MARGIN) / 2.0, GuiSkins::BUTTON_HEIGHT);
+            let buttons_size = vec2((size.x - GuiSkins::ELEMENT_MARGIN) / 2.0 - GuiSkins::WINDOW_MARGIN_X, GuiSkins::BUTTON_HEIGHT);
 
             let confirm_btn = widgets::Button::new("Confirm")
                 .position(vec2(0.0, buttons_y))

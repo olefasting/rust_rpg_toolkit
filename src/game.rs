@@ -267,7 +267,4 @@ pub async fn run_game(game_params: GameParams) {
     }
 
     scene::clear();
-
-    let config = storage::get::<Config>();
-    config.save(&game_params.config_path);
 }
