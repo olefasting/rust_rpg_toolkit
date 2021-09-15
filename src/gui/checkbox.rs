@@ -1,5 +1,4 @@
 use crate::gui::*;
-use macroquad::ui::Id;
 
 pub fn draw_checkbox<P: Into<Option<Vec2>>>(ui: &mut Ui, id: Id, position: P, label: &str, value: &mut bool) {
     let gui_skins = storage::get::<GuiSkins>();

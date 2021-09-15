@@ -66,11 +66,11 @@
       "path": "assets/gui/macroquad_example_assets/checkbox_background.png"
     },
     {
-      "id": "checkbox_01_click",
+      "id": "checkbox_01_clicked",
       "path": "assets/gui/macroquad_example_assets/checkbox_clicked_background.png"
     },
     {
-      "id": "checkbox_01_hover",
+      "id": "checkbox_01_hovered",
       "path": "assets/gui/macroquad_example_assets/checkbox_hovered_background.png"
     },
     {
@@ -78,7 +78,7 @@
       "path": "assets/gui/macroquad_example_assets/checkbox_background_selected.png"
     },
     {
-      "id": "checkbox_01_selected_hover",
+      "id": "checkbox_01_selected_hovered",
       "path": "assets/gui/macroquad_example_assets/checkbox_hovered_background_selected.png"
     },
     {
@@ -86,11 +86,11 @@
       "path": "assets/gui/macroquad_example_assets/button_background_2.png"
     },
     {
-      "id": "btn_01_hover",
+      "id": "btn_01_hovered",
       "path": "assets/gui/macroquad_example_assets/button_clicked_background_2.png"
     },
     {
-      "id": "btn_01_click",
+      "id": "btn_01_clicked",
       "path": "assets/gui/macroquad_example_assets/button_hovered_background_2.png"
     },
     {
@@ -102,11 +102,11 @@
       "path": "assets/gui/wenrexa/Button11.png"
     },
     {
-      "id": "btn_02_hover",
+      "id": "btn_02_hovered",
       "path": "assets/gui/wenrexa/Button12.png"
     },
     {
-      "id": "btn_02_click",
+      "id": "btn_02_clicked",
       "path": "assets/gui/wenrexa/Button12.png"
     },
     {
@@ -114,11 +114,11 @@
       "path": "assets/gui/wenrexa/Button04.png"
     },
     {
-      "id": "btn_03_hover",
+      "id": "btn_03_hovered",
       "path": "assets/gui/wenrexa/Button02.png"
     },
     {
-      "id": "btn_03_click",
+      "id": "btn_03_clicked",
       "path": "assets/gui/wenrexa/Button02.png"
     }
   ],

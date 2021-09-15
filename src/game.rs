@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use crate::gui::*;
 
 fn load_map(local_player_id: &str, transition: SceneTransition) {
     let resources = storage::get::<Resources>();
@@ -133,6 +134,7 @@ pub struct GameParams {
     pub new_character_prototype_id: String,
     pub new_character_build_points: u32,
     pub clear_background_color: Color,
+    pub gui_theme: GuiTheme,
 }
 
 impl Default for GameParams {
@@ -147,6 +149,7 @@ impl Default for GameParams {
             new_character_prototype_id: "new_character_prototype".to_string(),
             new_character_build_points: 6,
             clear_background_color: color::BLACK,
+            gui_theme: Default::default(),
         }
     }
 }
@@ -206,7 +209,7 @@ pub async fn run_game(game_params: GameParams) {
 
     load_resources(game_params.clone()).await;
 
-    let gui_skins = GuiSkins::new();
+    let gui_skins = GuiSkins::new(game_params.gui_theme.clone());
     storage::store(gui_skins);
 
     let local_player_id = generate_id();

@@ -20,3 +20,7 @@ pub mod sprite;
 pub mod animation;
 pub mod viewport;
 pub mod helpers;
+
+use crate::prelude::*;
+
+pub const COLOR_NONE: Color = Color::new(0.00, 0.00, 0.00, 0.00);

@@ -19,16 +19,20 @@ mod inventory;
 mod character;
 mod dialogue;
 mod game_menu;
-mod skins;
+mod theme;
 mod main_menu;
 mod checkbox;
 mod confirmation_modal;
+
+pub mod components;
+
+pub use macroquad::ui::Id;
 
 pub use game_menu::draw_game_menu;
 pub use dialogue::draw_dialogue_window;
 pub use inventory::draw_inventory_window;
 pub use character::draw_character_window;
-pub use skins::GuiSkins;
+pub use theme::{GuiSkins, GuiTheme};
 pub use checkbox::draw_checkbox;
 pub use confirmation_modal::draw_confirmation_modal;
 
@@ -61,4 +65,10 @@ pub fn get_centered(size: Vec2, bounds: Vec2) -> Vec2 {
 pub fn get_centered_on_screen(size: Vec2) -> Vec2 {
     let bounds = vec2(screen_width(), screen_height());
     get_centered(size, bounds)
+}
+
+pub type GuiDrawFunc = fn(ui: &mut Ui);
+
+pub trait GuiComponent {
+    fn draw(&mut self, ui: &mut Ui);
 }

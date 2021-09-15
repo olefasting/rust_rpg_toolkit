@@ -173,6 +173,7 @@ pub use crate::{
         remove_filename,
     },
     render::{
+        COLOR_NONE,
         draw_progress_bar,
         draw_aligned_text,
         color_from_hex_string,

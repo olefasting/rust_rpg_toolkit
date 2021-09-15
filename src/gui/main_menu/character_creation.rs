@@ -1,4 +1,5 @@
 use crate::gui::*;
+use crate::gui::components::Checkbox;
 
 const WINDOW_WIDTH: f32 = 400.0;
 const WINDOW_HEIGHT: f32 = 500.0;
@@ -106,7 +107,9 @@ pub(crate) async fn draw_create_character_menu() -> Option<SavedCharacter> {
                 });
 
                 Group::new(hash!(), vec2(165.0, column_height)).position(vec2(100.0, columns_y)).ui(ui, |ui| {
-                    draw_checkbox(ui, hash!(), vec2(0.0, 130.0), "Hardcore", &mut is_permadeath);
+                    //draw_checkbox(ui, hash!(), vec2(0.0, 130.0), "Hardcore", &mut is_permadeath);
+
+                    Checkbox::new(hash!(), vec2(0.0, 130.0), "Hardcore", &mut is_permadeath, true).draw(ui);
                 });
 
                 if should_show_build_points_warning {
