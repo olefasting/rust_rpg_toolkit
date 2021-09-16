@@ -1,5 +1,4 @@
 use crate::gui::*;
-use crate::gui::components::Checkbox;
 
 const WINDOW_WIDTH: f32 = 400.0;
 const WINDOW_HEIGHT: f32 = 500.0;
@@ -96,7 +95,7 @@ pub(crate) async fn draw_create_character_menu() -> Option<SavedCharacter> {
                 let columns_y = 84.0;
                 let column_height = bottom_y - columns_y - 24.0 - GuiSkins::ELEMENT_MARGIN;
 
-                Group::new(hash!(), vec2(96.0, column_height)).position(vec2(0.0, columns_y)).ui(ui, |ui| {
+                widgets::Group::new(hash!(), vec2(96.0, column_height)).position(vec2(0.0, columns_y)).ui(ui, |ui| {
                     draw_character_attribute(ui, 0, "STR", &mut character.strength, &mut build_points);
                     draw_character_attribute(ui, 1, "DEX", &mut character.dexterity, &mut build_points);
                     draw_character_attribute(ui, 2, "CON", &mut character.constitution, &mut build_points);
@@ -106,10 +105,10 @@ pub(crate) async fn draw_create_character_menu() -> Option<SavedCharacter> {
                     draw_character_attribute(ui, 6, "CHA", &mut character.charisma, &mut build_points);
                 });
 
-                Group::new(hash!(), vec2(165.0, column_height)).position(vec2(100.0, columns_y)).ui(ui, |ui| {
+                widgets::Group::new(hash!(), vec2(165.0, column_height)).position(vec2(100.0, columns_y)).ui(ui, |ui| {
                     //draw_checkbox(ui, hash!(), vec2(0.0, 130.0), "Hardcore", &mut is_permadeath);
 
-                    Checkbox::new(hash!(), vec2(0.0, 130.0), "Hardcore", &mut is_permadeath, true).draw(ui);
+                    Checkbox::new(hash!(), vec2(0.0, 130.0), "Hardcore", &mut is_permadeath).ui(ui);
                 });
 
                 if should_show_build_points_warning {

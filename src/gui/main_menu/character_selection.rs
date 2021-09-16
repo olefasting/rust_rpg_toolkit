@@ -78,7 +78,7 @@ fn draw_character_list(select_i: &mut Option<usize>, characters: &Vec<SavedChara
             let margins = vec2(GuiSkins::WINDOW_MARGIN_X, GuiSkins::WINDOW_MARGIN_Y) * 2.0;
             let size = vec2(size.x, size.y - 45.0 - GuiSkins::WINDOW_MARGIN_Y - GuiSkins::BUTTON_HEIGHT) - margins;
 
-            Group::new(hash!(), size).position(vec2(0.0, 45.0)).ui(ui, |ui| {
+            widgets::Group::new(hash!(), size).position(vec2(0.0, 45.0)).ui(ui, |ui| {
                 for i in 0..characters.len() {
                     let character = characters.get(i).unwrap();
 

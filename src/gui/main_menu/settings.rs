@@ -42,7 +42,7 @@ pub(crate) async fn draw_settings_menu() {
                 ui.same_line(58.0);
                 ui.editbox(hash!(), vec2(42.0, 18.0), &mut resolution_y_str);
 
-                draw_checkbox(ui, hash!(), None, "Fullscreen", &mut fullscreen_cfg);
+                Checkbox::new(hash!(), None, "Fullscreen", &mut fullscreen_cfg).ui(ui);
 
                 ui.separator();
 

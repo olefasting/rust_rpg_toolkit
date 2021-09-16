@@ -2,55 +2,84 @@ use crate::{
     gui::*,
 };
 
-fn sub_offset(a: RectOffset, b: RectOffset) -> RectOffset {
+fn sub_offsets(a: RectOffset, b: RectOffset) -> RectOffset {
     RectOffset::new(a.left - b.left, a.right - b.right, a.top - b.top, a.bottom - b.bottom)
 }
 
-#[derive(Debug, Clone)]
-pub struct GuiBackground {
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GuiImage {
     pub image_id: String,
+    #[serde(with = "json::RectOffsetDef")]
     pub margins: RectOffset,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GuiTheme {
     pub font_size: u16,
     pub header_font_size: u16,
+    pub window_title_size: u16,
     pub button_font_size: u16,
+    #[serde(with = "json::ColorDef")]
     pub text_color: Color,
+    #[serde(with = "json::ColorDef")]
     pub highlight_text_color: Color,
+    #[serde(with = "json::ColorDef")]
     pub warning_text_color: Color,
+    #[serde(with = "json::ColorDef")]
+    pub window_title_color: Color,
+    #[serde(with = "json::ColorDef")]
     pub editbox_text_color: Color,
+    #[serde(with = "json::ColorDef")]
     pub button_text_color: Color,
+    #[serde(with = "json::ColorDef")]
     pub button_text_color_inactive: Color,
+    #[serde(with = "json::RectOffsetDef")]
     pub window_margins: RectOffset,
+    #[serde(with = "json::RectOffsetDef")]
     pub label_margins: RectOffset,
+    #[serde(with = "json::RectOffsetDef")]
+    pub header_label_margins: RectOffset,
+    #[serde(with = "json::RectOffsetDef")]
+    pub window_title_margins: RectOffset,
+    #[serde(with = "json::RectOffsetDef")]
     pub button_margins: RectOffset,
+    #[serde(with = "json::RectOffsetDef")]
     pub editbox_margins: RectOffset,
+    #[serde(with = "json::RectOffsetDef")]
     pub checkbox_margins: RectOffset,
     pub separator_size: f32,
     pub button_height: f32,
+    #[serde(with = "json::ColorDef")]
     pub group_border_color: Color,
+    #[serde(with = "json::ColorDef")]
     pub group_border_color_hovered: Color,
+    #[serde(with = "json::ColorDef")]
     pub group_border_color_clicked: Color,
+    #[serde(with = "json::RectOffsetDef")]
     pub group_margins: RectOffset,
+    #[serde(with = "json::ColorDef")]
     pub scrollbar_color: Color,
+    #[serde(with = "json::ColorDef")]
     pub scrollbar_color_hovered: Color,
+    #[serde(with = "json::ColorDef")]
     pub scrollbar_color_clicked: Color,
+    #[serde(with = "json::ColorDef")]
     pub scrollbar_handle_color: Color,
+    #[serde(with = "json::ColorDef")]
     pub scrollbar_handle_color_hovered: Color,
+    #[serde(with = "json::ColorDef")]
     pub scrollbar_handle_color_clicked: Color,
-    pub window_bg: GuiBackground,
-    pub button_bg: GuiBackground,
-    pub button_bg_hovered: GuiBackground,
-    pub button_bg_clicked: GuiBackground,
-    pub button_bg_inactive: GuiBackground,
-    pub editbox_bg: GuiBackground,
-    pub checkbox_bg: GuiBackground,
-    pub checkbox_bg_hovered: GuiBackground,
-    pub checkbox_bg_clicked: GuiBackground,
-    pub checkbox_bg_selected: GuiBackground,
-    pub checkbox_bg_selected_hovered: GuiBackground,
+    pub window_bg: GuiImage,
+    pub button_bg: GuiImage,
+    pub button_bg_hovered: GuiImage,
+    pub button_bg_clicked: GuiImage,
+    pub button_bg_inactive: GuiImage,
+    pub editbox_bg: GuiImage,
+    pub checkbox_bg: GuiImage,
+    pub checkbox_bg_hovered: GuiImage,
+    pub checkbox_bg_clicked: GuiImage,
+    pub checkbox_bg_selected: GuiImage,
+    pub checkbox_bg_selected_hovered: GuiImage,
 }
 
 impl Default for GuiTheme {
@@ -61,15 +90,19 @@ impl Default for GuiTheme {
         GuiTheme {
             font_size: 16,
             header_font_size: 18,
+            window_title_size: 18,
             button_font_size: 16,
             text_color: Color::from_rgba(200, 200, 160, 255),
             highlight_text_color: Color::from_rgba(200, 200, 160, 255),
+            window_title_color: Color::from_rgba(200, 200, 160, 255),
             warning_text_color: color::RED,
             editbox_text_color: Color::from_rgba(200, 200, 160, 255),
             button_text_color: Color::from_rgba(200, 200, 160, 255),
             button_text_color_inactive: Color::from_rgba(200, 200, 160, 255),
             window_margins: RectOffset::new(25.0, 25.0, 25.0, 25.0),
             label_margins: RectOffset::new(0.0, 0.0, 4.0, 4.0),
+            header_label_margins: RectOffset::new(0.0, 0.0, 4.0, 8.0),
+            window_title_margins: RectOffset::new(0.0, 0.0, 4.0, 8.0),
             button_margins: RectOffset::new(16.0, 16.0, 6.0, 6.0),
             editbox_margins: RectOffset::new(14.0, 14.0, 4.0, 0.0),
             checkbox_margins: RectOffset::new(0.0, 0.0, 4.0, 4.0),
@@ -85,47 +118,47 @@ impl Default for GuiTheme {
             scrollbar_handle_color: Color::from_rgba(58, 68,68, 255),
             scrollbar_handle_color_hovered: Color::from_rgba(58, 68,102, 255),
             scrollbar_handle_color_clicked: Color::from_rgba(58, 68,102, 255),
-            window_bg: GuiBackground {
+            window_bg: GuiImage {
                 image_id: "panel_01".to_string(),
                 margins: RectOffset::new(52.0, 52.0, 52.0, 52.0),
             },
-            button_bg: GuiBackground {
+            button_bg: GuiImage {
                 image_id: "btn_01".to_string(),
                 margins: button_bg_margins,
             },
-            button_bg_hovered: GuiBackground {
+            button_bg_hovered: GuiImage {
                 image_id: "btn_01_hovered".to_string(),
                 margins: button_bg_margins,
             },
-            button_bg_clicked: GuiBackground {
+            button_bg_clicked: GuiImage {
                 image_id: "btn_01_clicked".to_string(),
                 margins: button_bg_margins,
             },
-            button_bg_inactive: GuiBackground {
+            button_bg_inactive: GuiImage {
                 image_id: "btn_01_inactive".to_string(),
                 margins: button_bg_margins,
             },
-            editbox_bg: GuiBackground {
+            editbox_bg: GuiImage {
                 image_id: "editbox_01".to_string(),
                 margins: RectOffset::new(4.0, 4.0, 4.0, 4.0),
             },
-            checkbox_bg: GuiBackground {
+            checkbox_bg: GuiImage {
                 image_id: "checkbox_01".to_string(),
                 margins: checkbox_bg_margins,
             },
-            checkbox_bg_hovered: GuiBackground {
+            checkbox_bg_hovered: GuiImage {
                 image_id: "checkbox_01_hovered".to_string(),
                 margins: checkbox_bg_margins,
             },
-            checkbox_bg_clicked: GuiBackground {
+            checkbox_bg_clicked: GuiImage {
                 image_id: "checkbox_01_clicked".to_string(),
                 margins: checkbox_bg_margins,
             },
-            checkbox_bg_selected: GuiBackground {
+            checkbox_bg_selected: GuiImage {
                 image_id: "checkbox_01_selected".to_string(),
                 margins: checkbox_bg_margins,
             },
-            checkbox_bg_selected_hovered: GuiBackground {
+            checkbox_bg_selected_hovered: GuiImage {
                 image_id: "checkbox_01_selected_hovered".to_string(),
                 margins: checkbox_bg_margins,
             }
@@ -136,6 +169,7 @@ impl Default for GuiTheme {
 #[derive(Debug, Clone)]
 pub struct GuiSkins {
     pub default: Skin,
+    pub window_title: Skin,
     pub module_list_entry: Skin,
     pub checkbox: Skin,
     pub checkbox_selected: Skin,
@@ -182,7 +216,7 @@ impl GuiSkins {
                 .style_builder()
                 .background(window_bg.clone())
                 .background_margin(theme.window_bg.margins)
-                .margin(sub_offset(theme.window_margins, theme.window_bg.margins))
+                .margin(sub_offsets(theme.window_margins, theme.window_bg.margins))
                 .build();
 
             let label_style = root_ui()
@@ -194,7 +228,7 @@ impl GuiSkins {
 
             let button_style = root_ui()
                 .style_builder()
-                .margin(sub_offset(theme.button_margins,theme.button_bg.margins))
+                .margin(sub_offsets(theme.button_margins, theme.button_bg.margins))
                 .background_margin(theme.button_bg.margins)
                 .background(button_bg.clone())
                 .background_hovered(button_bg_hovered.clone())
@@ -206,7 +240,7 @@ impl GuiSkins {
             let editbox_style = root_ui()
                 .style_builder()
                 .background(editbox_bg.clone())
-                .margin(sub_offset(theme.editbox_margins, theme.editbox_bg.margins))
+                .margin(sub_offsets(theme.editbox_margins, theme.editbox_bg.margins))
                 .background_margin(theme.editbox_bg.margins)
                 .text_color(theme.editbox_text_color)
                 .font_size(theme.font_size)
@@ -252,6 +286,20 @@ impl GuiSkins {
                 scrollbar_handle_style,
                 scroll_multiplier: 10.0,
                 ..root_ui().default_skin()
+            }
+        };
+
+        let window_title = {
+            let label_style = root_ui()
+                .style_builder()
+                .margin(theme.window_title_margins)
+                .text_color(theme.window_title_color)
+                .font_size(theme.window_title_size)
+                .build();
+
+            Skin {
+                label_style,
+                ..default.clone()
             }
         };
 
@@ -342,7 +390,7 @@ impl GuiSkins {
         let header_label = {
             let label_style = root_ui()
                 .style_builder()
-                .margin(theme.label_margins)
+                .margin(theme.header_label_margins)
                 .text_color(theme.text_color)
                 .font_size(theme.header_font_size)
                 .build();
@@ -370,7 +418,7 @@ impl GuiSkins {
         let inactive_button = {
             let button_style = root_ui()
                 .style_builder()
-                .margin(sub_offset(theme.button_margins, theme.button_bg_inactive.margins))
+                .margin(sub_offsets(theme.button_margins, theme.button_bg_inactive.margins))
                 .background_margin(theme.button_bg_inactive.margins)
                 .background(button_bg_inactive.clone())
                 .background_hovered(button_bg_inactive.clone())
@@ -507,6 +555,7 @@ impl GuiSkins {
 
         GuiSkins {
             default,
+            window_title,
             module_list_entry,
             checkbox,
             checkbox_selected,

@@ -48,7 +48,7 @@ fn draw_module_entry(ui: &mut Ui, i: usize, name: &str, params: &ModuleParams, v
         .draggable(*value)
         .hoverable(is_dragging && *value)
         .ui(ui, |ui| {
-            draw_checkbox(ui, hash!(entry_id, "checkbox"), vec2(2.0, 0.0), &label, value);
+            Checkbox::new(hash!(entry_id, "checkbox"), vec2(2.0, 0.0), &label, value).ui(ui);
         });
 
     ui.pop_skin();

@@ -134,7 +134,6 @@ pub struct GameParams {
     pub new_character_prototype_id: String,
     pub new_character_build_points: u32,
     pub clear_background_color: Color,
-    pub gui_theme: GuiTheme,
 }
 
 impl Default for GameParams {
@@ -149,7 +148,6 @@ impl Default for GameParams {
             new_character_prototype_id: "new_character_prototype".to_string(),
             new_character_build_points: 6,
             clear_background_color: color::BLACK,
-            gui_theme: Default::default(),
         }
     }
 }
@@ -162,6 +160,16 @@ fn check_paths(params: &GameParams) {
 
 #[cfg(target_family = "wasm")]
 pub fn check_paths(_params: &GameParams) {}
+
+pub async fn load_gui_skins(game_params: &GameParams) -> Result<(), FileError> {
+    let path = format!("{}/gui_theme.json", &game_params.data_path);
+    let bytes = load_file(&path).await?;
+    let gui_theme = serde_json::from_slice(&bytes)
+        .expect(&format!("Error when parsing gui theme '{}'", path));
+    let gui_skins = GuiSkins::new(gui_theme);
+    storage::store(gui_skins);
+    Ok(())
+}
 
 #[cfg(not(any(target_family = "wasm", target_os = "android")))]
 pub async fn load_resources(game_params: GameParams) {
@@ -189,6 +197,8 @@ pub async fn load_resources(game_params: GameParams) {
 
         next_frame().await;
     }
+
+    load_gui_skins(&game_params);
 }
 
 #[cfg(target_family = "wasm")]
@@ -199,6 +209,8 @@ pub async fn load_resources(game_params: GameParams) {
     load_modules(&mut state, &game_params, &mut resources).await.unwrap();
 
     storage::store(resources);
+
+    load_gui_skins(&game_params);
 }
 
 // This will run the game and it can also be used as a blueprint for how to implement
@@ -208,9 +220,6 @@ pub async fn run_game(game_params: GameParams) {
     check_paths(&game_params);
 
     load_resources(game_params.clone()).await;
-
-    let gui_skins = GuiSkins::new(game_params.gui_theme.clone());
-    storage::store(gui_skins);
 
     let local_player_id = generate_id();
     map_gamepad(&local_player_id);

@@ -1,7 +1,7 @@
 use crate::gui::*;
 
 fn draw_entry(ui: &mut Ui, player: &mut Actor, entry: &InventoryEntry) {
-    Group::new(hash!(), vec2(250.0 , 30.0 )).ui(ui, |ui| {
+    widgets::Group::new(hash!(), vec2(250.0 , 30.0 )).ui(ui, |ui| {
         ui.label(vec2(0.0, 0.0) , &entry.params.name);
         if entry.equipped_to == EquipmentSlot::None {
             if ui.button(vec2(160.0, 0.0) , "Equip") {

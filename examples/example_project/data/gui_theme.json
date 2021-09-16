@@ -1,0 +1,251 @@
+{
+  "font_size": 16,
+  "header_font_size": 18,
+  "window_title_size": 18,
+  "button_font_size": 16,
+  "text_color": {
+    "red": 0.78431374,
+    "green": 0.78431374,
+    "blue": 0.627451,
+    "alpha": 1.0
+  },
+  "highlight_text_color": {
+    "red": 0.78431374,
+    "green": 0.78431374,
+    "blue": 0.627451,
+    "alpha": 1.0
+  },
+  "warning_text_color": {
+    "red": 0.9,
+    "green": 0.16,
+    "blue": 0.22,
+    "alpha": 1.0
+  },
+  "window_title_color": {
+    "red": 0.78431374,
+    "green": 0.78431374,
+    "blue": 0.627451,
+    "alpha": 1.0
+  },
+  "editbox_text_color": {
+    "red": 0.78431374,
+    "green": 0.78431374,
+    "blue": 0.627451,
+    "alpha": 1.0
+  },
+  "button_text_color": {
+    "red": 0.78431374,
+    "green": 0.78431374,
+    "blue": 0.627451,
+    "alpha": 1.0
+  },
+  "button_text_color_inactive": {
+    "red": 0.78431374,
+    "green": 0.78431374,
+    "blue": 0.627451,
+    "alpha": 1.0
+  },
+  "window_margins": {
+    "left": 25.0,
+    "right": 25.0,
+    "top": 25.0,
+    "bottom": 25.0
+  },
+  "label_margins": {
+    "left": 0.0,
+    "right": 0.0,
+    "top": 4.0,
+    "bottom": 4.0
+  },
+  "header_label_margins": {
+    "left": 0.0,
+    "right": 0.0,
+    "top": 4.0,
+    "bottom": 8.0
+  },
+  "window_title_margins": {
+    "left": 0.0,
+    "right": 0.0,
+    "top": 4.0,
+    "bottom": 8.0
+  },
+  "button_margins": {
+    "left": 16.0,
+    "right": 16.0,
+    "top": 6.0,
+    "bottom": 6.0
+  },
+  "editbox_margins": {
+    "left": 14.0,
+    "right": 14.0,
+    "top": 4.0,
+    "bottom": 0.0
+  },
+  "checkbox_margins": {
+    "left": 0.0,
+    "right": 0.0,
+    "top": 4.0,
+    "bottom": 4.0
+  },
+  "separator_size": 8.0,
+  "button_height": 32.0,
+  "group_border_color": {
+    "red": 0.0,
+    "green": 0.0,
+    "blue": 0.0,
+    "alpha": 0.0
+  },
+  "group_border_color_hovered": {
+    "red": 0.0,
+    "green": 0.0,
+    "blue": 0.0,
+    "alpha": 0.0
+  },
+  "group_border_color_clicked": {
+    "red": 0.0,
+    "green": 0.0,
+    "blue": 0.0,
+    "alpha": 0.0
+  },
+  "group_margins": {
+    "left": 0.0,
+    "right": 0.0,
+    "top": 0.0,
+    "bottom": 0.0
+  },
+  "scrollbar_color": {
+    "red": 0.22745098,
+    "green": 0.26666668,
+    "blue": 0.26666668,
+    "alpha": 1.0
+  },
+  "scrollbar_color_hovered": {
+    "red": 0.22745098,
+    "green": 0.26666668,
+    "blue": 0.4,
+    "alpha": 1.0
+  },
+  "scrollbar_color_clicked": {
+    "red": 0.22745098,
+    "green": 0.26666668,
+    "blue": 0.4,
+    "alpha": 1.0
+  },
+  "scrollbar_handle_color": {
+    "red": 0.22745098,
+    "green": 0.26666668,
+    "blue": 0.26666668,
+    "alpha": 1.0
+  },
+  "scrollbar_handle_color_hovered": {
+    "red": 0.22745098,
+    "green": 0.26666668,
+    "blue": 0.4,
+    "alpha": 1.0
+  },
+  "scrollbar_handle_color_clicked": {
+    "red": 0.22745098,
+    "green": 0.26666668,
+    "blue": 0.4,
+    "alpha": 1.0
+  },
+  "window_bg": {
+    "image_id": "panel_01",
+    "margins": {
+      "left": 52.0,
+      "right": 52.0,
+      "top": 52.0,
+      "bottom": 52.0
+    }
+  },
+  "button_bg": {
+    "image_id": "btn_01",
+    "margins": {
+      "left": 8.0,
+      "right": 8.0,
+      "top": 4.0,
+      "bottom": 4.0
+    }
+  },
+  "button_bg_hovered": {
+    "image_id": "btn_01_hovered",
+    "margins": {
+      "left": 8.0,
+      "right": 8.0,
+      "top": 4.0,
+      "bottom": 4.0
+    }
+  },
+  "button_bg_clicked": {
+    "image_id": "btn_01_clicked",
+    "margins": {
+      "left": 8.0,
+      "right": 8.0,
+      "top": 4.0,
+      "bottom": 4.0
+    }
+  },
+  "button_bg_inactive": {
+    "image_id": "btn_01_inactive",
+    "margins": {
+      "left": 8.0,
+      "right": 8.0,
+      "top": 4.0,
+      "bottom": 4.0
+    }
+  },
+  "editbox_bg": {
+    "image_id": "editbox_01",
+    "margins": {
+      "left": 4.0,
+      "right": 4.0,
+      "top": 4.0,
+      "bottom": 4.0
+    }
+  },
+  "checkbox_bg": {
+    "image_id": "checkbox_01",
+    "margins": {
+      "left": 2.0,
+      "right": 2.0,
+      "top": 2.0,
+      "bottom": 2.0
+    }
+  },
+  "checkbox_bg_hovered": {
+    "image_id": "checkbox_01_hovered",
+    "margins": {
+      "left": 2.0,
+      "right": 2.0,
+      "top": 2.0,
+      "bottom": 2.0
+    }
+  },
+  "checkbox_bg_clicked": {
+    "image_id": "checkbox_01_clicked",
+    "margins": {
+      "left": 2.0,
+      "right": 2.0,
+      "top": 2.0,
+      "bottom": 2.0
+    }
+  },
+  "checkbox_bg_selected": {
+    "image_id": "checkbox_01_selected",
+    "margins": {
+      "left": 2.0,
+      "right": 2.0,
+      "top": 2.0,
+      "bottom": 2.0
+    }
+  },
+  "checkbox_bg_selected_hovered": {
+    "image_id": "checkbox_01_selected_hovered",
+    "margins": {
+      "left": 2.0,
+      "right": 2.0,
+      "top": 2.0,
+      "bottom": 2.0
+    }
+  }
+}
