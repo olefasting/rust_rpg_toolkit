@@ -50,86 +50,54 @@
       "path": "assets/gui/blank_image.png"
     },
     {
-      "id": "panel_01",
-      "path": "assets/gui/macroquad_example_assets/window_background_2.png"
+      "id": "window_background",
+      "path": "assets/gui/theme/window_background.png"
     },
     {
-      "id": "panel_02",
-      "path": "assets/gui/wenrexa/MainPanel03.png"
+      "id": "editbox_background",
+      "path": "assets/gui/theme/editbox_background.png"
     },
     {
-      "id": "editbox_01",
-      "path": "assets/gui/macroquad_example_assets/editbox_background.png"
+      "id": "checkbox_background",
+      "path": "assets/gui/theme/checkbox_background.png"
     },
     {
-      "id": "checkbox_01",
-      "path": "assets/gui/macroquad_example_assets/checkbox_background.png"
+      "id": "checkbox_background_clicked",
+      "path": "assets/gui/theme/checkbox_background_clicked.png"
     },
     {
-      "id": "checkbox_01_clicked",
-      "path": "assets/gui/macroquad_example_assets/checkbox_clicked_background.png"
+      "id": "checkbox_background_hovered",
+      "path": "assets/gui/theme/checkbox_background_hovered.png"
     },
     {
-      "id": "checkbox_01_hovered",
-      "path": "assets/gui/macroquad_example_assets/checkbox_hovered_background.png"
+      "id": "checkbox_background_selected",
+      "path": "assets/gui/theme/checkbox_background_selected.png"
     },
     {
-      "id": "checkbox_01_selected",
-      "path": "assets/gui/macroquad_example_assets/checkbox_background_selected.png"
+      "id": "checkbox_background_selected_hovered",
+      "path": "assets/gui/theme/checkbox_background_selected_hovered.png"
     },
     {
-      "id": "checkbox_01_selected_hovered",
-      "path": "assets/gui/macroquad_example_assets/checkbox_hovered_background_selected.png"
+      "id": "button_background",
+      "path": "assets/gui/theme/button_background.png"
     },
     {
-      "id": "btn_01",
-      "path": "assets/gui/macroquad_example_assets/button_background_2.png"
+      "id": "button_background_hovered",
+      "path": "assets/gui/theme/button_background_clicked.png"
     },
     {
-      "id": "btn_01_hovered",
-      "path": "assets/gui/macroquad_example_assets/button_clicked_background_2.png"
+      "id": "button_background_clicked",
+      "path": "assets/gui/theme/button_background_hovered.png"
     },
     {
-      "id": "btn_01_clicked",
-      "path": "assets/gui/macroquad_example_assets/button_hovered_background_2.png"
-    },
-    {
-      "id": "btn_01_inactive",
-      "path": "assets/gui/macroquad_example_assets/button_background_2_inactive.png"
-    },
-    {
-      "id": "btn_02",
-      "path": "assets/gui/wenrexa/Button11.png"
-    },
-    {
-      "id": "btn_02_hovered",
-      "path": "assets/gui/wenrexa/Button12.png"
-    },
-    {
-      "id": "btn_02_clicked",
-      "path": "assets/gui/wenrexa/Button12.png"
-    },
-    {
-      "id": "btn_03",
-      "path": "assets/gui/wenrexa/Button04.png"
-    },
-    {
-      "id": "btn_03_hovered",
-      "path": "assets/gui/wenrexa/Button02.png"
-    },
-    {
-      "id": "btn_03_clicked",
-      "path": "assets/gui/wenrexa/Button02.png"
+      "id": "button_background_inactive",
+      "path": "assets/gui/theme/button_background_inactive.png"
     }
   ],
   "fonts": [
     {
       "id": "minimal_pixel_v2",
       "path": "assets/gui/fonts/MinimalPixel v2.ttf"
-    },
-    {
-      "id": "high_tower_text_regular",
-      "path": "assets/gui/fonts/HighTowerTextRegular.ttf"
     }
   ],
   "sound_effects": [

@@ -2,6 +2,8 @@ use crate::prelude::*;
 use crate::gui::*;
 
 fn load_map(local_player_id: &str, transition: SceneTransition) {
+    scene::clear();
+
     let resources = storage::get::<Resources>();
     let SceneTransition { player, chapter_index, map_id } = transition;
 
@@ -12,6 +14,9 @@ fn load_map(local_player_id: &str, transition: SceneTransition) {
         .expect(&format!("Unable to load chapter '{}'!", chapter_index));
 
     let game_state = {
+        for key in chapter.maps.keys() {
+            println!("{}", key);
+        }
         let map = chapter.maps.get(&map_id)
             .cloned()
             .expect(&format!("Unable to load map '{}' of chapter '{}'!", map_id, chapter.title));
@@ -161,16 +166,6 @@ fn check_paths(params: &GameParams) {
 #[cfg(target_family = "wasm")]
 pub fn check_paths(_params: &GameParams) {}
 
-pub async fn load_gui_skins(game_params: &GameParams) -> Result<(), FileError> {
-    let path = format!("{}/gui_theme.json", &game_params.data_path);
-    let bytes = load_file(&path).await?;
-    let gui_theme = serde_json::from_slice(&bytes)
-        .expect(&format!("Error when parsing gui theme '{}'", path));
-    let gui_skins = GuiSkins::new(gui_theme);
-    storage::store(gui_skins);
-    Ok(())
-}
-
 #[cfg(not(any(target_family = "wasm", target_os = "android")))]
 pub async fn load_resources(game_params: GameParams) {
     let bg_color = game_params.clear_background_color.clone();
@@ -197,8 +192,6 @@ pub async fn load_resources(game_params: GameParams) {
 
         next_frame().await;
     }
-
-    load_gui_skins(&game_params);
 }
 
 #[cfg(target_family = "wasm")]
@@ -209,8 +202,58 @@ pub async fn load_resources(game_params: GameParams) {
     load_modules(&mut state, &game_params, &mut resources).await.unwrap();
 
     storage::store(resources);
+}
 
-    load_gui_skins(&game_params);
+pub fn init_local_player() -> String {
+    let player_id = generate_id();
+    map_gamepad(&player_id);
+    player_id
+}
+
+#[derive(Debug, Clone)]
+pub enum ApplicationState {
+    LoadingResources,
+    InMainMenu,
+    LoadingScene(SceneTransition),
+    InGame,
+    Quitting,
+}
+
+pub async fn update() -> ApplicationState {
+    let game_params = storage::get::<GameParams>();
+    clear_background(game_params.clear_background_color);
+
+    draw_gui();
+    update_input();
+
+    {
+        let mut game_state = scene::find_node_by_type::<GameState>().unwrap();
+        if game_state.should_save_character {
+            game_state.should_save_character = false;
+            game_state.save_player_character();
+        }
+
+        if game_state.should_go_to_main_menu {
+            game_state.save_player_character();
+            return ApplicationState::InMainMenu;
+        }
+
+        if game_state.should_quit {
+            game_state.save_player_character();
+            return ApplicationState::Quitting;
+        }
+
+        if let Some(transition_params) = game_state.scene_transition.clone() {
+            let player = Actor::find_by_player_id(&game_state.local_player_id).unwrap();
+            let scene_transition = SceneTransition::new(player.to_export(game_state.is_permadeath), transition_params);
+            game_state.scene_transition = None;
+            return ApplicationState::LoadingScene(scene_transition);
+        }
+    }
+
+    next_frame().await;
+
+    ApplicationState::InGame
 }
 
 // This will run the game and it can also be used as a blueprint for how to implement
@@ -219,62 +262,36 @@ pub async fn run_game(game_params: GameParams) {
     storage::store(game_params.clone());
     check_paths(&game_params);
 
+    let mut state = ApplicationState::LoadingResources;
+
     load_resources(game_params.clone()).await;
+    load_gui_theme(&game_params).await.unwrap();
 
-    let local_player_id = generate_id();
-    map_gamepad(&local_player_id);
+    let local_player_id = init_local_player();
 
-    let mut scene_transition = None;
+    state = ApplicationState::InMainMenu;
 
-    'outer: loop {
-        scene::clear();
-
-        if scene_transition.is_none() {
-            scene_transition = match gui::draw_main_menu().await {
-                MainMenuResult::StartGame(transition) => Some(transition),
-                MainMenuResult::Quit => break,
-            };
-        }
-
-        load_map(&local_player_id, scene_transition.clone().unwrap());
-
-        'inner: loop {
-            clear_background(game_params.clear_background_color);
-
-            draw_gui();
-            update_input();
-
-            {
-                let mut game_state = scene::find_node_by_type::<GameState>().unwrap();
-                if game_state.should_save_character {
-                    game_state.should_save_character = false;
-                    game_state.save_player_character();
-                }
-
-                if game_state.should_go_to_main_menu {
-                    game_state.save_player_character();
-                    scene_transition = None;
-                    continue 'outer;
-                }
-
-                if game_state.should_quit {
-                    game_state.save_player_character();
-                    break 'outer;
-                }
-
-                if let Some(transition_params) = game_state.scene_transition.clone() {
-                    let player = Actor::find_by_player_id(&game_state.local_player_id).unwrap();
-                    scene_transition = Some(SceneTransition::new(player.to_export(game_state.is_permadeath), transition_params));
-                    game_state.scene_transition = None;
-                    break 'inner;
+    loop {
+        match &state {
+            ApplicationState::InMainMenu => {
+                match gui::draw_main_menu().await {
+                    MainMenuResult::StartGame(transition) =>
+                        state = ApplicationState::LoadingScene(transition),
+                    MainMenuResult::Quit =>
+                        state = ApplicationState::Quitting,
                 }
             }
-
-            if scene_transition.is_none() {
-                break 'outer;
+            ApplicationState::LoadingScene(transition) => {
+                load_map(&local_player_id, transition.clone());
+                state = ApplicationState::InGame;
             }
-
-            next_frame().await;
+            ApplicationState::InGame => {
+                state = update().await;
+            }
+            ApplicationState::Quitting => {
+                break;
+            }
+            _ => {}
         }
     }
 

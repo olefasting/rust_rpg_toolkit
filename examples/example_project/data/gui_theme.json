@@ -150,7 +150,7 @@
     "alpha": 1.0
   },
   "window_bg": {
-    "image_id": "panel_01",
+    "image_id": "window_background",
     "margins": {
       "left": 52.0,
       "right": 52.0,
@@ -159,7 +159,7 @@
     }
   },
   "button_bg": {
-    "image_id": "btn_01",
+    "image_id": "button_background",
     "margins": {
       "left": 8.0,
       "right": 8.0,
@@ -168,7 +168,7 @@
     }
   },
   "button_bg_hovered": {
-    "image_id": "btn_01_hovered",
+    "image_id": "button_background_hovered",
     "margins": {
       "left": 8.0,
       "right": 8.0,
@@ -177,7 +177,7 @@
     }
   },
   "button_bg_clicked": {
-    "image_id": "btn_01_clicked",
+    "image_id": "button_background_clicked",
     "margins": {
       "left": 8.0,
       "right": 8.0,
@@ -186,7 +186,7 @@
     }
   },
   "button_bg_inactive": {
-    "image_id": "btn_01_inactive",
+    "image_id": "button_background_inactive",
     "margins": {
       "left": 8.0,
       "right": 8.0,
@@ -195,7 +195,7 @@
     }
   },
   "editbox_bg": {
-    "image_id": "editbox_01",
+    "image_id": "editbox_background",
     "margins": {
       "left": 4.0,
       "right": 4.0,
@@ -204,7 +204,7 @@
     }
   },
   "checkbox_bg": {
-    "image_id": "checkbox_01",
+    "image_id": "checkbox_background",
     "margins": {
       "left": 2.0,
       "right": 2.0,
@@ -213,7 +213,7 @@
     }
   },
   "checkbox_bg_hovered": {
-    "image_id": "checkbox_01_hovered",
+    "image_id": "checkbox_background_hovered",
     "margins": {
       "left": 2.0,
       "right": 2.0,
@@ -222,7 +222,7 @@
     }
   },
   "checkbox_bg_clicked": {
-    "image_id": "checkbox_01_clicked",
+    "image_id": "checkbox_background_clicked",
     "margins": {
       "left": 2.0,
       "right": 2.0,
@@ -231,7 +231,7 @@
     }
   },
   "checkbox_bg_selected": {
-    "image_id": "checkbox_01_selected",
+    "image_id": "checkbox_background_selected",
     "margins": {
       "left": 2.0,
       "right": 2.0,
@@ -240,7 +240,7 @@
     }
   },
   "checkbox_bg_selected_hovered": {
-    "image_id": "checkbox_01_selected_hovered",
+    "image_id": "checkbox_background_selected_hovered",
     "margins": {
       "left": 2.0,
       "right": 2.0,
