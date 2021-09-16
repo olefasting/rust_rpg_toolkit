@@ -23,6 +23,16 @@ impl<'a> Checkbox<'a> {
         }
     }
 
+    pub fn with_inactive_label(self) -> Self {
+        Checkbox {
+            id: self.id,
+            position: self.position,
+            label: self.label,
+            value: self.value,
+            allow_click_on_label: false,
+        }
+    }
+
     pub fn ui(&mut self, ui: &mut Ui) {
         let gui_skins = storage::get::<GuiSkins>();
 

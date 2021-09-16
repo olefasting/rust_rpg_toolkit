@@ -15,9 +15,6 @@ pub fn load_scene(local_player_id: &str, transition: SceneTransition) {
         .expect(&format!("Unable to load chapter '{}'!", chapter_index));
 
     let game_state = {
-        for key in chapter.maps.keys() {
-            println!("{}", key);
-        }
         let map = chapter.maps.get(&map_id)
             .cloned()
             .expect(&format!("Unable to load map '{}' of chapter '{}'!", map_id, chapter.title));
@@ -298,6 +295,8 @@ pub async fn run_game(game_params: GameParams) {
     loop {
         match action {
             UpdateAction::ShowMainMenu => {
+                scene::clear();
+
                 match gui::draw_main_menu().await {
                     MainMenuResult::StartGame(transition) => {
                         action = UpdateAction::LoadScene(transition);

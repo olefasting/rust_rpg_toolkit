@@ -270,21 +270,55 @@
         {
           "index": 3,
           "title": "Quit",
-          "flags": [
-            "fix-to-bottom"
-          ]
+          "push_down": true
         }
       ],
+      "button_style": "full_width",
+      "is_static": true
+    },
+    "game_menu": {
+      "size": {
+        "x": 200.0,
+        "y": 200.0
+      },
+      "position": "centered",
+      "options": [
+        {
+          "index": 0,
+          "title": "Resume"
+        },
+        {
+          "index": 1,
+          "title": "Save"
+        },
+        {
+          "index": 2,
+          "title": "Main Menu"
+        },
+        {
+          "index": 3,
+          "title": "Quit",
+          "push_down": true
+        }
+      ],
+      "button_style": "full_width",
       "is_static": true
     },
     "chapter_selection": {
       "size": {
-        "x": 200.0,
-        "y": 250.0
+        "x": 250.0,
+        "y": 300.0
       },
       "title": "Select Chapter",
       "position": "centered",
-      "options": [],
+      "options": [
+        {
+          "index": 0,
+          "title": "Cancel",
+          "push_down": true
+        }
+      ],
+      "button_style": "full_width",
       "is_static": true
     }
   }

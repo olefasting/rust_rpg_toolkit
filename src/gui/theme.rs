@@ -6,8 +6,6 @@ fn sub_offsets(a: RectOffset, b: RectOffset) -> RectOffset {
     RectOffset::new(a.left - b.left, a.right - b.right, a.top - b.top, a.bottom - b.bottom)
 }
 
-pub const MENU_OPTION_FLAG_FIX_TO_BOTTOM: &'static str = "fix-to-bottom";
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum MenuPosition {
@@ -24,8 +22,28 @@ pub enum MenuPosition {
 pub struct MenuOption {
     pub index: usize,
     pub title: String,
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub flags: Vec<String>,
+    #[serde(default)]
+    pub push_down: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum MenuButtonStyle {
+    None,
+    FullWidth,
+    Centered,
+}
+
+impl MenuButtonStyle {
+    pub fn is_none(&self) -> bool {
+        *self == Self::None
+    }
+}
+
+impl Default for MenuButtonStyle {
+    fn default() -> Self {
+        Self::FullWidth
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -37,6 +55,8 @@ pub struct MenuParams {
     pub title: Option<String>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub options: Vec<MenuOption>,
+    #[serde(default, skip_serializing_if = "MenuButtonStyle::is_none")]
+    pub button_style: MenuButtonStyle,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub custom_skin_id: Option<String>,
     #[serde(default)]
@@ -134,24 +154,25 @@ impl Default for GuiTheme {
                 MenuOption {
                     index: 0,
                     title: "Start Game".to_string(),
-                    flags: Vec::new(),
+                    push_down: false,
                 },
                 MenuOption {
                     index: 1,
                     title: "Settings".to_string(),
-                    flags: Vec::new(),
+                    push_down: false,
                 },
                 MenuOption {
                     index: 2,
                     title: "Modules".to_string(),
-                    flags: Vec::new(),
+                    push_down: false,
                 },
                 MenuOption {
                     index: 3,
                     title: "Quit".to_string(),
-                    flags: Vec::new(),
+                    push_down: true,
                 }
             ],
+            button_style: MenuButtonStyle::FullWidth,
             custom_skin_id: None,
             is_static: true
         };
@@ -162,7 +183,14 @@ impl Default for GuiTheme {
             size: vec2(200.0, 250.0),
             position: MenuPosition::Centered,
             title: Some("Select Chapter".to_string()),
-            options: vec![],
+            options: vec![
+                MenuOption {
+                    index: 0,
+                    title: "Cancel".to_string(),
+                    push_down: true,
+                }
+            ],
+            button_style: MenuButtonStyle::FullWidth,
             custom_skin_id: None,
             is_static: true
         };

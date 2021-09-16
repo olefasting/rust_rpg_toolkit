@@ -8,44 +8,25 @@ pub fn draw_game_menu(game_state: &mut RefMut<GameState>) {
 
     root_ui().push_skin(&gui_skins.default);
 
-    widgets::Window::new(hash!(), position, size)
-        .titlebar(false)
-        .ui(&mut *root_ui(), |ui| {
-            let btn_size = vec2(150.0, 32.0) ;
-
-            let resume_btn = widgets::Button::new("Resume")
-                .size(btn_size)
-                .ui(ui);
-
-            if resume_btn {
+    let params = gui_skins.theme.menu_params.get("game_menu").unwrap();
+    if let Some(i) = WindowBuilder::new_menu(&mut *root_ui(), hash!(), params) {
+        match i {
+            0 => {
                 game_state.should_show_game_menu = false;
             }
-
-            let save_btn = widgets::Button::new("Save")
-                .size(btn_size)
-                .ui(ui);
-
-            if save_btn {
+            1 => {
                 game_state.should_save_character = true;
                 game_state.should_show_game_menu = false;
             }
-
-            let main_menu_btn = widgets::Button::new("Main Menu")
-                .size(btn_size)
-                .ui(ui);
-
-            if main_menu_btn {
+            2 => {
                 game_state.should_go_to_main_menu = true;
             }
-
-            let quit_btn = widgets::Button::new("Quit")
-                .size(btn_size)
-                .position(vec2(0.0, 118.0) )
-                .ui(ui);
-
-            if quit_btn {
+            3 => {
                 game_state.should_quit = true;
             }
-        });
+            _ => {}
+        }
+    }
+
     root_ui().pop_skin()
 }
