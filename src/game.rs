@@ -1,7 +1,8 @@
 use crate::prelude::*;
 use crate::gui::*;
 
-fn load_map(local_player_id: &str, transition: SceneTransition) {
+// This will clear the current scene and create a new one, based on the specified `SceneTransition`
+pub fn load_scene(local_player_id: &str, transition: SceneTransition) {
     scene::clear();
 
     let resources = storage::get::<Resources>();
@@ -157,6 +158,7 @@ impl Default for GameParams {
     }
 }
 
+// This will create some needed folders, if they do not exist in the working directory
 #[cfg(not(any(target_family = "wasm", target_os = "android")))]
 fn check_paths(params: &GameParams) {
     fs::create_dir_all(&params.characters_path)
@@ -166,19 +168,24 @@ fn check_paths(params: &GameParams) {
 #[cfg(target_family = "wasm")]
 pub fn check_paths(_params: &GameParams) {}
 
+// This will load all resources to memory. This means both assets, such as textures and sound, as
+// well as all data files. It will also apply modules.
+// The assets can later be accessed by getting the `Resources` struct from storage
 #[cfg(not(any(target_family = "wasm", target_os = "android")))]
-pub async fn load_resources(game_params: GameParams) {
-    let bg_color = game_params.clear_background_color.clone();
+pub async fn load_resources(game_params: &GameParams) {
+    let coroutine = {
+        let game_params = game_params.clone();
 
-    let coroutine = start_coroutine(async move {
-        let mut resources = Resources::new(&game_params.data_path).await.unwrap();
-        load_modules(game_params, &mut resources).await.unwrap();
+        start_coroutine(async move {
+            let mut resources = Resources::new(&game_params.data_path).await.unwrap();
+            load_modules(&game_params, &mut resources).await.unwrap();
 
-        storage::store(resources);
-    });
+            storage::store(resources);
+        })
+    };
 
     while coroutine.is_done() == false {
-        clear_background(bg_color);
+        clear_background(game_params.clear_background_color);
         draw_aligned_text(
             "Loading game resources...",
             screen_width() / 2.0,
@@ -204,94 +211,112 @@ pub async fn load_resources(game_params: GameParams) {
     storage::store(resources);
 }
 
+// This will create the GUI skins, based on the `gui_theme.json` file, in the data directory.
+// It must be called after resources has completed loading, as it relies on images imported to
+// `Resources`. The `GuiSkins` struct can later be accessed by retrieving it from storage.
+pub async fn create_gui_skins(game_params: &GameParams) -> Result<(), FileError> {
+    let path = format!("{}/gui_theme.json", &game_params.data_path);
+    let bytes = load_file(&path).await?;
+    let gui_theme = serde_json::from_slice(&bytes)
+        .expect(&format!("Error when parsing gui theme '{}'", path));
+    let gui_skins = GuiSkins::new(gui_theme);
+    storage::store(gui_skins);
+    Ok(())
+}
+
+// Initialize a local player
+// This will also map a gamepad, if any are connected
 pub fn init_local_player() -> String {
     let player_id = generate_id();
     map_gamepad(&player_id);
     player_id
 }
 
+// This is returned by the game update function and it should be acted upon in the game loop
+// where it is returned.
+// See `fn run_game` for an example
 #[derive(Debug, Clone)]
-pub enum ApplicationState {
-    LoadingResources,
-    InMainMenu,
-    LoadingScene(SceneTransition),
-    InGame,
-    Quitting,
+pub enum UpdateAction {
+    None,
+    LoadScene(SceneTransition),
+    ShowMainMenu,
+    Quit,
 }
 
-pub async fn update() -> ApplicationState {
-    let game_params = storage::get::<GameParams>();
+// This is called to advance the game by one frame. It returns an `UpdateAction` that should be
+// acted upon in the game loop that calls this.
+pub async fn update(game_params: &GameParams) -> UpdateAction {
     clear_background(game_params.clear_background_color);
 
-    draw_gui();
     update_input();
+    draw_gui();
 
     {
         let mut game_state = scene::find_node_by_type::<GameState>().unwrap();
         if game_state.should_save_character {
-            game_state.should_save_character = false;
             game_state.save_player_character();
+            game_state.should_save_character = false;
         }
 
         if game_state.should_go_to_main_menu {
             game_state.save_player_character();
-            return ApplicationState::InMainMenu;
+            return UpdateAction::ShowMainMenu;
         }
 
         if game_state.should_quit {
             game_state.save_player_character();
-            return ApplicationState::Quitting;
+            return UpdateAction::Quit;
         }
 
         if let Some(transition_params) = game_state.scene_transition.clone() {
+            game_state.save_player_character();
             let player = Actor::find_by_player_id(&game_state.local_player_id).unwrap();
             let scene_transition = SceneTransition::new(player.to_export(game_state.is_permadeath), transition_params);
             game_state.scene_transition = None;
-            return ApplicationState::LoadingScene(scene_transition);
+            return UpdateAction::LoadScene(scene_transition);
         }
     }
 
     next_frame().await;
 
-    ApplicationState::InGame
+    UpdateAction::None
 }
 
-// This will run the game and it can also be used as a blueprint for how to implement
-// your own game loop, so that you get better access to the internals
+// This will load resources and start the game loop. It can also serve as a blueprint if you want
+// to implement your own game loop, if you need more flexibility and control.
 pub async fn run_game(game_params: GameParams) {
     storage::store(game_params.clone());
+
     check_paths(&game_params);
+    load_resources(&game_params).await;
+    create_gui_skins(&game_params).await.unwrap();
 
-    let mut state = ApplicationState::LoadingResources;
+    let player_id = init_local_player();
 
-    load_resources(game_params.clone()).await;
-    load_gui_theme(&game_params).await.unwrap();
-
-    let local_player_id = init_local_player();
-
-    state = ApplicationState::InMainMenu;
+    let mut action = UpdateAction::ShowMainMenu;
 
     loop {
-        match &state {
-            ApplicationState::InMainMenu => {
+        match action {
+            UpdateAction::ShowMainMenu => {
                 match gui::draw_main_menu().await {
-                    MainMenuResult::StartGame(transition) =>
-                        state = ApplicationState::LoadingScene(transition),
-                    MainMenuResult::Quit =>
-                        state = ApplicationState::Quitting,
+                    MainMenuResult::StartGame(transition) => {
+                        action = UpdateAction::LoadScene(transition);
+                    }
+                    MainMenuResult::Quit => {
+                        action = UpdateAction::Quit;
+                    }
                 }
             }
-            ApplicationState::LoadingScene(transition) => {
-                load_map(&local_player_id, transition.clone());
-                state = ApplicationState::InGame;
+            UpdateAction::LoadScene(transition) => {
+                load_scene(&player_id, transition);
+                action = UpdateAction::None;
             }
-            ApplicationState::InGame => {
-                state = update().await;
+            UpdateAction::None => {
+                action = update(&game_params).await;
             }
-            ApplicationState::Quitting => {
+            UpdateAction::Quit => {
                 break;
             }
-            _ => {}
         }
     }
 

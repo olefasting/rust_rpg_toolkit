@@ -33,16 +33,6 @@ mod main_menu;
 mod confirmation_modal;
 mod checkbox;
 
-pub async fn load_gui_theme(game_params: &GameParams) -> Result<(), FileError> {
-    let path = format!("{}/gui_theme.json", &game_params.data_path);
-    let bytes = load_file(&path).await?;
-    let gui_theme = serde_json::from_slice(&bytes)
-        .expect(&format!("Error when parsing gui theme '{}'", path));
-    let gui_skins = GuiSkins::new(gui_theme);
-    storage::store(gui_skins);
-    Ok(())
-}
-
 pub fn draw_gui() {
     if let Some(mut game_state) = scene::find_node_by_type::<GameState>() {
         if let Some(mut player) = Actor::find_by_player_id(&game_state.local_player_id) {

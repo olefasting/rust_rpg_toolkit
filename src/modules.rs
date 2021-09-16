@@ -107,7 +107,7 @@ impl Default for ModuleParams {
     }
 }
 
-pub async fn load_modules(game_params: GameParams, resources: &mut Resources) -> Result<(), FileError> {
+pub async fn load_modules(game_params: &GameParams, resources: &mut Resources) -> Result<(), FileError> {
     let active_modules_file_path = &format!("{}/active_modules.json", game_params.modules_path);
     let mut loaded_modules: Vec<(String, String)> = Vec::new();
 
