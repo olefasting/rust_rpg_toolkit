@@ -10,28 +10,31 @@ fn draw_character_attribute(ui: &mut Ui, i: usize, name: &str, value: &mut u32, 
 
     ui.label(vec2(2.0, y_offset - 2.0), &format!("{}: {}", name, value));
 
+    let condensed_button_skin = gui_skins.custom.get("condensed_button").unwrap();
+    let condensed_button_inactive_skin = gui_skins.custom.get("condensed_button_inactive").unwrap();
+
     if *value > 6 {
-        ui.push_skin(&gui_skins.condensed_button);
+        ui.push_skin(condensed_button_skin);
         if ui.button(vec2(58.0, y_offset), "-") {
             *value -= 1;
             *build_points += 1;
         }
         ui.pop_skin();
     } else {
-        ui.push_skin(&gui_skins.condensed_button_inactive);
+        ui.push_skin(condensed_button_inactive_skin);
         ui.button(vec2(58.0, y_offset), "-");
         ui.pop_skin();
     }
 
     if *build_points > 0 {
-        ui.push_skin(&gui_skins.condensed_button);
+        ui.push_skin(condensed_button_skin);
         if ui.button(vec2(74.0, y_offset), "+") {
             *value += 1;
             *build_points -= 1;
         }
         ui.pop_skin();
     } else {
-        ui.push_skin(&gui_skins.condensed_button_inactive);
+        ui.push_skin(condensed_button_inactive_skin);
         ui.button(vec2(74.0, y_offset), "+");
         ui.pop_skin();
     }
@@ -83,7 +86,9 @@ pub(crate) async fn draw_create_character_menu() -> Option<SavedCharacter> {
 
                 ui.separator();
 
-                ui.push_skin(&gui_skins.big_editbox);
+                let big_editbox_skin = gui_skins.custom.get("big_editbox").unwrap();
+
+                ui.push_skin(big_editbox_skin);
                 ui.input_text(hash!(), "", &mut character.name);
                 ui.pop_skin();
 

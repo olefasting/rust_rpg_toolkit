@@ -28,7 +28,9 @@ fn module_index_to_id(i: usize) -> (u64, u64) {
 fn draw_module_entry(ui: &mut Ui, i: usize, name: &str, params: &ModuleParams, value: &mut bool, is_dragging: bool) -> Drag {
     let gui_skins = storage::get::<GuiSkins>();
 
-    ui.push_skin(&gui_skins.module_list_entry);
+    let module_list_entry_skin = gui_skins.custom.get("module_list_entry").unwrap();
+
+    ui.push_skin(module_list_entry_skin);
 
     let size = vec2(450.0, 24.0);
     let position = vec2(0.0, i as f32 * 28.0);

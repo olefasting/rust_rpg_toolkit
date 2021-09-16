@@ -82,49 +82,19 @@ pub async fn draw_main_menu() -> MainMenuResult {
 
 async fn draw_main_menu_root() -> MainMenuSelection {
     loop {
-        let size = vec2(250.0, 250.0);
-        let position = get_centered_on_screen(size);
-
         let mut selection = None;
 
-        widgets::Window::new(hash!(), position, size)
-            .titlebar(false)
-            .ui(&mut *root_ui(), |ui| {
-                let btn_size = vec2(200.0, 32.0);
-
-                let start_game_btn = widgets::Button::new("Start Game")
-                    .size(btn_size)
-                    .ui(ui);
-
-                if start_game_btn {
-                    selection = Some(MainMenuSelection::StartGame);
-                }
-
-                let settings_btn = widgets::Button::new("Settings")
-                    .size(btn_size)
-                    .ui(ui);
-
-                if settings_btn {
-                    selection = Some(MainMenuSelection::Settings);
-                }
-
-                let modules_btn = widgets::Button::new("Modules")
-                    .size(btn_size)
-                    .ui(ui);
-
-                if modules_btn {
-                    selection = Some(MainMenuSelection::Modules);
-                }
-
-                let quit_btn = widgets::Button::new("Quit")
-                    .size(btn_size)
-                    .position(vec2(0.0, 168.0))
-                    .ui(ui);
-
-                if quit_btn {
-                    selection = Some(MainMenuSelection::Quit);
-                }
-            });
+        let gui_skins = storage::get::<GuiSkins>();
+        let params = gui_skins.theme.menu_params.get("main_menu").unwrap();
+        if let Some(res) = WindowBuilder::new_menu(&mut *root_ui(), hash!("main_menu"), params) {
+            selection = match res {
+                0 => Some(MainMenuSelection::StartGame),
+                1 => Some(MainMenuSelection::Settings),
+                2 => Some(MainMenuSelection::Modules),
+                3 => Some(MainMenuSelection::Quit),
+                _ => None,
+            };
+        }
 
         if let Some(selection) = selection {
             return selection;

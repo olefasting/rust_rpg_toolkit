@@ -10,9 +10,9 @@
     "alpha": 1.0
   },
   "highlight_text_color": {
-    "red": 0.78431374,
-    "green": 0.78431374,
-    "blue": 0.627451,
+    "red": 1.0,
+    "green": 1.0,
+    "blue": 1.0,
     "alpha": 1.0
   },
   "warning_text_color": {
@@ -87,7 +87,6 @@
     "top": 4.0,
     "bottom": 4.0
   },
-  "separator_size": 8.0,
   "button_height": 32.0,
   "group_border_color": {
     "red": 0.0,
@@ -246,6 +245,47 @@
       "right": 2.0,
       "top": 2.0,
       "bottom": 2.0
+    }
+  },
+  "menu_params": {
+    "main_menu": {
+      "size": {
+        "x": 250.0,
+        "y": 250.0
+      },
+      "position": "centered",
+      "options": [
+        {
+          "index": 0,
+          "title": "Start Game"
+        },
+        {
+          "index": 1,
+          "title": "Settings"
+        },
+        {
+          "index": 2,
+          "title": "Modules"
+        },
+        {
+          "index": 3,
+          "title": "Quit",
+          "flags": [
+            "fix-to-bottom"
+          ]
+        }
+      ],
+      "is_static": true
+    },
+    "chapter_selection": {
+      "size": {
+        "x": 200.0,
+        "y": 250.0
+      },
+      "title": "Select Chapter",
+      "position": "centered",
+      "options": [],
+      "is_static": true
     }
   }
 }

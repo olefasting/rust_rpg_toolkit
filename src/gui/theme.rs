@@ -6,6 +6,43 @@ fn sub_offsets(a: RectOffset, b: RectOffset) -> RectOffset {
     RectOffset::new(a.left - b.left, a.right - b.right, a.top - b.top, a.bottom - b.bottom)
 }
 
+pub const MENU_OPTION_FLAG_FIX_TO_BOTTOM: &'static str = "fix-to-bottom";
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum MenuPosition {
+    Normal(
+        #[serde(with = "json::def_vec2")]
+        Vec2
+    ),
+    CenteredVertically(f32),
+    CenteredHorizontally(f32),
+    Centered,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MenuOption {
+    pub index: usize,
+    pub title: String,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub flags: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MenuParams {
+    #[serde(with = "json::def_vec2")]
+    pub size: Vec2,
+    pub position: MenuPosition,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub options: Vec<MenuOption>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub custom_skin_id: Option<String>,
+    #[serde(default)]
+    pub is_static: bool,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GuiImage {
     pub image_id: String,
@@ -47,7 +84,6 @@ pub struct GuiTheme {
     pub editbox_margins: RectOffset,
     #[serde(with = "json::RectOffsetDef")]
     pub checkbox_margins: RectOffset,
-    pub separator_size: f32,
     pub button_height: f32,
     #[serde(with = "json::ColorDef")]
     pub group_border_color: Color,
@@ -80,6 +116,7 @@ pub struct GuiTheme {
     pub checkbox_bg_clicked: GuiImage,
     pub checkbox_bg_selected: GuiImage,
     pub checkbox_bg_selected_hovered: GuiImage,
+    pub menu_params: HashMap<String, MenuParams>,
 }
 
 impl Default for GuiTheme {
@@ -87,13 +124,58 @@ impl Default for GuiTheme {
         let button_bg_margins = RectOffset::new(8.0, 8.0, 4.0, 4.0);
         let checkbox_bg_margins = RectOffset::new(2.0, 2.0, 2.0, 2.0);
 
+        let mut menu_params = HashMap::new();
+
+        let main_menu_params = MenuParams {
+            size: vec2(250.0, 250.0),
+            position: MenuPosition::Centered,
+            title: None,
+            options: vec![
+                MenuOption {
+                    index: 0,
+                    title: "Start Game".to_string(),
+                    flags: Vec::new(),
+                },
+                MenuOption {
+                    index: 1,
+                    title: "Settings".to_string(),
+                    flags: Vec::new(),
+                },
+                MenuOption {
+                    index: 2,
+                    title: "Modules".to_string(),
+                    flags: Vec::new(),
+                },
+                MenuOption {
+                    index: 3,
+                    title: "Quit".to_string(),
+                    flags: Vec::new(),
+                }
+            ],
+            custom_skin_id: None,
+            is_static: true
+        };
+
+        menu_params.insert("main_menu".to_string(), main_menu_params);
+
+        let chapter_selection_menu_params = MenuParams {
+            size: vec2(200.0, 250.0),
+            position: MenuPosition::Centered,
+            title: Some("Select Chapter".to_string()),
+            options: vec![],
+            custom_skin_id: None,
+            is_static: true
+        };
+
+        menu_params.insert("chapter_selection".to_string(), chapter_selection_menu_params);
+
         GuiTheme {
             font_size: 16,
             header_font_size: 18,
             window_title_size: 18,
             button_font_size: 16,
             text_color: Color::from_rgba(200, 200, 160, 255),
-            highlight_text_color: Color::from_rgba(200, 200, 160, 255),
+            highlight_text_color: Color::from_rgba(255, 255, 255, 255),
             window_title_color: Color::from_rgba(200, 200, 160, 255),
             warning_text_color: color::RED,
             editbox_text_color: Color::from_rgba(200, 200, 160, 255),
@@ -106,7 +188,6 @@ impl Default for GuiTheme {
             button_margins: RectOffset::new(16.0, 16.0, 6.0, 6.0),
             editbox_margins: RectOffset::new(14.0, 14.0, 4.0, 0.0),
             checkbox_margins: RectOffset::new(0.0, 0.0, 4.0, 4.0),
-            separator_size: 8.0,
             button_height: 32.0,
             group_border_color: Color::from_rgba(0, 0, 0, 0),
             group_border_color_hovered: Color::from_rgba(0, 0, 0, 0),
@@ -119,49 +200,50 @@ impl Default for GuiTheme {
             scrollbar_handle_color_hovered: Color::from_rgba(58, 68,102, 255),
             scrollbar_handle_color_clicked: Color::from_rgba(58, 68,102, 255),
             window_bg: GuiImage {
-                image_id: "panel_01".to_string(),
+                image_id: "window_background".to_string(),
                 margins: RectOffset::new(52.0, 52.0, 52.0, 52.0),
             },
             button_bg: GuiImage {
-                image_id: "btn_01".to_string(),
+                image_id: "button_background".to_string(),
                 margins: button_bg_margins,
             },
             button_bg_hovered: GuiImage {
-                image_id: "btn_01_hovered".to_string(),
+                image_id: "button_background_hovered".to_string(),
                 margins: button_bg_margins,
             },
             button_bg_clicked: GuiImage {
-                image_id: "btn_01_clicked".to_string(),
+                image_id: "button_background_clicked".to_string(),
                 margins: button_bg_margins,
             },
             button_bg_inactive: GuiImage {
-                image_id: "btn_01_inactive".to_string(),
+                image_id: "button_background_inactive".to_string(),
                 margins: button_bg_margins,
             },
             editbox_bg: GuiImage {
-                image_id: "editbox_01".to_string(),
+                image_id: "editbox_background".to_string(),
                 margins: RectOffset::new(4.0, 4.0, 4.0, 4.0),
             },
             checkbox_bg: GuiImage {
-                image_id: "checkbox_01".to_string(),
+                image_id: "checkbox_background".to_string(),
                 margins: checkbox_bg_margins,
             },
             checkbox_bg_hovered: GuiImage {
-                image_id: "checkbox_01_hovered".to_string(),
+                image_id: "checkbox_background_hovered".to_string(),
                 margins: checkbox_bg_margins,
             },
             checkbox_bg_clicked: GuiImage {
-                image_id: "checkbox_01_clicked".to_string(),
+                image_id: "checkbox_background_clicked".to_string(),
                 margins: checkbox_bg_margins,
             },
             checkbox_bg_selected: GuiImage {
-                image_id: "checkbox_01_selected".to_string(),
+                image_id: "checkbox_background_selected".to_string(),
                 margins: checkbox_bg_margins,
             },
             checkbox_bg_selected_hovered: GuiImage {
-                image_id: "checkbox_01_selected_hovered".to_string(),
+                image_id: "checkbox_background_selected_hovered".to_string(),
                 margins: checkbox_bg_margins,
-            }
+            },
+            menu_params,
         }
     }
 }
@@ -170,18 +252,12 @@ impl Default for GuiTheme {
 pub struct GuiSkins {
     pub default: Skin,
     pub window_title: Skin,
-    pub module_list_entry: Skin,
     pub checkbox: Skin,
     pub checkbox_selected: Skin,
     pub header_label: Skin,
     pub warning_label: Skin,
     pub inactive_button: Skin,
-    pub label_button: Skin,
-    pub label_button_highlighted: Skin,
-    pub condensed_button: Skin,
-    pub condensed_button_inactive: Skin,
-    pub big_editbox: Skin,
-    pub slider_fix: Skin,
+    pub custom: HashMap<String, Skin>,
     pub theme: GuiTheme,
 }
 
@@ -521,6 +597,8 @@ impl GuiSkins {
             }
         };
 
+        let mut custom_skins = HashMap::new();
+
         let slider_fix = {
             let editbox_style = root_ui()
                 .style_builder()
@@ -553,21 +631,23 @@ impl GuiSkins {
             }
         };
 
+        custom_skins.insert("slider_fix".to_string(), slider_fix);
+        custom_skins.insert("big_editbox".to_string(), big_editbox);
+        custom_skins.insert("module_list_entry".to_string(), module_list_entry);
+        custom_skins.insert("label_button".to_string(), label_button);
+        custom_skins.insert("label_button_highlighted".to_string(), label_button_highlighted);
+        custom_skins.insert("condensed_button".to_string(), condensed_button);
+        custom_skins.insert("condensed_button_inactive".to_string(), condensed_button_inactive);
+
         GuiSkins {
             default,
             window_title,
-            module_list_entry,
             checkbox,
             checkbox_selected,
             header_label,
             warning_label,
             inactive_button,
-            label_button,
-            label_button_highlighted,
-            condensed_button,
-            condensed_button_inactive,
-            big_editbox,
-            slider_fix,
+            custom: custom_skins,
             theme,
         }
     }

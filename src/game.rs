@@ -139,7 +139,7 @@ pub struct GameParams {
     pub characters_path: String,
     pub new_character_prototype_id: String,
     pub new_character_build_points: u32,
-    pub clear_background_color: Color,
+    pub clear_bg_color: Color,
 }
 
 impl Default for GameParams {
@@ -153,7 +153,7 @@ impl Default for GameParams {
             characters_path: "characters".to_string(),
             new_character_prototype_id: "new_character_prototype".to_string(),
             new_character_build_points: 6,
-            clear_background_color: color::BLACK,
+            clear_bg_color: color::BLACK,
         }
     }
 }
@@ -185,7 +185,7 @@ pub async fn load_resources(game_params: &GameParams) {
     };
 
     while coroutine.is_done() == false {
-        clear_background(game_params.clear_background_color);
+        clear_background(game_params.clear_bg_color);
         draw_aligned_text(
             "Loading game resources...",
             screen_width() / 2.0,
@@ -246,7 +246,7 @@ pub enum UpdateAction {
 // This is called to advance the game by one frame. It returns an `UpdateAction` that should be
 // acted upon in the game loop that calls this.
 pub async fn update(game_params: &GameParams) -> UpdateAction {
-    clear_background(game_params.clear_background_color);
+    clear_background(game_params.clear_bg_color);
 
     update_input();
     draw_gui();
@@ -291,7 +291,7 @@ pub async fn run_game(game_params: GameParams) {
     load_resources(&game_params).await;
     create_gui_skins(&game_params).await.unwrap();
 
-    let player_id = init_local_player();
+    let local_player_id = init_local_player();
 
     let mut action = UpdateAction::ShowMainMenu;
 
@@ -308,7 +308,7 @@ pub async fn run_game(game_params: GameParams) {
                 }
             }
             UpdateAction::LoadScene(transition) => {
-                load_scene(&player_id, transition);
+                load_scene(&local_player_id, transition);
                 action = UpdateAction::None;
             }
             UpdateAction::None => {

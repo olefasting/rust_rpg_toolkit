@@ -35,8 +35,9 @@ impl<'a> Checkbox<'a> {
         ui.separator();
 
         let label_size = ui.calc_size(&self.label);
-        let checkbox_size = vec2(label_size.y - gui_skins.theme.separator_size, label_size.y - gui_skins.theme.separator_size);
-        let total_size = vec2(checkbox_size.x + gui_skins.theme.separator_size, 0.0) + label_size;
+        let label_height = label_size.y - gui_skins.theme.label_margins.top - gui_skins.theme.label_margins.bottom;
+        let checkbox_size = vec2(label_height, label_height);
+        let total_size = vec2(checkbox_size.x * 1.5, 0.0) + label_size;
 
         let mut group = widgets::Group::new(self.id, total_size);
 
@@ -46,6 +47,7 @@ impl<'a> Checkbox<'a> {
 
         group.ui(ui, |ui| {
             let checkbox = widgets::Button::new("")
+                .position(vec2(0.0, gui_skins.theme.label_margins.top))
                 .size(checkbox_size)
                 .ui(ui);
 
@@ -53,9 +55,11 @@ impl<'a> Checkbox<'a> {
                 *self.value = !*self.value;
             }
 
-            ui.push_skin(&gui_skins.label_button);
+            let label_button_skin = gui_skins.custom.get("label_button").unwrap();
+
+            ui.push_skin(label_button_skin);
             let label_btn = widgets::Button::new(self.label.deref())
-                .position(vec2(checkbox_size.x + gui_skins.theme.separator_size, 0.0))
+                .position(vec2(checkbox_size.x * 1.5, 0.0))
                 .ui(ui);
             ui.pop_skin();
 
