@@ -2,11 +2,7 @@ use rust_rpg_toolkit::prelude::*;
 
 const GAME_NAME: &'static str = "example-project";
 const GAME_VERSION: &'static str = "0.1.0";
-
 const CONFIG_PATH: &'static str = "config.json";
-const DATA_PATH: &'static str = "data";
-const MODULES_PATH: &'static str = "modules";
-const CHARACTERS_PATH: &'static str = "characters";
 
 pub fn window_conf() -> Conf {
     let config = Config::load(CONFIG_PATH);

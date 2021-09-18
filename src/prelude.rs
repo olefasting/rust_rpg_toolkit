@@ -69,8 +69,6 @@ pub use crate::{
     chapter::{
         Chapter,
         ChapterParams,
-        SceneTransition,
-        SceneTransitionParams,
     },
     error::{
         Error,
@@ -78,7 +76,7 @@ pub use crate::{
     },
     player::{
         Player,
-        CharacterExport,
+        PlayerCharacter,
         delete_character,
         save_character,
         get_available_characters,
@@ -144,16 +142,19 @@ pub use crate::{
         },
         Credits,
     },
-    game::{
-        GameParams,
+    events::{
         Event,
         get_queued_event,
         dispatch_event,
         handle_event,
         handle_event_queue,
+    },
+    game::{
+        GameParams,
         init_resources,
         init_gui,
         init_player,
+        load_scene,
     },
     gui::{
         self,

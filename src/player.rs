@@ -37,7 +37,7 @@ impl Player {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct CharacterExport {
+pub struct PlayerCharacter {
     pub game_version: String,
     pub actor: ActorParams,
     pub items: Vec<ItemParams>,
@@ -49,7 +49,7 @@ pub struct CharacterExport {
 }
 
 #[cfg(not(any(target_family = "wasm", target_os = "android")))]
-pub async fn get_available_characters(characters_path: &str) -> io::Result<Vec<CharacterExport>> {
+pub async fn get_available_characters(characters_path: &str) -> io::Result<Vec<PlayerCharacter>> {
     let regex = Regex::new(r".json$").unwrap();
     let mut res = Vec::new();
     for entry in fs::read_dir(characters_path)? {
@@ -59,7 +59,7 @@ pub async fn get_available_characters(characters_path: &str) -> io::Result<Vec<C
                     let json = load_file(path)
                         .await
                         .expect(&format!("Error when parsing character file '{}'!", path));
-                    let character: CharacterExport = serde_json::from_slice(&json)?;
+                    let character: PlayerCharacter = serde_json::from_slice(&json)?;
                     res.push(character);
                 }
             }
@@ -69,19 +69,19 @@ pub async fn get_available_characters(characters_path: &str) -> io::Result<Vec<C
 }
 
 #[cfg(target_family = "wasm")]
-pub async fn get_available_characters(_: &str) -> io::Result<Vec<CharacterExport>> {
+pub async fn get_available_characters(_: &str) -> io::Result<Vec<PlayerCharacter>> {
     let game_params = storage::get::<GameParams>();
     let storage = &mut quad_storage::STORAGE.lock().unwrap();
     let save_name = format!("{}_character", game_params.game_name);
     if let Some(json) = storage.get(&save_name) {
-        let character: CharacterExport = serde_json::from_str(&json)?;
+        let character: PlayerCharacter = serde_json::from_str(&json)?;
         return Ok(vec![character]);
     }
     Ok(Vec::new())
 }
 
 #[cfg(not(any(target_family = "wasm", target_os = "android")))]
-pub fn save_character(character: CharacterExport) -> Result<()> {
+pub fn save_character(character: PlayerCharacter) -> Result<()> {
     let game_params = storage::get::<GameParams>();
     let json = serde_json::to_string_pretty(&character)?;
     let path = format!("{}/{}.json", game_params.characters_path, &character.actor.name);
@@ -90,7 +90,7 @@ pub fn save_character(character: CharacterExport) -> Result<()> {
 }
 
 #[cfg(target_family = "wasm")]
-pub fn save_character(character: &CharacterExport) -> Result<()> {
+pub fn save_character(character: &PlayerCharacter) -> Result<()> {
     let game_params = storage::get::<GameParams>();
     let json = serde_json::to_string_pretty(&character)?;
     let mut storage = quad_storage::STORAGE.lock().unwrap();

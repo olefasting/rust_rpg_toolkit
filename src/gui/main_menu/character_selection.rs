@@ -2,15 +2,13 @@ use std::ops::Deref;
 
 use crate::gui::*;
 
-use super::MainMenuSelection;
-
 pub(crate) enum CharacterSelectionResult {
-    SelectCharacter(CharacterExport),
+    SelectCharacter(PlayerCharacter),
     CreateCharacter,
     Cancel,
 }
 
-pub(crate) async fn draw_character_selection_menu() -> CharacterSelectionResult {
+pub(crate) async fn draw_character_selection() -> CharacterSelectionResult {
     let mut result = None;
 
     let mut characters = Vec::new();
@@ -27,7 +25,7 @@ pub(crate) async fn draw_character_selection_menu() -> CharacterSelectionResult 
         }
 
         if let Some(i) = delete_i {
-            let character: &CharacterExport = characters.get(i).unwrap();
+            let character: &PlayerCharacter = characters.get(i).unwrap();
 
             let modal_body = vec!(
                 "Are you sure you want to delete".to_string(),
@@ -46,7 +44,7 @@ pub(crate) async fn draw_character_selection_menu() -> CharacterSelectionResult 
             }
         } else {
             if let Some(i) = selected_i {
-                let character: &CharacterExport = characters.get(i).unwrap();
+                let character: &PlayerCharacter = characters.get(i).unwrap();
                 result = draw_character_details(&mut selected_i, &mut delete_i, character)
             } else {
                 result = draw_character_list(&mut selected_i, &characters);
@@ -61,7 +59,7 @@ pub(crate) async fn draw_character_selection_menu() -> CharacterSelectionResult 
     }
 }
 
-fn draw_character_list(selected_i: &mut Option<usize>, characters: &Vec<CharacterExport>) -> Option<CharacterSelectionResult> {
+fn draw_character_list(selected_i: &mut Option<usize>, characters: &Vec<PlayerCharacter>) -> Option<CharacterSelectionResult> {
     const WINDOW_WIDTH: f32 = 300.0;
     const WINDOW_HEIGHT: f32 = 250.0;
 
@@ -122,7 +120,7 @@ fn draw_character_list(selected_i: &mut Option<usize>, characters: &Vec<Characte
     result
 }
 
-fn draw_character_details(selected_i: &mut Option<usize>, delete_i: &mut Option<usize>, character: &CharacterExport) -> Option<CharacterSelectionResult> {
+fn draw_character_details(selected_i: &mut Option<usize>, delete_i: &mut Option<usize>, character: &PlayerCharacter) -> Option<CharacterSelectionResult> {
     const WINDOW_WIDTH: f32 = 400.0;
     const WINDOW_HEIGHT: f32 = 500.0;
 

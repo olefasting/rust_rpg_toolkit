@@ -56,7 +56,7 @@ async fn is_name_in_use(_name: &str) -> bool {
     false
 }
 
-pub(crate) async fn draw_character_creation_menu() -> Option<CharacterExport> {
+pub(crate) async fn draw_character_creation() -> Option<PlayerCharacter> {
     let resources = storage::get::<Resources>();
     let game_params = storage::get::<GameParams>();
     let gui_skins = storage::get::<GuiSkins>();
@@ -152,7 +152,7 @@ pub(crate) async fn draw_character_creation_menu() -> Option<CharacterExport> {
                         .ui(ui);
 
                     if done_btn {
-                        let mut export: CharacterExport = character.clone().into();
+                        let mut export: PlayerCharacter = character.clone().into();
                         export.is_permadeath = is_permadeath;
                         res = Some(export);
                     }

@@ -27,3 +27,4 @@ pub mod inventory;
 pub mod noise_level;
 pub mod behavior_sets;
 pub mod error;
+pub mod events;

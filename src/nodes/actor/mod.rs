@@ -103,8 +103,8 @@ impl Into<ActorStats> for ActorParams {
     }
 }
 
-impl Into<CharacterExport> for ActorParams {
-    fn into(self) -> CharacterExport {
+impl Into<PlayerCharacter> for ActorParams {
+    fn into(self) -> PlayerCharacter {
         let game_params = storage::get::<GameParams>();
         let resources = storage::get::<Resources>();
         let mut item_ids = Vec::new();
@@ -127,7 +127,7 @@ impl Into<CharacterExport> for ActorParams {
             .initial_map_id
             .clone();
 
-        CharacterExport {
+        PlayerCharacter {
             game_version: game_params.game_version.clone(),
             actor: ActorParams {
                 id: generate_id(),
@@ -270,7 +270,7 @@ impl Actor {
         }
     }
 
-    pub fn from_export(game_state: Handle<GameState>, position: Vec2, controller_kind: ActorControllerKind, export: CharacterExport) -> Self {
+    pub fn from_export(game_state: Handle<GameState>, position: Vec2, controller_kind: ActorControllerKind, export: PlayerCharacter) -> Self {
         let resources = storage::get::<Resources>();
 
         let active_missions = export.active_missions
@@ -327,9 +327,9 @@ impl Actor {
         }
     }
 
-    pub fn to_export(&self, is_permadeath: bool) -> CharacterExport {
+    pub fn to_export(&self, chapter_index: usize, map_id: &str, is_permadeath: bool) -> PlayerCharacter {
         let game_params = storage::get::<GameParams>();
-        let actor = self.to_params();
+
         let items = self.inventory.items
             .iter()
             .map(|entry| entry.params.clone())
@@ -345,16 +345,14 @@ impl Actor {
             .map(|mission| mission.id.clone())
             .collect();
 
-        let current_chapter = storage::get::<SceneTransitionParams>();
-
-        CharacterExport {
+        PlayerCharacter {
             game_version: game_params.game_version.clone(),
-            actor,
+            actor: self.to_params(),
             items,
             active_missions,
             completed_missions,
-            current_chapter_index: current_chapter.chapter_index,
-            current_map_id: current_chapter.map_id.clone(),
+            current_chapter_index: chapter_index,
+            current_map_id: map_id.to_string(),
             is_permadeath,
         }
     }

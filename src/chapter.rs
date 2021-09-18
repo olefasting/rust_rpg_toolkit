@@ -53,26 +53,3 @@ pub async fn load_maps(params: Vec<ChapterParams>) -> Result<Vec<Chapter>> {
 
     Ok(chapters)
 }
-
-#[derive(Debug, Clone)]
-pub struct SceneTransitionParams {
-    pub chapter_index: usize,
-    pub map_id: String,
-}
-
-#[derive(Debug, Clone)]
-pub struct SceneTransition {
-    pub character: CharacterExport,
-    pub chapter_index: usize,
-    pub map_id: String,
-}
-
-impl SceneTransition {
-    pub fn new(character: CharacterExport, params: SceneTransitionParams) -> Self {
-        SceneTransition {
-            character,
-            chapter_index: params.chapter_index,
-            map_id: params.map_id,
-        }
-    }
-}

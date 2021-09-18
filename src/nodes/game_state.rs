@@ -3,8 +3,10 @@ use crate::prelude::*;
 const CHARACTER_SAVE_INTERVAL: f32 = 30.0;
 
 pub struct GameState {
-    pub map: Map,
     pub player: Player,
+    pub map: Map,
+    pub chapter_index: usize,
+    pub map_id: String,
     pub dead_actors: Vec<String>,
     pub should_show_character_window: bool,
     pub should_show_inventory_window: bool,
@@ -14,26 +16,24 @@ pub struct GameState {
 }
 
 impl GameState {
-    pub fn new(player: Player, character: CharacterExport, map: Map) -> Result<GameState> {
-        save_character(character)?;
-
-        let game_state = GameState {
+    pub fn new(player: Player, character: PlayerCharacter, map: Map) -> GameState {
+        GameState {
             map,
             player,
+            chapter_index: character.current_chapter_index,
+            map_id: character.current_map_id.clone(),
             dead_actors: Vec::new(),
             should_show_character_window: false,
             should_show_inventory_window: false,
             should_show_game_menu: false,
             in_debug_mode: false,
             time_since_save: 0.0,
-        };
-
-        Ok(game_state)
+        }
     }
 
-    pub fn add_node(player: Player, character: CharacterExport, map: Map) -> Result<Handle<Self>> {
-        let game_state = Self::new(player, character, map)?;
-        Ok(scene::add_node(game_state))
+    pub fn add_node(player: Player, character: PlayerCharacter, map: Map) -> Handle<Self> {
+        let game_state = Self::new(player, character, map);
+        scene::add_node(game_state)
     }
 
     pub fn is_player_actor_in_scene(&self) -> bool {
@@ -52,9 +52,9 @@ impl GameState {
         }
     }
 
-    pub fn get_player_character(&self) -> Option<CharacterExport> {
+    pub fn get_player_character(&self) -> Option<PlayerCharacter> {
         if let Some(actor) = self.get_player_actor() {
-            let character = actor.to_export(self.player.is_permadeath);
+            let character = actor.to_export(self.chapter_index, &self.map_id, self.player.is_permadeath);
             return Some(character);
         }
         None

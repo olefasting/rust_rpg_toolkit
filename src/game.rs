@@ -1,27 +1,25 @@
 use crate::prelude::*;
 use crate::gui::*;
-use crate::player::save_character;
 
 // This will clear the current scene and create a new one, based on the specified `SceneTransition`
-pub fn load_scene(character: CharacterExport, chapter_index: usize, map_id: &str) -> Result<()> {
+pub fn load_scene(character: PlayerCharacter) -> Result<()> {
     scene::clear();
 
+    let player = &*storage::get::<Player>();
     let resources = storage::get::<Resources>();
 
-    let params = SceneTransitionParams { chapter_index, map_id: map_id.to_string() };
-    storage::store(params);
+    let chapter_index = character.current_chapter_index;
 
     let chapter = resources.chapters.get(chapter_index)
         .expect(&format!("Unable to load chapter '{}'!", chapter_index));
 
-    let game_state = {
-        let player = &*storage::get::<Player>();
-        let map = chapter.maps.get(map_id)
-            .cloned()
-            .expect(&format!("Unable to load map '{}' of chapter '{}'!", map_id, chapter.title));
+    let map_id = character.current_map_id.clone();
 
-        GameState::add_node(player.clone(), character.clone(), map)?
-    };
+    let map = chapter.maps.get(&map_id)
+        .cloned()
+        .expect(&format!("Unable to load map '{}' of chapter '{}' ({})!", map_id, chapter.title, chapter_index));
+
+    let game_state = GameState::add_node(player.clone(), character.clone(), map);
 
     Camera::add_node();
     DrawBuffer::<Item>::add_node();
@@ -224,80 +222,10 @@ pub async fn init_gui() -> Result<()> {
     Ok(())
 }
 
+// This will initialize the player
 pub fn init_player() {
     let player_id = generate_id();
     let gamepad_id = map_gamepad(&player_id);
     let player = Player::new(&player_id, gamepad_id);
     storage::store(player);
-}
-
-#[derive(Debug, Clone)]
-pub enum Event {
-    ShowMainMenu,
-    CreateGame(CharacterExport, usize, String),
-    ChangeMap(usize, String),
-    SavePlayerCharacter,
-    Quit,
-}
-
-static mut EVENT_QUEUE: Option<Vec<Event>> = None;
-
-fn get_event_queue() -> &'static mut Vec<Event> {
-    unsafe {
-        if EVENT_QUEUE.is_none() {
-            EVENT_QUEUE = Some(Vec::new());
-        }
-
-        EVENT_QUEUE.as_mut().unwrap()
-    }
-}
-
-pub fn get_queued_event() -> Option<Event> {
-    let mut queue = get_event_queue();
-    queue.pop()
-}
-
-pub fn dispatch_event(event: Event) {
-    let mut queue = get_event_queue();
-    queue.insert(0, event);
-}
-
-// This will handle one event and return `true` if the game should quit
-pub async fn handle_event(event: Event) -> Result<bool> {
-    match event {
-        Event::ShowMainMenu => {
-            scene::clear();
-            gui::show_main_menu().await;
-        }
-        Event::CreateGame(character, chapter_index, map_id) => {
-            load_scene(character, chapter_index, &map_id)?;
-        }
-        Event::ChangeMap(chapter_index, map_id) => {
-            let game_state = scene::find_node_by_type::<GameState>().unwrap();
-            let character= game_state.get_player_character().unwrap();
-            dispatch_event(Event::CreateGame(character, chapter_index, map_id));
-        }
-        Event::SavePlayerCharacter => {
-            let game_state = scene::find_node_by_type::<GameState>().unwrap();
-            let character= game_state.get_player_character().unwrap();
-            save_character(character)?;
-        }
-        Event::Quit => {
-            scene::clear();
-            return Ok(true)
-        }
-    }
-
-    Ok(false)
-}
-
-// This will handle all queued events and return `true` if the game should quit
-pub async fn handle_event_queue() -> Result<bool> {
-    while let Some(event) = get_queued_event() {
-        if handle_event(event).await? == true {
-            return Ok(true);
-        }
-    }
-
-    Ok(false)
 }
