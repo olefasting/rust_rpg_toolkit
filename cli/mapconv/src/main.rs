@@ -21,20 +21,9 @@ struct Cli {
 fn main() -> CliResult {
     let args = Cli::from_args();
 
-    let map_id = match &args.map_id {
-        Some(map_id) => map_id,
-        _ => {
-            args.output
-                .file_prefix()
-                .unwrap()
-                .to_str()
-                .unwrap()
-        }
-    };
-
     let json = read_file(args.file)?;
     let tiled_map = serde_json::from_str(&json)?;
-    let map = Map::from_tiled(&map_id, tiled_map);
+    let map = Map::from_tiled(tiled_map);
     map.save(args.output).unwrap();
 
     println!("Success!");

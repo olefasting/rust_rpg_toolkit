@@ -75,8 +75,11 @@ pub use crate::{
         Result,
     },
     player::{
-        Player,
-        PlayerCharacter,
+        LocalPlayer,
+        get_player_actor,
+    },
+    character::{
+        Character,
         delete_character,
         save_character,
         get_available_characters,
@@ -153,7 +156,7 @@ pub use crate::{
         GameParams,
         init_resources,
         init_gui,
-        init_player,
+        init_local_player,
         load_scene,
     },
     gui::{
@@ -217,7 +220,6 @@ pub use crate::{
         get_mapped_gamepad,
         get_gamepad_id,
         get_events,
-        get_player_id,
         get_mouse_position,
         get_mouse_in_world_space,
         update_input,

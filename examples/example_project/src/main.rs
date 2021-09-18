@@ -30,7 +30,7 @@ async fn main() -> Result<()> {
 
     init_resources().await;
     init_gui().await?;
-    init_player();
+    init_local_player();
 
     dispatch_event(Event::ShowMainMenu);
 
@@ -38,8 +38,9 @@ async fn main() -> Result<()> {
         clear_background(params.clear_bg_color);
 
         update_input();
-        next_frame().await;
         draw_gui();
+
+        next_frame().await;
     }
 
     Ok(())

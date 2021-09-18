@@ -10,31 +10,28 @@ fn draw_character_attribute(ui: &mut Ui, i: usize, name: &str, value: &mut u32, 
 
     ui.label(vec2(2.0, y_offset - 2.0), &format!("{}: {}", name, value));
 
-    let condensed_button_skin = gui_skins.custom.get("condensed_button").unwrap();
-    let condensed_button_inactive_skin = gui_skins.custom.get("condensed_button_inactive").unwrap();
-
     if *value > 6 {
-        ui.push_skin(condensed_button_skin);
+        ui.push_skin(&gui_skins.condensed_button);
         if ui.button(vec2(58.0, y_offset), "-") {
             *value -= 1;
             *build_points += 1;
         }
         ui.pop_skin();
     } else {
-        ui.push_skin(condensed_button_inactive_skin);
+        ui.push_skin(&gui_skins.condensed_button_inactive);
         ui.button(vec2(58.0, y_offset), "-");
         ui.pop_skin();
     }
 
     if *build_points > 0 {
-        ui.push_skin(condensed_button_skin);
+        ui.push_skin(&gui_skins.condensed_button);
         if ui.button(vec2(74.0, y_offset), "+") {
             *value += 1;
             *build_points -= 1;
         }
         ui.pop_skin();
     } else {
-        ui.push_skin(condensed_button_inactive_skin);
+        ui.push_skin(&gui_skins.condensed_button_inactive);
         ui.button(vec2(74.0, y_offset), "+");
         ui.pop_skin();
     }
@@ -56,7 +53,7 @@ async fn is_name_in_use(_name: &str) -> bool {
     false
 }
 
-pub(crate) async fn draw_character_creation() -> Option<PlayerCharacter> {
+pub(crate) async fn draw_character_creation() -> Option<Character> {
     let resources = storage::get::<Resources>();
     let game_params = storage::get::<GameParams>();
     let gui_skins = storage::get::<GuiSkins>();
@@ -86,9 +83,7 @@ pub(crate) async fn draw_character_creation() -> Option<PlayerCharacter> {
 
                 ui.separator();
 
-                let big_editbox_skin = gui_skins.custom.get("big_editbox").unwrap();
-
-                ui.push_skin(big_editbox_skin);
+                ui.push_skin(&gui_skins.big_editbox);
                 ui.input_text(hash!(), "", &mut character.name);
                 ui.pop_skin();
 
@@ -152,7 +147,7 @@ pub(crate) async fn draw_character_creation() -> Option<PlayerCharacter> {
                         .ui(ui);
 
                     if done_btn {
-                        let mut export: PlayerCharacter = character.clone().into();
+                        let mut export: Character = character.clone().into();
                         export.is_permadeath = is_permadeath;
                         res = Some(export);
                     }

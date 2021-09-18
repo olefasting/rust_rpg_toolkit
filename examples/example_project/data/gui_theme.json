@@ -278,8 +278,8 @@
     },
     "game_menu": {
       "size": {
-        "x": 200.0,
-        "y": 200.0
+        "x": 250.0,
+        "y": 250.0
       },
       "position": "centered",
       "options": [
@@ -293,7 +293,8 @@
         },
         {
           "index": 2,
-          "title": "Main Menu"
+          "title": "Main Menu",
+          "push_down": true
         },
         {
           "index": 3,

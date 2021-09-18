@@ -20,6 +20,7 @@ pub struct Projectile {
     effects: Vec<Effect>,
     color: Color,
     size: f32,
+    origin: Vec2,
     position: Vec2,
     direction: Vec2,
     speed: f32,
@@ -37,7 +38,7 @@ impl Projectile {
         effects: Vec<Effect>,
         color: Color,
         size: f32,
-        position: Vec2,
+        origin: Vec2,
         direction: Vec2,
         speed: f32,
         range: f32,
@@ -51,7 +52,8 @@ impl Projectile {
             effects,
             color,
             size,
-            position,
+            origin,
+            position: origin,
             direction,
             speed,
             distance_traveled: 0.0,
@@ -113,7 +115,7 @@ impl Projectiles {
         effects: &[Effect],
         color_override: Option<Color>,
         size_override: Option<f32>,
-        position: Vec2,
+        origin: Vec2,
         direction: Vec2,
         speed: f32,
         spread: f32,
@@ -153,7 +155,7 @@ impl Projectiles {
             effects.to_vec(),
             color,
             size,
-            position,
+            origin,
             direction,
             speed,
             range,
@@ -189,8 +191,9 @@ impl Node for Projectiles {
                     }
                 }
             }
-            let game_state = scene::find_node_by_type::<GameState>().unwrap();
-            for (_, kind) in game_state.map.get_collisions(collider) {
+
+            let map = storage::get::<Map>();
+            for (_, kind) in map.get_collisions(collider) {
                 if kind == CollisionKind::Solid {
                     projectile.play_on_hit_sound_effect();
                     return false;
@@ -207,12 +210,17 @@ impl Node for Projectiles {
             if frustum.contains(projectile.position) {
                 match projectile.kind {
                     ProjectileKind::Bullet => {
-                        let begin = projectile
+                        let mut begin = projectile
                             .position.sub(projectile.direction.mul(
                             projectile.size * rand::gen_range(
                                 Self::PROJECTILE_LENGTH_FACTOR_MIN,
                                 Self::PROJECTILE_LENGTH_FACTOR_MAX,
                             )));
+
+                        if begin.distance(projectile.position) > projectile.origin.distance(projectile.position) {
+                            begin = projectile.origin;
+                        }
+
                         draw_line(
                             begin.x,
                             begin.y,

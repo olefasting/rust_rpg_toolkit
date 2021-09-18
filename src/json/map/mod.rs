@@ -8,8 +8,6 @@ pub use tiled::TiledMap;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MapDef {
-    #[serde(default = "generate_id")]
-    pub id: String,
     #[serde(default = "MapDef::default_background_color", with = "json::ColorDef")]
     pub background_color: Color,
     #[serde(with = "super::def_vec2", default)]
@@ -70,7 +68,6 @@ impl Into<MapDef> for Map {
             .collect();
 
         MapDef {
-            id: self.id,
             background_color: self.background_color,
             world_offset: self.world_offset,
             grid_size: self.grid_size,
@@ -139,7 +136,6 @@ impl From<MapDef> for Map {
                 }));
 
         Map {
-            id: def.id,
             background_color: def.background_color,
             world_offset: def.world_offset,
             grid_size: def.grid_size,

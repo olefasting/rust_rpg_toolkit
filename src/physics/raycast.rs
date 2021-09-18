@@ -1,29 +1,17 @@
-use std::ops::Sub;
+use crate::prelude::*;
 
-use macroquad::prelude::*;
-
-use crate::{
-    nodes::GameState,
-    nodes::Actor,
-};
-
-use super::{
-    CollisionKind,
-    COLLISION_RESOLUTION,
-    Collider,
-};
+use super::COLLISION_RESOLUTION;
 
 pub fn raycast(origin: Vec2, end: Vec2, ignore_barriers: bool, ignore_actors: bool) -> Option<Vec2> {
     if origin.distance(end) > COLLISION_RESOLUTION {
-        let game_state = scene::find_node_by_type::<GameState>().unwrap();
-
+        let map = storage::get::<Map>();
         let direction = end.sub(origin).normalize_or_zero();
         let collider = Collider::circle(0.0, 0.0, 1.0);
         let change = direction * COLLISION_RESOLUTION;
         let mut current = origin;
         while current.distance(end) > COLLISION_RESOLUTION {
             let collider = collider.with_offset(current);
-            for (_, kind) in game_state.map.get_collisions(collider) {
+            for (_, kind) in map.get_collisions(collider) {
                 if ignore_barriers == false || kind == CollisionKind::Solid {
                     return Some(current);
                 }

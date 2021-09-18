@@ -29,7 +29,7 @@ impl Chapter {
         let mut  maps = HashMap::new();
         for map_params in params.maps {
             let map = Map::load(&map_params.path).await?;
-            maps.insert(map.id.clone(), map);
+            maps.insert(map_params.id.clone(), map);
         }
 
         let chapter = Chapter {

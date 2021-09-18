@@ -152,7 +152,7 @@ impl Ability {
                         &self.effects,
                         self.color_override,
                         self.size_override,
-                        node.body.position,
+                        origin,
                         end,
                     );
                 },
@@ -183,8 +183,8 @@ impl Ability {
                 },
                 AbilityDelivery::Melee => {
                     let collider = Collider::circle(
-                        node.body.position.x,
-                        node.body.position.y,
+                        origin.x,
+                        origin.y,
                         self.range,
                     );
                     let mut hit_success = false;

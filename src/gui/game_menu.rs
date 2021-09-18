@@ -7,7 +7,7 @@ const GAME_MENU_OPT_QUIT: usize = 3;
 
 pub fn draw_game_menu() {
     if let Some(mut game_state) = scene::find_node_by_type::<GameState>() {
-        if game_state.gui_state.should_draw_game_menu {
+        if game_state.gui.should_draw_game_menu {
             let gui_skins = storage::get::<GuiSkins>();
 
             root_ui().push_skin(&gui_skins.default);
@@ -16,10 +16,10 @@ pub fn draw_game_menu() {
             if let Some(selection) = MenuBuilder::new(hash!(), params).build(&mut *root_ui()) {
                 match selection {
                     GAME_MENU_OPT_RESUME => {
-                        game_state.gui_state.should_draw_game_menu = false;
+                        game_state.gui.should_draw_game_menu = false;
                     }
                     GAME_MENU_OPT_SAVE => {
-                        game_state.gui_state.should_draw_game_menu = false;
+                        game_state.gui.should_draw_game_menu = false;
                         dispatch_event(Event::SavePlayerCharacter);
                     }
                     GAME_MENU_OPT_MAIN_MENU => {

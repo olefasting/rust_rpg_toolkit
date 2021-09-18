@@ -100,7 +100,6 @@ impl MenuBuilder {
             let gui_skins = storage::get::<GuiSkins>();
 
             let mut next_top_y = 0.0;
-            let mut next_bottom_y = self.params.size.y - gui_skins.theme.window_margins.top - gui_skins.theme.window_margins.bottom - gui_skins.theme.button_height;
 
             if let Some(title) = &self.params.title {
                 ui.push_skin(&gui_skins.window_title);
@@ -108,15 +107,25 @@ impl MenuBuilder {
                 ui.pop_skin();
             }
 
-            for opt in &self.params.options {
+            let mut opts = self.params.options.clone();
+            opts.sort_by(|a, b| a.index.cmp(&b.index));
+
+            let mut next_bottom_y = self.params.size.y - gui_skins.theme.window_margins.top - gui_skins.theme.window_margins.bottom;
+
+            for opt in &opts {
+                if opt.push_down {
+                    next_bottom_y -= gui_skins.theme.button_height + 2.0;
+                }
+            }
+
+            for opt in &opts {
                 let mut btn = widgets::Button::new(opt.title.deref());
 
                 let mut x_position = 0.0;
 
                 match self.params.button_style {
                     MenuButtonStyle::FullWidth => {
-                        let size = vec2(self.params.size.x - gui_skins.theme.window_margins.left - gui_skins.theme.window_margins.right,
-                                        gui_skins.theme.button_height);
+                        let size = vec2(self.params.size.x - gui_skins.theme.window_margins.left - gui_skins.theme.window_margins.right, gui_skins.theme.button_height);
                         btn = btn.size(size);
                     }
                     MenuButtonStyle::Centered => {
@@ -130,11 +139,9 @@ impl MenuBuilder {
 
                 if opt.push_down {
                     btn = btn.position(vec2(x_position, next_bottom_y));
-                    next_bottom_y -= gui_skins.theme.button_height;
+                    next_bottom_y += gui_skins.theme.button_height + 2.0;
                 } else {
-                    if self.params.button_style == MenuButtonStyle::Centered {
-                        btn = btn.position(vec2(x_position, next_top_y));
-                    }
+                    btn = btn.position(vec2(x_position, next_top_y));
                     next_top_y += gui_skins.theme.button_height;
                 }
 

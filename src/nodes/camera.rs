@@ -1,24 +1,4 @@
-use std::ops::Sub;
-
-use macroquad::{
-    experimental::{
-        scene::{
-            Node,
-            Handle,
-            RefMut,
-        },
-        collections::storage,
-    },
-    prelude::*,
-};
-
-use crate::{
-    render::Viewport,
-    nodes::{
-        GameState,
-        Actor,
-    },
-};
+use crate::prelude::*;
 
 pub struct Camera {
     pub position: Vec2,
@@ -104,14 +84,7 @@ impl Node for Camera {
     fn update(mut node: RefMut<Self>) {
         storage::store(node.get_viewport());
 
-        let game_state = scene::find_node_by_type::<GameState>().unwrap();
-        let actor = if let Some(handle) = game_state.player.actor_handle {
-            scene::try_get_node(handle)
-        } else {
-            Actor::find_by_player_id(&game_state.player.id)
-        };
-
-        if let Some(actor) = actor {
+        if let Some(actor) = get_player_actor() {
             let viewport = node.get_viewport();
             let bounds = {
                 let size = viewport.size * Self::FOLLOW_THRESHOLD_FRACTION;

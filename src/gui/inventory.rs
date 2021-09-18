@@ -33,8 +33,8 @@ fn draw_entry(ui: &mut Ui, player: &mut RefMut<Actor>, entry: &InventoryEntry) {
 
 pub fn draw_inventory_window() {
     if let Some(game_state) = scene::find_node_by_type::<GameState>() {
-        if game_state.gui_state.should_draw_inventory_window {
-            if let Some(mut player) = game_state.get_player_actor() {
+        if game_state.gui.should_draw_inventory_window {
+            if let Some(mut player) = get_player_actor() {
                 let gui_skins = storage::get::<GuiSkins>();
 
                 let size = vec2(300.0, 400.0);

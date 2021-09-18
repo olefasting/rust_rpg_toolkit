@@ -97,8 +97,6 @@ impl PhysicsBody {
             let movement = (self.velocity * 50.0) * get_frame_time();
 
             if movement != Vec2::ZERO {
-                let game_state = scene::find_node_by_type::<GameState>().unwrap();
-
                 #[cfg(feature = "collision_between_actors")]
                     let nearby_actors = {
                     let viewport = storage::get::<Viewport>();
@@ -143,7 +141,7 @@ impl PhysicsBody {
                             x_collisions.append(&mut actor_collisions);
                         }
 
-                    let mut map_collisions = check_map_collision(modified_collider, &game_state);
+                    let mut map_collisions = check_map_collision(modified_collider);
                     x_collisions.append(&mut map_collisions);
 
                     if x_collisions.len() > 0 {
@@ -171,7 +169,7 @@ impl PhysicsBody {
                             y_collisions.append(&mut actor_collisions);
                         }
 
-                    let mut map_collisions = check_map_collision(modified_collider, &game_state);
+                    let mut map_collisions = check_map_collision(modified_collider);
                     y_collisions.append(&mut map_collisions);
 
                     if y_collisions.len() > 0 {
@@ -192,9 +190,10 @@ impl PhysicsBody {
     }
 }
 
-fn check_map_collision(collider: Collider, game_state: &RefMut<GameState>) -> Vec<(Collider, CollisionKind)> {
-    let tile_size = game_state.map.tile_size;
-    let collisions = game_state.map.get_collisions(collider);
+fn check_map_collision(collider: Collider) -> Vec<(Collider, CollisionKind)> {
+    let map = storage::get::<Map>();
+    let tile_size = map.tile_size;
+    let collisions = map.get_collisions(collider);
 
     collisions
         .into_iter()

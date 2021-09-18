@@ -147,7 +147,6 @@ impl From<String> for CollisionKind {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(into = "json::MapDef", from = "json::MapDef")]
 pub struct Map {
-    pub id: String,
     #[serde(default = "Map::default_background_color", with = "json::ColorDef")]
     pub background_color: Color,
     #[serde(with = "json::def_vec2")]
@@ -171,10 +170,10 @@ impl Map {
         Ok(map)
     }
 
-    pub async fn load_tiled<P: AsRef<Path>>(id: &str, path: P, export_path: Option<P>) -> Result<Self> {
+    pub async fn load_tiled<P: AsRef<Path>>(path: P, export_path: Option<P>) -> Result<Self> {
         let bytes = load_file(path.as_ref().to_str().unwrap()).await?;
         let tiled_map: TiledMap = serde_json::from_slice(&bytes).unwrap();
-        let map = Map::from_tiled(id, tiled_map);
+        let map = Map::from_tiled(tiled_map);
 
         if let Some(export_path) = export_path {
             map.save(export_path).unwrap();
@@ -359,7 +358,7 @@ impl Map {
         Ok(())
     }
 
-    pub fn from_tiled(id: &str, tiled_map: TiledMap) -> Self {
+    pub fn from_tiled(tiled_map: TiledMap) -> Self {
         let background_color = if let Some(background_color) = tiled_map.backgroundcolor {
             color_from_hex_string(&background_color)
         } else {
@@ -539,7 +538,6 @@ impl Map {
         }
 
         Map {
-            id: id.to_string(),
             background_color,
             world_offset: Vec2::ZERO,
             grid_size,

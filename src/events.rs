@@ -42,7 +42,7 @@ pub async fn handle_event(event: Event) -> Result<bool> {
                 let game_state = scene::find_node_by_type::<GameState>().unwrap();
                 let character = game_state.get_player_character().unwrap();
 
-                PlayerCharacter {
+                Character {
                     current_chapter_index: chapter_index,
                     current_map_id: map_id,
                     ..character

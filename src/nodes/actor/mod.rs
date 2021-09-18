@@ -103,8 +103,8 @@ impl Into<ActorStats> for ActorParams {
     }
 }
 
-impl Into<PlayerCharacter> for ActorParams {
-    fn into(self) -> PlayerCharacter {
+impl Into<Character> for ActorParams {
+    fn into(self) -> Character {
         let game_params = storage::get::<GameParams>();
         let resources = storage::get::<Resources>();
         let mut item_ids = Vec::new();
@@ -127,7 +127,7 @@ impl Into<PlayerCharacter> for ActorParams {
             .initial_map_id
             .clone();
 
-        PlayerCharacter {
+        Character {
             game_version: game_params.game_version.clone(),
             actor: ActorParams {
                 id: generate_id(),
@@ -165,7 +165,6 @@ pub struct Actor {
     pub experience: u32,
     pub dialogue: Option<Dialogue>,
     pub current_dialogue: Option<Dialogue>,
-    pub game_state: Handle<GameState>,
     animation_player: SpriteAnimationPlayer,
     automaton: Automaton<ActorBehaviorFamily>,
     noise_level_timer: f32,
@@ -190,7 +189,7 @@ impl Actor {
     const PICK_UP_RADIUS: f32 = 36.0;
     const INTERACT_RADIUS: f32 = 36.0;
 
-    pub fn new(game_state: Handle<GameState>, controller_kind: ActorControllerKind, params: ActorParams) -> Self {
+    pub fn new(controller_kind: ActorControllerKind, params: ActorParams) -> Self {
         let position = params.position.unwrap_or_default();
         let dialogue = if let Some(dialogue_id) = params.dialogue_id.clone() {
             let resources = storage::get::<Resources>();
@@ -229,12 +228,11 @@ impl Actor {
             noise_level_timer: 0.0,
             can_level_up: params.can_level_up,
             automaton: ActorBehaviorFamily::automaton_with_mode(behavior_constructor()),
-            game_state,
         }
     }
 
-    pub fn add_node(game_state: Handle<GameState>, controller_kind: ActorControllerKind, params: ActorParams) -> Handle<Self> {
-        scene::add_node(Self::new(game_state, controller_kind, params))
+    pub fn add_node(controller_kind: ActorControllerKind, params: ActorParams) -> Handle<Self> {
+        scene::add_node(Self::new(controller_kind, params))
     }
 
     pub fn to_params(&self) -> ActorParams {
@@ -270,10 +268,10 @@ impl Actor {
         }
     }
 
-    pub fn from_export(game_state: Handle<GameState>, position: Vec2, controller_kind: ActorControllerKind, export: PlayerCharacter) -> Self {
+    pub fn from_saved(position: Vec2, controller_kind: ActorControllerKind, character: Character) -> Self {
         let resources = storage::get::<Resources>();
 
-        let active_missions = export.active_missions
+        let active_missions = character.active_missions
             .into_iter()
             .map(|mission_id| {
                 let params = resources.missions.get(&mission_id).cloned().unwrap();
@@ -281,7 +279,7 @@ impl Actor {
             })
             .collect();
 
-        let completed_missions = export.completed_missions
+        let completed_missions = character.completed_missions
             .into_iter()
             .map(|mission_id| {
                 let params = resources.missions.get(&mission_id).cloned().unwrap();
@@ -289,45 +287,46 @@ impl Actor {
             })
             .collect();
 
-        let body = PhysicsBody::new(position, 0.0, export.actor.collider);
+        let body = PhysicsBody::new(position, 0.0, character.actor.collider);
 
-        let dialogue = if let Some(dialogue_id) = &export.actor.dialogue_id {
+        let dialogue = if let Some(dialogue_id) = &character.actor.dialogue_id {
             resources.dialogue.get(dialogue_id).cloned()
         } else {
             None
         };
 
-        let behavior_set_id = &export.actor.behavior.behavior_set_id;
+        let behavior_set_id = &character.actor.behavior.behavior_set_id;
         let behavior_constructor = get_behavior_set(&behavior_set_id)
             .expect(&format!("No behavior set with id '{}' was found in the directory!", behavior_set_id));
 
+        let stats = character.actor.clone().into();
+
         Actor {
-            id: export.actor.id.clone(),
-            name: export.actor.name.clone(),
+            id: character.actor.id,
+            name: character.actor.name,
+            stats,
             active_missions,
             completed_missions,
             noise_level: NoiseLevel::None,
-            behavior: export.actor.behavior.clone(),
-            stats: export.actor.clone().into(),
-            factions: export.actor.factions,
+            behavior: character.actor.behavior,
+            factions: character.actor.factions,
             body,
-            inventory: Inventory::from_saved(&export.actor.inventory, &export.items),
-            equipped_items: export.actor.equipped_items,
+            inventory: Inventory::from_saved(&character.actor.inventory, &character.items),
+            equipped_items: character.actor.equipped_items,
             weapon_ability: EquippedWeaponsAbilities { main_hand: None, offhand: None },
             selected_ability: None,
             controller: ActorController::new(controller_kind),
-            experience: export.actor.experience,
+            experience: character.actor.experience,
             dialogue,
             current_dialogue: None,
-            animation_player: SpriteAnimationPlayer::new(export.actor.animation_player),
+            animation_player: SpriteAnimationPlayer::new(character.actor.animation_player),
             noise_level_timer: 0.0,
-            can_level_up: export.actor.can_level_up,
+            can_level_up: character.actor.can_level_up,
             automaton: ActorBehaviorFamily::automaton_with_mode(behavior_constructor()),
-            game_state,
         }
     }
 
-    pub fn to_export(&self, chapter_index: usize, map_id: &str, is_permadeath: bool) -> PlayerCharacter {
+    pub fn to_character(&self, chapter_index: usize, map_id: &str, is_permadeath: bool) -> Character {
         let game_params = storage::get::<GameParams>();
 
         let items = self.inventory.items
@@ -345,7 +344,7 @@ impl Actor {
             .map(|mission| mission.id.clone())
             .collect();
 
-        PlayerCharacter {
+        Character {
             game_version: game_params.game_version.clone(),
             actor: self.to_params(),
             items,
@@ -474,13 +473,14 @@ impl Actor {
                 for objective in &mut mission.objectives {
                     match &objective.0 {
                         MissionObjective::Kill { actor_id } => {
-                            let game_state = scene::get_node(self.game_state);
+                            let game_state = scene::find_node_by_type::<GameState>().unwrap();
                             if game_state.dead_actors.contains(actor_id) {
                                 objective.1 = true;
                             }
                         }
                         MissionObjective::FindItem { item_id } => {
-                            if self.inventory.items.iter().find(|entry| entry.params.id == item_id.clone()).is_some() {
+                            let res = self.inventory.items.iter().find(|entry| entry.params.id == item_id.clone());
+                            if res.is_some() {
                                 objective.1 = true;
                             }
                         }
@@ -664,7 +664,7 @@ impl BufferedDraw for Actor {
             );
         }
 
-        let game_state = scene::get_node(self.game_state);
+        let game_state = scene::find_node_by_type::<GameState>().unwrap();
         if game_state.in_debug_mode {
             // if let Some(path) = self.behavior.current_path.clone() {
             //     let mut previous: Option<Vec2> = None;
@@ -787,7 +787,7 @@ impl Node for Actor {
         node.controller.should_sprint = node.controller.is_sprint_locked && node.controller.should_sprint;
 
         {
-            let game_state = scene::get_node(node.game_state);
+            let game_state = scene::find_node_by_type::<GameState>().unwrap();
             let mut i: usize = 0;
             let mut keys = node.behavior.attackers.keys().cloned().collect::<Vec<String>>();
             while i < node.behavior.attackers.keys().len() {
@@ -864,22 +864,22 @@ impl Node for Actor {
             node.set_animation(controller.aim_direction, controller.move_direction == Vec2::ZERO);
 
             if controller.should_use_weapon {
+                let origin = node.body.position;
                 let mut primary_ability = node.weapon_ability.clone();
-                let position = node.body.position.clone();
                 if let Some(ability) = &mut primary_ability.main_hand {
-                    ability.activate(&mut node, position, controller.aim_direction);
+                    ability.activate(&mut node, origin, controller.aim_direction);
                 }
                 if let Some(ability) = &mut primary_ability.offhand {
-                    ability.activate(&mut node, position, controller.aim_direction);
+                    ability.activate(&mut node, origin, controller.aim_direction);
                 }
                 node.weapon_ability = primary_ability;
             }
 
             if controller.should_use_selected_ability {
+                let origin = node.body.position;
                 let mut secondary_ability = node.selected_ability.clone();
-                let position = node.body.position.clone();
                 if let Some(ability) = &mut secondary_ability {
-                    ability.activate(&mut node, position, controller.aim_direction);
+                    ability.activate(&mut node, origin, controller.aim_direction);
                 }
                 node.selected_ability = secondary_ability;
             }

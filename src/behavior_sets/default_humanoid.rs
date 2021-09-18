@@ -94,9 +94,9 @@ impl ActorBehavior for IdleMode {
                     }
                 }
             } else {
-                let game_state = scene::find_node_by_type::<GameState>().unwrap();
-                let dist_x = 5.0 * game_state.map.tile_size.x;
-                let dist_y = 5.0 * game_state.map.tile_size.y;
+                let map = storage::get::<Map>();
+                let dist_x = 5.0 * map.tile_size.x;
+                let dist_y = 5.0 * map.tile_size.y;
                 let x = rand::gen_range(position.x - dist_x, position.x + dist_x);
                 let y = rand::gen_range(position.y - dist_y, position.y + dist_y);
                 return GoToMode::new(vec2(x, y));
@@ -138,16 +138,15 @@ impl ActorBehavior for GoToMode {
         _: Inventory,
         _: EquippedItems,
     ) -> Box<dyn ActorBehavior> {
+        let map = storage::get::<Map>();
         if let Some(path) = self.path.clone() {
             if path.destination != self.destination {
-                let game_state = scene::find_node_by_type::<GameState>().unwrap();
-                self.path = game_state.map.get_path(position, self.destination);
+                self.path = map.get_path(position, self.destination);
             } else {
                 self.path = process_path(position, controller, path);
             }
         } else {
-            let game_state = scene::find_node_by_type::<GameState>().unwrap();
-            self.path = game_state.map.get_path(position, self.destination);
+            self.path = map.get_path(position, self.destination);
         }
 
         if self.path.is_none() {
@@ -199,8 +198,8 @@ impl ActorBehavior for AttackMode {
                     self.path = if let Some(path) = self.path.clone() {
                         process_path(position, controller, path)
                     } else {
-                        let game_state = scene::find_node_by_type::<GameState>().unwrap();
-                        game_state.map.get_path(position, target.body.position)
+                        let map = storage::get::<Map>();
+                        map.get_path(position, target.body.position)
                     }
                 }
             } else {
@@ -302,8 +301,8 @@ impl ActorBehavior for InvestigateMode {
         self.path = if let Some(path) = self.path {
             process_path(position, controller, path)
         } else {
-            let game_state = scene::find_node_by_type::<GameState>().unwrap();
-            game_state.map.get_path(position, self.location)
+            let map = storage::get::<Map>();
+            map.get_path(position, self.location)
         };
 
         controller.should_sprint = true;

@@ -8,8 +8,8 @@ pub fn beam_collision_check(point: Vec2, origin: Vec2, end: Vec2, width: f32, to
 }
 
 pub fn get_beam_end(origin: Vec2, end: Vec2, width: f32, tolerance: f32) -> Vec2 {
-    let game_state = scene::find_node_by_type::<GameState>().unwrap();
-    let tile_size = game_state.map.tile_size;
+    let map = storage::get::<Map>();
+    let tile_size = map.tile_size;
     let collider = {
         let ((x, w), (y, h)) = (
             if origin.x > end.x { (end.x, origin.x) } else { (origin.x, end.x) },
@@ -17,7 +17,7 @@ pub fn get_beam_end(origin: Vec2, end: Vec2, width: f32, tolerance: f32) -> Vec2
         Collider::rect(x, y, w, h)
     };
 
-    let mut collisions: Vec<Vec2> = game_state.map
+    let mut collisions: Vec<Vec2> = map
         .get_collisions(collider)
         .into_iter()
         .filter_map(|(position, kind)| {

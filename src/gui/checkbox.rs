@@ -65,9 +65,7 @@ impl<'a> Checkbox<'a> {
                 *self.value = !*self.value;
             }
 
-            let label_button_skin = gui_skins.custom.get("label_button").unwrap();
-
-            ui.push_skin(label_button_skin);
+            ui.push_skin(&gui_skins.label_button);
             let label_btn = widgets::Button::new(self.label.deref())
                 .position(vec2(checkbox_size.x * 1.5, 0.0))
                 .ui(ui);

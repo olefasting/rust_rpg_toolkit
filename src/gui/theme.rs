@@ -289,6 +289,7 @@ pub struct GuiSkins {
     pub condensed_button_inactive: Skin,
     pub label_button: Skin,
     pub label_button_highlighted: Skin,
+    pub big_editbox: Skin,
     pub custom: HashMap<String, Skin>,
     pub theme: GuiTheme,
 }
@@ -664,7 +665,6 @@ impl GuiSkins {
         };
 
         custom.insert("slider_fix".to_string(), slider_fix);
-        custom.insert("big_editbox".to_string(), big_editbox);
         custom.insert("module_list_entry".to_string(), module_list_entry);
 
         GuiSkins {
@@ -679,6 +679,7 @@ impl GuiSkins {
             label_button_highlighted,
             condensed_button,
             condensed_button_inactive,
+            big_editbox,
             custom,
             theme,
         }
