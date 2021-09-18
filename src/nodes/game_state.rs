@@ -8,9 +8,7 @@ pub struct GameState {
     pub chapter_index: usize,
     pub map_id: String,
     pub dead_actors: Vec<String>,
-    pub should_show_character_window: bool,
-    pub should_show_inventory_window: bool,
-    pub should_show_game_menu: bool,
+    pub gui_state: GuiState,
     pub in_debug_mode: bool,
     time_since_save: f32,
 }
@@ -23,9 +21,7 @@ impl GameState {
             chapter_index: character.current_chapter_index,
             map_id: character.current_map_id.clone(),
             dead_actors: Vec::new(),
-            should_show_character_window: false,
-            should_show_inventory_window: false,
-            should_show_game_menu: false,
+            gui_state: GuiState::new(),
             in_debug_mode: false,
             time_since_save: 0.0,
         }

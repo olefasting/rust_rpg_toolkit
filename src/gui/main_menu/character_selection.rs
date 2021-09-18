@@ -88,9 +88,7 @@ fn draw_character_list(selected_i: &mut Option<usize>, characters: &Vec<PlayerCh
 
                     let y_offset = i as f32 * 22.0;
 
-                    let label_button_skin = gui_skins.custom.get("label_button").unwrap();
-
-                    ui.push_skin(label_button_skin);
+                    ui.push_skin(&gui_skins.label_button);
                     if ui.button(vec2(2.0, y_offset), character.actor.name.deref()) {
                         *selected_i = Some(i);
                     }

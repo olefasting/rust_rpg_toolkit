@@ -215,14 +215,13 @@ pub async fn init_gui() -> Result<()> {
     let game_params = storage::get::<GameParams>();
     let path = format!("{}/gui_theme.json", &game_params.data_path);
     let bytes = load_file(&path).await?;
-    let gui_theme = serde_json::from_slice(&bytes)
-        .expect(&format!("Error when parsing gui theme '{}'", path));
+    let gui_theme = serde_json::from_slice(&bytes)?;
     let gui_skins = GuiSkins::new(gui_theme);
     storage::store(gui_skins);
     Ok(())
 }
 
-// This will initialize the player
+// This will initialize the player and map the first available gamepad, if available
 pub fn init_player() {
     let player_id = generate_id();
     let gamepad_id = map_gamepad(&player_id);

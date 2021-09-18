@@ -95,8 +95,8 @@ pub fn apply_input(player_id: &str, node: &mut RefMut<Actor>) {
                         Button::South => {},
                         Button::East => {
                             if value > 0.0 {
-                                if game_state.should_show_game_menu {
-                                    game_state.should_show_game_menu = false;
+                                if game_state.gui_state.should_draw_game_menu {
+                                    game_state.gui_state.should_draw_game_menu = false;
                                 } else if node.current_dialogue.is_some() {
                                     node.current_dialogue = None;
                                 }
@@ -114,12 +114,12 @@ pub fn apply_input(player_id: &str, node: &mut RefMut<Actor>) {
                         Button::LeftTrigger2 => {
                             // SELECT
                             if value > 0.0 {
-                                if game_state.should_show_character_window || game_state.should_show_inventory_window {
-                                    game_state.should_show_inventory_window = false;
-                                    game_state.should_show_character_window = false;
+                                if game_state.gui_state.should_draw_character_window || game_state.gui_state.should_draw_inventory_window {
+                                    game_state.gui_state.should_draw_inventory_window = false;
+                                    game_state.gui_state.should_draw_character_window = false;
                                 } else {
-                                    game_state.should_show_inventory_window = true;
-                                    game_state.should_show_character_window = true;
+                                    game_state.gui_state.should_draw_inventory_window = true;
+                                    game_state.gui_state.should_draw_character_window = true;
                                 }
                             }
                         },
@@ -128,7 +128,7 @@ pub fn apply_input(player_id: &str, node: &mut RefMut<Actor>) {
                         Button::Select => {},
                         Button::Start => {
                             if value > 0.0 {
-                                game_state.should_show_game_menu = !game_state.should_show_game_menu;
+                                game_state.gui_state.should_draw_game_menu = !game_state.gui_state.should_draw_game_menu;
                             }
                         },
                         Button::Mode => {},
@@ -254,10 +254,10 @@ pub fn apply_input(player_id: &str, node: &mut RefMut<Actor>) {
         node.controller.should_pick_up_items = is_key_down(KeyCode::R);
 
         if is_key_released(KeyCode::C) {
-            game_state.should_show_character_window = !game_state.should_show_character_window;
+            game_state.gui_state.should_draw_character_window = !game_state.gui_state.should_draw_character_window;
         }
         if is_key_released(KeyCode::I) {
-            game_state.should_show_inventory_window = !game_state.should_show_inventory_window;
+            game_state.gui_state.should_draw_inventory_window = !game_state.gui_state.should_draw_inventory_window;
         }
 
         if is_key_released(KeyCode::P) {
@@ -266,15 +266,15 @@ pub fn apply_input(player_id: &str, node: &mut RefMut<Actor>) {
 
         if is_key_released(KeyCode::Escape) {
             if node.current_dialogue.is_some()
-                || game_state.should_show_inventory_window
-                || game_state.should_show_character_window
-                || game_state.should_show_game_menu {
+                || game_state.gui_state.should_draw_inventory_window
+                || game_state.gui_state.should_draw_character_window
+                || game_state.gui_state.should_draw_game_menu {
                 node.current_dialogue = None;
-                game_state.should_show_inventory_window = false;
-                game_state.should_show_character_window = false;
-                game_state.should_show_game_menu = false;
+                game_state.gui_state.should_draw_inventory_window = false;
+                game_state.gui_state.should_draw_character_window = false;
+                game_state.gui_state.should_draw_game_menu = false;
             } else {
-                game_state.should_show_game_menu = true;
+                game_state.gui_state.should_draw_game_menu = true;
             }
         }
     }

@@ -44,23 +44,28 @@ mod confirmation_modal;
 mod checkbox;
 mod window_builder;
 
-pub fn draw_gui() {
-    if let Some(mut game_state) = scene::find_node_by_type::<GameState>() {
-        if let Some(handle) = game_state.player.actor_handle {
-            if let Some(player) = scene::try_get_node(handle).as_mut() {
-                if game_state.should_show_character_window {
-                    draw_character_window(&*player);
-                }
-                if game_state.should_show_inventory_window {
-                    draw_inventory_window(&mut *player);
-                }
-                draw_dialogue_window(&mut *player);
-                if game_state.should_show_game_menu {
-                    draw_game_menu(&mut game_state);
-                }
-            }
+#[derive(Debug, Clone)]
+pub struct GuiState {
+    pub should_draw_character_window: bool,
+    pub should_draw_inventory_window: bool,
+    pub should_draw_game_menu: bool,
+}
+
+impl GuiState {
+    pub fn new() -> Self {
+        GuiState {
+            should_draw_character_window: false,
+            should_draw_inventory_window: false,
+            should_draw_game_menu: false,
         }
     }
+}
+
+pub fn draw_gui() {
+    draw_character_window();
+    draw_inventory_window();
+    draw_dialogue_window();
+    draw_game_menu();
 }
 
 pub fn get_centered(size: Vec2, bounds: Vec2) -> Vec2 {

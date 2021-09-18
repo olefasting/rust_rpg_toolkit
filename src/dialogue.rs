@@ -42,7 +42,7 @@ pub struct Dialogue {
 }
 
 impl Dialogue {
-    pub fn get_options(&self, actor: &Actor) -> Vec<Self> {
+    pub fn get_options(&self, actor: &RefMut<Actor>) -> Vec<Self> {
         let resources = storage::get::<Resources>();
         let mut dialogue = Vec::new();
         'option: for option_id in &self.options {

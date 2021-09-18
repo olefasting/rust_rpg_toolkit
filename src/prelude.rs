@@ -159,10 +159,11 @@ pub use crate::{
     gui::{
         self,
         GuiSkins,
-        draw_gui,
-        show_main_menu,
+        GuiState,
         WindowBuilder,
         MenuBuilder,
+        show_main_menu,
+        draw_gui,
     },
     map::{
         Map,

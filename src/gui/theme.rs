@@ -285,6 +285,10 @@ pub struct GuiSkins {
     pub header_label: Skin,
     pub warning_label: Skin,
     pub inactive_button: Skin,
+    pub condensed_button: Skin,
+    pub condensed_button_inactive: Skin,
+    pub label_button: Skin,
+    pub label_button_highlighted: Skin,
     pub custom: HashMap<String, Skin>,
     pub theme: GuiTheme,
 }
@@ -625,7 +629,7 @@ impl GuiSkins {
             }
         };
 
-        let mut custom_skins = HashMap::new();
+        let mut custom = HashMap::new();
 
         let slider_fix = {
             let editbox_style = root_ui()
@@ -659,13 +663,9 @@ impl GuiSkins {
             }
         };
 
-        custom_skins.insert("slider_fix".to_string(), slider_fix);
-        custom_skins.insert("big_editbox".to_string(), big_editbox);
-        custom_skins.insert("module_list_entry".to_string(), module_list_entry);
-        custom_skins.insert("label_button".to_string(), label_button);
-        custom_skins.insert("label_button_highlighted".to_string(), label_button_highlighted);
-        custom_skins.insert("condensed_button".to_string(), condensed_button);
-        custom_skins.insert("condensed_button_inactive".to_string(), condensed_button_inactive);
+        custom.insert("slider_fix".to_string(), slider_fix);
+        custom.insert("big_editbox".to_string(), big_editbox);
+        custom.insert("module_list_entry".to_string(), module_list_entry);
 
         GuiSkins {
             default,
@@ -675,7 +675,11 @@ impl GuiSkins {
             header_label,
             warning_label,
             inactive_button,
-            custom: custom_skins,
+            label_button,
+            label_button_highlighted,
+            condensed_button,
+            condensed_button_inactive,
+            custom,
             theme,
         }
     }

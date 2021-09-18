@@ -38,9 +38,8 @@ async fn main() -> Result<()> {
         clear_background(params.clear_bg_color);
 
         update_input();
-        draw_gui();
-
         next_frame().await;
+        draw_gui();
     }
 
     Ok(())
