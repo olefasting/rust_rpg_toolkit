@@ -1,7 +1,9 @@
 pub use camera::Camera;
 pub use continuous_beams::ContinuousBeams;
 pub use draw_buffer::DrawBuffer;
-pub use game_state::GameState;
+pub use game_state::{
+    GameState,
+};
 pub use item::{
     Item,
     Credits,

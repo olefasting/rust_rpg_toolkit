@@ -4,14 +4,20 @@ use crate::gui::*;
 
 use super::MainMenuSelection;
 
-pub(crate) async fn draw_character_select_menu() -> MainMenuSelection {
-    let mut res = None;
+pub(crate) enum CharacterSelectionResult {
+    SelectCharacter(CharacterExport),
+    CreateCharacter,
+    Cancel,
+}
 
-    let mut selected_character_index = None;
-    let mut delete_character_index = None;
+pub(crate) async fn draw_character_selection_menu() -> CharacterSelectionResult {
+    let mut result = None;
 
     let mut characters = Vec::new();
     let mut should_refresh = true;
+
+    let mut selected_i = None;
+    let mut delete_i = None;
 
     loop {
         if should_refresh {
@@ -20,8 +26,8 @@ pub(crate) async fn draw_character_select_menu() -> MainMenuSelection {
             characters.sort_by(|a, b| a.actor.name.cmp(&b.actor.name));
         }
 
-        if let Some(i) = delete_character_index {
-            let character: &SavedCharacter = characters.get(i).unwrap();
+        if let Some(i) = delete_i {
+            let character: &CharacterExport = characters.get(i).unwrap();
 
             let modal_body = vec!(
                 "Are you sure you want to delete".to_string(),
@@ -30,45 +36,45 @@ pub(crate) async fn draw_character_select_menu() -> MainMenuSelection {
 
             match draw_confirmation_modal(&mut *root_ui(), modal_body) {
                 Some(true) => {
-                    should_refresh = delete_character(&character.actor.name);
-                    delete_character_index = None;
-                    selected_character_index = None;
+                    delete_character(&character.actor.name).unwrap();
+                    delete_i = None;
+                    selected_i = None;
+                    should_refresh = true;
                 }
-                Some(false) => delete_character_index = None,
+                Some(false) => delete_i = None,
                 _ => {}
             }
         } else {
-            if let Some(i) = selected_character_index {
-                let character: &SavedCharacter = characters.get(i).unwrap();
-                res = draw_character_details(&mut selected_character_index, &mut delete_character_index, character)
+            if let Some(i) = selected_i {
+                let character: &CharacterExport = characters.get(i).unwrap();
+                result = draw_character_details(&mut selected_i, &mut delete_i, character)
             } else {
-                res = draw_character_list(&mut selected_character_index, &characters);
+                result = draw_character_list(&mut selected_i, &characters);
             }
         }
 
-        if let Some(selection) = res {
-            return selection;
+        if let Some(result) = result {
+            return result;
         }
 
         next_frame().await;
     }
 }
 
-fn draw_character_list(select_i: &mut Option<usize>, characters: &Vec<SavedCharacter>) -> Option<MainMenuSelection> {
+fn draw_character_list(selected_i: &mut Option<usize>, characters: &Vec<CharacterExport>) -> Option<CharacterSelectionResult> {
     const WINDOW_WIDTH: f32 = 300.0;
     const WINDOW_HEIGHT: f32 = 250.0;
 
     let size = vec2(WINDOW_WIDTH, WINDOW_HEIGHT);
-    let position = get_centered_on_screen(size);
 
     let btn_size = vec2((WINDOW_WIDTH - GuiSkins::WINDOW_MARGIN_X * 2.0) / 2.0 - GuiSkins::ELEMENT_MARGIN, GuiSkins::BUTTON_HEIGHT);
     let btn_position_y = WINDOW_HEIGHT - GuiSkins::WINDOW_MARGIN_Y * 2.0 - GuiSkins::BUTTON_HEIGHT;
 
-    let mut res = None;
+    let mut result = None;
 
-    widgets::Window::new(hash!(), position, size)
-        .titlebar(false)
-        .ui(&mut *root_ui(), |ui| {
+    WindowBuilder::new(hash!(), size)
+        .with_centered_pos(true)
+        .build(&mut *root_ui(), |ui| {
             let gui_skins = storage::get::<GuiSkins>();
 
             ui.push_skin(&gui_skins.header_label);
@@ -88,7 +94,7 @@ fn draw_character_list(select_i: &mut Option<usize>, characters: &Vec<SavedChara
 
                     ui.push_skin(label_button_skin);
                     if ui.button(vec2(2.0, y_offset), character.actor.name.deref()) {
-                        *select_i = Some(i);
+                        *selected_i = Some(i);
                     }
                     ui.pop_skin();
                 }
@@ -100,7 +106,7 @@ fn draw_character_list(select_i: &mut Option<usize>, characters: &Vec<SavedChara
                 .ui(ui);
 
             if create_btn {
-                res = Some(MainMenuSelection::CreateCharacter);
+                result = Some(CharacterSelectionResult::CreateCharacter);
             }
 
             let cancel_btn = widgets::Button::new("Cancel")
@@ -109,14 +115,14 @@ fn draw_character_list(select_i: &mut Option<usize>, characters: &Vec<SavedChara
                 .ui(ui);
 
             if cancel_btn {
-                res = Some(MainMenuSelection::Cancel);
+                result = Some(CharacterSelectionResult::Cancel);
             }
         });
 
-    res
+    result
 }
 
-fn draw_character_details(select_i: &mut Option<usize>, delete_i: &mut Option<usize>, character: &SavedCharacter) -> Option<MainMenuSelection> {
+fn draw_character_details(selected_i: &mut Option<usize>, delete_i: &mut Option<usize>, character: &CharacterExport) -> Option<CharacterSelectionResult> {
     const WINDOW_WIDTH: f32 = 400.0;
     const WINDOW_HEIGHT: f32 = 500.0;
 
@@ -126,7 +132,7 @@ fn draw_character_details(select_i: &mut Option<usize>, delete_i: &mut Option<us
     let btn_size = vec2((WINDOW_WIDTH - GuiSkins::WINDOW_MARGIN_X * 2.0) / 2.0 - GuiSkins::ELEMENT_MARGIN, GuiSkins::BUTTON_HEIGHT);
     let btn_position_y = WINDOW_HEIGHT - GuiSkins::WINDOW_MARGIN_Y * 2.0 - GuiSkins::BUTTON_HEIGHT;
 
-    let mut res = None;
+    let mut result = None;
 
     widgets::Window::new(hash!(), position, size)
         .titlebar(false)
@@ -146,7 +152,7 @@ fn draw_character_details(select_i: &mut Option<usize>, delete_i: &mut Option<us
                 .ui(ui);
 
             if delete_btn {
-                let i = select_i.unwrap();
+                let i = selected_i.unwrap();
                 *delete_i = Some(i);
             }
 
@@ -156,7 +162,7 @@ fn draw_character_details(select_i: &mut Option<usize>, delete_i: &mut Option<us
                 .ui(ui);
 
             if start_btn {
-                res = Some(MainMenuSelection::SelectCharacter(character.clone()));
+                result = Some(CharacterSelectionResult::SelectCharacter(character.clone()));
             }
 
             let back_btn = widgets::Button::new("Back")
@@ -165,9 +171,9 @@ fn draw_character_details(select_i: &mut Option<usize>, delete_i: &mut Option<us
                 .ui(ui);
 
             if back_btn {
-                *select_i = None;
+                *selected_i = None;
             }
         });
 
-    res
+    result
 }

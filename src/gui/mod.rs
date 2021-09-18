@@ -16,10 +16,7 @@ pub use confirmation_modal::draw_confirmation_modal;
 pub use dialogue::draw_dialogue_window;
 pub use game_menu::draw_game_menu;
 pub use inventory::draw_inventory_window;
-pub use main_menu::{
-    draw_main_menu,
-    MainMenuResult,
-};
+pub use main_menu::show_main_menu;
 pub use theme::{
     GuiSkins,
     GuiTheme,
@@ -31,6 +28,7 @@ pub use theme::{
 
 pub use window_builder::{
     WindowBuilder,
+    MenuBuilder,
 };
 
 pub use checkbox::Checkbox;
@@ -48,16 +46,18 @@ mod window_builder;
 
 pub fn draw_gui() {
     if let Some(mut game_state) = scene::find_node_by_type::<GameState>() {
-        if let Some(mut player) = Actor::find_by_player_id(&game_state.local_player_id) {
-            if game_state.should_show_character_window {
-                draw_character_window(&*player);
-            }
-            if game_state.should_show_inventory_window {
-                draw_inventory_window(&mut *player);
-            }
-            draw_dialogue_window(&mut *player);
-            if game_state.should_show_game_menu {
-                draw_game_menu(&mut game_state);
+        if let Some(handle) = game_state.player.actor_handle {
+            if let Some(player) = scene::try_get_node(handle).as_mut() {
+                if game_state.should_show_character_window {
+                    draw_character_window(&*player);
+                }
+                if game_state.should_show_inventory_window {
+                    draw_inventory_window(&mut *player);
+                }
+                draw_dialogue_window(&mut *player);
+                if game_state.should_show_game_menu {
+                    draw_game_menu(&mut game_state);
+                }
             }
         }
     }

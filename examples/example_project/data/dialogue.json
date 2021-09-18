@@ -180,6 +180,7 @@
     ],
     "action": {
       "type": "map_transition",
+      "chapter_index": 1,
       "map_id": "chapter_01_map_02"
     }
   }

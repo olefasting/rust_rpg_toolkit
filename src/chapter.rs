@@ -25,7 +25,7 @@ pub struct Chapter {
 }
 
 impl Chapter {
-    pub async fn new(params: ChapterParams) -> Result<Self, FileError> {
+    pub async fn new(params: ChapterParams) -> Result<Self> {
         let mut  maps = HashMap::new();
         for map_params in params.maps {
             let map = Map::load(&map_params.path).await?;
@@ -43,7 +43,7 @@ impl Chapter {
     }
 }
 
-pub async fn load_maps(params: Vec<ChapterParams>) -> Result<Vec<Chapter>, FileError> {
+pub async fn load_maps(params: Vec<ChapterParams>) -> Result<Vec<Chapter>> {
     let mut chapters = Vec::new();
 
     for params in params {
@@ -60,27 +60,17 @@ pub struct SceneTransitionParams {
     pub map_id: String,
 }
 
-impl SceneTransitionParams {
-    pub fn change_map(map_id: &str) -> Self {
-        let current_chapter = storage::get::<SceneTransitionParams>();
-        SceneTransitionParams {
-            chapter_index: current_chapter.chapter_index,
-            map_id: map_id.to_string(),
-        }
-    }
-}
-
 #[derive(Debug, Clone)]
 pub struct SceneTransition {
-    pub player: SavedCharacter,
+    pub character: CharacterExport,
     pub chapter_index: usize,
     pub map_id: String,
 }
 
 impl SceneTransition {
-    pub fn new(player: SavedCharacter, params: SceneTransitionParams) -> Self {
+    pub fn new(character: CharacterExport, params: SceneTransitionParams) -> Self {
         SceneTransition {
-            player,
+            character,
             chapter_index: params.chapter_index,
             map_id: params.map_id,
         }

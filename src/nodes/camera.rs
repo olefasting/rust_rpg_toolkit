@@ -105,7 +105,13 @@ impl Node for Camera {
         storage::store(node.get_viewport());
 
         let game_state = scene::find_node_by_type::<GameState>().unwrap();
-        if let Some(player) = Actor::find_by_player_id(&game_state.local_player_id) {
+        let actor = if let Some(handle) = game_state.player.actor_handle {
+            scene::try_get_node(handle)
+        } else {
+            Actor::find_by_player_id(&game_state.player.id)
+        };
+
+        if let Some(actor) = actor {
             let viewport = node.get_viewport();
             let bounds = {
                 let size = viewport.size * Self::FOLLOW_THRESHOLD_FRACTION;
@@ -113,8 +119,8 @@ impl Node for Camera {
                 Rect::new(center.x - size.x / 2.0, center.y - size.y / 2.0, size.x, size.y)
             };
 
-            if node.is_following || bounds.contains(player.body.position) == false {
-                let distance = player.body.position.sub(node.position);
+            if node.is_following || bounds.contains(actor.body.position) == false {
+                let distance = actor.body.position.sub(node.position);
                 if distance.length() > Self::FOLLOW_END_AT_DISTANCE {
                     node.is_following = true;
                     node.position += distance * Self::FOLLOW_LERP_FRACTION;

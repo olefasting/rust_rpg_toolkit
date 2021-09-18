@@ -4,7 +4,7 @@ use regex::Regex;
 
 use crate::gui::*;
 
-pub(crate) async fn draw_settings_menu() {
+pub(crate) async fn show_settings_menu() {
     let gui_skins = storage::get::<GuiSkins>();
     root_ui().push_skin(&gui_skins.default);
 

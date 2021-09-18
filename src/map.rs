@@ -165,13 +165,13 @@ pub struct Map {
 }
 
 impl Map {
-    pub async fn load<P: AsRef<Path>>(path: P) -> Result<Self, FileError> {
+    pub async fn load<P: AsRef<Path>>(path: P) -> Result<Self> {
         let bytes = load_file(path.as_ref().to_str().unwrap()).await?;
         let map = serde_json::from_slice(&bytes).unwrap();
         Ok(map)
     }
 
-    pub async fn load_tiled<P: AsRef<Path>>(id: &str, path: P, export_path: Option<P>) -> Result<Self, FileError> {
+    pub async fn load_tiled<P: AsRef<Path>>(id: &str, path: P, export_path: Option<P>) -> Result<Self> {
         let bytes = load_file(path.as_ref().to_str().unwrap()).await?;
         let tiled_map: TiledMap = serde_json::from_slice(&bytes).unwrap();
         let map = Map::from_tiled(id, tiled_map);

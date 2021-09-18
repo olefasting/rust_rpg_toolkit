@@ -66,7 +66,7 @@ pub struct Resources {
 impl Resources {
     pub const WHITE_TEXTURE_ID: &'static str = "__WHITE_TEXTURE__";
 
-    pub async fn new(data_path: &str) -> Result<Self, FileError> {
+    pub async fn new(data_path: &str) -> Result<Self> {
         let assets_file_path = format!("{}/assets.json", data_path);
         let actors_file_path = format!("{}/actors.json", data_path);
         let items_file_path = format!("{}/items.json", data_path);
@@ -193,7 +193,7 @@ impl Resources {
         Ok(resources)
     }
 
-    pub fn get_font(&self, font_id: &str) -> Result<Font, FontError> {
+    pub fn get_font(&self, font_id: &str) -> Result<Font> {
         let bytes = self.font_bytes.get(font_id)
             .expect(&format!("No font with id '{}' was found!", font_id));
         let font = load_ttf_font_from_bytes(&bytes)?;

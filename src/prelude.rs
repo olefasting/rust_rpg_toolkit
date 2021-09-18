@@ -44,6 +44,8 @@ pub use serde::{
 
 pub use serde_json;
 
+pub use gilrs::GamepadId;
+
 pub use mode::{
     self,
     Automaton,
@@ -62,7 +64,6 @@ pub use crate::{
         get_available_modules,
     },
     config::Config,
-    uid::generate_id,
     resources::Resources,
     noise_level::NoiseLevel,
     chapter::{
@@ -71,9 +72,15 @@ pub use crate::{
         SceneTransition,
         SceneTransitionParams,
     },
-    saved_character::{
+    error::{
+        Error,
+        Result,
+    },
+    player::{
+        Player,
+        CharacterExport,
         delete_character,
-        SavedCharacter,
+        save_character,
         get_available_characters,
     },
     physics::{
@@ -138,15 +145,23 @@ pub use crate::{
         Credits,
     },
     game::{
-        run_game,
         GameParams,
+        Event,
+        get_queued_event,
+        dispatch_event,
+        handle_event,
+        handle_event_queue,
+        init_resources,
+        init_gui,
+        init_player,
     },
     gui::{
         self,
         GuiSkins,
-        MainMenuResult,
         draw_gui,
-        draw_main_menu,
+        show_main_menu,
+        WindowBuilder,
+        MenuBuilder,
     },
     map::{
         Map,
@@ -171,6 +186,8 @@ pub use crate::{
     helpers::{
         sort_by_distance,
         remove_filename,
+        get_timestamp,
+        generate_id,
     },
     render::{
         COLOR_NONE,

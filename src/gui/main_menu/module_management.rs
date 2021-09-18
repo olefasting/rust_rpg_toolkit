@@ -60,7 +60,7 @@ fn draw_module_entry(ui: &mut Ui, i: usize, name: &str, params: &ModuleParams, v
     drag
 }
 
-pub(crate) async fn draw_module_management_menu() {
+pub(crate) async fn show_module_management_menu() {
     let gui_skins = storage::get::<GuiSkins>();
     root_ui().push_skin(&gui_skins.default);
 

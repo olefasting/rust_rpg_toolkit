@@ -14,7 +14,7 @@ pub enum DialogueAction {
     OpenTrade,
     StartMission { mission_id: String },
     CompleteMission { mission_id: String },
-    MapTransition { map_id: String },
+    MapTransition { chapter_index: usize, map_id: String },
     CompleteChapter,
 }
 
@@ -116,10 +116,9 @@ impl Dialogue {
                     let params = resources.missions.get(&mission_id).cloned().unwrap();
                     actor.active_missions.push(Mission::new(params));
                 },
-                DialogueAction::MapTransition { map_id } => {
-                    let mut game_state = scene::find_node_by_type::<GameState>().unwrap();
-                    game_state.scene_transition = Some(SceneTransitionParams::change_map(&map_id));
+                DialogueAction::MapTransition { chapter_index, map_id } => {
                     actor.current_dialogue = None;
+                    dispatch_event(Event::ChangeMap(chapter_index, map_id));
                 },
                 DialogueAction::CompleteChapter => todo!(),
             }

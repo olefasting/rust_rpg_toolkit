@@ -22,16 +22,30 @@ pub fn window_conf() -> Conf {
 }
 
 #[macroquad::main(window_conf)]
-async fn main() {
-    let game_params = GameParams {
+async fn main() -> Result<()> {
+    let params = GameParams {
         game_name: GAME_NAME.to_string(),
         game_version: GAME_VERSION.to_string(),
-        config_path: CONFIG_PATH.to_string(),
-        data_path: DATA_PATH.to_string(),
-        modules_path: MODULES_PATH.to_string(),
-        characters_path: CHARACTERS_PATH.to_string(),
         ..Default::default()
     };
 
-    run_game(game_params).await;
+    fs::create_dir_all(&params.characters_path)?;
+    storage::store(params.clone());
+
+    init_resources().await;
+    init_gui().await?;
+    init_player();
+
+    dispatch_event(Event::ShowMainMenu);
+
+    while handle_event_queue().await? == false {
+        clear_background(params.clear_bg_color);
+
+        update_input();
+        draw_gui();
+
+        next_frame().await;
+    }
+
+    Ok(())
 }

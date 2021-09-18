@@ -103,8 +103,8 @@ impl Into<ActorStats> for ActorParams {
     }
 }
 
-impl Into<SavedCharacter> for ActorParams {
-    fn into(self) -> SavedCharacter {
+impl Into<CharacterExport> for ActorParams {
+    fn into(self) -> CharacterExport {
         let game_params = storage::get::<GameParams>();
         let resources = storage::get::<Resources>();
         let mut item_ids = Vec::new();
@@ -127,7 +127,7 @@ impl Into<SavedCharacter> for ActorParams {
             .initial_map_id
             .clone();
 
-        SavedCharacter {
+        CharacterExport {
             game_version: game_params.game_version.clone(),
             actor: ActorParams {
                 id: generate_id(),
@@ -270,7 +270,7 @@ impl Actor {
         }
     }
 
-    pub fn from_export(game_state: Handle<GameState>, position: Vec2, controller_kind: ActorControllerKind, export: SavedCharacter) -> Self {
+    pub fn from_export(game_state: Handle<GameState>, position: Vec2, controller_kind: ActorControllerKind, export: CharacterExport) -> Self {
         let resources = storage::get::<Resources>();
 
         let active_missions = export.active_missions
@@ -327,7 +327,7 @@ impl Actor {
         }
     }
 
-    pub fn to_export(&self, is_permadeath: bool) -> SavedCharacter {
+    pub fn to_export(&self, is_permadeath: bool) -> CharacterExport {
         let game_params = storage::get::<GameParams>();
         let actor = self.to_params();
         let items = self.inventory.items
@@ -347,7 +347,7 @@ impl Actor {
 
         let current_chapter = storage::get::<SceneTransitionParams>();
 
-        SavedCharacter {
+        CharacterExport {
             game_version: game_params.game_version.clone(),
             actor,
             items,

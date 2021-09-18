@@ -1,25 +1,26 @@
 use crate::prelude::*;
 use crate::gui::*;
+use crate::player::save_character;
 
 // This will clear the current scene and create a new one, based on the specified `SceneTransition`
-pub fn load_scene(local_player_id: &str, transition: SceneTransition) {
+pub fn load_scene(character: CharacterExport, chapter_index: usize, map_id: &str) -> Result<()> {
     scene::clear();
 
     let resources = storage::get::<Resources>();
-    let SceneTransition { player, chapter_index, map_id } = transition;
 
-    let transition_params = SceneTransitionParams { chapter_index, map_id: map_id.clone() };
-    storage::store(transition_params);
+    let params = SceneTransitionParams { chapter_index, map_id: map_id.to_string() };
+    storage::store(params);
 
     let chapter = resources.chapters.get(chapter_index)
         .expect(&format!("Unable to load chapter '{}'!", chapter_index));
 
     let game_state = {
-        let map = chapter.maps.get(&map_id)
+        let player = &*storage::get::<Player>();
+        let map = chapter.maps.get(map_id)
             .cloned()
             .expect(&format!("Unable to load map '{}' of chapter '{}'!", map_id, chapter.title));
 
-        GameState::add_node(&local_player_id, map, &player)
+        GameState::add_node(player.clone(), character.clone(), map)?
     };
 
     Camera::add_node();
@@ -30,22 +31,29 @@ pub fn load_scene(local_player_id: &str, transition: SceneTransition) {
     DrawBuffer::<Actor>::add_node();
 
     {
-        let game_state = scene::get_node(game_state);
+        let mut game_state = scene::get_node(game_state);
         let resources = storage::get::<Resources>();
-        if let Some(layer) = game_state.map.layers.get("spawn_points") {
+        if let Some(layer) = game_state.map.layers.get("spawn_points").cloned() {
             for object in &layer.objects {
                 if object.name == "player" {
                     let mut actor = Actor::from_export(
                         game_state.handle(),
                         object.position,
-                        ActorControllerKind::local_player(&local_player_id),
-                        player.clone(),
+                        ActorControllerKind::local_player(&game_state.player.id),
+                        character.clone(),
                     );
 
                     actor.stats.recalculate_derived();
                     actor.stats.restore_vitals();
 
-                    scene::add_node(actor);
+                    let actor_id = actor.id.clone();
+                    let actor_name = actor.name.clone();
+
+                    let handle = scene::add_node(actor);
+
+                    game_state.player.set_actor(&actor_id, &actor_name, handle, character.is_permadeath);
+                    storage::store(game_state.player.clone());
+
                 } else if let Some(prototype_id) = object.properties.get("prototype_id") {
                     let params = resources.actors.get(&prototype_id.value).cloned()
                         .expect(&format!("Unable to find actor with prototype id '{}'", prototype_id.value));
@@ -124,6 +132,8 @@ pub fn load_scene(local_player_id: &str, transition: SceneTransition) {
 
     PostProcessing::add_node();
     Hud::add_node();
+
+    Ok(())
 }
 
 #[derive(Debug, Clone)]
@@ -155,21 +165,12 @@ impl Default for GameParams {
     }
 }
 
-// This will create some needed folders, if they do not exist in the working directory
-#[cfg(not(any(target_family = "wasm", target_os = "android")))]
-fn check_paths(params: &GameParams) {
-    fs::create_dir_all(&params.characters_path)
-        .expect(&format!("Unable to create characters directory '{}'!", params.characters_path));
-}
-
-#[cfg(target_family = "wasm")]
-pub fn check_paths(_params: &GameParams) {}
-
 // This will load all resources to memory. This means both assets, such as textures and sound, as
 // well as all data files. It will also apply modules.
 // The assets can later be accessed by getting the `Resources` struct from storage
 #[cfg(not(any(target_family = "wasm", target_os = "android")))]
-pub async fn load_resources(game_params: &GameParams) {
+pub async fn init_resources() {
+    let game_params = storage::get::<GameParams>();
     let coroutine = {
         let game_params = game_params.clone();
 
@@ -199,7 +200,8 @@ pub async fn load_resources(game_params: &GameParams) {
 }
 
 #[cfg(target_family = "wasm")]
-pub async fn load_resources(game_params: GameParams) {
+pub async fn load_resources() {
+    let game_params = storage::get::<GameParams>();
     let mut state = ResourceLoadingState::None;
 
     let mut resources = Resources::new(&game_params.data_path).await.unwrap();
@@ -211,7 +213,8 @@ pub async fn load_resources(game_params: GameParams) {
 // This will create the GUI skins, based on the `gui_theme.json` file, in the data directory.
 // It must be called after resources has completed loading, as it relies on images imported to
 // `Resources`. The `GuiSkins` struct can later be accessed by retrieving it from storage.
-pub async fn create_gui_skins(game_params: &GameParams) -> Result<(), FileError> {
+pub async fn init_gui() -> Result<()> {
+    let game_params = storage::get::<GameParams>();
     let path = format!("{}/gui_theme.json", &game_params.data_path);
     let bytes = load_file(&path).await?;
     let gui_theme = serde_json::from_slice(&bytes)
@@ -221,103 +224,80 @@ pub async fn create_gui_skins(game_params: &GameParams) -> Result<(), FileError>
     Ok(())
 }
 
-// Initialize a local player
-// This will also map a gamepad, if any are connected
-pub fn init_local_player() -> String {
+pub fn init_player() {
     let player_id = generate_id();
-    map_gamepad(&player_id);
-    player_id
+    let gamepad_id = map_gamepad(&player_id);
+    let player = Player::new(&player_id, gamepad_id);
+    storage::store(player);
 }
 
-// This is returned by the game update function and it should be acted upon in the game loop
-// where it is returned.
-// See `fn run_game` for an example
 #[derive(Debug, Clone)]
-pub enum UpdateAction {
-    None,
-    LoadScene(SceneTransition),
+pub enum Event {
     ShowMainMenu,
+    CreateGame(CharacterExport, usize, String),
+    ChangeMap(usize, String),
+    SavePlayerCharacter,
     Quit,
 }
 
-// This is called to advance the game by one frame. It returns an `UpdateAction` that should be
-// acted upon in the game loop that calls this.
-pub async fn update(game_params: &GameParams) -> UpdateAction {
-    clear_background(game_params.clear_bg_color);
+static mut EVENT_QUEUE: Option<Vec<Event>> = None;
 
-    update_input();
-    draw_gui();
-
-    {
-        let mut game_state = scene::find_node_by_type::<GameState>().unwrap();
-        if game_state.should_save_character {
-            game_state.save_player_character();
-            game_state.should_save_character = false;
+fn get_event_queue() -> &'static mut Vec<Event> {
+    unsafe {
+        if EVENT_QUEUE.is_none() {
+            EVENT_QUEUE = Some(Vec::new());
         }
 
-        if game_state.should_go_to_main_menu {
-            game_state.save_player_character();
-            return UpdateAction::ShowMainMenu;
-        }
-
-        if game_state.should_quit {
-            game_state.save_player_character();
-            return UpdateAction::Quit;
-        }
-
-        if let Some(transition_params) = game_state.scene_transition.clone() {
-            game_state.save_player_character();
-            let player = Actor::find_by_player_id(&game_state.local_player_id).unwrap();
-            let scene_transition = SceneTransition::new(player.to_export(game_state.is_permadeath), transition_params);
-            game_state.scene_transition = None;
-            return UpdateAction::LoadScene(scene_transition);
-        }
+        EVENT_QUEUE.as_mut().unwrap()
     }
-
-    next_frame().await;
-
-    UpdateAction::None
 }
 
-// This will load resources and start the game loop. It can also serve as a blueprint if you want
-// to implement your own game loop, if you need more flexibility and control.
-pub async fn run_game(game_params: GameParams) {
-    storage::store(game_params.clone());
+pub fn get_queued_event() -> Option<Event> {
+    let mut queue = get_event_queue();
+    queue.pop()
+}
 
-    check_paths(&game_params);
-    load_resources(&game_params).await;
-    create_gui_skins(&game_params).await.unwrap();
+pub fn dispatch_event(event: Event) {
+    let mut queue = get_event_queue();
+    queue.insert(0, event);
+}
 
-    let local_player_id = init_local_player();
-
-    let mut action = UpdateAction::ShowMainMenu;
-
-    loop {
-        match action {
-            UpdateAction::ShowMainMenu => {
-                scene::clear();
-
-                match gui::draw_main_menu().await {
-                    MainMenuResult::StartGame(transition) => {
-                        action = UpdateAction::LoadScene(transition);
-                    }
-                    MainMenuResult::Quit => {
-                        action = UpdateAction::Quit;
-                    }
-                }
-            }
-            UpdateAction::LoadScene(transition) => {
-                load_scene(&local_player_id, transition);
-                action = UpdateAction::None;
-            }
-            UpdateAction::None => {
-                action = update(&game_params).await;
-            }
-            UpdateAction::Quit => {
-                break;
-            }
+// This will handle one event and return `true` if the game should quit
+pub async fn handle_event(event: Event) -> Result<bool> {
+    match event {
+        Event::ShowMainMenu => {
+            scene::clear();
+            gui::show_main_menu().await;
+        }
+        Event::CreateGame(character, chapter_index, map_id) => {
+            load_scene(character, chapter_index, &map_id)?;
+        }
+        Event::ChangeMap(chapter_index, map_id) => {
+            let game_state = scene::find_node_by_type::<GameState>().unwrap();
+            let character= game_state.get_player_character().unwrap();
+            dispatch_event(Event::CreateGame(character, chapter_index, map_id));
+        }
+        Event::SavePlayerCharacter => {
+            let game_state = scene::find_node_by_type::<GameState>().unwrap();
+            let character= game_state.get_player_character().unwrap();
+            save_character(character)?;
+        }
+        Event::Quit => {
+            scene::clear();
+            return Ok(true)
         }
     }
 
-    scene::clear();
+    Ok(false)
+}
+
+// This will handle all queued events and return `true` if the game should quit
+pub async fn handle_event_queue() -> Result<bool> {
+    while let Some(event) = get_queued_event() {
+        if handle_event(event).await? == true {
+            return Ok(true);
+        }
+    }
+
+    Ok(false)
 }

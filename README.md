@@ -50,15 +50,11 @@ rust-rpg-toolkit = { git = "https://github.com/olefasting/rust_rpg_toolkit.git" 
 
 ### Example
 
-You will need to create a macroquad main loop. You don't need to depend on macroquad, though, as the library is exposed through `rust_rpg_toolkit::prelude::*`
-
 ```rust
 use rust_rpg_toolkit::prelude::*;
 
 const GAME_NAME: &'static str = "My Awesome Game";
 const GAME_VERSION: &'static str = "0.1.0";
-
-const CONFIG_PATH: &'static str = "config.json";
 
 fn get_window_conf() -> Conf {
     let config = Config::load(CONFIG_PATH);
@@ -74,15 +70,32 @@ fn get_window_conf() -> Conf {
 }
 
 #[macroquad::main(get_window_conf)]
-async fn main() {
-    let params = GameParams {
-        game_name: GAME_NAME.to_string(),
-        game_version: GAME_VERSION.to_string(),
-        config_path: CONFIG_PATH.to_string(),
-        ..Default::default()
-    };
+async fn main() -> Result<()> {
+  let params = GameParams {
+    game_name: GAME_NAME.to_string(),
+    game_version: GAME_VERSION.to_string(),
+    ..Default::default()
+  };
 
-    run_game(params).await;
+  fs::create_dir_all(&params.characters_path)?;
+  storage::store(params.clone());
+
+  init_resources().await;
+  init_gui().await?;
+  init_player();
+
+  dispatch_event(Event::ShowMainMenu);
+
+  while handle_event_queue().await? == false {
+    clear_background(params.clear_bg_color);
+
+    update_input();
+    draw_gui();
+
+    next_frame().await;
+  }
+
+  Ok(())
 }
 
 ```

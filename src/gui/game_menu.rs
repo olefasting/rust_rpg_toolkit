@@ -1,28 +1,30 @@
 use crate::gui::*;
 
+const GAME_MENU_OPT_RESUME: usize = 0;
+const GAME_MENU_OPT_SAVE: usize = 1;
+const GAME_MENU_OPT_MAIN_MENU: usize = 2;
+const GAME_MENU_OPT_QUIT: usize = 3;
+
 pub fn draw_game_menu(game_state: &mut RefMut<GameState>) {
     let gui_skins = storage::get::<GuiSkins>();
 
-    let size = vec2(200.0, 200.0) ;
-    let position = get_centered_on_screen(size);
-
     root_ui().push_skin(&gui_skins.default);
 
-    let params = gui_skins.theme.menu_params.get("game_menu").unwrap();
-    if let Some(i) = WindowBuilder::new_menu(&mut *root_ui(), hash!(), params) {
-        match i {
-            0 => {
+    let params = gui_skins.theme.menu_params.get("game_menu").cloned().unwrap();
+    if let Some(selection) = MenuBuilder::new(hash!(), params).build(&mut *root_ui()) {
+        match selection {
+            GAME_MENU_OPT_RESUME => {
                 game_state.should_show_game_menu = false;
             }
-            1 => {
-                game_state.should_save_character = true;
+            GAME_MENU_OPT_SAVE => {
                 game_state.should_show_game_menu = false;
+                dispatch_event(Event::SavePlayerCharacter);
             }
-            2 => {
-                game_state.should_go_to_main_menu = true;
+            GAME_MENU_OPT_MAIN_MENU => {
+                dispatch_event(Event::ShowMainMenu);
             }
-            3 => {
-                game_state.should_quit = true;
+            GAME_MENU_OPT_QUIT => {
+                dispatch_event(Event::Quit);
             }
             _ => {}
         }

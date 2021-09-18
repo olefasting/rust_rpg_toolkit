@@ -1,6 +1,8 @@
 use crate::gui::*;
 
-pub(crate) async fn draw_chapter_select_menu() -> Option<SceneTransitionParams> {
+const CHAPTER_SELECT_MENU_OPT_CANCEL: usize = 0;
+
+pub(crate) async fn draw_chapter_selection_menu() -> Option<SceneTransitionParams> {
     loop {
         let gui_skins = storage::get::<GuiSkins>();
         root_ui().push_skin(&gui_skins.default);
@@ -28,8 +30,8 @@ pub(crate) async fn draw_chapter_select_menu() -> Option<SceneTransitionParams> 
             ..params
         };
 
-        if let Some(i) = WindowBuilder::new_menu(&mut *root_ui(), hash!("chapter_selection"), &params) {
-            if i == 0 {
+        if let Some(i) = MenuBuilder::new(hash!(), params).build(&mut *root_ui()) {
+            if i == CHAPTER_SELECT_MENU_OPT_CANCEL {
                 should_cancel = true;
             } else {
                 let chapter = resources.chapters.get(i - 1).unwrap();
