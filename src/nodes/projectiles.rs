@@ -231,12 +231,17 @@ impl Node for Projectiles {
                         );
                     }
                     ProjectileKind::Beam => {
-                        let begin = projectile
+                        let mut begin = projectile
                             .position.sub(projectile.direction.mul(
                             projectile.size * rand::gen_range(
                                 Self::BEAM_LENGTH_FACTOR_MIN,
                                 Self::BEAM_LENGTH_FACTOR_MAX,
                             )));
+
+                        if begin.distance(projectile.position) > projectile.origin.distance(projectile.position) {
+                            begin = projectile.origin;
+                        }
+
                         if projectile.size > 2.0 {
                             draw_circle(
                                 begin.x,
