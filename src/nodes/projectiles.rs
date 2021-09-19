@@ -256,6 +256,7 @@ impl Node for Projectiles {
                                 projectile.color,
                             );
                         }
+
                         draw_line(
                             begin.x,
                             begin.y,

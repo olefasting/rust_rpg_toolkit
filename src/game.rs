@@ -123,7 +123,6 @@ pub fn load_scene(character: Character) -> Result<()> {
 pub struct GameParams {
     pub game_name: String,
     pub game_version: String,
-    pub config_path: String,
     pub data_path: String,
     pub modules_path: String,
     pub characters_path: String,
@@ -137,7 +136,6 @@ impl Default for GameParams {
         GameParams {
             game_name: "Unnamed Project".to_string(),
             game_version: "0.1.0".to_string(),
-            config_path: "config.json".to_string(),
             data_path: "data".to_string(),
             modules_path: "modules".to_string(),
             characters_path: "characters".to_string(),

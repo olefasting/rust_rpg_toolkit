@@ -11,9 +11,8 @@ pub enum DamageType {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(tag = "type")]
+#[serde(tag = "type", rename_all = "snake_case")]
 pub enum Effect {
-    #[serde(rename = "damage")]
     Damage {
         damage_type: DamageType,
         amount: f32,
@@ -21,17 +20,14 @@ pub enum Effect {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(tag = "type")]
+#[serde(tag = "type", rename_all = "snake_case")]
 pub enum AbilityDelivery {
-    #[serde(rename = "projectile")]
     Projectile {
         projectile_kind: ProjectileKind,
         spread: f32,
         speed: f32,
     },
-    #[serde(rename = "melee")]
     Melee,
-    #[serde(rename = "continuous_beam")]
     ContinuousBeam,
 }
 
@@ -143,8 +139,9 @@ impl Ability {
 
             match self.delivery.clone() {
                 AbilityDelivery::ContinuousBeam => {
-                    let mut continuous_beams = scene::find_node_by_type::<ContinuousBeams>().unwrap();
                     let end = node.body.position + direction * self.range;
+
+                    let mut continuous_beams = scene::find_node_by_type::<ContinuousBeams>().unwrap();
                     continuous_beams.spawn(
                         &node.id,
                         node.handle(),
@@ -177,6 +174,7 @@ impl Ability {
                         self.range,
                         self.on_hit_sound_effect_id.clone(),
                     );
+
                     if let Some(sound_effect) = self.sound_effect {
                         play_sound_once(sound_effect);
                     }
@@ -187,7 +185,9 @@ impl Ability {
                         origin.y,
                         self.range,
                     );
+
                     let mut hit_success = false;
+
                     for mut other_actor in scene::find_nodes_by_type::<Actor>() {
                         hit_success = if let Some(other_collider) = other_actor.body.get_offset_collider() {
                             if collider.overlaps(other_collider) {
@@ -200,12 +200,14 @@ impl Ability {
                         } else {
                             false
                         };
+
                         if hit_success {
                             for effect in self.effects.clone() {
                                 other_actor.apply_effect(&node.id, node.handle(), &node.factions, effect);
                             }
                         }
                     }
+
                     if hit_success {
                         if let Some(sound_effect_id) = &self.on_hit_sound_effect_id {
                             let resources = storage::get::<Resources>();

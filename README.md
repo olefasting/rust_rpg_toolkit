@@ -102,7 +102,7 @@ async fn main() -> Result<()> {
 
 Any game you create should also have an assets folder. Copy the one included in the example project as a starting point...
 
-The example project can be built and run using the following cargo commad:
+The example project can be built and run using the following cargo command, from the example project directory:
 
 `cargo run --example example-project`
 

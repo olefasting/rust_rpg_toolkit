@@ -19,7 +19,7 @@ impl Default for Config {
             resolution: uvec2(1920, 1080),
             fullscreen: true,
             post_processing: None,
-            path: "".to_string(),
+            path: "config.json".to_string(),
         }
     }
 }
@@ -37,24 +37,29 @@ impl Config {
         } else {
             Default::default()
         };
+
         config.path = path.to_string();
         storage::store(config.clone());
+
         config
     }
 
     #[cfg(target_family = "wasm")]
     pub fn load(key: &str) -> Self {
         let web_storage = &mut quad_storage::STORAGE.lock().unwrap();
-        let config = if let Some(json) = web_storage.get(key) {
+
+        let mut config = if let Some(json) = web_storage.get(key) {
             let mut config: Config = serde_json::from_str(&json)
                 .expect("Unable to parse config from web storage!");
-            config.path = key.to_string();
             storage::store(config.clone());
             config
         } else {
             Default::default()
         };
+
+        config.path = key.to_string();
         storage::store(config.clone());
+
         config
     }
 
