@@ -17,6 +17,8 @@ pub fn load_scene(character: Character) -> Result<()> {
     Projectiles::add_node();
     ContinuousBeams::add_node();
     DrawBuffer::<Actor>::add_node();
+    PostProcessing::add_node();
+    Hud::add_node();
 
     let mut player_spawn = None;
 
@@ -26,26 +28,29 @@ pub fn load_scene(character: Character) -> Result<()> {
     for object in &layer.objects {
         if object.name == "player" {
             player_spawn = Some(object.position);
-        } else if let Some(prototype_id) = object.properties.get("prototype_id") {
-            let instance_id = if let Some(instance_id) = object.properties.get("instance_id").cloned() {
-                instance_id.value
-            } else {
-                generate_id()
-            };
+        } else if let Some(prop) = object.properties.get("prototype_id") {
+            if let MapProperty::String { value: prototype_id } = prop {
+                let mut instance_id = None;
+                if let Some(prop) = object.properties.get("instance_id").cloned() {
+                    if let MapProperty::String { value } = prop {
+                        instance_id = Some(value);
+                    }
+                }
 
-            let params = resources.actors.get(&prototype_id.value).cloned().unwrap();
-            let mut actor = Actor::new(
-                ActorControllerKind::Computer,
-                ActorParams {
-                    id: instance_id,
-                    position: Some(object.position),
-                    ..params
-                });
+                let params = resources.actors.get(prototype_id).cloned().unwrap();
+                let mut actor = Actor::new(
+                    ActorControllerKind::Computer,
+                    ActorParams {
+                        id: instance_id.unwrap_or(generate_id()),
+                        position: Some(object.position),
+                        ..params
+                    });
 
-            actor.stats.recalculate_derived();
-            actor.stats.restore_vitals();
+                actor.stats.recalculate_derived();
+                actor.stats.restore_vitals();
 
-            scene::add_node(actor);
+                scene::add_node(actor);
+            }
         }
     }
 
@@ -56,7 +61,7 @@ pub fn load_scene(character: Character) -> Result<()> {
     let mut actor = Actor::from_saved(
         player_spawn,
         ActorControllerKind::local_player(&player.id),
-        character,
+        &character,
     );
 
     actor.stats.recalculate_derived();
@@ -72,17 +77,19 @@ pub fn load_scene(character: Character) -> Result<()> {
                 LightSource::DEFAULT_SIZE
             };
 
-            let color = if let Some(color) = object.properties.get("color") {
-                color_from_hex_string(&color.value)
-            } else {
-                LightSource::DEFAULT_COLOR
-            };
+            let mut color = LightSource::DEFAULT_COLOR;
+            if let Some(prop) = object.properties.get("color").cloned() {
+                if let MapProperty::Color { value } = prop {
+                    color = value;
+                }
+            }
 
-            let intensity = if let Some(intensity) = object.properties.get("intensity") {
-                intensity.value.parse::<f32>().unwrap()
-            } else {
-                LightSource::DEFAULT_INTENSITY
-            };
+            let mut intensity = LightSource::DEFAULT_INTENSITY;
+            if let Some(prop) = object.properties.get("intensity").cloned() {
+                if let MapProperty::Float { value } = prop {
+                    intensity = value;
+                }
+            }
 
             LightSource::add_node(object.position, size, color, intensity);
         }
@@ -90,30 +97,33 @@ pub fn load_scene(character: Character) -> Result<()> {
 
     if let Some(layer) = map.layers.get("items") {
         for object in &layer.objects {
-            if let Some(prototype_id) = object.properties.get("prototype_id").cloned() {
-                if prototype_id.value == "credits".to_string() {
-                    let amount = object.properties.get("amount").unwrap();
-                    Credits::add_node(object.position, amount.value.parse::<u32>().unwrap());
-                } else {
-                    let params = resources.items.get(&prototype_id.value).cloned().unwrap();
-                    let instance_id = if let Some(instance_id) = object.properties.get("instance_id").cloned() {
-                        instance_id.value
+            if let Some(prop) = object.properties.get("prototype_id").cloned() {
+                if let MapProperty::String { value: prototype_id } = prop {
+                    if prototype_id == "credits" {
+                        if let Some(prop) = object.properties.get("amount") {
+                            if let MapProperty::Int { value } = prop {
+                                Credits::add_node(object.position, *value as u32);
+                            }
+                        }
                     } else {
-                        generate_id()
-                    };
+                        let params = resources.items.get(&prototype_id).cloned().unwrap();
+                        let mut instance_id = None;
+                        if let Some(prop) = object.properties.get("instance_id").cloned() {
+                            if let MapProperty::String { value } = prop {
+                                instance_id = Some(value)
+                            }
+                        }
 
-                    Item::add_node(ItemParams {
-                        id: instance_id,
-                        position: Some(object.position),
-                        ..params
-                    });
+                        Item::add_node(ItemParams {
+                            id: instance_id.unwrap_or(generate_id()),
+                            position: Some(object.position),
+                            ..params
+                        });
+                    }
                 }
             }
         }
     }
-
-    PostProcessing::add_node();
-    Hud::add_node();
 
     Ok(())
 }
@@ -202,7 +212,7 @@ pub async fn init_gui() -> Result<()> {
 }
 
 // This will perform all the initialization necessary prior to starting a game loop
-pub async fn init_game(params: GameParams) -> Result<()> {
+pub async fn init(params: GameParams) -> Result<()> {
     fs::create_dir_all(&params.characters_path)?;
     storage::store(params);
 

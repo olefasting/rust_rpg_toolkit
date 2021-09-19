@@ -168,6 +168,12 @@
                  "y":742.5
                 }],
          "opacity":1,
+         "properties":[
+                {
+                 "name":"object_layer_kind",
+                 "type":"string",
+                 "value":"light_sources"
+                }],
          "type":"objectgroup",
          "visible":true,
          "x":0,
@@ -468,6 +474,12 @@
                  "y":586
                 }],
          "opacity":1,
+         "properties":[
+                {
+                 "name":"object_layer_kind",
+                 "type":"string",
+                 "value":"spawn_points"
+                }],
          "type":"objectgroup",
          "visible":true,
          "x":0,
@@ -502,6 +514,12 @@
                  "y":886
                 }],
          "opacity":1,
+         "properties":[
+                {
+                 "name":"object_layer_kind",
+                 "type":"string",
+                 "value":"items"
+                }],
          "type":"objectgroup",
          "visible":true,
          "x":0,

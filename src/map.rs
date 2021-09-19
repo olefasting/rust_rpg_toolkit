@@ -2,24 +2,23 @@ use bracket_pathfinding::prelude::{Algorithm2D, BaseMap, SmallVec, Point, Distan
 
 use crate::prelude::*;
 
-use crate::json::{
-    TiledMap,
-};
+use crate::json::{TiledMap, TiledProperty, pair_from_tiled_prop};
 use std::path::Path;
 
-pub const MAP_LAYER_GROUND: &'static str = "ground";
-pub const MAP_LAYER_SOLIDS: &'static str = "solids";
-pub const MAP_LAYER_BARRIERS: &'static str = "barriers";
-pub const MAP_LAYER_ITEMS: &'static str = "items";
-pub const MAP_LAYER_SPAWN_POINTS: &'static str = "spawn_points";
-pub const MAP_LAYER_NAVIGATION: &'static str = "navigation";
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ObjectLayerKind {
+    None,
+    Items,
+    SpawnPoints,
+    LightSources,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum MapLayerKind {
-    #[serde(rename = "tile_layer")]
     TileLayer,
-    #[serde(rename = "object_layer")]
-    ObjectLayer,
+    ObjectLayer(ObjectLayerKind),
 }
 
 impl Default for MapLayerKind {
@@ -80,31 +79,44 @@ pub struct MapObject {
     pub properties: HashMap<String, MapProperty>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum MapPropertyType {
-    /* unsupported:
-    #[serde(rename = "bool")]
-    BoolType,
-    #[serde(rename = "float")]
-    FloatType,
-    #[serde(rename = "integer")]
-    IntType,
-    #[serde(rename = "object")]
-    ObjectType,
-     */
-    #[serde(rename = "string")]
-    StringType,
-    #[serde(rename = "color")]
-    ColorType,
-    #[serde(rename = "file")]
-    FileType,
-}
+// #[derive(Debug, Clone, Serialize, Deserialize)]
+// pub enum MapPropertyType {
+//     /* unsupported:
+//     #[serde(rename = "bool")]
+//     BoolType,
+//     #[serde(rename = "float")]
+//     FloatType,
+//     #[serde(rename = "integer")]
+//     IntType,
+//     #[serde(rename = "object")]
+//     ObjectType,
+//      */
+//     #[serde(rename = "string")]
+//     StringType,
+//     #[serde(rename = "color")]
+//     ColorType,
+//     #[serde(rename = "file")]
+//     FileType,
+// }
+//
+// #[derive(Debug, Clone, Serialize, Deserialize)]
+// pub struct MapProperty {
+//     pub value: String,
+//     #[serde(rename = "type")]
+//     pub value_type: MapPropertyType,
+// }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct MapProperty {
-    pub value: String,
-    #[serde(rename = "type")]
-    pub value_type: MapPropertyType,
+#[serde(rename_all = "snake_case", tag = "type")]
+pub enum MapProperty {
+    Bool { value: bool },
+    Float { value: f32 },
+    Int { value: i32 },
+    String { value: String },
+    Color {
+        #[serde(with = "json::ColorDef")]
+        value: Color
+    },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -367,30 +379,26 @@ impl Map {
 
         let mut tilesets = HashMap::new();
         for tiled_tileset in tiled_map.tilesets {
-            let texture_id = tiled_tileset.properties.clone()
-                .expect(&format!("Tiled tileset '{}' needs a 'texture_id' property!", tiled_tileset.name))
-                .into_iter()
-                .find(|prop| prop.name == "texture_id")
-                .expect(&format!("Tiled tileset '{}' needs a 'texture_id' property!", tiled_tileset.name))
-                .value;
-
             let texture_size = uvec2(tiled_tileset.imagewidth as u32, tiled_tileset.imageheight as u32);
             let tile_size = uvec2(tiled_tileset.tilewidth as u32, tiled_tileset.tileheight as u32);
             let grid_size = uvec2(tiled_tileset.columns as u32, tiled_tileset.tilecount as u32 / tiled_tileset.columns as u32);
 
             let mut properties = HashMap::new();
             if let Some(tiled_props) = tiled_tileset.properties {
-                for tiled_property in tiled_props {
-                    let value_type = tiled_property.value_type.into();
-
-                    let property = MapProperty {
-                        value: tiled_property.value,
-                        value_type,
-                    };
-
-                    properties.insert(tiled_property.name, property);
+                for tiled_prop in tiled_props {
+                    let (name, prop) = pair_from_tiled_prop(tiled_prop);
+                    properties.insert(name, prop);
                 }
             }
+
+            let mut texture_id = None;
+            if let Some(prop) = properties.remove("texture_id") {
+                if let MapProperty::String { value} = prop {
+                    texture_id = Some(value)
+                }
+            }
+
+            let texture_id = texture_id.expect(&format!("Tiled tileset '{}' needs a 'texture_id' property!", tiled_tileset.name));
 
             let tileset = MapTileset {
                 id: tiled_tileset.name.clone(),
@@ -409,13 +417,6 @@ impl Map {
         let mut layers = HashMap::new();
         let mut draw_order = Vec::new();
         for tiled_layer in &tiled_map.layers {
-            let collision = match &tiled_layer.properties {
-                Some(props) => match props.into_iter().find(|prop| prop.name == "collision".to_string()) {
-                    Some(collision) => CollisionKind::from(collision.value.clone()),
-                    _ => CollisionKind::None,
-                },
-                _ => CollisionKind::None,
-            };
 
             let mut tiles = Vec::new();
             for tile_id in tiled_layer.data.clone() {
@@ -462,15 +463,9 @@ impl Map {
 
                 let mut properties = HashMap::new();
                 if let Some(tiled_props) = object.properties.clone() {
-                    for tiled_property in tiled_props {
-                        let value_type = tiled_property.value_type;
-
-                        let property = MapProperty {
-                            value: tiled_property.value,
-                            value_type,
-                        };
-
-                        properties.insert(tiled_property.name, property);
+                    for tiled_prop in tiled_props {
+                        let (name, prop) = pair_from_tiled_prop(tiled_prop);
+                        properties.insert(name, prop);
                     }
                 }
 
@@ -484,27 +479,41 @@ impl Map {
                 objects.push(object);
             }
 
+            let grid_size = uvec2(tiled_map.width, tiled_map.height);
+
+            let mut object_layer_kind = ObjectLayerKind::None;
+            let mut properties = HashMap::new();
+            if let Some(tiled_props) = &tiled_layer.properties {
+                for tiled_prop in tiled_props {
+                    let (name, prop) = pair_from_tiled_prop(tiled_prop.clone());
+                    if name == TiledMap::OBJECT_LAYER_KIND_PROP_KEY {
+                        if let MapProperty::String { value } = &prop {
+                            if value == TiledMap::ITEMS_LAYER_PROP {
+                                object_layer_kind = ObjectLayerKind::Items;
+                            } else if value == TiledMap::SPAWN_POINTS_LAYER_PROP {
+                                object_layer_kind = ObjectLayerKind::SpawnPoints;
+                            } else if value == TiledMap::LIGHT_SOURCES_LAYER_PROP {
+                                object_layer_kind = ObjectLayerKind::LightSources;
+                            }
+                        }
+                    } else {
+                        properties.insert(name, prop);
+                    }
+                }
+            }
+
+            let mut collision = CollisionKind::None;
+            if let Some(prop) = properties.remove("collision") {
+                if let MapProperty::String { value} = prop {
+                    collision = CollisionKind::from(value)
+                }
+            }
+
             let kind = if tiled_layer.layer_type == "tilelayer".to_string() {
                 MapLayerKind::TileLayer
             } else {
-                MapLayerKind::ObjectLayer
+                MapLayerKind::ObjectLayer(object_layer_kind)
             };
-
-            let grid_size = uvec2(tiled_map.width, tiled_map.height);
-
-            let mut properties = HashMap::new();
-            if let Some(tiled_props) = &tiled_layer.properties {
-                for tiled_property in tiled_props {
-                    let value_type = tiled_property.value_type.clone();
-
-                    let property = MapProperty {
-                        value: tiled_property.value.clone(),
-                        value_type,
-                    };
-
-                    properties.insert(tiled_property.name.clone(), property);
-                }
-            }
 
             let layer = MapLayer {
                 id: tiled_layer.name.clone(),
@@ -525,15 +534,9 @@ impl Map {
 
         let mut properties = HashMap::new();
         if let Some(tiled_props) = tiled_map.properties {
-            for tiled_property in tiled_props {
-                let value_type = tiled_property.value_type.into();
-
-                let property = MapProperty {
-                    value: tiled_property.value,
-                    value_type,
-                };
-
-                properties.insert(tiled_property.name, property);
+            for tiled_prop in tiled_props {
+                let (name, prop) = pair_from_tiled_prop(tiled_prop);
+                properties.insert(name, prop);
             }
         }
 

@@ -20024,13 +20024,7 @@
         0,
         0
       ],
-      "is_visible": true,
-      "properties": {
-        "collision": {
-          "value": "barrier",
-          "type": "string"
-        }
-      }
+      "is_visible": true
     },
     {
       "id": "ground_1",
@@ -80052,13 +80046,7 @@
         0,
         0
       ],
-      "is_visible": true,
-      "properties": {
-        "collision": {
-          "value": "barrier",
-          "type": "string"
-        }
-      }
+      "is_visible": true
     },
     {
       "id": "solids_1",
@@ -100066,13 +100054,7 @@
         0,
         0
       ],
-      "is_visible": true,
-      "properties": {
-        "collision": {
-          "value": "solid",
-          "type": "string"
-        }
-      }
+      "is_visible": true
     },
     {
       "id": "barriers_2",
@@ -120080,13 +120062,7 @@
         0,
         0
       ],
-      "is_visible": true,
-      "properties": {
-        "collision": {
-          "value": "barrier",
-          "type": "string"
-        }
-      }
+      "is_visible": true
     },
     {
       "id": "solids_2",
@@ -140094,13 +140070,7 @@
         0,
         0
       ],
-      "is_visible": true,
-      "properties": {
-        "collision": {
-          "value": "solid",
-          "type": "string"
-        }
-      }
+      "is_visible": true
     },
     {
       "id": "decals",
@@ -180118,7 +180088,9 @@
     },
     {
       "id": "light_sources",
-      "kind": "object_layer",
+      "kind": {
+        "object_layer": "light_sources"
+      },
       "objects": [
         {
           "name": "red_light",
@@ -180131,13 +180103,18 @@
             "y": 4.0
           },
           "properties": {
-            "color": {
-              "value": "#ffff0000",
-              "type": "color"
-            },
             "intensity": {
-              "value": "0.1",
-              "type": "string"
+              "type": "string",
+              "value": "0.1"
+            },
+            "color": {
+              "type": "color",
+              "value": {
+                "red": 1.0,
+                "green": 1.0,
+                "blue": 0.0,
+                "alpha": 0.0
+              }
             }
           }
         }
@@ -180146,7 +180123,9 @@
     },
     {
       "id": "spawn_points",
-      "kind": "object_layer",
+      "kind": {
+        "object_layer": "spawn_points"
+      },
       "objects": [
         {
           "name": "player",
@@ -180163,12 +180142,12 @@
           },
           "properties": {
             "instance_id": {
-              "value": "thug_01",
-              "type": "string"
+              "type": "string",
+              "value": "thug_01"
             },
             "prototype_id": {
-              "value": "enemy_thug_boss",
-              "type": "string"
+              "type": "string",
+              "value": "enemy_thug_boss"
             }
           }
         },
@@ -180180,8 +180159,8 @@
           },
           "properties": {
             "prototype_id": {
-              "value": "aggressive_guard",
-              "type": "string"
+              "type": "string",
+              "value": "aggressive_guard"
             }
           }
         },
@@ -180192,13 +180171,13 @@
             "y": 237.66667
           },
           "properties": {
-            "prototype_id": {
-              "value": "enemy_thug",
-              "type": "string"
-            },
             "instance_id": {
-              "value": "thug_02",
-              "type": "string"
+              "type": "string",
+              "value": "thug_02"
+            },
+            "prototype_id": {
+              "type": "string",
+              "value": "enemy_thug"
             }
           }
         },
@@ -180209,13 +180188,13 @@
             "y": 253.0
           },
           "properties": {
-            "instance_id": {
-              "value": "thug_03",
-              "type": "string"
-            },
             "prototype_id": {
-              "value": "enemy_thug",
-              "type": "string"
+              "type": "string",
+              "value": "enemy_thug"
+            },
+            "instance_id": {
+              "type": "string",
+              "value": "thug_03"
             }
           }
         },
@@ -180226,13 +180205,13 @@
             "y": 546.3333
           },
           "properties": {
-            "instance_id": {
-              "value": "guard_boss",
-              "type": "string"
-            },
             "prototype_id": {
-              "value": "guard_boss",
-              "type": "string"
+              "type": "string",
+              "value": "guard_boss"
+            },
+            "instance_id": {
+              "type": "string",
+              "value": "guard_boss"
             }
           }
         },
@@ -180244,8 +180223,8 @@
           },
           "properties": {
             "prototype_id": {
-              "value": "neutral_bystander",
-              "type": "string"
+              "type": "string",
+              "value": "neutral_bystander"
             }
           }
         },
@@ -180257,8 +180236,8 @@
           },
           "properties": {
             "prototype_id": {
-              "value": "neutral_bystander",
-              "type": "string"
+              "type": "string",
+              "value": "neutral_bystander"
             }
           }
         },
@@ -180270,12 +180249,12 @@
           },
           "properties": {
             "instance_id": {
-              "value": "scared_woman",
-              "type": "string"
+              "type": "string",
+              "value": "scared_woman"
             },
             "prototype_id": {
-              "value": "scared_woman",
-              "type": "string"
+              "type": "string",
+              "value": "scared_woman"
             }
           }
         },
@@ -180287,8 +180266,8 @@
           },
           "properties": {
             "prototype_id": {
-              "value": "neutral_bystander",
-              "type": "string"
+              "type": "string",
+              "value": "neutral_bystander"
             }
           }
         },
@@ -180300,8 +180279,8 @@
           },
           "properties": {
             "prototype_id": {
-              "value": "enemy_thug",
-              "type": "string"
+              "type": "string",
+              "value": "enemy_thug"
             }
           }
         },
@@ -180313,8 +180292,8 @@
           },
           "properties": {
             "prototype_id": {
-              "value": "enemy_thug",
-              "type": "string"
+              "type": "string",
+              "value": "enemy_thug"
             }
           }
         },
@@ -180326,8 +180305,8 @@
           },
           "properties": {
             "prototype_id": {
-              "value": "enemy_thug",
-              "type": "string"
+              "type": "string",
+              "value": "enemy_thug"
             }
           }
         },
@@ -180339,8 +180318,8 @@
           },
           "properties": {
             "prototype_id": {
-              "value": "aggressive_guard",
-              "type": "string"
+              "type": "string",
+              "value": "aggressive_guard"
             }
           }
         },
@@ -180352,8 +180331,8 @@
           },
           "properties": {
             "prototype_id": {
-              "value": "aggressive_guard",
-              "type": "string"
+              "type": "string",
+              "value": "aggressive_guard"
             }
           }
         }
@@ -180362,7 +180341,9 @@
     },
     {
       "id": "items",
-      "kind": "object_layer",
+      "kind": {
+        "object_layer": "items"
+      },
       "objects": [
         {
           "name": "pistol",
@@ -180371,13 +180352,13 @@
             "y": 886.0
           },
           "properties": {
-            "instance_id": {
-              "value": "quest_pistol",
-              "type": "string"
-            },
             "prototype_id": {
-              "value": "quest_pistol",
-              "type": "string"
+              "type": "string",
+              "value": "quest_pistol"
+            },
+            "instance_id": {
+              "type": "string",
+              "value": "quest_pistol"
             }
           }
         }
@@ -180402,37 +180383,7 @@
         "y": 20
       },
       "first_tile_id": 1,
-      "tile_cnt": 400,
-      "properties": {
-        "texture_id": {
-          "value": "tiles",
-          "type": "string"
-        }
-      }
-    },
-    {
-      "id": "items",
-      "texture_id": "items",
-      "texture_size": {
-        "x": 64,
-        "y": 64
-      },
-      "tile_size": {
-        "x": 16,
-        "y": 16
-      },
-      "grid_size": {
-        "x": 4,
-        "y": 4
-      },
-      "first_tile_id": 501,
-      "tile_cnt": 16,
-      "properties": {
-        "texture_id": {
-          "value": "items",
-          "type": "string"
-        }
-      }
+      "tile_cnt": 400
     },
     {
       "id": "neo_zero_props",
@@ -180450,13 +180401,25 @@
         "y": 10
       },
       "first_tile_id": 401,
-      "tile_cnt": 100,
-      "properties": {
-        "texture_id": {
-          "value": "props",
-          "type": "string"
-        }
-      }
+      "tile_cnt": 100
+    },
+    {
+      "id": "items",
+      "texture_id": "items",
+      "texture_size": {
+        "x": 64,
+        "y": 64
+      },
+      "tile_size": {
+        "x": 16,
+        "y": 16
+      },
+      "grid_size": {
+        "x": 4,
+        "y": 4
+      },
+      "first_tile_id": 501,
+      "tile_cnt": 16
     }
   ]
 }

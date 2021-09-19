@@ -156,7 +156,7 @@ pub use crate::{
         GameParams,
         init_resources,
         init_gui,
-        init_game,
+        init,
         load_scene,
     },
     gui::{
@@ -174,6 +174,7 @@ pub use crate::{
         MapLayerKind,
         MapTileset,
         MapObject,
+        MapProperty,
         MapTile,
         NavigationPath,
     },

@@ -268,21 +268,21 @@ impl Actor {
         }
     }
 
-    pub fn from_saved(position: Vec2, controller_kind: ActorControllerKind, character: Character) -> Self {
+    pub fn from_saved(position: Vec2, controller_kind: ActorControllerKind, character: &Character) -> Self {
         let resources = storage::get::<Resources>();
 
         let active_missions = character.active_missions
-            .into_iter()
+            .iter()
             .map(|mission_id| {
-                let params = resources.missions.get(&mission_id).cloned().unwrap();
+                let params = resources.missions.get(mission_id).cloned().unwrap();
                 Mission::new(params)
             })
             .collect();
 
         let completed_missions = character.completed_missions
-            .into_iter()
+            .iter()
             .map(|mission_id| {
-                let params = resources.missions.get(&mission_id).cloned().unwrap();
+                let params = resources.missions.get(mission_id).cloned().unwrap();
                 Mission::new(params)
             })
             .collect();
@@ -302,24 +302,24 @@ impl Actor {
         let stats = character.actor.clone().into();
 
         Actor {
-            id: character.actor.id,
-            name: character.actor.name,
+            id: character.actor.id.clone(),
+            name: character.actor.name.clone(),
             stats,
             active_missions,
             completed_missions,
             noise_level: NoiseLevel::None,
-            behavior: character.actor.behavior,
-            factions: character.actor.factions,
+            behavior: character.actor.behavior.clone(),
+            factions: character.actor.factions.clone(),
             body,
             inventory: Inventory::from_saved(&character.actor.inventory, &character.items),
-            equipped_items: character.actor.equipped_items,
+            equipped_items: character.actor.equipped_items.clone(),
             weapon_ability: EquippedWeaponsAbilities { main_hand: None, offhand: None },
             selected_ability: None,
             controller: ActorController::new(controller_kind),
             experience: character.actor.experience,
             dialogue,
             current_dialogue: None,
-            animation_player: SpriteAnimationPlayer::new(character.actor.animation_player),
+            animation_player: SpriteAnimationPlayer::new(character.actor.animation_player.clone()),
             noise_level_timer: 0.0,
             can_level_up: character.actor.can_level_up,
             automaton: ActorBehaviorFamily::automaton_with_mode(behavior_constructor()),

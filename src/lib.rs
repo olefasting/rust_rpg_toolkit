@@ -29,3 +29,4 @@ pub mod error;
 pub mod events;
 pub mod character;
 pub mod player;
+pub mod scene;

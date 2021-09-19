@@ -2,12 +2,12 @@ pub mod tiled;
 
 use crate::prelude::*;
 
-use crate::map::{Map, MapLayerKind, MapLayer, MapTile, MapObject, MapTileset, MapProperty};
+use crate::map::{Map, MapLayerKind, MapLayer, MapTile, MapObject, MapTileset, MapProperty, ObjectLayerKind};
 
 pub use tiled::TiledMap;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct MapDef {
+pub(crate) struct MapDef {
     #[serde(default = "MapDef::default_background_color", with = "json::ColorDef")]
     pub background_color: Color,
     #[serde(with = "super::def_vec2", default)]
@@ -32,19 +32,24 @@ impl Into<MapDef> for Map {
     fn into(self) -> MapDef {
         let layers = self.draw_order.iter().filter_map(|layer_id|  {
             if let Some(layer) = self.layers.get(layer_id) {
-                let (tiles, objects) = match layer.kind {
+                let (tiles, objects) = match &layer.kind {
                     MapLayerKind::TileLayer => {
-                        (Some(layer.tiles.iter().map(|opt| match opt {
+                        let tiles = layer.tiles.iter().map(|opt| match opt {
                             Some(tile) => {
                                 let tileset = self.tilesets.get(&tile.tileset_id)
                                     .expect(&format!("Unable to find tileset with id '{}'!", tile.tileset_id));
                                 tile.tile_id + tileset.first_tile_id
                             },
                             _ => 0,
-                        }).collect()),
-                         None)
+                        }).collect();
+
+                        (Some(tiles), None)
                     },
-                    MapLayerKind::ObjectLayer => (None, Some(layer.objects.clone())),
+                    MapLayerKind::ObjectLayer(_) => {
+                        let objects = layer.objects.clone();
+
+                        (None, Some(objects))
+                    },
                 };
 
                 let layer = MapLayerDef {
@@ -107,12 +112,14 @@ impl From<MapDef> for Map {
                                     && tile_id < tileset.first_tile_id + tileset.tile_cnt) {
                                 Some((_, tileset)) => {
                                     let tile_id = tile_id - tileset.first_tile_id;
-                                    Some(MapTile {
+                                    let tile = MapTile {
                                         tile_id,
                                         tileset_id: tileset.id.clone(),
                                         texture_id: tileset.texture_id.clone(),
                                         texture_coords: tileset.get_texture_coords(tile_id),
-                                    })
+                                    };
+
+                                    Some(tile)
                                 },
                                 _ => {
                                     None
@@ -132,6 +139,7 @@ impl From<MapDef> for Map {
                         is_visible: layer.is_visible,
                         properties: layer.properties.clone(),
                     };
+
                     (layer.id.clone(), layer)
                 }));
 

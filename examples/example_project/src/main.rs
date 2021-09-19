@@ -25,7 +25,7 @@ async fn main() -> Result<()> {
         ..Default::default()
     };
 
-    init_game(params).await?;
+    init(params).await?;
 
     while handle_event_queue().await? == false {
         clear_background(color::BLACK);
