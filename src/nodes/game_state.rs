@@ -53,14 +53,7 @@ impl Node for GameState {
             if node.is_permadeath {
                 delete_character(&node.character_name).expect(&format!("Error when saving character '{}'!", &node.character_name));
             }
-            dispatch_event(Event::ShowMainMenu);
+            dispatch_event(Event::MainMenu);
         }
-    }
-
-    fn draw(_node: RefMut<Self>) {
-        let map = storage::get::<Map>();
-        let viewport = storage::get::<Viewport>();
-        let rect = map.to_grid(viewport.get_frustum());
-        map.draw(Some(rect));
     }
 }

@@ -9,6 +9,10 @@ pub use std::{
     },
     fs,
     io,
+    path::{
+        Path,
+        PathBuf,
+    },
 };
 
 pub use macroquad::{
@@ -52,16 +56,13 @@ pub use mode::{
     Mode,
 };
 
+pub(crate) use crate::scene::load_scene;
+
 pub use crate::{
     versions::{
         get_toolkit_version,
         to_int_version,
         check_version,
-    },
-    modules::{
-        load_modules,
-        ModuleParams,
-        get_available_modules,
     },
     config::Config,
     resources::Resources,
@@ -144,20 +145,22 @@ pub use crate::{
             ProjectileKind,
         },
         Credits,
+        MapRenderer,
     },
     events::{
         Event,
-        get_queued_event,
+        get_next_event,
         dispatch_event,
         handle_event,
-        handle_event_queue,
+        handle_queued_events,
     },
     game::{
         GameParams,
-        init_resources,
-        init_gui,
         init,
-        load_scene,
+    },
+    scene::{
+        DrawStage,
+        SceneBuilder,
     },
     gui::{
         self,
@@ -177,6 +180,7 @@ pub use crate::{
         MapProperty,
         MapTile,
         NavigationPath,
+        ObjectLayerKind,
     },
     missions::{
         Mission,

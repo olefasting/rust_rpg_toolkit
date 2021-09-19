@@ -17,6 +17,8 @@ pub use post_processing::PostProcessing;
 
 pub use hud::Hud;
 
+pub use map_renderer::MapRenderer;
+
 pub mod projectiles;
 pub mod game_state;
 pub mod camera;
@@ -27,3 +29,4 @@ pub mod actor;
 pub mod post_processing;
 pub mod hud;
 pub mod light_source;
+pub mod map_renderer;

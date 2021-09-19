@@ -2,8 +2,9 @@ use crate::prelude::*;
 
 #[derive(Debug, Clone)]
 pub enum Event {
-    ShowMainMenu,
-    ChangeMap(usize, String),
+    MainMenu,
+    StartGame { character: Character },
+    ChangeMap { chapter_index: usize, map_id: String },
     SavePlayerCharacter,
     Quit,
 }
@@ -20,7 +21,7 @@ fn get_event_queue() -> &'static mut Vec<Event> {
     }
 }
 
-pub fn get_queued_event() -> Option<Event> {
+pub fn get_next_event() -> Option<Event> {
     let queue = get_event_queue();
     queue.pop()
 }
@@ -30,25 +31,25 @@ pub fn dispatch_event(event: Event) {
     queue.insert(0, event);
 }
 
-// This will handle one event and return `true` if the game should quit
-pub async fn handle_event(event: Event) -> Result<bool> {
-    match event {
-        Event::ShowMainMenu => {
+// This will perform all the internal handling of an event and return it afterwards.
+// Note that `Event::Quit` will clear the scene, but it will probably also need to be
+// handled manually to break the game loop and exit.
+// If you have no need handle events manually, `handle_queued_events` can be used in stead.
+pub async fn handle_event(event: Event) -> Result<Event> {
+    match event.clone() {
+        Event::MainMenu => {
             scene::clear();
             gui::show_main_menu().await?;
         }
-        Event::ChangeMap(chapter_index, map_id) => {
-            let character= {
-                let game_state = scene::find_node_by_type::<GameState>().unwrap();
-                let character = game_state.get_player_character().unwrap();
-
-                Character {
-                    current_chapter_index: chapter_index,
-                    current_map_id: map_id,
-                    ..character
-                }
-            };
-
+        Event::StartGame { character } => {
+            load_scene(character)?;
+        }
+        Event::ChangeMap { chapter_index, map_id} => {
+            let game_state = scene::find_node_by_type::<GameState>().unwrap();
+            let character = game_state
+                .get_player_character()
+                .expect("No player character found. Use `Event::ChangeMap` to start a new game!")
+                .with_current_map(chapter_index, &map_id);
             load_scene(character)?;
         }
         Event::SavePlayerCharacter => {
@@ -58,20 +59,21 @@ pub async fn handle_event(event: Event) -> Result<bool> {
         }
         Event::Quit => {
             scene::clear();
-            return Ok(true)
         }
     }
 
-    Ok(false)
+    Ok(event)
 }
 
 // This will handle all queued events and return `true` if the game should quit
-pub async fn handle_event_queue() -> Result<bool> {
-    while let Some(event) = get_queued_event() {
-        if handle_event(event).await? == true {
-            return Ok(true);
+pub async fn handle_queued_events() -> Result<bool> {
+    let mut res = false;
+
+    while let Some(event) = get_next_event() {
+        if let Event::Quit = handle_event(event).await? {
+            res = true;
         }
     }
 
-    Ok(false)
+    Ok(res)
 }

@@ -128,7 +128,7 @@ impl Into<Character> for ActorParams {
             .clone();
 
         Character {
-            game_version: game_params.game_version.clone(),
+            game_version: game_params.version.clone(),
             actor: ActorParams {
                 id: generate_id(),
                 inventory: InventoryParams {
@@ -345,7 +345,7 @@ impl Actor {
             .collect();
 
         Character {
-            game_version: game_params.game_version.clone(),
+            game_version: game_params.version.clone(),
             actor: self.to_params(),
             items,
             active_missions,

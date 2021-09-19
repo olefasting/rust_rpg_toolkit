@@ -20,14 +20,14 @@ pub fn window_conf() -> Conf {
 #[macroquad::main(window_conf)]
 async fn main() -> Result<()> {
     let params = GameParams {
-        game_name: GAME_NAME.to_string(),
-        game_version: GAME_VERSION.to_string(),
+        name: GAME_NAME.to_string(),
+        version: GAME_VERSION.to_string(),
         ..Default::default()
     };
 
     init(params).await?;
 
-    while handle_event_queue().await? == false {
+    while handle_queued_events().await? == false {
         clear_background(color::BLACK);
 
         update_input();

@@ -19,13 +19,7 @@ pub use gilrs::{
 
 use crate::prelude::*;
 
-static mut INPUT_CONTEXT: StaticContext = StaticContext {
-    context: None,
-};
-
-struct StaticContext {
-    pub context: Option<InputContext>,
-}
+static mut INPUT_CONTEXT: Option<Box<InputContext>> = None;
 
 #[derive(Debug)]
 struct InputContext {
@@ -35,16 +29,19 @@ struct InputContext {
 }
 
 fn get_input_context() -> &'static mut InputContext {
-    let wrapper = unsafe { &mut INPUT_CONTEXT };
-    if wrapper.context.is_none() {
-        let context = InputContext {
-            gilrs: Gilrs::new().unwrap(),
-            mappings: HashMap::new(),
-            events: HashMap::new(),
-        };
-        wrapper.context = Some(context);
+    unsafe {
+        if INPUT_CONTEXT.is_none() {
+            let context = InputContext {
+                gilrs: Gilrs::new().unwrap(),
+                mappings: HashMap::new(),
+                events: HashMap::new(),
+            };
+
+            INPUT_CONTEXT = Some(Box::new(context));
+        }
+
+        INPUT_CONTEXT.as_mut().unwrap()
     }
-    wrapper.context.as_mut().unwrap()
 }
 
 fn is_mapped(gamepad_id: GamepadId) -> bool {

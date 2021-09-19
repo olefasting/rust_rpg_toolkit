@@ -27,12 +27,12 @@ pub async fn show_main_menu() -> Result<()> {
             MainMenuResult::StartGame => {
                 match draw_character_selection().await {
                     CharacterSelectionResult::SelectCharacter(character) => {
-                        load_scene(character)?;
+                        dispatch_event(Event::StartGame { character });
                         break 'menu;
                     }
                     CharacterSelectionResult::CreateCharacter => {
                         if let Some(character) = draw_character_creation().await {
-                            load_scene(character)?;
+                            dispatch_event(Event::StartGame { character });
                             break 'menu;
                         }
                     }

@@ -56,6 +56,8 @@ use rust_rpg_toolkit::prelude::*;
 const GAME_NAME: &'static str = "My Awesome Game";
 const GAME_VERSION: &'static str = "0.1.0";
 
+const CONFIG_PATH: &'static str = "config.json";
+
 fn get_window_conf() -> Conf {
     let config = Config::load(CONFIG_PATH);
 
@@ -72,14 +74,14 @@ fn get_window_conf() -> Conf {
 #[macroquad::main(get_window_conf)]
 async fn main() -> Result<()> {
   let params = GameParams {
-    game_name: GAME_NAME.to_string(),
-    game_version: GAME_VERSION.to_string(),
+    name: GAME_NAME.to_string(),
+    version: GAME_VERSION.to_string(),
     ..Default::default()
   };
 
-  init_game(params).await?;
+  init(params).await?;
 
-  while handle_event_queue().await? == false {
+  while handle_queued_events().await? == false {
     clear_background(color::BLACK);
 
     update_input();

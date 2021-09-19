@@ -21,31 +21,24 @@ impl WindowBuilder {
 
     pub fn with_title(self, title: &str) -> Self {
         WindowBuilder {
-            id: self.id,
-            size: self.size,
-            position: self.position,
             title: Some(title.to_string()),
-            is_static: self.is_static,
+            ..self
         }
     }
 
     pub fn with_pos(self, position: Vec2, is_static: bool) -> Self {
         WindowBuilder {
-            id: self.id,
-            size: self.size,
             position,
-            title: self.title,
             is_static,
+            ..self
         }
     }
 
     pub fn with_centered_pos(self, is_static: bool) -> Self {
         WindowBuilder {
-            id: self.id,
-            size: self.size,
             position: get_centered_on_screen(self.size),
-            title: self.title,
             is_static,
+            ..self
         }
     }
 

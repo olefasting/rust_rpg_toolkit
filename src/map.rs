@@ -1,9 +1,10 @@
+use std::path::Path;
+
 use bracket_pathfinding::prelude::{Algorithm2D, BaseMap, SmallVec, Point, DistanceAlg, a_star_search};
 
 use crate::prelude::*;
 
-use crate::json::{TiledMap, TiledProperty, pair_from_tiled_prop};
-use std::path::Path;
+use crate::json::TiledMap;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -183,15 +184,20 @@ impl Map {
     }
 
     pub async fn load_tiled<P: AsRef<Path>>(path: P, export_path: Option<P>) -> Result<Self> {
-        let bytes = load_file(path.as_ref().to_str().unwrap()).await?;
-        let tiled_map: TiledMap = serde_json::from_slice(&bytes).unwrap();
+        let path = path.as_ref().to_str().unwrap();
+        let bytes = load_file(path).await?;
+        let tiled_map: TiledMap = serde_json::from_slice(&bytes)?;
         let map = Map::from_tiled(tiled_map);
 
         if let Some(export_path) = export_path {
-            map.save(export_path).unwrap();
+            map.save(export_path)?;
         }
 
         Ok(map)
+    }
+
+    pub fn from_tiled(tiled_map: TiledMap) -> Self {
+        tiled_map.into()
     }
 
     pub fn to_grid(&self, rect: Rect) -> URect {
@@ -213,6 +219,7 @@ impl Map {
             point.y as f32 * self.tile_size.y + self.world_offset.y,
         )
     }
+
     pub fn get_tile(&self, layer_id: &str, x: u32, y: u32) -> &Option<MapTile> {
         let layer = self.layers
             .get(layer_id)
@@ -359,197 +366,15 @@ impl Map {
     }
 
     #[cfg(any(target_family = "unix", target_family = "windows"))]
-    pub fn save<P: AsRef<Path>>(&self, path: P) -> io::Result<()> {
+    pub fn save<P: AsRef<Path>>(&self, path: P) -> Result<()> {
         let json = serde_json::to_string_pretty(self)?;
         std::fs::write(path, json)?;
         Ok(())
     }
 
     #[cfg(target_family = "wasm")]
-    pub fn save<P: AsRef<Path>>(&self, _: P) -> io::Result<()> {
+    pub fn save<P: AsRef<Path>>(&self, _: P) -> Result<()> {
         Ok(())
-    }
-
-    pub fn from_tiled(tiled_map: TiledMap) -> Self {
-        let background_color = if let Some(background_color) = tiled_map.backgroundcolor {
-            color_from_hex_string(&background_color)
-        } else {
-            color::BLACK
-        };
-
-        let mut tilesets = HashMap::new();
-        for tiled_tileset in tiled_map.tilesets {
-            let texture_size = uvec2(tiled_tileset.imagewidth as u32, tiled_tileset.imageheight as u32);
-            let tile_size = uvec2(tiled_tileset.tilewidth as u32, tiled_tileset.tileheight as u32);
-            let grid_size = uvec2(tiled_tileset.columns as u32, tiled_tileset.tilecount as u32 / tiled_tileset.columns as u32);
-
-            let mut properties = HashMap::new();
-            if let Some(tiled_props) = tiled_tileset.properties {
-                for tiled_prop in tiled_props {
-                    let (name, prop) = pair_from_tiled_prop(tiled_prop);
-                    properties.insert(name, prop);
-                }
-            }
-
-            let mut texture_id = None;
-            if let Some(prop) = properties.remove("texture_id") {
-                if let MapProperty::String { value} = prop {
-                    texture_id = Some(value)
-                }
-            }
-
-            let texture_id = texture_id.expect(&format!("Tiled tileset '{}' needs a 'texture_id' property!", tiled_tileset.name));
-
-            let tileset = MapTileset {
-                id: tiled_tileset.name.clone(),
-                texture_id: texture_id.to_string(),
-                texture_size,
-                tile_size,
-                grid_size,
-                first_tile_id: tiled_tileset.firstgid,
-                tile_cnt: tiled_tileset.tilecount,
-                properties,
-            };
-
-            tilesets.insert(tiled_tileset.name, tileset);
-        }
-
-        let mut layers = HashMap::new();
-        let mut draw_order = Vec::new();
-        for tiled_layer in &tiled_map.layers {
-
-            let mut tiles = Vec::new();
-            for tile_id in tiled_layer.data.clone() {
-                let res = if tile_id != 0 {
-                    let tileset = tilesets
-                        .iter()
-                        .find_map(|(_, tileset)| {
-                            if tile_id >= tileset.first_tile_id
-                                && tile_id <= tileset.first_tile_id + tileset.tile_cnt {
-                                return Some(tileset);
-                            }
-                            None
-                        })
-                        .unwrap();
-
-                    let tile_id = tile_id - tileset.first_tile_id;
-                    let tile = MapTile {
-                        tile_id,
-                        tileset_id: tileset.id.clone(),
-                        texture_id: tileset.texture_id.clone(),
-                        texture_coords: tileset.get_texture_coords(tile_id),
-                    };
-
-                    Some(tile)
-                } else {
-                    None
-                };
-
-                tiles.push(res);
-            }
-
-
-            let mut objects = Vec::new();
-            for object in &tiled_layer.objects {
-                let position = vec2(object.x, object.y);
-                let size = {
-                    let size = vec2(object.width, object.height);
-                    if size != Vec2::ZERO {
-                        Some(size)
-                    } else {
-                        None
-                    }
-                };
-
-                let mut properties = HashMap::new();
-                if let Some(tiled_props) = object.properties.clone() {
-                    for tiled_prop in tiled_props {
-                        let (name, prop) = pair_from_tiled_prop(tiled_prop);
-                        properties.insert(name, prop);
-                    }
-                }
-
-                let object = MapObject {
-                    name: object.name.clone(),
-                    position,
-                    size,
-                    properties,
-                };
-
-                objects.push(object);
-            }
-
-            let grid_size = uvec2(tiled_map.width, tiled_map.height);
-
-            let mut object_layer_kind = ObjectLayerKind::None;
-            let mut properties = HashMap::new();
-            if let Some(tiled_props) = &tiled_layer.properties {
-                for tiled_prop in tiled_props {
-                    let (name, prop) = pair_from_tiled_prop(tiled_prop.clone());
-                    if name == TiledMap::OBJECT_LAYER_KIND_PROP_KEY {
-                        if let MapProperty::String { value } = &prop {
-                            if value == TiledMap::ITEMS_LAYER_PROP {
-                                object_layer_kind = ObjectLayerKind::Items;
-                            } else if value == TiledMap::SPAWN_POINTS_LAYER_PROP {
-                                object_layer_kind = ObjectLayerKind::SpawnPoints;
-                            } else if value == TiledMap::LIGHT_SOURCES_LAYER_PROP {
-                                object_layer_kind = ObjectLayerKind::LightSources;
-                            }
-                        }
-                    } else {
-                        properties.insert(name, prop);
-                    }
-                }
-            }
-
-            let mut collision = CollisionKind::None;
-            if let Some(prop) = properties.remove("collision") {
-                if let MapProperty::String { value} = prop {
-                    collision = CollisionKind::from(value)
-                }
-            }
-
-            let kind = if tiled_layer.layer_type == "tilelayer".to_string() {
-                MapLayerKind::TileLayer
-            } else {
-                MapLayerKind::ObjectLayer(object_layer_kind)
-            };
-
-            let layer = MapLayer {
-                id: tiled_layer.name.clone(),
-                kind,
-                collision,
-                grid_size,
-                tiles,
-                objects,
-                is_visible: tiled_layer.visible,
-                properties,
-            };
-
-            draw_order.push(layer.id.clone());
-            layers.insert(layer.id.clone(), layer);
-        }
-
-        let grid_size = uvec2(tiled_map.width, tiled_map.height);
-
-        let mut properties = HashMap::new();
-        if let Some(tiled_props) = tiled_map.properties {
-            for tiled_prop in tiled_props {
-                let (name, prop) = pair_from_tiled_prop(tiled_prop);
-                properties.insert(name, prop);
-            }
-        }
-
-        Map {
-            background_color,
-            world_offset: Vec2::ZERO,
-            grid_size,
-            tile_size: vec2(tiled_map.tilewidth as f32, tiled_map.tileheight as f32),
-            layers,
-            tilesets,
-            draw_order,
-            properties,
-        }
     }
 }
 

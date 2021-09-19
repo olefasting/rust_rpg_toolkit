@@ -1,33 +1,51 @@
 use crate::prelude::*;
 
+static mut SCENE_BUILDER: Option<Box<SceneBuilder>> = None;
+
+unsafe fn set_scene_builder(builder: SceneBuilder) {
+    SCENE_BUILDER = Some(Box::new(builder));
+}
+
+unsafe fn get_scene_builder() -> &'static SceneBuilder {
+    if SCENE_BUILDER.is_none() {
+        SCENE_BUILDER = Some(Box::new(SceneBuilder::new()));
+    }
+
+    SCENE_BUILDER.as_ref().unwrap()
+}
+
+pub(crate) fn load_scene(character: Character) -> Result<()> {
+    unsafe { get_scene_builder() }.build(character)
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum DrawStage {
-    First,
+    Map,
     Items,
     Projectiles,
     Actors,
     PostProcessing,
-    Last,
+    Gui,
 }
 
+// This is a builder for scenes in the game. It is not meant to be used to build scenes directly
+// (dispatch a `ChangeScene` event for that), but to create the default builder used by the event
+// handler when loading scenes by calling `make_default`.
 pub struct SceneBuilder {
     chapter_index: Option<usize>,
     map_id: Option<String>,
-    draw_stages: HashMap<DrawStage, Vec<Box<dyn Node>>>,
+    draw_stages: HashMap<DrawStage, Vec<fn()>>,
 }
 
 impl SceneBuilder {
-    const SPAWN_POINTS_LAYER_ID: &'static str = "spawn_points";
-    const ITEMS_LAYER_ID: &'static str = "items";
-
     pub fn new() -> Self {
         let keys = [
-            DrawStage::First,
+            DrawStage::Map,
             DrawStage::Items,
             DrawStage::Projectiles,
             DrawStage::Actors,
             DrawStage::PostProcessing,
-            DrawStage::Last,
+            DrawStage::Gui,
         ];
 
         let mut draw_stages = HashMap::new();
@@ -46,162 +64,214 @@ impl SceneBuilder {
         SceneBuilder {
             chapter_index: Some(chapter_index),
             map_id: Some(map_id.to_string()),
-            draw_stages: self.draw_stages,
+            ..self
         }
     }
 
-    pub fn with_nodes(self, draw_stage: DrawStage, should_append: bool, mut nodes: Vec<Box<dyn Node>>) -> Self {
+    pub fn with_draw_buffer<T: 'static + BufferedDraw>(self, draw_stage: DrawStage) -> Self {
         let mut draw_stages = self.draw_stages;
-        if should_append {
-            draw_stages
-                .get_mut(&draw_stage)
-                .unwrap()
-                .append(&mut nodes);
-        } else {
-            draw_stages
-                .insert(draw_stage, nodes);
-        }
+
+        draw_stages
+            .get_mut(&draw_stage)
+            .unwrap()
+            .push(|| {
+                let draw_buffer = DrawBuffer::<T>::new();
+                scene::add_node(draw_buffer);
+            });
 
         SceneBuilder {
-            chapter_index: self.chapter_index,
-            map_id: self.map_id,
             draw_stages,
+            ..self
         }
     }
 
-    pub fn build(self, character: Character) -> Result<()> {
+    pub fn make_default(self) {
+        unsafe { set_scene_builder(self) };
+    }
+
+    pub(crate) fn build(&self, character: Character) -> Result<()> {
         scene::clear();
 
-        let resources = storage::get::<Resources>();
+        {
+            let resources = storage::get::<Resources>();
 
-        let (chapter_index, map_id) = if self.chapter_index.is_some() && self.map_id.is_some() {
-            (self.chapter_index.unwrap(), self.map_id.as_ref().unwrap())
-        } else {
-            (character.current_chapter_index, &character.current_map_id)
-        };
+            let (chapter_index, map_id) = if self.chapter_index.is_some() && self.map_id.is_some() {
+                (self.chapter_index.unwrap(), self.map_id.as_ref().unwrap())
+            } else {
+                (character.current_chapter_index, &character.current_map_id)
+            };
 
-        let chapter = resources.chapters.get(chapter_index)
-            .expect(&format!("Scene could not build, due to an invalid chapter index ({})!", chapter_index));
-        let map = chapter.maps.get(map_id).cloned()
-            .expect(&format!("Scene could not build as no map with id '{}' was found in chapter '{}' (chapter index: {})!", map_id, &chapter.title, chapter_index));
+            let chapter = resources.chapters.get(chapter_index)
+                .expect(&format!("Scene could not build, due to an invalid chapter index ({})!", chapter_index));
+            let map = chapter.maps.get(map_id).cloned()
+                .expect(&format!("Scene could not build as no map with id '{}' was found in chapter '{}' (chapter index: {})!", map_id, &chapter.title, chapter_index));
 
-        storage::store(map.clone());
+            storage::store(map);
+        }
 
         Camera::add_node();
         GameState::add_node(&character);
+
+        for constructor in self.draw_stages.get(&DrawStage::Map).unwrap() {
+            constructor();
+        }
+
+        MapRenderer::add_node();
+
+        for constructor in self.draw_stages.get(&DrawStage::Items).unwrap() {
+            constructor();
+        }
+
         DrawBuffer::<Item>::add_node();
         DrawBuffer::<Credits>::add_node();
+
+        for constructor in self.draw_stages.get(&DrawStage::Projectiles).unwrap() {
+            constructor();
+        }
+
         Projectiles::add_node();
         ContinuousBeams::add_node();
+
+        for constructor in self.draw_stages.get(&DrawStage::Actors).unwrap() {
+            constructor();
+        }
+
         DrawBuffer::<Actor>::add_node();
+
+        for constructor in self.draw_stages.get(&DrawStage::PostProcessing).unwrap() {
+            constructor();
+        }
+
         PostProcessing::add_node();
+
+        for constructor in self.draw_stages.get(&DrawStage::Gui).unwrap() {
+            constructor();
+        }
+
         Hud::add_node();
 
-        let mut player_spawn = None;
+        let mut is_player_spawned = false;
 
-        let layer = map.layers.get(Self::SPAWN_POINTS_LAYER_ID)
-            .expect(&format!("No spawn points layer in map '{}' of chapter '{}' (chapter index: {})!", map_id, chapter.title, chapter_index));
-
-        for object in &layer.objects {
-            if object.name == "player" {
-                player_spawn = Some(object.position);
-            } else if let Some(prop) = object.properties.get("prototype_id") {
-                if let MapProperty::String { value: prototype_id } = prop {
-                    let mut instance_id = None;
-                    if let Some(prop) = object.properties.get("instance_id").cloned() {
-                        if let MapProperty::String { value } = prop {
-                            instance_id = Some(value);
+        let map = storage::get::<Map>();
+        for (_, layer) in &map.layers {
+            if let MapLayerKind::ObjectLayer(kind) = layer.kind.clone() {
+                match kind {
+                    ObjectLayerKind::Items => {
+                        for map_object in &layer.objects {
+                            spawn_item(map_object);
                         }
                     }
-
-                    let params = resources.actors.get(prototype_id).cloned().unwrap();
-                    let mut actor = Actor::new(
-                        ActorControllerKind::Computer,
-                        ActorParams {
-                            id: instance_id.unwrap_or(generate_id()),
-                            position: Some(object.position),
-                            ..params
-                        });
-
-                    actor.stats.recalculate_derived();
-                    actor.stats.restore_vitals();
-
-                    scene::add_node(actor);
-                }
-            }
-        }
-
-        let player_spawn = player_spawn
-            .expect(&format!("No player spawn point in map '{}' of chapter '{}' (chapter index: {})!", map_id, chapter.title, chapter_index));
-
-        let player = storage::get::<LocalPlayer>();
-        let mut actor = Actor::from_saved(
-            player_spawn,
-            ActorControllerKind::local_player(&player.id),
-            &character,
-        );
-
-        actor.stats.recalculate_derived();
-        actor.stats.restore_vitals();
-
-        scene::add_node(actor);
-
-        if let Some(layer) = map.layers.get("light_sources") {
-            for object in &layer.objects {
-                let size = if let Some(size) = object.size {
-                    size
-                } else {
-                    LightSource::DEFAULT_SIZE
-                };
-
-                let mut color = LightSource::DEFAULT_COLOR;
-                if let Some(prop) = object.properties.get("color").cloned() {
-                    if let MapProperty::Color { value } = prop {
-                        color = value;
-                    }
-                }
-
-                let mut intensity = LightSource::DEFAULT_INTENSITY;
-                if let Some(prop) = object.properties.get("intensity").cloned() {
-                    if let MapProperty::Float { value } = prop {
-                        intensity = value;
-                    }
-                }
-
-                LightSource::add_node(object.position, size, color, intensity);
-            }
-        }
-
-        if let Some(layer) = map.layers.get("items") {
-            for object in &layer.objects {
-                if let Some(prop) = object.properties.get("prototype_id").cloned() {
-                    if let MapProperty::String { value: prototype_id } = prop {
-                        if prototype_id == "credits" {
-                            if let Some(prop) = object.properties.get("amount") {
-                                if let MapProperty::Int { value } = prop {
-                                    Credits::add_node(object.position, *value as u32);
-                                }
+                    ObjectLayerKind::SpawnPoints => {
+                        for map_object in &layer.objects {
+                            if map_object.name == "player" && is_player_spawned == false {
+                                spawn_player(map_object, &character);
+                                is_player_spawned = true;
+                            } else {
+                                spawn_actor(map_object);
                             }
-                        } else {
-                            let params = resources.items.get(&prototype_id).cloned().unwrap();
-                            let mut instance_id = None;
-                            if let Some(prop) = object.properties.get("instance_id").cloned() {
-                                if let MapProperty::String { value } = prop {
-                                    instance_id = Some(value)
-                                }
-                            }
-
-                            Item::add_node(ItemParams {
-                                id: instance_id.unwrap_or(generate_id()),
-                                position: Some(object.position),
-                                ..params
-                            });
                         }
                     }
+                    ObjectLayerKind::LightSources => {
+                        for map_object in &layer.objects {
+                            spawn_light_source(map_object);
+                        }
+                    }
+                    ObjectLayerKind::None => {}
                 }
             }
         }
 
         Ok(())
     }
+}
+
+fn spawn_item(map_object: &MapObject) {
+    if let Some(prop) = map_object.properties.get("prototype_id").cloned() {
+        if let MapProperty::String { value: prototype_id } = prop {
+            if prototype_id == "credits" {
+                if let Some(prop) = map_object.properties.get("amount") {
+                    if let MapProperty::Int { value } = prop {
+                        Credits::add_node(map_object.position, *value as u32);
+                    }
+                }
+            } else {
+                let resources = storage::get::<Resources>();
+                let params = resources.items.get(&prototype_id).cloned().unwrap();
+                let mut instance_id = None;
+                if let Some(prop) = map_object.properties.get("instance_id").cloned() {
+                    if let MapProperty::String { value } = prop {
+                        instance_id = Some(value)
+                    }
+                }
+
+                Item::add_node(ItemParams {
+                    id: instance_id.unwrap_or(generate_id()),
+                    position: Some(map_object.position),
+                    ..params
+                });
+            }
+        }
+    }
+}
+
+fn spawn_player(map_object: &MapObject, character: &Character) {
+    let player = storage::get::<LocalPlayer>();
+    let mut actor = Actor::from_saved(
+        map_object.position,
+        ActorControllerKind::local_player(&player.id),
+        &character,
+    );
+
+    actor.stats.recalculate_derived();
+    actor.stats.restore_vitals();
+
+    scene::add_node(actor);
+}
+
+fn spawn_actor(map_object: &MapObject) {
+    if let Some(prop) = map_object.properties.get("prototype_id") {
+        if let MapProperty::String { value: prototype_id } = prop {
+            let mut instance_id = None;
+            if let Some(prop) = map_object.properties.get("instance_id").cloned() {
+                if let MapProperty::String { value } = prop {
+                    instance_id = Some(value);
+                }
+            }
+
+            let resources = storage::get::<Resources>();
+            let params = resources.actors.get(prototype_id).cloned().unwrap();
+            let mut actor = Actor::new(
+                ActorControllerKind::Computer,
+                ActorParams {
+                    id: instance_id.unwrap_or(generate_id()),
+                    position: Some(map_object.position),
+                    ..params
+                });
+
+            actor.stats.recalculate_derived();
+            actor.stats.restore_vitals();
+
+            scene::add_node(actor);
+        }
+    }
+}
+
+fn spawn_light_source(map_object: &MapObject) {
+    let size = map_object.size.unwrap_or(LightSource::DEFAULT_SIZE);
+
+    let mut color = LightSource::DEFAULT_COLOR;
+    if let Some(prop) = map_object.properties.get("color").cloned() {
+        if let MapProperty::Color { value } = prop {
+            color = value;
+        }
+    }
+
+    let mut intensity = LightSource::DEFAULT_INTENSITY;
+    if let Some(prop) = map_object.properties.get("intensity").cloned() {
+        if let MapProperty::Float { value } = prop {
+            intensity = value;
+        }
+    }
+
+    LightSource::add_node(map_object.position, size, color, intensity);
 }

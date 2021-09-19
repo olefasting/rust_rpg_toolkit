@@ -14,6 +14,16 @@ pub struct Character {
     pub is_permadeath: bool,
 }
 
+impl Character {
+    pub fn with_current_map(self, chapter_index: usize, map_id: &str) -> Self {
+        Character {
+            current_chapter_index: chapter_index,
+            current_map_id: map_id.to_string(),
+            ..self
+        }
+    }
+}
+
 #[cfg(not(any(target_family = "wasm", target_os = "android")))]
 pub async fn get_available_characters(characters_path: &str) -> io::Result<Vec<Character>> {
     let regex = Regex::new(r".json$").unwrap();

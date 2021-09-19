@@ -1,137 +1,12 @@
 use crate::prelude::*;
 use crate::gui::*;
 
-// This will clear the current scene and create a new one
-pub fn load_scene(character: Character) -> Result<()> {
-    scene::clear();
-
-    let resources = storage::get::<Resources>();
-    let chapter = resources.chapters.get(character.current_chapter_index).unwrap();
-    let map = chapter.maps.get(&character.current_map_id).cloned().unwrap();
-    storage::store(map.clone());
-
-    Camera::add_node();
-    GameState::add_node(&character);
-    DrawBuffer::<Item>::add_node();
-    DrawBuffer::<Credits>::add_node();
-    Projectiles::add_node();
-    ContinuousBeams::add_node();
-    DrawBuffer::<Actor>::add_node();
-    PostProcessing::add_node();
-    Hud::add_node();
-
-    let mut player_spawn = None;
-
-    let layer = map.layers.get("spawn_points")
-        .expect(&format!("No spawn points layer in map '{}'", character.current_map_id));
-
-    for object in &layer.objects {
-        if object.name == "player" {
-            player_spawn = Some(object.position);
-        } else if let Some(prop) = object.properties.get("prototype_id") {
-            if let MapProperty::String { value: prototype_id } = prop {
-                let mut instance_id = None;
-                if let Some(prop) = object.properties.get("instance_id").cloned() {
-                    if let MapProperty::String { value } = prop {
-                        instance_id = Some(value);
-                    }
-                }
-
-                let params = resources.actors.get(prototype_id).cloned().unwrap();
-                let mut actor = Actor::new(
-                    ActorControllerKind::Computer,
-                    ActorParams {
-                        id: instance_id.unwrap_or(generate_id()),
-                        position: Some(object.position),
-                        ..params
-                    });
-
-                actor.stats.recalculate_derived();
-                actor.stats.restore_vitals();
-
-                scene::add_node(actor);
-            }
-        }
-    }
-
-    let player_spawn = player_spawn
-        .expect(&format!("No player spawn point in map '{}'!", character.current_map_id));
-
-    let player = storage::get::<LocalPlayer>();
-    let mut actor = Actor::from_saved(
-        player_spawn,
-        ActorControllerKind::local_player(&player.id),
-        &character,
-    );
-
-    actor.stats.recalculate_derived();
-    actor.stats.restore_vitals();
-
-    scene::add_node(actor);
-
-    if let Some(layer) = map.layers.get("light_sources") {
-        for object in &layer.objects {
-            let size = if let Some(size) = object.size {
-                size
-            } else {
-                LightSource::DEFAULT_SIZE
-            };
-
-            let mut color = LightSource::DEFAULT_COLOR;
-            if let Some(prop) = object.properties.get("color").cloned() {
-                if let MapProperty::Color { value } = prop {
-                    color = value;
-                }
-            }
-
-            let mut intensity = LightSource::DEFAULT_INTENSITY;
-            if let Some(prop) = object.properties.get("intensity").cloned() {
-                if let MapProperty::Float { value } = prop {
-                    intensity = value;
-                }
-            }
-
-            LightSource::add_node(object.position, size, color, intensity);
-        }
-    }
-
-    if let Some(layer) = map.layers.get("items") {
-        for object in &layer.objects {
-            if let Some(prop) = object.properties.get("prototype_id").cloned() {
-                if let MapProperty::String { value: prototype_id } = prop {
-                    if prototype_id == "credits" {
-                        if let Some(prop) = object.properties.get("amount") {
-                            if let MapProperty::Int { value } = prop {
-                                Credits::add_node(object.position, *value as u32);
-                            }
-                        }
-                    } else {
-                        let params = resources.items.get(&prototype_id).cloned().unwrap();
-                        let mut instance_id = None;
-                        if let Some(prop) = object.properties.get("instance_id").cloned() {
-                            if let MapProperty::String { value } = prop {
-                                instance_id = Some(value)
-                            }
-                        }
-
-                        Item::add_node(ItemParams {
-                            id: instance_id.unwrap_or(generate_id()),
-                            position: Some(object.position),
-                            ..params
-                        });
-                    }
-                }
-            }
-        }
-    }
-
-    Ok(())
-}
+use crate::modules::load_modules;
 
 #[derive(Debug, Clone)]
 pub struct GameParams {
-    pub game_name: String,
-    pub game_version: String,
+    pub name: String,
+    pub version: String,
     pub data_path: String,
     pub modules_path: String,
     pub characters_path: String,
@@ -142,8 +17,8 @@ pub struct GameParams {
 impl Default for GameParams {
     fn default() -> Self {
         GameParams {
-            game_name: "Unnamed Project".to_string(),
-            game_version: "0.1.0".to_string(),
+            name: "Unnamed Game".to_string(),
+            version: "0.1.0".to_string(),
             data_path: "data".to_string(),
             modules_path: "modules".to_string(),
             characters_path: "characters".to_string(),
@@ -153,11 +28,8 @@ impl Default for GameParams {
     }
 }
 
-// This will load all resources to memory. This means both assets, such as textures and sound, as
-// well as all data files. It will also apply modules.
-// The assets can later be accessed by getting the `Resources` struct from storage
 #[cfg(not(any(target_family = "wasm", target_os = "android")))]
-pub async fn init_resources() {
+async fn init_resources() {
     let game_params = storage::get::<GameParams>();
     let coroutine = {
         let game_params = game_params.clone();
@@ -188,7 +60,7 @@ pub async fn init_resources() {
 }
 
 #[cfg(target_family = "wasm")]
-pub async fn init_resources() {
+async fn init_resources() {
     let game_params = storage::get::<GameParams>();
     let mut state = ResourceLoadingState::None;
 
@@ -198,10 +70,7 @@ pub async fn init_resources() {
     storage::store(resources);
 }
 
-// This will create the GUI skins, based on the `gui_theme.json` file, in the data directory.
-// It must be called after resources has completed loading, as it relies on images imported to
-// `Resources`. The `GuiSkins` struct can later be accessed by retrieving it from storage.
-pub async fn init_gui() -> Result<()> {
+async fn init_gui() -> Result<()> {
     let game_params = storage::get::<GameParams>();
     let path = format!("{}/gui_theme.json", &game_params.data_path);
     let bytes = load_file(&path).await?;
@@ -211,6 +80,13 @@ pub async fn init_gui() -> Result<()> {
     Ok(())
 }
 
+fn init_local_player() {
+    let player_id = generate_id();
+    let gamepad_id = map_gamepad(&player_id);
+    let local_player = LocalPlayer::new(&player_id, gamepad_id);
+    storage::store(local_player);
+}
+
 // This will perform all the initialization necessary prior to starting a game loop
 pub async fn init(params: GameParams) -> Result<()> {
     fs::create_dir_all(&params.characters_path)?;
@@ -218,13 +94,9 @@ pub async fn init(params: GameParams) -> Result<()> {
 
     init_resources().await;
     init_gui().await?;
+    init_local_player();
 
-    let player_id = generate_id();
-    let gamepad_id = map_gamepad(&player_id);
-    let player = LocalPlayer::new(&player_id, gamepad_id);
-    storage::store(player);
-
-    dispatch_event(Event::ShowMainMenu);
+    dispatch_event(Event::MainMenu);
 
     Ok(())
 }

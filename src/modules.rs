@@ -107,7 +107,7 @@ impl Default for ModuleParams {
     }
 }
 
-pub async fn load_modules(game_params: &GameParams, resources: &mut Resources) -> Result<()> {
+pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resources) -> Result<()> {
     let active_modules_file_path = &format!("{}/active_modules.json", game_params.modules_path);
     let mut loaded_modules: Vec<(String, String)> = Vec::new();
 
@@ -127,8 +127,8 @@ pub async fn load_modules(game_params: &GameParams, resources: &mut Resources) -
         let module_params: ModuleParams = serde_json::from_slice(&bytes).unwrap();
 
         if let Some(required_game_version) = &module_params.required_game_version {
-            if check_version(required_game_version, &game_params.game_version) == false {
-                println!("WARNING: Module '{}' was not loaded as its game version requirement '{}' was unmet (game version is '{}')!", module_name, required_game_version, game_params.game_version);
+            if check_version(required_game_version, &game_params.version) == false {
+                println!("WARNING: Module '{}' was not loaded as its game version requirement '{}' was unmet (game version is '{}')!", module_name, required_game_version, game_params.version);
                 continue 'module;
             }
         }
@@ -363,7 +363,7 @@ pub async fn load_modules(game_params: &GameParams, resources: &mut Resources) -
     Ok(())
 }
 
-pub fn get_available_modules(modules_path: &str) -> io::Result<HashMap<String, ModuleParams>> {
+pub(crate) fn get_available_modules(modules_path: &str) -> io::Result<HashMap<String, ModuleParams>> {
     let mut res = HashMap::new();
     for entry in fs::read_dir(modules_path)? {
         if let Ok(entry) = entry {

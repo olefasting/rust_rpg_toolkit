@@ -118,7 +118,7 @@ impl Dialogue {
                 },
                 DialogueAction::MapTransition { chapter_index, map_id } => {
                     actor.current_dialogue = None;
-                    dispatch_event(Event::ChangeMap(chapter_index, map_id));
+                    dispatch_event(Event::ChangeMap { chapter_index, map_id });
                 },
                 DialogueAction::CompleteChapter => todo!(),
             }

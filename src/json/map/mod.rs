@@ -2,7 +2,7 @@ pub mod tiled;
 
 use crate::prelude::*;
 
-use crate::map::{Map, MapLayerKind, MapLayer, MapTile, MapObject, MapTileset, MapProperty, ObjectLayerKind};
+use crate::map::{Map, MapLayerKind, MapLayer, MapTile, MapObject, MapTileset, MapProperty};
 
 pub use tiled::TiledMap;
 

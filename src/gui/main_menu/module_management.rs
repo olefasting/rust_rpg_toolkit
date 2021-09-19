@@ -1,5 +1,10 @@
 use crate::gui::*;
 
+use crate::modules::{
+    ModuleParams,
+    get_available_modules,
+};
+
 #[derive(Debug, Copy, Clone)]
 enum LoadOrderChange {
     LoadBefore { i: usize, target_i: usize },
