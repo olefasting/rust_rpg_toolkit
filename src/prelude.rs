@@ -156,7 +156,7 @@ pub use crate::{
         GameParams,
         init_resources,
         init_gui,
-        init_local_player,
+        init_game,
         load_scene,
     },
     gui::{

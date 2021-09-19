@@ -25,17 +25,10 @@ async fn main() -> Result<()> {
         ..Default::default()
     };
 
-    fs::create_dir_all(&params.characters_path)?;
-    storage::store(params.clone());
-
-    init_resources().await;
-    init_gui().await?;
-    init_local_player();
-
-    dispatch_event(Event::ShowMainMenu);
+    init_game(params).await?;
 
     while handle_event_queue().await? == false {
-        clear_background(params.clear_bg_color);
+        clear_background(color::BLACK);
 
         update_input();
         draw_gui();

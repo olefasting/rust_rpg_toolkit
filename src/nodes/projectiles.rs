@@ -176,6 +176,7 @@ impl Node for Projectiles {
             if projectile.distance_traveled > projectile.range {
                 return false;
             }
+
             let collider = Collider::circle(0.0, 0.0, projectile.size / 2.0).with_offset(projectile.position);
             'outer: for mut other_actor in scene::find_nodes_by_type::<Actor>() {
                 if let Some(other_collider) = other_actor.body.get_offset_collider() {
@@ -217,7 +218,7 @@ impl Node for Projectiles {
                                 Self::PROJECTILE_LENGTH_FACTOR_MAX,
                             )));
 
-                        if begin.distance(projectile.position) > projectile.origin.distance(projectile.position) {
+                        if begin.distance(projectile.position) > projectile.distance_traveled {
                             begin = projectile.origin;
                         }
 
@@ -238,7 +239,7 @@ impl Node for Projectiles {
                                 Self::BEAM_LENGTH_FACTOR_MAX,
                             )));
 
-                        if begin.distance(projectile.position) > projectile.origin.distance(projectile.position) {
+                        if begin.distance(projectile.position) > projectile.distance_traveled {
                             begin = projectile.origin;
                         }
 

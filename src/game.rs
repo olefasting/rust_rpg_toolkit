@@ -1,14 +1,14 @@
 use crate::prelude::*;
 use crate::gui::*;
 
-// This will clear the current scene and create a new one, based on the specified `SceneTransition`
+// This will clear the current scene and create a new one
 pub fn load_scene(character: Character) -> Result<()> {
     scene::clear();
 
     let resources = storage::get::<Resources>();
     let chapter = resources.chapters.get(character.current_chapter_index).unwrap();
     let map = chapter.maps.get(&character.current_map_id).cloned().unwrap();
-    storage::store(map);
+    storage::store(map.clone());
 
     Camera::add_node();
     GameState::add_node(&character);
@@ -18,35 +18,34 @@ pub fn load_scene(character: Character) -> Result<()> {
     ContinuousBeams::add_node();
     DrawBuffer::<Actor>::add_node();
 
-    let map = storage::get::<Map>();
-
     let mut player_spawn = None;
 
-    if let Some(layer) = map.layers.get("spawn_points") {
-        for object in &layer.objects {
-            if object.name == "player" {
-                player_spawn = Some(object.position);
-            } else if let Some(prototype_id) = object.properties.get("prototype_id") {
-                let instance_id = if let Some(instance_id) = object.properties.get("instance_id").cloned() {
-                    instance_id.value
-                } else {
-                    generate_id()
-                };
+    let layer = map.layers.get("spawn_points")
+        .expect(&format!("No spawn points layer in map '{}'", character.current_map_id));
 
-                let params = resources.actors.get(&prototype_id.value).cloned().unwrap();
-                let mut actor = Actor::new(
-                    ActorControllerKind::Computer,
-                    ActorParams {
-                        id: instance_id,
-                        position: Some(object.position),
-                        ..params
-                    });
+    for object in &layer.objects {
+        if object.name == "player" {
+            player_spawn = Some(object.position);
+        } else if let Some(prototype_id) = object.properties.get("prototype_id") {
+            let instance_id = if let Some(instance_id) = object.properties.get("instance_id").cloned() {
+                instance_id.value
+            } else {
+                generate_id()
+            };
 
-                actor.stats.recalculate_derived();
-                actor.stats.restore_vitals();
+            let params = resources.actors.get(&prototype_id.value).cloned().unwrap();
+            let mut actor = Actor::new(
+                ActorControllerKind::Computer,
+                ActorParams {
+                    id: instance_id,
+                    position: Some(object.position),
+                    ..params
+                });
 
-                scene::add_node(actor);
-            }
+            actor.stats.recalculate_derived();
+            actor.stats.restore_vitals();
+
+            scene::add_node(actor);
         }
     }
 
@@ -128,7 +127,6 @@ pub struct GameParams {
     pub characters_path: String,
     pub new_character_prototype_id: String,
     pub new_character_build_points: u32,
-    pub clear_bg_color: Color,
 }
 
 impl Default for GameParams {
@@ -141,7 +139,6 @@ impl Default for GameParams {
             characters_path: "characters".to_string(),
             new_character_prototype_id: "new_character_prototype".to_string(),
             new_character_build_points: 6,
-            clear_bg_color: color::BLACK,
         }
     }
 }
@@ -164,7 +161,7 @@ pub async fn init_resources() {
     };
 
     while coroutine.is_done() == false {
-        clear_background(game_params.clear_bg_color);
+        clear_background(color::BLACK);
         draw_aligned_text(
             "Loading game resources...",
             screen_width() / 2.0,
@@ -204,10 +201,20 @@ pub async fn init_gui() -> Result<()> {
     Ok(())
 }
 
-// This will initialize the local player and map the first available gamepad, if  any are available
-pub fn init_local_player() {
+// This will perform all the initialization necessary prior to starting a game loop
+pub async fn init_game(params: GameParams) -> Result<()> {
+    fs::create_dir_all(&params.characters_path)?;
+    storage::store(params);
+
+    init_resources().await;
+    init_gui().await?;
+
     let player_id = generate_id();
     let gamepad_id = map_gamepad(&player_id);
     let player = LocalPlayer::new(&player_id, gamepad_id);
     storage::store(player);
+
+    dispatch_event(Event::ShowMainMenu);
+
+    Ok(())
 }
