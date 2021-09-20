@@ -89,7 +89,17 @@ pub async fn init(params: GameParams) -> Result<()> {
     let local_player = LocalPlayer::new(&player_id, gamepad_id);
     storage::store(local_player);
 
-    dispatch_event(Event::MainMenu);
+    dispatch_event(Event::ToMainMenu);
 
     Ok(())
+}
+
+pub fn begin_frame() {
+    clear_background(color::BLACK);
+    update_input();
+}
+
+pub async fn end_frame() {
+    draw_gui();
+    next_frame().await;
 }

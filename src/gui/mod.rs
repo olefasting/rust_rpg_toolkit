@@ -61,7 +61,7 @@ impl GuiState {
     }
 }
 
-pub fn draw_gui() {
+pub(crate) fn draw_gui() {
     draw_character_window();
     draw_inventory_window();
     draw_dialogue_window();

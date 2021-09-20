@@ -1,4 +1,4 @@
-pub use std::{
+pub(crate) use std::{
     collections::HashMap,
     iter::FromIterator,
     ops::{
@@ -15,19 +15,25 @@ pub use std::{
     },
 };
 
-pub use macroquad::{
+pub(crate) use macroquad::{
     self,
+    experimental::{
+        animation::{
+            AnimatedSprite,
+            Animation,
+            AnimationFrame,
+        },
+    },
+    prelude::*,
+};
+
+pub use macroquad::{
     experimental::{
         collections::storage,
         scene::{
             Node,
             RefMut,
             Handle,
-        },
-        animation::{
-            AnimatedSprite,
-            Animation,
-            AnimationFrame,
         },
         coroutines::start_coroutine,
     },
@@ -37,16 +43,17 @@ pub use macroquad::{
         play_sound,
         play_sound_once,
     },
+    window::Conf as WindowConf,
     color,
-    prelude::*,
+    math::*,
 };
 
-pub use serde::{
+pub(crate) use serde::{
     Serialize,
     Deserialize,
 };
 
-pub use serde_json;
+pub(crate) use serde_json;
 
 pub use gilrs::GamepadId;
 
@@ -56,7 +63,16 @@ pub use mode::{
     Mode,
 };
 
-pub(crate) use crate::scene::load_scene;
+pub(crate) use crate::{
+    scene::load_scene,
+    input::{
+        get_gamepad,
+        get_gamepad_id,
+        get_events,
+        update_input,
+    },
+    gui::draw_gui,
+};
 
 pub use crate::{
     versions::{
@@ -157,6 +173,8 @@ pub use crate::{
     game::{
         GameParams,
         init,
+        begin_frame,
+        end_frame,
     },
     scene::{
         DrawStage,
@@ -169,7 +187,6 @@ pub use crate::{
         WindowBuilder,
         MenuBuilder,
         show_main_menu,
-        draw_gui,
     },
     map::{
         Map,
@@ -220,15 +237,11 @@ pub use crate::{
     },
     input::{
         self,
-        map_gamepad,
-        get_gamepad,
-        get_mapped_gamepad,
-        get_gamepad_id,
-        get_events,
         get_mouse_position,
         get_mouse_in_world_space,
-        update_input,
         apply_input,
+        map_gamepad,
+        get_mapped_gamepad,
     },
     json,
 };

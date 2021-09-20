@@ -23,7 +23,7 @@ pub fn draw_game_menu() {
                         dispatch_event(Event::SavePlayerCharacter);
                     }
                     GAME_MENU_OPT_MAIN_MENU => {
-                        dispatch_event(Event::MainMenu);
+                        dispatch_event(Event::ToMainMenu);
                     }
                     GAME_MENU_OPT_QUIT => {
                         dispatch_event(Event::Quit);

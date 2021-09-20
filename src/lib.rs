@@ -30,3 +30,7 @@ pub mod events;
 pub mod character;
 pub mod player;
 pub mod scene;
+
+pub use macroquad;
+pub use serde;
+pub use serde_json;

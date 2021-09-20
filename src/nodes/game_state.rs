@@ -53,7 +53,7 @@ impl Node for GameState {
             if node.is_permadeath {
                 delete_character(&node.character_name).expect(&format!("Error when saving character '{}'!", &node.character_name));
             }
-            dispatch_event(Event::MainMenu);
+            dispatch_event(Event::ToMainMenu);
         }
     }
 }

@@ -64,9 +64,9 @@ pub fn update_input() {
     let mut context = get_input_context();
     context.mappings.retain(|player_id, gamepad_id| {
         if is_active(*gamepad_id) == false {
-            println!("Gamepad '{}' for player '{}' has been disconnected!", gamepad_id, player_id);
             return false;
         }
+
         true
     });
 
@@ -282,13 +282,14 @@ pub fn map_gamepad(player_id: &str) -> Option<GamepadId> {
     if let Some(gamepad_id) = get_gamepad_id(player_id) {
         return Some(gamepad_id);
     }
+
     for (gamepad_id, gamepad) in context.gilrs.gamepads() {
         if is_mapped(gamepad_id) == false {
-            println!("Mapping '{}' ({:?}) to player '{}'", gamepad.name(), gamepad.power_info(), player_id);
             context.mappings.insert(player_id.to_string(), gamepad_id);
             return Some(gamepad_id);
         }
     }
+
     None
 }
 
@@ -297,20 +298,21 @@ pub fn get_mapped_gamepad<'a>(player_id: &str) -> Option<Gamepad<'a>> {
     if let Some(gamepad_id) = context.mappings.get(player_id) {
         return Some(context.gilrs.gamepad(*gamepad_id));
     }
+
     None
 }
 
-pub fn get_gamepad<'a>(gamepad_id: GamepadId) -> Gamepad<'a> {
+pub(crate) fn get_gamepad<'a>(gamepad_id: GamepadId) -> Gamepad<'a> {
     let context = get_input_context();
     context.gilrs.gamepad(gamepad_id)
 }
 
-pub fn get_gamepad_id(player_id: &str) -> Option<GamepadId> {
+pub(crate) fn get_gamepad_id(player_id: &str) -> Option<GamepadId> {
     let context = get_input_context();
     context.mappings.get(player_id).cloned()
 }
 
-pub fn get_events(player_id: &str) -> InputEventIterator {
+pub(crate) fn get_events(player_id: &str) -> InputEventIterator {
     if let Some(gamepad_id) = get_gamepad_id(player_id) {
         return InputEventIterator::new(gamepad_id);
     }

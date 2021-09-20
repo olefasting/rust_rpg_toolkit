@@ -58,10 +58,10 @@ const GAME_VERSION: &'static str = "0.1.0";
 
 const CONFIG_PATH: &'static str = "config.json";
 
-fn get_window_conf() -> Conf {
+fn get_window_conf() -> WindowConf {
     let config = Config::load(CONFIG_PATH);
 
-    Conf {
+    WindowConf {
         window_title: GAME_NAME.to_owned(),
         high_dpi: false,
         window_width: config.resolution.x as i32,
@@ -82,12 +82,11 @@ async fn main() -> Result<()> {
   init(params).await?;
 
   while handle_queued_events().await? == false {
-    clear_background(color::BLACK);
+    begin_frame();
 
-    update_input();
-    draw_gui();
+    // ...
 
-    next_frame().await;
+    end_frame().await;
   }
 
   Ok(())

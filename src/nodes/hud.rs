@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub struct Hud {}
+pub struct Hud;
 
 impl Hud {
     pub fn new() -> Self {
@@ -13,7 +13,7 @@ impl Hud {
 }
 
 impl Node for Hud {
-    fn draw(_node: RefMut<Self>) {
+    fn draw(_: RefMut<Self>) {
         let game_state = scene::find_node_by_type::<GameState>().unwrap();
 
         push_camera_state();

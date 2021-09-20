@@ -2,7 +2,7 @@ use crate::prelude::*;
 
 #[derive(Debug, Clone)]
 pub enum Event {
-    MainMenu,
+    ToMainMenu,
     StartGame { character: Character },
     ChangeMap { chapter_index: usize, map_id: String },
     SavePlayerCharacter,
@@ -37,7 +37,7 @@ pub fn dispatch_event(event: Event) {
 // If you have no need handle events manually, `handle_queued_events` can be used in stead.
 pub async fn handle_event(event: Event) -> Result<Event> {
     match event.clone() {
-        Event::MainMenu => {
+        Event::ToMainMenu => {
             scene::clear();
             gui::show_main_menu().await?;
         }

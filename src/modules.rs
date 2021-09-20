@@ -8,7 +8,7 @@ use crate::resources::{MaterialAssetParams, TextureAssetParams, SoundAssetParams
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub enum ModuleDataFileKind {
+pub(crate) enum ModuleDataFileKind {
     Actors,
     Dialogue,
     Missions,
@@ -19,20 +19,20 @@ pub enum ModuleDataFileKind {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub enum ModuleIntegration {
+pub(crate) enum ModuleIntegration {
     Extend,
     Replace,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ModuleDataParams {
+pub(crate) struct ModuleDataParams {
     pub kind: ModuleDataFileKind,
     pub path: String,
     pub integration: ModuleIntegration,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ModuleDependencyParams {
+pub(crate) struct ModuleDependencyParams {
     pub name: String,
     pub version: Option<String>,
 }
@@ -47,25 +47,25 @@ impl Default for ModuleDependencyParams {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ModuleMaterials {
+pub(crate) struct ModuleMaterials {
     pub integration: ModuleIntegration,
     pub files: Vec<MaterialAssetParams>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ModuleTextures {
+pub(crate) struct ModuleTextures {
     pub integration: ModuleIntegration,
     pub files: Vec<TextureAssetParams>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ModuleSounds {
+pub(crate) struct ModuleSounds {
     pub integration: ModuleIntegration,
     pub files: Vec<SoundAssetParams>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ModuleAssetsParams {
+pub(crate) struct ModuleAssetsParams {
     materials: ModuleMaterials,
     textures: ModuleTextures,
     sound_effects: ModuleSounds,
@@ -73,7 +73,7 @@ pub struct ModuleAssetsParams {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ModuleParams {
+pub(crate) struct ModuleParams {
     #[serde(default)]
     pub title: String,
     #[serde(default)]
@@ -370,7 +370,7 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
     Ok(())
 }
 
-pub(crate) fn get_available_modules(modules_path: &str) -> io::Result<HashMap<String, ModuleParams>> {
+pub(crate) fn get_available_modules(modules_path: &str) -> Result<HashMap<String, ModuleParams>> {
     let mut res = HashMap::new();
     for entry in fs::read_dir(modules_path)? {
         if let Ok(entry) = entry {
