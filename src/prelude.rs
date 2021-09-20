@@ -21,7 +21,6 @@ pub(crate) use macroquad::{
         animation::{
             AnimatedSprite,
             Animation,
-            AnimationFrame,
         },
     },
     prelude::*,
@@ -72,6 +71,7 @@ pub(crate) use crate::{
         update_input,
     },
     gui::draw_gui,
+    modules::load_modules,
 };
 
 pub use crate::{

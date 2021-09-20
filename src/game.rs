@@ -1,7 +1,4 @@
 use crate::prelude::*;
-use crate::gui::*;
-
-use crate::modules::load_modules;
 
 #[derive(Debug, Clone)]
 pub struct GameParams {
@@ -97,9 +94,9 @@ pub async fn init(params: GameParams) -> Result<()> {
 pub fn begin_frame() {
     clear_background(color::BLACK);
     update_input();
+    draw_gui();
 }
 
 pub async fn end_frame() {
-    draw_gui();
     next_frame().await;
 }

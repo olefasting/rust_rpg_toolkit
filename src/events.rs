@@ -65,13 +65,14 @@ pub async fn handle_event(event: Event) -> Result<Event> {
     Ok(event)
 }
 
-// This will handle all queued events and return `true` if the game should quit
+// This will handle all queued events and return `true` if the game should continue running and
+// `false` when it has handled an `Event::Quit`
 pub async fn handle_queued_events() -> Result<bool> {
-    let mut res = false;
+    let mut res = true;
 
     while let Some(event) = get_next_event() {
         if let Event::Quit = handle_event(event).await? {
-            res = true;
+            res = false;
         }
     }
 

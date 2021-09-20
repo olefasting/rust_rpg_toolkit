@@ -27,7 +27,7 @@ async fn main() -> Result<()> {
 
     init(params).await?;
 
-    while handle_queued_events().await? == false {
+    while handle_queued_events().await? {
         begin_frame();
 
         // ...

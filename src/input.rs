@@ -62,7 +62,7 @@ fn is_active(gamepad_id: GamepadId) -> bool {
 
 pub fn update_input() {
     let mut context = get_input_context();
-    context.mappings.retain(|player_id, gamepad_id| {
+    context.mappings.retain(|_, gamepad_id| {
         if is_active(*gamepad_id) == false {
             return false;
         }
@@ -283,7 +283,7 @@ pub fn map_gamepad(player_id: &str) -> Option<GamepadId> {
         return Some(gamepad_id);
     }
 
-    for (gamepad_id, gamepad) in context.gilrs.gamepads() {
+    for (gamepad_id, _) in context.gilrs.gamepads() {
         if is_mapped(gamepad_id) == false {
             context.mappings.insert(player_id.to_string(), gamepad_id);
             return Some(gamepad_id);
