@@ -1,54 +1,104 @@
 use std::{
-    fmt::{self, Display, Formatter},
+    fmt,
     result,
+    string::FromUtf8Error,
 };
 
 use crate::prelude::*;
 
 #[derive(Debug)]
+enum Repr {
+    Message(ErrorKind, &'static &'static str),
+    Custom(Box<Custom>),
+}
+
+#[derive(Debug)]
+struct Custom {
+    kind: ErrorKind,
+    error: Box<dyn std::error::Error + Send + Sync>,
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum ErrorKind {
+    File,
+    Parse,
+}
+
+impl ErrorKind {
+    pub(crate) fn as_str(&self) -> &'static str {
+        match *self {
+            ErrorKind::File => "file error",
+            ErrorKind::Parse => "parse error",
+        }
+    }
+}
+
 pub struct Error {
-    details: String
+    repr: Repr,
 }
 
 impl Error {
-    pub fn new(msg: &str) -> Error {
-        Error{details: msg.to_string()}
+    pub fn new<E>(kind: ErrorKind, error: E) -> Error
+        where E: Into<Box<dyn std::error::Error + Send + Sync>> {
+        Error {
+            repr: Repr::Custom(Box::new(Custom {
+                kind,
+                error: error.into(),
+            }))
+        }
     }
 }
 
-impl Display for Error {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        write!(f,"{}",self.details)
+impl fmt::Display for Error {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self.repr {
+            Repr::Message(_, &msg) => msg.fmt(fmt),
+            Repr::Custom(ref c) => c.error.fmt(fmt),
+        }
     }
 }
 
-impl std::error::Error for Error {
-    fn description(&self) -> &str {
-        &self.details
+impl fmt::Debug for Error {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        fmt::Debug::fmt(&self.repr, f)
     }
 }
+
+impl std::error::Error for Error {}
 
 impl From<io::Error> for Error {
-    fn from(err: io::Error) -> Error {
-        Error::new(&err.to_string())
+    fn from(error: io::Error) -> Error {
+        Error::new(ErrorKind::File, error)
+    }
+}
+
+impl From<FromUtf8Error> for Error {
+    fn from(error: FromUtf8Error) -> Self {
+        Error::new(ErrorKind::Parse, error)
     }
 }
 
 impl From<FileError> for Error {
-    fn from(err: FileError) -> Self {
-        Error::new(&err.to_string())
+    fn from(error: FileError) -> Self {
+        Error::new(ErrorKind::File, error)
     }
 }
 
 impl From<FontError> for Error {
-    fn from(err: FontError) -> Self {
-        Error::new(&err.to_string())
+    fn from(error: FontError) -> Self {
+        Error::new(ErrorKind::Parse, error)
+    }
+}
+
+impl From<ShaderError> for Error {
+    fn from(error: ShaderError) -> Self {
+        Error::new(ErrorKind::Parse, error)
     }
 }
 
 impl From<serde_json::Error> for Error {
-    fn from(err: serde_json::Error) -> Self {
-        Error::new(&err.to_string())
+    fn from(error: serde_json::Error) -> Self {
+        Error::new(ErrorKind::Parse, error)
     }
 }
 

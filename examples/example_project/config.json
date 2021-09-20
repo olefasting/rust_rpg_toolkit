@@ -3,6 +3,6 @@
     "x": 1920,
     "y": 1080
   },
-  "fullscreen": true,
+  "fullscreen": false,
   "post_processing": "crt"
 }

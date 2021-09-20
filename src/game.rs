@@ -29,7 +29,7 @@ impl Default for GameParams {
 }
 
 #[cfg(not(any(target_family = "wasm", target_os = "android")))]
-async fn init_resources() {
+async fn load_resources() {
     let game_params = storage::get::<GameParams>();
     let coroutine = {
         let game_params = game_params.clone();
@@ -60,7 +60,7 @@ async fn init_resources() {
 }
 
 #[cfg(target_family = "wasm")]
-async fn init_resources() {
+async fn load_resources() {
     let game_params = storage::get::<GameParams>();
     let mut state = ResourceLoadingState::None;
 
@@ -70,31 +70,24 @@ async fn init_resources() {
     storage::store(resources);
 }
 
-async fn init_gui() -> Result<()> {
-    let game_params = storage::get::<GameParams>();
-    let path = format!("{}/gui_theme.json", &game_params.data_path);
-    let bytes = load_file(&path).await?;
+// This will perform all the initialization necessary prior to starting a game loop
+pub async fn init(params: GameParams) -> Result<()> {
+    fs::create_dir_all(&params.characters_path)?;
+    storage::store(params.clone());
+
+    load_resources().await;
+
+    let path = Path::new(&params.data_path).join("gui_theme.json");
+
+    let bytes = load_file(path.to_str().unwrap()).await?;
     let gui_theme = serde_json::from_slice(&bytes)?;
     let gui_skins = GuiSkins::new(gui_theme);
     storage::store(gui_skins);
-    Ok(())
-}
 
-fn init_local_player() {
     let player_id = generate_id();
     let gamepad_id = map_gamepad(&player_id);
     let local_player = LocalPlayer::new(&player_id, gamepad_id);
     storage::store(local_player);
-}
-
-// This will perform all the initialization necessary prior to starting a game loop
-pub async fn init(params: GameParams) -> Result<()> {
-    fs::create_dir_all(&params.characters_path)?;
-    storage::store(params);
-
-    init_resources().await;
-    init_gui().await?;
-    init_local_player();
 
     dispatch_event(Event::MainMenu);
 

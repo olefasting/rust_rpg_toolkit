@@ -67,54 +67,50 @@ impl Resources {
     pub const WHITE_TEXTURE_ID: &'static str = "__WHITE_TEXTURE__";
 
     pub async fn new(data_path: &str) -> Result<Self> {
-        let assets_file_path = format!("{}/assets.json", data_path);
-        let actors_file_path = format!("{}/actors.json", data_path);
-        let items_file_path = format!("{}/items.json", data_path);
-        let abilities_file_path = format!("{}/abilities.json", data_path);
-        let missions_file_path = format!("{}/missions.json", data_path);
-        let dialogue_file_path = format!("{}/dialogue.json", data_path);
+        let data_path = Path::new(data_path);
 
-        let bytes = load_file(&actors_file_path).await?;
-        let actor_data: Vec<ActorParams> = serde_json::from_slice(&bytes)
-            .expect(&format!("Error when parsing actors file '{}'!", &actors_file_path));
+        let actors_file_path = data_path.join("actors.json");
+        let bytes = load_file(actors_file_path.to_str().unwrap()).await?;
+        let actor_data: Vec<ActorParams> = serde_json::from_slice(&bytes)?;
         let actors = HashMap::from_iter(
             actor_data.into_iter().map(|params| (params.id.clone(), params)));
 
-        let bytes = load_file(&items_file_path).await?;
-        let items_data: Vec<ItemParams> = serde_json::from_slice(&bytes)
-            .expect(&format!("Error when parsing items file '{}'!", items_file_path));
+        let items_file_path = data_path.join("items.json");
+        let bytes = load_file(items_file_path.to_str().unwrap()).await?;
+        let items_data: Vec<ItemParams> = serde_json::from_slice(&bytes)?;
         let items = HashMap::from_iter(
             items_data.into_iter().map(|params| (params.id.clone(), params)));
 
-        let bytes = load_file(&missions_file_path).await?;
-        let missions_data: Vec<MissionParams> = serde_json::from_slice(&bytes)
-            .expect(&format!("Error when parsing missions file '{}'!", &missions_file_path));
+        let missions_file_path = data_path.join("missions.json");
+        let bytes = load_file(missions_file_path.to_str().unwrap()).await?;
+        let missions_data: Vec<MissionParams> = serde_json::from_slice(&bytes)?;
         let missions = HashMap::from_iter(
             missions_data.into_iter().map(|mission| (mission.id.clone(), mission)));
 
-        let bytes = load_file(&dialogue_file_path).await?;
-        let dialogue_data: Vec<Dialogue> = serde_json::from_slice(&bytes)
-            .expect(&format!("Error when parsing dialogue file '{}'!", &dialogue_file_path));
+        let dialogue_file_path = data_path.join("dialogue.json");
+        let bytes = load_file(dialogue_file_path.to_str().unwrap()).await?;
+        let dialogue_data: Vec<Dialogue> = serde_json::from_slice(&bytes)?;
         let dialogue = HashMap::from_iter(
             dialogue_data.into_iter().map(|dialogue| (dialogue.id.clone(), dialogue)));
 
-        let bytes = load_file(&abilities_file_path).await?;
-        let ability_data: Vec<AbilityParams> = serde_json::from_slice(&bytes)
-            .expect(&format!("Error when parsing dialogue file '{}'!", &abilities_file_path));
+        let abilities_file_path = data_path.join("abilities.json");
+        let bytes = load_file(abilities_file_path.to_str().unwrap()).await?;
+        let ability_data: Vec<AbilityParams> = serde_json::from_slice(&bytes)?;
         let abilities = HashMap::from_iter(
             ability_data.into_iter().map(|ability| (ability.id.clone(), ability)));
 
-        let bytes = load_file(&format!("{}/scenario.json", data_path)).await?;
-        let chapter_params: Vec<ChapterParams> = serde_json::from_slice(&bytes).unwrap();
+        let scenario_path = data_path.join("scenario.json");
+        let bytes = load_file(scenario_path.to_str().unwrap()).await?;
+        let chapter_params: Vec<ChapterParams> = serde_json::from_slice(&bytes)?;
         let mut chapters = Vec::new();
         for chapter_params in chapter_params {
             let chapter = Chapter::new(chapter_params).await?;
             chapters.push(chapter);
         }
 
-        let bytes = load_file(&assets_file_path).await?;
-        let assets: AssetsParams = serde_json::from_slice(&bytes)
-            .expect(&format!("Error when parsing assets file '{}'!", assets_file_path));
+        let assets_file_path = data_path.join("assets.json");
+        let bytes = load_file(assets_file_path.to_str().unwrap()).await?;
+        let assets: AssetsParams = serde_json::from_slice(&bytes)?;
 
 
         let mut materials = HashMap::new();
@@ -123,12 +119,12 @@ impl Resources {
             let fragment_shader = load_file(&material_params.fragment_shader_path).await?;
 
             let material = load_material(
-                &String::from_utf8(vertex_shader).unwrap(),
-                &String::from_utf8(fragment_shader).unwrap(),
+                &String::from_utf8(vertex_shader)?,
+                &String::from_utf8(fragment_shader)?,
                 MaterialParams {
                     ..Default::default()
                 },
-            ).unwrap();
+            )?;
 
             materials.insert(material_params.id.clone(), material);
         }

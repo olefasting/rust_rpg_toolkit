@@ -108,27 +108,29 @@ impl Default for ModuleParams {
 }
 
 pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resources) -> Result<()> {
-    let active_modules_file_path = &format!("{}/active_modules.json", game_params.modules_path);
+    let modules_path = Path::new(&game_params.modules_path);
+
     let mut loaded_modules: Vec<(String, String)> = Vec::new();
 
-    let bytes = load_file(active_modules_file_path).await?;
-    let active_modules: Vec<String> = serde_json::from_slice(&bytes).unwrap();
+    let active_modules_file_path = modules_path.join("active_modules.json");
+    let bytes = load_file(active_modules_file_path.to_str().unwrap()).await?;
+    let active_modules: Vec<String> = serde_json::from_slice(&bytes)?;
 
     'module: for module_name in active_modules {
-        let module_path = format!("{}/{}", game_params.modules_path, module_name);
-        let module_file_path = format!("{}/module.json", module_path);
+        let module_path = modules_path.join(&module_name);
+        let module_file_path = module_path.join("module.json");
 
-        if Path::new(&module_path).exists() == false || Path::new(&module_file_path).exists() == false {
-            println!("WARNING: Module '{}' could not be found, even though it is listed in the active modules file!", module_name);
+        if module_path.exists() == false || module_file_path.exists() == false {
+            println!("WARNING: Module '{}' could not be found, even though it is listed in the active modules file!", &module_name);
             continue 'module;
         }
 
-        let bytes = load_file(&module_file_path).await?;
-        let module_params: ModuleParams = serde_json::from_slice(&bytes).unwrap();
+        let bytes = load_file(module_file_path.to_str().unwrap()).await?;
+        let module_params: ModuleParams = serde_json::from_slice(&bytes)?;
 
         if let Some(required_game_version) = &module_params.required_game_version {
             if check_version(required_game_version, &game_params.version) == false {
-                println!("WARNING: Module '{}' was not loaded as its game version requirement '{}' was unmet (game version is '{}')!", module_name, required_game_version, game_params.version);
+                println!("WARNING: Module '{}' was not loaded as its game version requirement '{}' was unmet (game version is '{}')!", &module_name, &required_game_version, &game_params.version);
                 continue 'module;
             }
         }
@@ -136,31 +138,29 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
         let toolkit_version = get_toolkit_version();
         if let Some(required_toolkit_version) = &module_params.required_toolkit_version {
             if check_version(required_toolkit_version, &toolkit_version) == false {
-                println!("WARNING: Module '{}' was not loaded as its toolkit version requirement '{}' was unmet (toolkit version is '{}')!", module_name, required_toolkit_version, get_toolkit_version());
+                println!("WARNING: Module '{}' was not loaded as its toolkit version requirement '{}' was unmet (toolkit version is '{}')!", &module_name, &required_toolkit_version, get_toolkit_version());
                 continue 'module;
             }
         }
 
         for dependency in module_params.dependencies {
             if loaded_modules.iter().find(|(name, version)| {
-                let name = name.clone();
                 if let Some(required_version) = &dependency.version {
-                    return name == dependency.name && check_version(required_version, version);
+                    return *name == dependency.name && check_version(required_version, version);
                 }
-                name == dependency.name
+                *name == dependency.name
             }).is_none() {
-                println!("WARNING: Module '{}' was not loaded as its dependency on '{}' was unmet!", module_name, dependency.name);
+                println!("WARNING: Module '{}' was not loaded as its dependency on '{}' was unmet!", &module_name, &dependency.name);
                 continue 'module;
             }
         }
 
         for data in module_params.data {
-            let bytes = load_file(&format!("{}/{}", module_path, data.path)).await
-                .expect(&format!("Unable to find module data file '{}'!", data.path));
+            let data_file_path = module_path.join(&data.path);
+            let bytes = load_file(data_file_path.to_str().unwrap()).await?;
             match data.kind {
                 ModuleDataFileKind::Actors => {
-                    let actors: Vec<ActorParams> = serde_json::from_slice(&bytes)
-                        .expect(&format!("Unable to parse module actor data file '{}'!", data.path));
+                    let actors: Vec<ActorParams> = serde_json::from_slice(&bytes)?;
                     match data.integration {
                         ModuleIntegration::Extend => {
                             for params in actors {
@@ -179,8 +179,7 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
                     }
                 }
                 ModuleDataFileKind::Dialogue => {
-                    let dialogue: Vec<Dialogue> = serde_json::from_slice(&bytes)
-                        .expect(&format!("Unable to parse module dialogue data file '{}'!", data.path));
+                    let dialogue: Vec<Dialogue> = serde_json::from_slice(&bytes)?;
                     match data.integration {
                         ModuleIntegration::Extend => {
                             for params in dialogue {
@@ -199,8 +198,7 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
                     }
                 }
                 ModuleDataFileKind::Missions => {
-                    let missions: Vec<MissionParams> = serde_json::from_slice(&bytes)
-                        .expect(&format!("Unable to parse module missions data file '{}'!", data.path));
+                    let missions: Vec<MissionParams> = serde_json::from_slice(&bytes)?;
                     match data.integration {
                         ModuleIntegration::Extend => {
                             for params in missions {
@@ -219,8 +217,7 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
                     }
                 }
                 ModuleDataFileKind::Items => {
-                    let items: Vec<ItemParams> = serde_json::from_slice(&bytes)
-                        .expect(&format!("Unable to parse module items data file '{}'!", data.path));
+                    let items: Vec<ItemParams> = serde_json::from_slice(&bytes)?;
                     match data.integration {
                         ModuleIntegration::Extend => {
                             for params in items {
@@ -239,8 +236,7 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
                     }
                 }
                 ModuleDataFileKind::Abilities => {
-                    let abilities: Vec<AbilityParams> = serde_json::from_slice(&bytes)
-                        .expect(&format!("Unable to parse module abilities data file '{}'!", data.path));
+                    let abilities: Vec<AbilityParams> = serde_json::from_slice(&bytes)?;
                     match data.integration {
                         ModuleIntegration::Extend => {
                             for params in abilities {
@@ -259,8 +255,7 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
                     }
                 }
                 ModuleDataFileKind::Scenario => {
-                    let scenario_params: Vec<ChapterParams> = serde_json::from_slice(&bytes)
-                        .expect(&format!("Unable to parse scenario file '{}'!", data.path));
+                    let scenario_params: Vec<ChapterParams> = serde_json::from_slice(&bytes)?;
 
                     if data.integration == ModuleIntegration::Replace {
                         resources.chapters = Vec::new();
@@ -268,8 +263,12 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
 
                     for mut chapter_params in scenario_params {
                         chapter_params.maps.iter_mut().for_each(|map_params| {
-                                map_params.path = format!("{}/{}/{}", game_params.modules_path, module_name, map_params.path);
-                            });
+                            let path = Path::new(&game_params.modules_path)
+                                .join(&module_name)
+                                .join(&map_params.path);
+
+                            map_params.path = path.to_str().unwrap().to_string();
+                        });
 
                         let chapter = Chapter::new(chapter_params).await?;
 
@@ -283,8 +282,11 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
             {
                 let mut materials = HashMap::new();
                 for material_params in module_assets.materials.files {
-                    let vertex_shader = load_file(&format!("{}/{}", module_path, material_params.vertex_shader_path)).await.unwrap();
-                    let fragment_shader = load_file(&format!("{}/{}", module_path, material_params.fragment_shader_path)).await.unwrap();
+                    let vertex_shader_path = module_path.join(&material_params.vertex_shader_path);
+                    let vertex_shader = load_file(vertex_shader_path.to_str().unwrap()).await.unwrap();
+
+                    let fragment_shader_path = module_path.join(&material_params.fragment_shader_path);
+                    let fragment_shader = load_file(fragment_shader_path.to_str().unwrap()).await.unwrap();
 
                     let material = load_material(
                         &String::from_utf8(vertex_shader).unwrap(),
@@ -309,8 +311,10 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
             {
                 let mut textures = HashMap::new();
                 for texture_params in module_assets.textures.files {
-                    let texture = load_texture(&format!("{}/{}", module_path, texture_params.path)).await.unwrap();
+                    let path = module_path.join(&texture_params.path);
+                    let texture = load_texture(path.to_str().unwrap()).await?;
                     texture.set_filter(texture_params.filter_mode);
+
                     textures.insert(texture_params.id.clone(), texture);
                 }
 
@@ -320,13 +324,15 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
                             resources.textures.insert(id, texture);
                         }
                     }
+
                     ModuleIntegration::Replace => resources.textures = textures,
                 }
             }
             {
                 let mut sound_effects = HashMap::new();
                 for sound_params in module_assets.sound_effects.files {
-                    let sound = load_sound(&format!("{}/{}", module_path, sound_params.path)).await.unwrap();
+                    let path = module_path.join(&sound_params.path);
+                    let sound = load_sound(path.to_str().unwrap()).await?;
                     sound_effects.insert(sound_params.id, sound);
                 }
 
@@ -342,7 +348,8 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
             {
                 let mut music = HashMap::new();
                 for music_params in module_assets.music.files {
-                    let music_file = load_sound(&format!("{}/{}", module_path, music_params.path)).await.unwrap();
+                    let path = module_path.join(music_params.path);
+                    let music_file = load_sound(path.to_str().unwrap()).await?;
                     music.insert(music_params.id, music_file);
                 }
 
@@ -369,12 +376,15 @@ pub(crate) fn get_available_modules(modules_path: &str) -> io::Result<HashMap<St
         if let Ok(entry) = entry {
             let path = entry.path();
             if path.is_dir() {
-                let name = path.file_name().unwrap().to_str().unwrap();
-                let module_file_path = path.join(Path::new("module.json"));
+                let name = path
+                    .file_name()
+                    .unwrap();
+
+                let module_file_path = path.join("module.json");
                 if module_file_path.exists() {
                     let bytes = fs::read(module_file_path)?;
                     let module = serde_json::from_slice(&bytes)?;
-                    res.insert(name.to_string(), module);
+                    res.insert(name.to_str().unwrap().to_string(), module);
                 }
             }
         }
