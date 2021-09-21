@@ -217,6 +217,7 @@ pub use crate::{
         DialogueRequirement,
     },
     helpers::{
+        self,
         sort_by_distance,
         remove_filename,
         get_timestamp,

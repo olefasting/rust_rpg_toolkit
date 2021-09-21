@@ -22,6 +22,8 @@ mod behavior;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ActorParams {
     pub id: String,
+    #[serde(default, rename = "essential", skip_serializing_if = "helpers::is_false")]
+    pub is_essential: bool,
     pub name: String,
     pub factions: Vec<String>,
     #[serde(default)]
@@ -60,6 +62,7 @@ impl Default for ActorParams {
     fn default() -> Self {
         ActorParams {
             id: generate_id(),
+            is_essential: false,
             name: "Unnamed Actor".to_string(),
             factions: Vec::new(),
             behavior: Default::default(),
@@ -149,6 +152,7 @@ impl Into<Character> for ActorParams {
 
 pub struct Actor {
     pub id: String,
+    pub is_essential: bool,
     pub name: String,
     pub active_missions: Vec<Mission>,
     pub completed_missions: Vec<Mission>,
@@ -209,6 +213,7 @@ impl Actor {
 
         Actor {
             id: params.id.clone(),
+            is_essential: params.is_essential,
             name: params.name.clone(),
             active_missions: Vec::new(),
             completed_missions: Vec::new(),
@@ -246,6 +251,7 @@ impl Actor {
 
         ActorParams {
             id: self.id.clone(),
+            is_essential: self.is_essential,
             behavior: self.behavior.clone().into(),
             position: Some(self.body.position),
             name: self.name.clone(),
@@ -305,6 +311,7 @@ impl Actor {
 
         Actor {
             id: character.actor.id.clone(),
+            is_essential: character.actor.is_essential,
             name: character.actor.name.clone(),
             stats,
             active_missions,
@@ -361,7 +368,9 @@ impl Actor {
 
     pub fn take_damage(&mut self, actor_id: &str, actor: Handle<Actor>, _damage_type: DamageType, amount: f32) {
         self.behavior.attackers.insert(actor_id.to_string(), actor);
-        self.stats.current_health -= amount;
+        if self.is_essential == false {
+            self.stats.current_health -= amount;
+        }
     }
 
     pub fn apply_effect(&mut self, actor_id: &str, actor: Handle<Actor>, factions: &[String], effect: Effect) -> bool {

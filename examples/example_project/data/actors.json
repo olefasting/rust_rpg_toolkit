@@ -123,6 +123,7 @@
   },
   {
     "id": "guard_boss",
+    "essential": true,
     "name": "Guard Boss",
     "behavior": {
       "aggression": "aggressive",
@@ -365,6 +366,7 @@
   },
   {
     "id": "scared_woman",
+    "essential": true,
     "name": "Scared Woman",
     "behavior": {
       "aggression": "passive",

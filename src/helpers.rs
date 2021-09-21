@@ -5,6 +5,11 @@ use std::{
 
 use macroquad::prelude::*;
 
+// Used for serde attributes
+pub fn is_false(value: &bool) -> bool {
+    *value
+}
+
 pub fn sort_by_distance(position: Vec2, a: &Vec2, b: &Vec2) -> Ordering {
     a.distance(position)
         .partial_cmp(&b.distance(position))
