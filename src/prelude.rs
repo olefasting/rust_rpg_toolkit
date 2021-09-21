@@ -74,6 +74,10 @@ pub(crate) use crate::{
     },
     gui::draw_gui,
     modules::load_modules,
+    resources::{
+        set_resources,
+        get_resources_mut,
+    }
 };
 
 pub use crate::{
@@ -83,7 +87,10 @@ pub use crate::{
         check_version,
     },
     config::Config,
-    resources::Resources,
+    resources::{
+        Resources,
+        get_resources,
+    },
     noise_level::NoiseLevel,
     chapter::{
         Chapter,

@@ -52,7 +52,7 @@ impl Node for Hud {
             set_default_camera();
 
             let frustum = viewport.get_frustum();
-            let resources = storage::get::<Resources>();
+            let resources = get_resources();
             let texture = resources.textures.get("mission_marker").unwrap();
             for mission in &actor.active_missions {
                 if let Some(marker) = mission.marker.clone() {

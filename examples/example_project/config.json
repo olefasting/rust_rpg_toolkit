@@ -4,5 +4,8 @@
     "y": 1080
   },
   "fullscreen": false,
-  "post_processing": "crt"
+  "post_processing": "crt",
+  "master_volume": 0,
+  "sound_effects_volume": 100,
+  "music_volume": 100
 }

@@ -1,4 +1,19 @@
 use crate::prelude::*;
+use macroquad::audio::set_sound_volume;
+
+static mut RESOURCES: Option<Box<Resources>> = None;
+
+pub(crate) fn set_resources(resources: Resources) {
+    unsafe { RESOURCES = Some(Box::new(resources)) }
+}
+
+pub(crate) fn get_resources_mut() -> &'static mut Resources {
+    unsafe { RESOURCES.as_mut().unwrap() }
+}
+
+pub fn get_resources() -> &'static Resources {
+    unsafe { RESOURCES.as_ref().unwrap() }
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MaterialAssetParams {
@@ -194,6 +209,8 @@ impl Resources {
             music,
         };
 
+        resources.update_sound_volume();
+
         Ok(resources)
     }
 
@@ -202,5 +219,19 @@ impl Resources {
             .expect(&format!("No font with id '{}' was found!", font_id));
         let font = load_ttf_font_from_bytes(&bytes)?;
         Ok(font)
+    }
+
+    // Volume isn't working yet in macroquad, so this does nothing, for now
+    pub(crate) fn update_sound_volume(&self) {
+        let config = storage::get::<Config>();
+        let master_volume = (config.master_volume as f32 / 100.0).clamp(0.0, 1.0);
+        let sound_effects_volume = (config.sound_effects_volume as f32 / 100.0).clamp(0.0, 1.0) * master_volume;
+        let music_volume = (config.music_volume as f32 / 100.0).clamp(0.0, 1.0) * master_volume;
+        for (_, sound) in self.sound_effects.clone() {
+            set_sound_volume(sound, sound_effects_volume);
+        }
+        for (_, sound) in self.music.clone() {
+            set_sound_volume(sound, music_volume);
+        }
     }
 }

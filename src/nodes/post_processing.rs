@@ -7,7 +7,7 @@ pub struct PostProcessing {
 impl PostProcessing {
     pub fn new() -> Self {
         let config = storage::get::<Config>();
-        let resources = storage::get::<Resources>();
+        let resources = get_resources();
         let material = if let Some(material_id) = &config.post_processing {
             if material_id == "none" {
                 None

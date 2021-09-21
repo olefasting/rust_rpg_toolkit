@@ -301,7 +301,7 @@ impl GuiSkins {
     pub const BUTTON_HEIGHT: f32 = 32.0;
 
     pub fn new(theme: GuiTheme) -> Self {
-        let resources = storage::get::<Resources>();
+        let resources = get_resources();
 
         let window_bg = resources.images.get(&theme.window_bg.image_id).cloned().unwrap();
 

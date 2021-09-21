@@ -43,7 +43,7 @@ pub struct Dialogue {
 
 impl Dialogue {
     pub fn get_options(&self, actor: &RefMut<Actor>) -> Vec<Self> {
-        let resources = storage::get::<Resources>();
+        let resources = get_resources();
         let mut dialogue = Vec::new();
         'option: for option_id in &self.options {
             let option = resources.dialogue.get(option_id).unwrap();
@@ -94,7 +94,7 @@ impl Dialogue {
 
     pub fn apply_action(&self, actor: &mut Actor) {
         if let Some(action) = self.action.clone() {
-            let resources = storage::get::<Resources>();
+            let resources = get_resources();
             match action {
                 DialogueAction::OpenTrade => { todo!() },
                 DialogueAction::CompleteMission { mission_id } => {

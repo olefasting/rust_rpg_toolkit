@@ -86,7 +86,7 @@ pub struct Ability {
     pub noise_level: NoiseLevel,
     pub delivery: AbilityDelivery,
     pub sound_effect: Option<Sound>,
-    pub on_hit_sound_effect_id: Option<String>,
+    pub on_hit_sound_effect: Option<Sound>,
     pub cooldown: f32,
     pub cooldown_timer: f32,
     pub health_cost: f32,
@@ -100,16 +100,27 @@ pub struct Ability {
 
 impl Ability {
     pub fn new(params: AbilityParams) -> Self {
-        let sound_effect = if let Some(sound_id) = params.sound_effect_id {
-            let resources = storage::get::<Resources>();
-            resources.sound_effects.get(&sound_id).cloned()
-        } else {
-            None
-        };
+        let resources = get_resources();
+
+        let mut sound_effect = None;
+        if let Some(sound_effect_id) = params.sound_effect_id {
+            let res = resources.sound_effects.get(&sound_effect_id)
+                .cloned()
+                .expect(&format!("Unable to find sound effect with id '{}'", &sound_effect_id));
+            sound_effect = Some(res);
+        }
+
+        let mut on_hit_sound_effect = None;
+        if let Some(sound_effect_id) = params.on_hit_sound_effect_id {
+            let res = resources.sound_effects.get(&sound_effect_id)
+                .cloned()
+                .expect(&format!("Unable to find sound effect with id '{}'", &sound_effect_id));
+            sound_effect = Some(res);
+        }
 
         Ability {
             sound_effect,
-            on_hit_sound_effect_id: params.on_hit_sound_effect_id,
+            on_hit_sound_effect,
             noise_level: params.noise_level,
             delivery: params.delivery,
             health_cost: params.health_cost,
@@ -172,7 +183,7 @@ impl Ability {
                         speed,
                         spread,
                         self.range,
-                        self.on_hit_sound_effect_id.clone(),
+                        self.on_hit_sound_effect,
                     );
 
                     if let Some(sound_effect) = self.sound_effect {
@@ -190,15 +201,9 @@ impl Ability {
 
                     for mut other_actor in scene::find_nodes_by_type::<Actor>() {
                         hit_success = if let Some(other_collider) = other_actor.body.get_offset_collider() {
-                            if collider.overlaps(other_collider) {
-                                true
-                            } else {
-                                false
-                            }
-                        } else if collider.contains(other_actor.body.position) {
-                            true
+                            collider.overlaps(other_collider)
                         } else {
-                            false
+                            collider.contains(other_actor.body.position)
                         };
 
                         if hit_success {
@@ -209,9 +214,7 @@ impl Ability {
                     }
 
                     if hit_success {
-                        if let Some(sound_effect_id) = &self.on_hit_sound_effect_id {
-                            let resources = storage::get::<Resources>();
-                            let sound_effect = resources.sound_effects.get(sound_effect_id).cloned().unwrap();
+                        if let Some(sound_effect) = self.on_hit_sound_effect {
                             play_sound_once(sound_effect);
                         } else if let Some(sound_effect) = self.sound_effect {
                             play_sound_once(sound_effect);

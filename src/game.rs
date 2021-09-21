@@ -35,7 +35,7 @@ async fn load_resources() {
             let mut resources = Resources::new(&game_params.data_path).await.unwrap();
             load_modules(&game_params, &mut resources).await.unwrap();
 
-            storage::store(resources);
+            set_resources(resources);
         })
     };
 
