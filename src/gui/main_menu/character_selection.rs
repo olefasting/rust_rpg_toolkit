@@ -20,7 +20,7 @@ pub(crate) async fn draw_character_selection() -> CharacterSelectionResult {
     loop {
         if should_refresh {
             let game_params = storage::get::<GameParams>();
-            characters = get_available_characters(&game_params.characters_path).await.unwrap();
+            characters = get_available_characters(&game_params.characters_path).unwrap();
             characters.sort_by(|a, b| a.actor.name.cmp(&b.actor.name));
         }
 

@@ -1,4 +1,4 @@
-pub(crate) use std::{
+pub use std::{
     collections::HashMap,
     iter::FromIterator,
     ops::{
@@ -7,6 +7,9 @@ pub(crate) use std::{
         Mul,
         Div,
     },
+};
+
+pub(crate) use std::{
     fs,
     io,
     path::{
@@ -63,11 +66,10 @@ pub use mode::{
 };
 
 pub(crate) use crate::{
-    scene::load_scene,
+    scene::{
+        load_scene,
+    },
     input::{
-        get_gamepad,
-        get_gamepad_id,
-        get_events,
         update_input,
     },
     gui::draw_gui,
@@ -97,9 +99,10 @@ pub use crate::{
     },
     character::{
         Character,
-        delete_character,
-        save_character,
+        character_name_to_path,
         get_available_characters,
+        load_character,
+        delete_character,
     },
     physics::{
         Collider,

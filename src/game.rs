@@ -86,7 +86,7 @@ pub async fn init(params: GameParams) -> Result<()> {
     let local_player = LocalPlayer::new(&player_id, gamepad_id);
     storage::store(local_player);
 
-    dispatch_event(Event::ToMainMenu);
+    dispatch_event(Event::OpenMainMenu);
 
     Ok(())
 }

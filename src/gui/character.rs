@@ -2,7 +2,7 @@ use crate::gui::*;
 
 pub fn draw_character_window() {
     if let Some(game_state) = scene::find_node_by_type::<GameState>() {
-        if game_state.gui.should_draw_character_window {
+        if game_state.gui_state.should_draw_character_window {
             if let Some(player) = get_player_actor() {
                 let gui_skins = storage::get::<GuiSkins>();
 

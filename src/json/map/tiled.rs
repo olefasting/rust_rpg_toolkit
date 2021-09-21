@@ -152,10 +152,11 @@ impl Into<Map> for TiledMap {
             tilesets.insert(tiled_tileset.name, tileset);
         }
 
+        let mut player_spawn_point = None;
+
         let mut layers = HashMap::new();
         let mut draw_order = Vec::new();
         for tiled_layer in &self.layers {
-
             let mut tiles = Vec::new();
             for tile_id in tiled_layer.data.clone() {
                 let res = if tile_id != 0 {
@@ -205,6 +206,10 @@ impl Into<Map> for TiledMap {
                         let (name, prop) = pair_from_tiled_prop(tiled_prop);
                         properties.insert(name, prop);
                     }
+                }
+
+                if object.name == Map::PLAYER_SPAWN_POINT_NAME {
+                    player_spawn_point = Some(position);
                 }
 
                 let object = MapObject {
@@ -287,6 +292,7 @@ impl Into<Map> for TiledMap {
             tilesets,
             draw_order,
             properties,
+            player_spawn_point,
         }
     }
 }

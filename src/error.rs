@@ -25,7 +25,7 @@ pub enum ErrorKind {
 }
 
 impl ErrorKind {
-    pub(crate) fn as_str(&self) -> &'static str {
+    pub(crate) fn to_str(&self) -> &'static str {
         match *self {
             ErrorKind::File => "file error",
             ErrorKind::Parse => "parse error",
@@ -98,6 +98,12 @@ impl From<ShaderError> for Error {
 
 impl From<serde_json::Error> for Error {
     fn from(error: serde_json::Error) -> Self {
+        Error::new(ErrorKind::Parse, error)
+    }
+}
+
+impl From<regex::Error> for Error {
+    fn from(error: regex::Error) -> Self {
         Error::new(ErrorKind::Parse, error)
     }
 }

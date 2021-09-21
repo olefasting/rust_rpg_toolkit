@@ -81,11 +81,10 @@ impl Node for Camera {
         storage::store(node.get_viewport());
     }
 
-    fn update(mut node: RefMut<Self>) {
-        storage::store(node.get_viewport());
+    fn fixed_update(mut node: RefMut<Self>) {
+        let viewport = node.get_viewport();
 
         if let Some(actor) = get_player_actor() {
-            let viewport = node.get_viewport();
             let bounds = {
                 let size = viewport.size * Self::FOLLOW_THRESHOLD_FRACTION;
                 let center = viewport.get_center();
@@ -102,6 +101,8 @@ impl Node for Camera {
                 }
             }
         }
+
+        storage::store(viewport);
     }
 
     fn draw(node: RefMut<Self>) where Self: Sized {

@@ -113,7 +113,7 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
     let mut loaded_modules: Vec<(String, String)> = Vec::new();
 
     let active_modules_file_path = modules_path.join("active_modules.json");
-    let bytes = load_file(active_modules_file_path.to_str().unwrap()).await?;
+    let bytes = load_file(&active_modules_file_path.to_string_lossy()).await?;
     let active_modules: Vec<String> = serde_json::from_slice(&bytes)?;
 
     'module: for module_name in active_modules {
@@ -125,7 +125,7 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
             continue 'module;
         }
 
-        let bytes = load_file(module_file_path.to_str().unwrap()).await?;
+        let bytes = load_file(&module_file_path.to_string_lossy()).await?;
         let module_params: ModuleParams = serde_json::from_slice(&bytes)?;
 
         if let Some(required_game_version) = &module_params.required_game_version {
@@ -157,7 +157,7 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
 
         for data in module_params.data {
             let data_file_path = module_path.join(&data.path);
-            let bytes = load_file(data_file_path.to_str().unwrap()).await?;
+            let bytes = load_file(&data_file_path.to_string_lossy()).await?;
             match data.kind {
                 ModuleDataFileKind::Actors => {
                     let actors: Vec<ActorParams> = serde_json::from_slice(&bytes)?;
@@ -267,7 +267,7 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
                                 .join(&module_name)
                                 .join(&map_params.path);
 
-                            map_params.path = path.to_str().unwrap().to_string();
+                            map_params.path = path.to_string_lossy().to_string();
                         });
 
                         let chapter = Chapter::new(chapter_params).await?;
@@ -283,10 +283,10 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
                 let mut materials = HashMap::new();
                 for material_params in module_assets.materials.files {
                     let vertex_shader_path = module_path.join(&material_params.vertex_shader_path);
-                    let vertex_shader = load_file(vertex_shader_path.to_str().unwrap()).await.unwrap();
+                    let vertex_shader = load_file(&vertex_shader_path.to_string_lossy()).await.unwrap();
 
                     let fragment_shader_path = module_path.join(&material_params.fragment_shader_path);
-                    let fragment_shader = load_file(fragment_shader_path.to_str().unwrap()).await.unwrap();
+                    let fragment_shader = load_file(&fragment_shader_path.to_string_lossy()).await.unwrap();
 
                     let material = load_material(
                         &String::from_utf8(vertex_shader).unwrap(),
@@ -312,7 +312,7 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
                 let mut textures = HashMap::new();
                 for texture_params in module_assets.textures.files {
                     let path = module_path.join(&texture_params.path);
-                    let texture = load_texture(path.to_str().unwrap()).await?;
+                    let texture = load_texture(&path.to_string_lossy()).await?;
                     texture.set_filter(texture_params.filter_mode);
 
                     textures.insert(texture_params.id.clone(), texture);
@@ -332,7 +332,7 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
                 let mut sound_effects = HashMap::new();
                 for sound_params in module_assets.sound_effects.files {
                     let path = module_path.join(&sound_params.path);
-                    let sound = load_sound(path.to_str().unwrap()).await?;
+                    let sound = load_sound(&path.to_string_lossy()).await?;
                     sound_effects.insert(sound_params.id, sound);
                 }
 
@@ -349,7 +349,7 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
                 let mut music = HashMap::new();
                 for music_params in module_assets.music.files {
                     let path = module_path.join(music_params.path);
-                    let music_file = load_sound(path.to_str().unwrap()).await?;
+                    let music_file = load_sound(&path.to_string_lossy()).await?;
                     music.insert(music_params.id, music_file);
                 }
 
@@ -378,13 +378,14 @@ pub(crate) fn get_available_modules(modules_path: &str) -> Result<HashMap<String
             if path.is_dir() {
                 let name = path
                     .file_name()
-                    .unwrap();
+                    .unwrap()
+                    .to_string_lossy();
 
                 let module_file_path = path.join("module.json");
                 if module_file_path.exists() {
                     let bytes = fs::read(module_file_path)?;
                     let module = serde_json::from_slice(&bytes)?;
-                    res.insert(name.to_str().unwrap().to_string(), module);
+                    res.insert(name.to_string(), module);
                 }
             }
         }

@@ -6,29 +6,31 @@ pub struct GameState {
     pub chapter_index: usize,
     pub map_id: String,
     pub dead_actors: Vec<String>,
+    pub player_spawn_point: Vec2,
     pub character_name: String,
     pub is_permadeath: bool,
     pub in_debug_mode: bool,
-    pub gui: GuiState,
+    pub gui_state: GuiState,
     time_since_save: f32,
 }
 
 impl GameState {
-    pub fn new(character: &Character) -> GameState {
+    pub fn new(player_spawn_point: Vec2, character: &Character) -> GameState {
         GameState {
-            chapter_index: character.current_chapter_index,
-            map_id: character.current_map_id.clone(),
+            chapter_index: character.chapter_index,
+            map_id: character.map_id.clone(),
             dead_actors: Vec::new(),
+            player_spawn_point,
             character_name: character.actor.name.clone(),
             is_permadeath: character.is_permadeath,
             in_debug_mode: false,
-            gui: GuiState::new(),
+            gui_state: GuiState::new(),
             time_since_save: 0.0,
         }
     }
 
-    pub fn add_node(character: &Character) -> Handle<Self> {
-        let game_state = Self::new(character);
+    pub fn add_node(player_spawn_point: Vec2, character: &Character) -> Handle<Self> {
+        let game_state = Self::new( player_spawn_point, character);
         scene::add_node(game_state)
     }
 
@@ -44,16 +46,17 @@ impl GameState {
 impl Node for GameState {
     fn update(mut node: RefMut<Self>) {
         node.time_since_save += get_frame_time();
-        if node.time_since_save >= CHARACTER_SAVE_INTERVAL {
-            node.time_since_save = 0.0;
-            dispatch_event(Event::SavePlayerCharacter);
-        }
 
         if get_player_actor().is_none() {
             if node.is_permadeath {
-                delete_character(&node.character_name).expect(&format!("Error when saving character '{}'!", &node.character_name));
+                delete_character(&node.character_name).unwrap();
+                dispatch_event(Event::OpenMainMenu);
+            } else {
+                dispatch_event(Event::Respawn);
             }
-            dispatch_event(Event::ToMainMenu);
+        } else if node.time_since_save >= CHARACTER_SAVE_INTERVAL {
+            node.time_since_save = 0.0;
+            dispatch_event(Event::Save);
         }
     }
 }

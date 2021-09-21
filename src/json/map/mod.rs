@@ -86,6 +86,8 @@ impl Into<MapDef> for Map {
 
 impl From<MapDef> for Map {
     fn from(def: MapDef) -> Self {
+        let mut player_spawn_point = None;
+
         let tilesets = HashMap::from_iter(
             def.tilesets
                 .clone()
@@ -129,13 +131,28 @@ impl From<MapDef> for Map {
                             tile
                         }).collect();
 
+                    let objects = layer.objects.clone().unwrap_or(Vec::new());
+
+                    if player_spawn_point.is_none() {
+                        if let MapLayerKind::ObjectLayer(kind) = layer.kind.clone() {
+                            if kind == ObjectLayerKind::SpawnPoints {
+                                for object in &objects {
+                                    if object.name == Map::PLAYER_SPAWN_POINT_NAME {
+                                        player_spawn_point = Some(object.position);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     let layer = MapLayer {
                         id: layer.id.clone(),
                         kind: layer.kind.clone(),
                         collision: layer.collision.clone(),
                         grid_size: def.grid_size,
                         tiles,
-                        objects: layer.objects.clone().unwrap_or(Vec::new()),
+                        objects,
                         is_visible: layer.is_visible,
                         properties: layer.properties.clone(),
                     };
@@ -152,6 +169,7 @@ impl From<MapDef> for Map {
             tilesets,
             draw_order,
             properties: def.properties,
+            player_spawn_point,
         }
     }
 }

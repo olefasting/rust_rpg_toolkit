@@ -24,8 +24,7 @@ impl PhysicsBody {
         }
     }
 
-    pub fn debug_draw(&mut self) {
-        let game_state = scene::find_node_by_type::<GameState>().unwrap();
+    pub fn debug_draw(&mut self, game_state: &RefMut<GameState>) {
         if game_state.in_debug_mode {
             if let Some(collider) = self.get_offset_collider() {
                 match collider {

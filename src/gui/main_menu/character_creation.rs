@@ -41,7 +41,6 @@ fn draw_character_attribute(ui: &mut Ui, i: usize, name: &str, value: &mut u32, 
 async fn is_name_in_use(name: &str) -> bool {
     let game_params = storage::get::<GameParams>();
     get_available_characters(&game_params.characters_path)
-        .await
         .unwrap()
         .into_iter()
         .find(|character| character.actor.name == name)

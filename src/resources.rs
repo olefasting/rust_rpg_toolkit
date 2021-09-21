@@ -64,43 +64,51 @@ pub struct Resources {
 }
 
 impl Resources {
+    const ACTORS_FILE_NAME: &'static str = "actors.json";
+    const ITEMS_FILE_NAME: &'static str = "items.json";
+    const MISSIONS_FILE_NAME: &'static str = "missions.json";
+    const DIALOGUE_FILE_NAME: &'static str = "dialogue.json";
+    const ABILITIES_FILE_NAME: &'static str = "abilities.json";
+    const SCENARIO_FILE_NAME: &'static str = "scenario.json";
+    const ASSETS_FILE_NAME: &'static str = "assets.json";
+
     pub const WHITE_TEXTURE_ID: &'static str = "__WHITE_TEXTURE__";
 
-    pub async fn new(data_path: &str) -> Result<Self> {
-        let data_path = Path::new(data_path);
+    pub async fn new<P: AsRef<Path>>(data_path: P) -> Result<Self> {
+        let data_path = data_path.as_ref();
 
-        let actors_file_path = data_path.join("actors.json");
-        let bytes = load_file(actors_file_path.to_str().unwrap()).await?;
+        let actors_file_path = data_path.join(Self::ACTORS_FILE_NAME);
+        let bytes = load_file(&actors_file_path.to_string_lossy()).await?;
         let actor_data: Vec<ActorParams> = serde_json::from_slice(&bytes)?;
         let actors = HashMap::from_iter(
             actor_data.into_iter().map(|params| (params.id.clone(), params)));
 
-        let items_file_path = data_path.join("items.json");
-        let bytes = load_file(items_file_path.to_str().unwrap()).await?;
+        let items_file_path = data_path.join(Self::ITEMS_FILE_NAME);
+        let bytes = load_file(&items_file_path.to_string_lossy()).await?;
         let items_data: Vec<ItemParams> = serde_json::from_slice(&bytes)?;
         let items = HashMap::from_iter(
             items_data.into_iter().map(|params| (params.id.clone(), params)));
 
-        let missions_file_path = data_path.join("missions.json");
-        let bytes = load_file(missions_file_path.to_str().unwrap()).await?;
+        let missions_file_path = data_path.join(Self::MISSIONS_FILE_NAME);
+        let bytes = load_file(&missions_file_path.to_string_lossy()).await?;
         let missions_data: Vec<MissionParams> = serde_json::from_slice(&bytes)?;
         let missions = HashMap::from_iter(
             missions_data.into_iter().map(|mission| (mission.id.clone(), mission)));
 
-        let dialogue_file_path = data_path.join("dialogue.json");
-        let bytes = load_file(dialogue_file_path.to_str().unwrap()).await?;
+        let dialogue_file_path = data_path.join(Self::DIALOGUE_FILE_NAME);
+        let bytes = load_file(&dialogue_file_path.to_string_lossy()).await?;
         let dialogue_data: Vec<Dialogue> = serde_json::from_slice(&bytes)?;
         let dialogue = HashMap::from_iter(
             dialogue_data.into_iter().map(|dialogue| (dialogue.id.clone(), dialogue)));
 
-        let abilities_file_path = data_path.join("abilities.json");
-        let bytes = load_file(abilities_file_path.to_str().unwrap()).await?;
+        let abilities_file_path = data_path.join(Self::ABILITIES_FILE_NAME);
+        let bytes = load_file(&abilities_file_path.to_string_lossy()).await?;
         let ability_data: Vec<AbilityParams> = serde_json::from_slice(&bytes)?;
         let abilities = HashMap::from_iter(
             ability_data.into_iter().map(|ability| (ability.id.clone(), ability)));
 
-        let scenario_path = data_path.join("scenario.json");
-        let bytes = load_file(scenario_path.to_str().unwrap()).await?;
+        let scenario_path = data_path.join(Self::SCENARIO_FILE_NAME);
+        let bytes = load_file(&scenario_path.to_string_lossy()).await?;
         let chapter_params: Vec<ChapterParams> = serde_json::from_slice(&bytes)?;
         let mut chapters = Vec::new();
         for chapter_params in chapter_params {
@@ -108,8 +116,8 @@ impl Resources {
             chapters.push(chapter);
         }
 
-        let assets_file_path = data_path.join("assets.json");
-        let bytes = load_file(assets_file_path.to_str().unwrap()).await?;
+        let assets_file_path = data_path.join(Self::ASSETS_FILE_NAME);
+        let bytes = load_file(&assets_file_path.to_string_lossy()).await?;
         let assets: AssetsParams = serde_json::from_slice(&bytes)?;
 
 

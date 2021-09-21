@@ -92,25 +92,26 @@ impl SceneBuilder {
     pub(crate) fn build(&self, character: Character) -> Result<()> {
         scene::clear();
 
-        {
-            let resources = storage::get::<Resources>();
+        let (chapter_index, map_id) = if self.chapter_index.is_some() && self.map_id.is_some() {
+            (self.chapter_index.unwrap(), self.map_id.as_ref().unwrap())
+        } else {
+            (character.chapter_index, &character.map_id)
+        };
 
-            let (chapter_index, map_id) = if self.chapter_index.is_some() && self.map_id.is_some() {
-                (self.chapter_index.unwrap(), self.map_id.as_ref().unwrap())
-            } else {
-                (character.current_chapter_index, &character.current_map_id)
-            };
+        let resources = storage::get::<Resources>();
 
-            let chapter = resources.chapters.get(chapter_index)
-                .expect(&format!("Scene could not build, due to an invalid chapter index ({})!", chapter_index));
-            let map = chapter.maps.get(map_id).cloned()
-                .expect(&format!("Scene could not build as no map with id '{}' was found in chapter '{}' (chapter index: {})!", map_id, &chapter.title, chapter_index));
+        let chapter = resources.chapters.get(chapter_index)
+            .expect(&format!("Scene could not build, due to an invalid chapter index ({})!", chapter_index));
 
-            storage::store(map);
-        }
+        let map = chapter.maps.get(map_id).cloned()
+            .expect(&format!("Scene could not build as no map with id '{}' was found in chapter '{}' (chapter index: {})!", map_id, &chapter.title, chapter_index));
+
+        let player_spawn_point = map.player_spawn_point
+            .expect(&format!("No player spawn point defined in map '{}' of chapter '{}' (chapter index: {})", map_id, chapter.title, chapter_index));
+
+        let game_state = GameState::add_node(player_spawn_point, &character);
 
         Camera::add_node();
-        GameState::add_node(&character);
 
         for constructor in self.draw_stages.get(&DrawStage::Map).unwrap() {
             constructor();
@@ -150,9 +151,6 @@ impl SceneBuilder {
 
         Hud::add_node();
 
-        let mut is_player_spawned = false;
-
-        let map = storage::get::<Map>();
         for (_, layer) in &map.layers {
             if let MapLayerKind::ObjectLayer(kind) = layer.kind.clone() {
                 match kind {
@@ -163,11 +161,8 @@ impl SceneBuilder {
                     }
                     ObjectLayerKind::SpawnPoints => {
                         for map_object in &layer.objects {
-                            if map_object.name == "player" && is_player_spawned == false {
-                                spawn_player(map_object, &character);
-                                is_player_spawned = true;
-                            } else {
-                                spawn_actor(map_object);
+                            if map_object.name != Map::PLAYER_SPAWN_POINT_NAME {
+                                spawn_actor(game_state, map_object);
                             }
                         }
                     }
@@ -180,6 +175,10 @@ impl SceneBuilder {
                 }
             }
         }
+
+        character.spawn(game_state, player_spawn_point);
+
+        storage::store(map);
 
         Ok(())
     }
@@ -214,21 +213,7 @@ fn spawn_item(map_object: &MapObject) {
     }
 }
 
-fn spawn_player(map_object: &MapObject, character: &Character) {
-    let player = storage::get::<LocalPlayer>();
-    let mut actor = Actor::from_saved(
-        map_object.position,
-        ActorControllerKind::local_player(&player.id),
-        &character,
-    );
-
-    actor.stats.recalculate_derived();
-    actor.stats.restore_vitals();
-
-    scene::add_node(actor);
-}
-
-fn spawn_actor(map_object: &MapObject) {
+fn spawn_actor(game_state: Handle<GameState>, map_object: &MapObject) {
     if let Some(prop) = map_object.properties.get("prototype_id") {
         if let MapProperty::String { value: prototype_id } = prop {
             let mut instance_id = None;
@@ -241,6 +226,7 @@ fn spawn_actor(map_object: &MapObject) {
             let resources = storage::get::<Resources>();
             let params = resources.actors.get(prototype_id).cloned().unwrap();
             let mut actor = Actor::new(
+                game_state,
                 ActorControllerKind::Computer,
                 ActorParams {
                     id: instance_id.unwrap_or(generate_id()),

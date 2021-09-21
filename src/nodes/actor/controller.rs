@@ -29,6 +29,7 @@ pub struct ActorController {
     pub should_dash: bool,
     pub should_sprint: bool,
     pub is_sprint_locked: bool,
+    pub should_respawn: bool,
     pub equip_weapon: Option<String>,
 }
 
@@ -45,6 +46,7 @@ impl ActorController {
             should_dash: false,
             should_sprint: false,
             is_sprint_locked: false,
+            should_respawn: false,
             equip_weapon: None,
         }
     }

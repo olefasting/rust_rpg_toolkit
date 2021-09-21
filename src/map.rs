@@ -6,7 +6,7 @@ use crate::prelude::*;
 
 use crate::json::TiledMap;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ObjectLayerKind {
     None,
@@ -174,9 +174,13 @@ pub struct Map {
     pub draw_order: Vec<String>,
     #[serde(default, skip_serializing_if = "HashMap::is_empty")]
     pub properties: HashMap<String, MapProperty>,
+    #[serde(skip)]
+    pub player_spawn_point: Option<Vec2>,
 }
 
 impl Map {
+    pub const PLAYER_SPAWN_POINT_NAME: &'static str = "player";
+
     pub async fn load<P: AsRef<Path>>(path: P) -> Result<Self> {
         let bytes = load_file(path.as_ref().to_str().unwrap()).await?;
         let map = serde_json::from_slice(&bytes).unwrap();

@@ -140,8 +140,8 @@ impl Into<Character> for ActorParams {
             items,
             active_missions: Vec::new(),
             completed_missions: Vec::new(),
-            current_chapter_index: 0,
-            current_map_id,
+            chapter_index: 0,
+            map_id: current_map_id,
             is_permadeath: false,
         }
     }
@@ -165,6 +165,7 @@ pub struct Actor {
     pub experience: u32,
     pub dialogue: Option<Dialogue>,
     pub current_dialogue: Option<Dialogue>,
+    pub game_state: Handle<GameState>,
     animation_player: SpriteAnimationPlayer,
     automaton: Automaton<ActorBehaviorFamily>,
     noise_level_timer: f32,
@@ -189,7 +190,7 @@ impl Actor {
     const PICK_UP_RADIUS: f32 = 36.0;
     const INTERACT_RADIUS: f32 = 36.0;
 
-    pub fn new(controller_kind: ActorControllerKind, params: ActorParams) -> Self {
+    pub fn new(game_state: Handle<GameState>, controller_kind: ActorControllerKind, params: ActorParams) -> Self {
         let position = params.position.unwrap_or_default();
         let dialogue = if let Some(dialogue_id) = params.dialogue_id.clone() {
             let resources = storage::get::<Resources>();
@@ -228,11 +229,12 @@ impl Actor {
             noise_level_timer: 0.0,
             can_level_up: params.can_level_up,
             automaton: ActorBehaviorFamily::automaton_with_mode(behavior_constructor()),
+            game_state,
         }
     }
 
-    pub fn add_node(controller_kind: ActorControllerKind, params: ActorParams) -> Handle<Self> {
-        scene::add_node(Self::new(controller_kind, params))
+    pub fn add_node(game_state: Handle<GameState>, controller_kind: ActorControllerKind, params: ActorParams) -> Handle<Self> {
+        scene::add_node(Self::new(game_state, controller_kind, params))
     }
 
     pub fn to_params(&self) -> ActorParams {
@@ -268,7 +270,7 @@ impl Actor {
         }
     }
 
-    pub fn from_saved(position: Vec2, controller_kind: ActorControllerKind, character: &Character) -> Self {
+    pub fn from_saved(game_state: Handle<GameState>, position: Vec2, controller_kind: ActorControllerKind, character: &Character) -> Self {
         let resources = storage::get::<Resources>();
 
         let active_missions = character.active_missions
@@ -323,6 +325,7 @@ impl Actor {
             noise_level_timer: 0.0,
             can_level_up: character.actor.can_level_up,
             automaton: ActorBehaviorFamily::automaton_with_mode(behavior_constructor()),
+            game_state,
         }
     }
 
@@ -350,8 +353,8 @@ impl Actor {
             items,
             active_missions,
             completed_missions,
-            current_chapter_index: chapter_index,
-            current_map_id: map_id.to_string(),
+            chapter_index: chapter_index,
+            map_id: map_id.to_string(),
             is_permadeath,
         }
     }
@@ -379,7 +382,7 @@ impl Actor {
     }
 
     pub fn find_by_player_id(id: &str) -> Option<RefMut<Self>> {
-        for actor in scene::find_nodes_by_type::<Self>() {
+        for actor in scene::find_nodes_by_type::<Actor>() {
             match &actor.controller.kind {
                 ActorControllerKind::LocalPlayer { player_id } => {
                     if player_id == id {
@@ -407,8 +410,18 @@ impl Actor {
     }
 
     pub fn is_local_player(&self) -> bool {
+        use ActorControllerKind::*;
         match &self.controller.kind {
-            ActorControllerKind::LocalPlayer { player_id: _ } => true,
+            LocalPlayer { player_id: _ } => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_player(&self) -> bool {
+        use ActorControllerKind::*;
+        match &self.controller.kind {
+            LocalPlayer { player_id: _ } => true,
+            RemotePlayer { player_id: _ } => true,
             _ => false,
         }
     }
@@ -473,7 +486,7 @@ impl Actor {
                 for objective in &mut mission.objectives {
                     match &objective.0 {
                         MissionObjective::Kill { actor_id } => {
-                            let game_state = scene::find_node_by_type::<GameState>().unwrap();
+                            let game_state = scene::get_node(self.game_state);
                             if game_state.dead_actors.contains(actor_id) {
                                 objective.1 = true;
                             }
@@ -639,14 +652,13 @@ impl Actor {
 
 impl BufferedDraw for Actor {
     fn buffered_draw(&mut self) {
-        self.body.debug_draw();
-        {
-            let (position, rotation) = (self.body.position, self.body.rotation);
-            self.animation_player.draw(position, rotation);
-        }
+        let game_state = scene::get_node(self.game_state);
+        self.body.debug_draw(&game_state);
 
-        let (position, offset_y, alignment, length, height, border) =
-            (self.body.position, Self::HEALTH_BAR_OFFSET_Y, HorizontalAlignment::Center, Self::HEALTH_BAR_LENGTH, Self::HEALTH_BAR_HEIGHT, 1.0);
+        let (position, rotation, offset_y, alignment, length, height, border) =
+            (self.body.position, self.body.rotation, Self::HEALTH_BAR_OFFSET_Y, HorizontalAlignment::Center, Self::HEALTH_BAR_LENGTH, Self::HEALTH_BAR_HEIGHT, 1.0);
+
+        self.animation_player.draw(position, rotation);
 
         if self.is_local_player() == false && self.stats.current_health < self.stats.max_health {
             draw_progress_bar(
@@ -664,7 +676,6 @@ impl BufferedDraw for Actor {
             );
         }
 
-        let game_state = scene::find_node_by_type::<GameState>().unwrap();
         if game_state.in_debug_mode {
             // if let Some(path) = self.behavior.current_path.clone() {
             //     let mut previous: Option<Vec2> = None;
@@ -754,18 +765,19 @@ impl Node for Actor {
     }
 
     fn update(mut node: RefMut<Self>) {
-        if node.stats.current_health <= 0.0 {
-            let mut game_state = scene::find_node_by_type::<GameState>().unwrap();
+        if node.stats.current_health <= 0.0 || node.controller.should_respawn {
+            let mut game_state = scene::get_node(node.game_state);
             let position = node.body.position;
-            node.inventory.drop_all(position, true);
-            game_state.dead_actors.push(node.id.clone());
+            if node.is_player() == false {
+                node.inventory.drop_all(position, true);
+                game_state.dead_actors.push(node.id.clone());
+            }
             node.delete();
             return;
         }
 
-        node.stats.update();
-        node.animation_player.update();
         node.update_noise_level();
+        node.animation_player.update();
         node.update_missions();
 
         if let Some(ability) = node.weapon_ability.main_hand.as_mut() {
@@ -787,13 +799,13 @@ impl Node for Actor {
         node.controller.should_sprint = node.controller.is_sprint_locked && node.controller.should_sprint;
 
         {
-            let game_state = scene::find_node_by_type::<GameState>().unwrap();
+            let game_state = scene::get_node(node.game_state);
             let mut i: usize = 0;
             let mut keys = node.behavior.attackers.keys().cloned().collect::<Vec<String>>();
             while i < node.behavior.attackers.keys().len() {
-                let actor_id = keys[i].clone();
-                if game_state.dead_actors.contains(&actor_id) {
-                    node.behavior.attackers.remove(&actor_id);
+                let actor_id = &keys[i];
+                if game_state.dead_actors.contains(actor_id) {
+                    node.behavior.attackers.remove(actor_id);
                     keys.remove(i);
                 } else {
                     i += 1;
@@ -803,8 +815,7 @@ impl Node for Actor {
 
         node.behavior.collisions = node.body.last_collisions.clone();
 
-        let controller_kind = node.controller.kind.clone();
-        match controller_kind {
+        match node.controller.kind.clone() {
             ActorControllerKind::LocalPlayer { player_id } => {
                 apply_input(&player_id, &mut node);
             }
@@ -842,6 +853,7 @@ impl Node for Actor {
                     inventory,
                     equipped_items,
                 ));
+
                 node.controller = controller;
             }
             ActorControllerKind::None => {}
@@ -856,48 +868,6 @@ impl Node for Actor {
             if let Some(weapon_id) = equip_weapon {
                 node.equip_item(&weapon_id);
                 node.controller.equip_weapon = None;
-            }
-        }
-
-        {
-            let controller = node.controller.clone();
-            node.set_animation(controller.aim_direction, controller.move_direction == Vec2::ZERO);
-
-            if controller.should_use_weapon {
-                let origin = node.body.position;
-                let mut primary_ability = node.weapon_ability.clone();
-                if let Some(ability) = &mut primary_ability.main_hand {
-                    ability.activate(&mut node, origin, controller.aim_direction);
-                }
-                if let Some(ability) = &mut primary_ability.offhand {
-                    ability.activate(&mut node, origin, controller.aim_direction);
-                }
-                node.weapon_ability = primary_ability;
-            }
-
-            if controller.should_use_selected_ability {
-                let origin = node.body.position;
-                let mut secondary_ability = node.selected_ability.clone();
-                if let Some(ability) = &mut secondary_ability {
-                    ability.activate(&mut node, origin, controller.aim_direction);
-                }
-                node.selected_ability = secondary_ability;
-            }
-        }
-
-        let collider = Collider::circle(0.0, 0.0, Self::PICK_UP_RADIUS).with_offset(node.body.position);
-        for credits in scene::find_nodes_by_type::<Credits>() {
-            if collider.contains(credits.position) {
-                node.inventory.credits += credits.amount;
-                credits.delete();
-            }
-        }
-
-        if node.controller.should_pick_up_items {
-            for item in scene::find_nodes_by_type::<Item>() {
-                if collider.contains(item.position) {
-                    node.inventory.pick_up(item);
-                }
             }
         }
 
@@ -930,8 +900,52 @@ impl Node for Actor {
                 node.current_dialogue = Some(dialogue);
             }
         }
+    }
 
-        let direction = node.controller.move_direction;
+    fn fixed_update(mut node: RefMut<Self>) {
+        node.stats.update();
+
+        let controller = node.controller.clone();
+        node.set_animation(controller.aim_direction, controller.move_direction == Vec2::ZERO);
+
+        if controller.should_use_weapon {
+            let origin = node.body.position;
+            let mut primary_ability = node.weapon_ability.clone();
+            if let Some(ability) = &mut primary_ability.main_hand {
+                ability.activate(&mut node, origin, controller.aim_direction);
+            }
+            if let Some(ability) = &mut primary_ability.offhand {
+                ability.activate(&mut node, origin, controller.aim_direction);
+            }
+            node.weapon_ability = primary_ability;
+        }
+
+        if controller.should_use_selected_ability {
+            let origin = node.body.position;
+            let mut secondary_ability = node.selected_ability.clone();
+            if let Some(ability) = &mut secondary_ability {
+                ability.activate(&mut node, origin, controller.aim_direction);
+            }
+            node.selected_ability = secondary_ability;
+        }
+
+        let collider = Collider::circle(0.0, 0.0, Self::PICK_UP_RADIUS).with_offset(node.body.position);
+        for credits in scene::find_nodes_by_type::<Credits>() {
+            if collider.contains(credits.position) {
+                node.inventory.credits += credits.amount;
+                credits.delete();
+            }
+        }
+
+        if controller.should_pick_up_items {
+            for item in scene::find_nodes_by_type::<Item>() {
+                if collider.contains(item.position) {
+                    node.inventory.pick_up(item);
+                }
+            }
+        }
+
+        let direction = controller.move_direction;
         node.body.velocity = if direction != Vec2::ZERO {
             direction * if node.inventory.get_total_weight() >= node.stats.carry_capacity {
                 node.set_noise_level(Self::MOVE_NOISE_LEVEL);
