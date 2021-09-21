@@ -106,7 +106,7 @@ impl Into<ActorStats> for ActorParams {
 impl Into<Character> for ActorParams {
     fn into(self) -> Character {
         let game_params = storage::get::<GameParams>();
-        let resources = get_resources();
+        let resources = storage::get::<Resources>();
         let mut item_ids = Vec::new();
         let mut items = Vec::new();
 
@@ -193,7 +193,7 @@ impl Actor {
     pub fn new(game_state: Handle<GameState>, controller_kind: ActorControllerKind, params: ActorParams) -> Self {
         let position = params.position.unwrap_or_default();
         let dialogue = if let Some(dialogue_id) = params.dialogue_id.clone() {
-            let resources = get_resources();
+            let resources = storage::get::<Resources>();
             let mut dialogue = resources.dialogue.get(&dialogue_id).cloned().unwrap();
             dialogue.actor_name = params.name.clone();
             Some(dialogue)
@@ -271,7 +271,7 @@ impl Actor {
     }
 
     pub fn from_saved(game_state: Handle<GameState>, position: Vec2, controller_kind: ActorControllerKind, character: &Character) -> Self {
-        let resources = get_resources();
+        let resources = storage::get::<Resources>();
 
         let active_missions = character.active_missions
             .iter()
@@ -515,7 +515,7 @@ impl Actor {
             }
 
             if mission.is_completed {
-                let resources = get_resources();
+                let resources = storage::get::<Resources>();
                 for reward in &mission.rewards {
                     match reward {
                         MissionReward::Item { prototype_id, amount } => {
@@ -539,7 +539,7 @@ impl Actor {
             false
         }).collect();
 
-        let resources = get_resources();
+        let resources = storage::get::<Resources>();
         for mission in &completed_missions {
             for next_id in mission.next_mission_ids.clone() {
                 let params = resources.missions.get(&next_id).cloned().unwrap();

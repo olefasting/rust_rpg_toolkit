@@ -9,6 +9,7 @@ pub struct GameParams {
     pub characters_path: String,
     pub new_character_prototype_id: String,
     pub new_character_build_points: u32,
+    pub skip_character_creation: bool,
 }
 
 impl Default for GameParams {
@@ -21,6 +22,7 @@ impl Default for GameParams {
             characters_path: "characters".to_string(),
             new_character_prototype_id: "new_character_prototype".to_string(),
             new_character_build_points: 6,
+            skip_character_creation: false,
         }
     }
 }
@@ -35,7 +37,7 @@ async fn load_resources() {
             let mut resources = Resources::new(&game_params.data_path).await.unwrap();
             load_modules(&game_params, &mut resources).await.unwrap();
 
-            set_resources(resources);
+            storage::store(resources);
         })
     };
 

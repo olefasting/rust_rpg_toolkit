@@ -10,7 +10,7 @@ pub(crate) async fn draw_chapter_selection_menu() -> Option<(usize, String)> {
         let mut result = None;
         let mut should_cancel = false;
 
-        let resources = get_resources();
+        let resources = storage::get::<Resources>();
 
         let params = gui_skins.theme.menu_params.get("chapter_selection").cloned().unwrap();
 

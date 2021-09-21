@@ -22,6 +22,7 @@ async fn main() -> Result<()> {
     let params = GameParams {
         name: GAME_NAME.to_string(),
         version: GAME_VERSION.to_string(),
+        skip_character_creation: true,
         ..Default::default()
     };
 

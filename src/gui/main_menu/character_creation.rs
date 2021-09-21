@@ -53,7 +53,7 @@ async fn is_name_in_use(_name: &str) -> bool {
 }
 
 pub(crate) async fn draw_character_creation() -> Option<Character> {
-    let resources = get_resources();
+    let resources = storage::get::<Resources>();
     let game_params = storage::get::<GameParams>();
     let gui_skins = storage::get::<GuiSkins>();
 

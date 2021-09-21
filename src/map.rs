@@ -319,7 +319,7 @@ impl Map {
             self.background_color,
         );
 
-        let resources = get_resources();
+        let resources = storage::get::<Resources>();
         for layer_id in &self.draw_order {
             if let Some(layer) = self.layers.get(layer_id) {
                 if layer.is_visible {

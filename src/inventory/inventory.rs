@@ -34,7 +34,7 @@ impl InventoryEntry {
 impl InventoryEntry {
     pub fn get_actor_ability(&self) -> Option<Ability> {
         if let Some(ability_id) = self.params.ability_id.clone() {
-            let resources = get_resources();
+            let resources = storage::get::<Resources>();
             let ability_params = resources.abilities.get(&ability_id).cloned().unwrap();
             Some(Ability::new(ability_params))
         } else {
@@ -60,7 +60,7 @@ impl Inventory {
     }
 
     pub fn from_prototypes(params: &InventoryParams) -> Self {
-        let resources = get_resources();
+        let resources = storage::get::<Resources>();
         Inventory {
             items: params.items.clone().into_iter().map(|id| {
                 let params = resources.items.get(&id).cloned().unwrap();

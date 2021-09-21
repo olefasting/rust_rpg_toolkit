@@ -1,19 +1,4 @@
 use crate::prelude::*;
-use macroquad::audio::set_sound_volume;
-
-static mut RESOURCES: Option<Box<Resources>> = None;
-
-pub(crate) fn set_resources(resources: Resources) {
-    unsafe { RESOURCES = Some(Box::new(resources)) }
-}
-
-pub(crate) fn get_resources_mut() -> &'static mut Resources {
-    unsafe { RESOURCES.as_mut().unwrap() }
-}
-
-pub fn get_resources() -> &'static Resources {
-    unsafe { RESOURCES.as_ref().unwrap() }
-}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MaterialAssetParams {

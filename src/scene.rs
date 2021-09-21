@@ -98,7 +98,7 @@ impl SceneBuilder {
             (character.chapter_index, &character.map_id)
         };
 
-        let resources = get_resources();
+        let resources = storage::get::<Resources>();
 
         let chapter = resources.chapters.get(chapter_index)
             .expect(&format!("Scene could not build, due to an invalid chapter index ({})!", chapter_index));
@@ -194,7 +194,7 @@ fn spawn_item(map_object: &MapObject) {
                     }
                 }
             } else {
-                let resources = get_resources();
+                let resources = storage::get::<Resources>();
                 let params = resources.items.get(&prototype_id).cloned().unwrap();
                 let mut instance_id = None;
                 if let Some(prop) = map_object.properties.get("instance_id").cloned() {
@@ -223,7 +223,7 @@ fn spawn_actor(game_state: Handle<GameState>, map_object: &MapObject) {
                 }
             }
 
-            let resources = get_resources();
+            let resources = storage::get::<Resources>();
             let params = resources.actors.get(prototype_id).cloned().unwrap();
             let mut actor = Actor::new(
                 game_state,

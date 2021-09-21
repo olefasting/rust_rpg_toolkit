@@ -100,7 +100,7 @@ pub struct Ability {
 
 impl Ability {
     pub fn new(params: AbilityParams) -> Self {
-        let resources = get_resources();
+        let resources = storage::get::<Resources>();
 
         let mut sound_effect = None;
         if let Some(sound_effect_id) = params.sound_effect_id {

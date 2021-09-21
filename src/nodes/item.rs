@@ -55,7 +55,7 @@ pub struct Item {
 
 impl Item {
     pub fn new(params: ItemParams) -> Self {
-        let resources = get_resources();
+        let resources = storage::get::<Resources>();
         let ability = if let Some(ability_id) = params.ability_id {
             Some(resources.abilities.get(&ability_id).cloned().unwrap())
         } else {

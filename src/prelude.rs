@@ -26,6 +26,10 @@ pub(crate) use macroquad::{
             Animation,
         },
     },
+    audio::{
+        load_sound,
+        set_sound_volume,
+    },
     prelude::*,
 };
 
@@ -41,7 +45,6 @@ pub use macroquad::{
     },
     audio::{
         Sound,
-        load_sound,
         play_sound,
         play_sound_once,
     },
@@ -74,10 +77,6 @@ pub(crate) use crate::{
     },
     gui::draw_gui,
     modules::load_modules,
-    resources::{
-        set_resources,
-        get_resources_mut,
-    }
 };
 
 pub use crate::{
@@ -87,10 +86,7 @@ pub use crate::{
         check_version,
     },
     config::Config,
-    resources::{
-        Resources,
-        get_resources,
-    },
+    resources::Resources,
     noise_level::NoiseLevel,
     chapter::{
         Chapter,

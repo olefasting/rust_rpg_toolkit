@@ -31,6 +31,14 @@ pub async fn show_main_menu() -> Result<()> {
                         break 'menu;
                     }
                     CharacterSelectionResult::CreateCharacter => {
+                        let game_params = storage::get::<GameParams>();
+                        if game_params.skip_character_creation {
+                            let resources = storage::get::<Resources>();
+                            let params = resources.actors.get(&game_params.new_character_prototype_id).cloned().unwrap();
+                            let character= params.into();
+                            dispatch_event(Event::StartGame { character });
+                            break 'menu;
+                        }
                         if let Some(character) = draw_character_creation().await {
                             dispatch_event(Event::StartGame { character });
                             break 'menu;

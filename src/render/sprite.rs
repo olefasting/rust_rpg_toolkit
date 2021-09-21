@@ -19,7 +19,7 @@ pub struct Sprite {
 
 impl Sprite {
     pub fn draw(&self, position: Vec2, rotation: f32) {
-        let resources = get_resources();
+        let resources = storage::get::<Resources>();
         draw_texture_ex(
             resources.textures.get(&self.texture_id).cloned().unwrap(),
             position.x + self.offset.x,
