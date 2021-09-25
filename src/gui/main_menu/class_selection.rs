@@ -1,10 +1,6 @@
 use crate::gui::*;
-use crate::resources::CharacterClass;
 
 const CLASS_SELECTION_MENU_ID: &'static str = "class_selection";
-
-const WINDOW_WIDTH: f32 = 500.0;
-const WINDOW_HEIGHT: f32 = 600.0;
 
 pub(crate) async fn draw_class_selection() -> Option<String> {
     let gui_skins = storage::get::<GuiSkins>();

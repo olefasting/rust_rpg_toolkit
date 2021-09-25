@@ -115,7 +115,7 @@ impl Ability {
             let res = resources.sound_effects.get(&sound_effect_id)
                 .cloned()
                 .expect(&format!("Unable to find sound effect with id '{}'", &sound_effect_id));
-            sound_effect = Some(res);
+            on_hit_sound_effect = Some(res);
         }
 
         Ability {

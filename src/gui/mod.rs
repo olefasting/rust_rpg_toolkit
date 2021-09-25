@@ -20,14 +20,25 @@ pub use main_menu::show_main_menu;
 pub use theme::{
     GuiSkins,
     GuiTheme,
-    MenuPosition,
-    MenuParams,
-    MenuOption,
-    MenuButtonStyle,
 };
 
 pub use window_builder::WindowBuilder;
-pub use menu_builder::{MenuBuilder, MenuResult};
+
+pub use menu_builder::{
+    MenuButtonStyle,
+    MenuBuilder,
+    MenuResult,
+    MenuPosition,
+    MenuParams,
+    MenuOption,
+};
+
+pub use button_builder::{
+    try_get_button_builder,
+    get_button_builder,
+    ButtonStyle,
+    ButtonBuilder,
+};
 
 pub use checkbox::Checkbox;
 use crate::prelude::*;
@@ -42,6 +53,7 @@ mod confirmation_modal;
 mod checkbox;
 mod window_builder;
 mod menu_builder;
+mod button_builder;
 
 #[derive(Debug, Clone)]
 pub struct GuiState {

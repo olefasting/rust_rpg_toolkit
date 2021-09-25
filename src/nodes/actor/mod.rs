@@ -219,8 +219,7 @@ impl Actor {
         let inventory = Inventory::from_prototypes(&params.inventory);
 
         let behavior_set_id = &params.behavior.behavior_set_id;
-        let behavior_constructor = get_behavior_set(behavior_set_id)
-            .expect(&format!("No behavior set with id '{}' was found in the directory!", behavior_set_id));
+        let behavior_constructor = get_behavior_set(behavior_set_id);
 
         Actor {
             id: params.id,
@@ -321,8 +320,7 @@ impl Actor {
         };
 
         let behavior_set_id = &character.actor.behavior.behavior_set_id;
-        let behavior_constructor = get_behavior_set(&behavior_set_id)
-            .expect(&format!("No behavior set with id '{}' was found in the directory!", behavior_set_id));
+        let behavior_constructor = get_behavior_set(&behavior_set_id);
 
         let stats = character.actor.clone().into();
 

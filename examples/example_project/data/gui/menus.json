@@ -22,10 +22,12 @@
       {
         "index": 3,
         "title": "Quit",
-        "push_down": true
+        "is_pushed_down": true
       }
     ],
-    "button_style": "full_width",
+    "button_style":  {
+      "type": "full_width"
+    },
     "is_static": true
   },
   {
@@ -47,15 +49,17 @@
       {
         "index": 2,
         "title": "Main Menu",
-        "push_down": true
+        "is_pushed_down": true
       },
       {
         "index": 3,
         "title": "Quit",
-        "push_down": true
+        "is_pushed_down": true
       }
     ],
-    "button_style": "full_width",
+    "button_style": {
+      "type": "full_width"
+    },
     "is_static": true
   },
   {
@@ -68,11 +72,14 @@
     "position": "centered",
     "options": [
       {
-        "push_down": true,
+        "title": "Cancel",
+        "is_pushed_down": true,
         "is_cancel": true
       }
     ],
-    "button_style": "full_width",
+    "button_style": {
+      "type": "full_width"
+    },
     "is_static": true
   },
   {
@@ -85,12 +92,18 @@
     "position": "centered",
     "options": [
       {
-        "style_override": "full_width",
-        "push_down": true,
+        "title": "Cancel",
+        "style_override": {
+          "type": "full_width"
+        },
+        "is_pushed_down": true,
         "is_cancel": true
       }
     ],
-    "button_style": "label",
+    "button_style": {
+      "type": "label_only",
+      "is_centered": false
+    },
     "is_static": true
   }
 ]

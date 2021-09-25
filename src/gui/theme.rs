@@ -1,110 +1,7 @@
-use crate::{
-    gui::*,
-    prelude::*,
-};
+use crate::gui::*;
 
 fn sub_offsets(a: RectOffset, b: RectOffset) -> RectOffset {
     RectOffset::new(a.left - b.left, a.right - b.right, a.top - b.top, a.bottom - b.bottom)
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum MenuPosition {
-    Normal(
-        #[serde(with = "json::def_vec2")]
-        Vec2
-    ),
-    CenteredVertically(f32),
-    CenteredHorizontally(f32),
-    Centered,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct MenuOption {
-    #[serde(default)]
-    pub index: Option<usize>,
-    #[serde(default)]
-    pub title: Option<String>,
-    #[serde(default)]
-    pub push_down: bool,
-    #[serde(default)]
-    pub style_override: Option<MenuButtonStyle>,
-    #[serde(default, skip_serializing_if = "helpers::is_false")]
-    pub is_cancel: bool,
-}
-
-impl Default for MenuOption {
-    fn default() -> Self {
-        MenuOption {
-            index: None,
-            title: None,
-            push_down: false,
-            style_override: None,
-            is_cancel: false,
-        }
-    }
-}
-
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum MenuButtonStyle {
-    None,
-    FullWidth,
-    Centered,
-    Label,
-    CenteredLabel,
-}
-
-impl MenuButtonStyle {
-    pub fn is_label(&self) -> bool {
-        let value = *self;
-        value == MenuButtonStyle::Label || value == MenuButtonStyle::CenteredLabel
-    }
-}
-
-impl MenuButtonStyle {
-    pub fn is_none(&self) -> bool {
-        *self == Self::None
-    }
-}
-
-impl Default for MenuButtonStyle {
-    fn default() -> Self {
-        Self::FullWidth
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct MenuParams {
-    pub id: String,
-    #[serde(with = "json::def_vec2")]
-    pub size: Vec2,
-    pub position: MenuPosition,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub title: Option<String>,
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub options: Vec<MenuOption>,
-    #[serde(default, skip_serializing_if = "MenuButtonStyle::is_none")]
-    pub button_style: MenuButtonStyle,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub custom_skin_id: Option<String>,
-    #[serde(default)]
-    pub is_static: bool,
-}
-
-impl Default for MenuParams {
-    fn default() -> Self {
-        MenuParams {
-            id: "".to_string(),
-            size: Vec2::ZERO,
-            position: MenuPosition::Centered,
-            title: None,
-            options: Vec::new(),
-            button_style: MenuButtonStyle::FullWidth,
-            custom_skin_id: None,
-            is_static: true,
-        }
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -305,7 +202,9 @@ pub struct GuiSkins {
     pub condensed_button_inactive: Skin,
     pub label_button: Skin,
     pub label_button_highlighted: Skin,
+    pub label_button_inactive: Skin,
     pub big_editbox: Skin,
+    pub custom_button: Skin,
     pub custom: HashMap<String, Skin>,
     pub theme: GuiTheme,
 }
@@ -594,6 +493,24 @@ impl GuiSkins {
             }
         };
 
+        let label_button_inactive = {
+            let button_style = root_ui()
+                .style_builder()
+                .background(blank_image.clone())
+                .background_hovered(blank_image.clone())
+                .background_clicked(blank_image.clone())
+                .margin(theme.label_margins)
+                .background_margin(RectOffset::new(0.0, 0.0, 0.0, 0.0))
+                .text_color(theme.text_color)
+                .font_size(theme.font_size)
+                .build();
+
+            Skin {
+                button_style,
+                ..default.clone()
+            }
+        };
+
         let condensed_button = {
             let button_style = root_ui()
                 .style_builder()
@@ -680,6 +597,28 @@ impl GuiSkins {
             }
         };
 
+        let custom_button = {
+            let group_style = root_ui()
+                .style_builder()
+                .color(COLOR_NONE)
+                .color_hovered(COLOR_NONE)
+                .color_clicked(COLOR_NONE)
+                .build();
+
+            let button_style = root_ui()
+                .style_builder()
+                .color(COLOR_NONE)
+                .color_hovered(COLOR_NONE)
+                .color_clicked(COLOR_NONE)
+                .build();
+
+            Skin {
+                group_style,
+                button_style,
+                ..default.clone()
+            }
+        };
+
         custom.insert("slider_fix".to_string(), slider_fix);
         custom.insert("module_list_entry".to_string(), module_list_entry);
 
@@ -693,9 +632,11 @@ impl GuiSkins {
             inactive_button,
             label_button,
             label_button_highlighted,
+            label_button_inactive,
             condensed_button,
             condensed_button_inactive,
             big_editbox,
+            custom_button,
             custom,
             theme,
         }
