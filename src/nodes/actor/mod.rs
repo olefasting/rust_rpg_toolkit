@@ -25,6 +25,9 @@ pub struct ActorParams {
     #[serde(default, rename = "essential", skip_serializing_if = "helpers::is_false")]
     pub is_essential: bool,
     pub name: String,
+    #[serde(default, rename = "class", skip_serializing_if = "Option::is_none")]
+    pub class_id: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub factions: Vec<String>,
     #[serde(default)]
     pub behavior: ActorBehaviorParams,
@@ -52,7 +55,7 @@ pub struct ActorParams {
     pub animation_player: SpriteAnimationParams,
     #[serde(default)]
     pub experience: u32,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "helpers::is_false")]
     pub can_level_up: bool,
     #[serde(default, rename = "dialogue", skip_serializing_if = "Option::is_none")]
     pub dialogue_id: Option<String>,
@@ -64,6 +67,7 @@ impl Default for ActorParams {
             id: generate_id(),
             is_essential: false,
             name: "Unnamed Actor".to_string(),
+            class_id: None,
             factions: Vec::new(),
             behavior: Default::default(),
             position: None,
@@ -110,6 +114,7 @@ impl Into<Character> for ActorParams {
     fn into(self) -> Character {
         let game_params = storage::get::<GameParams>();
         let resources = storage::get::<Resources>();
+
         let mut item_ids = Vec::new();
         let mut items = Vec::new();
 
@@ -123,28 +128,27 @@ impl Into<Character> for ActorParams {
             item_ids.push(id);
         }
 
-        let current_chapter_index = 0;
-        let current_map_id = resources.chapters
-            .get(current_chapter_index)
-            .unwrap()
-            .initial_map_id
-            .clone();
+        let actor = ActorParams {
+            id: generate_id(),
+            inventory: InventoryParams {
+                items: item_ids,
+                credits: self.inventory.credits,
+            },
+            ..self
+        };
+
+        let chapter_index = 0;
+        let chapter = resources.chapters.get(chapter_index).unwrap();
+        let map_id = chapter.initial_map_id.clone();
 
         Character {
             game_version: game_params.version.clone(),
-            actor: ActorParams {
-                id: generate_id(),
-                inventory: InventoryParams {
-                    items: item_ids,
-                    credits: self.inventory.credits,
-                },
-                ..self
-            },
+            actor,
             items,
             active_missions: Vec::new(),
             completed_missions: Vec::new(),
-            chapter_index: 0,
-            map_id: current_map_id,
+            chapter_index,
+            map_id,
             is_permadeath: false,
         }
     }
@@ -154,6 +158,7 @@ pub struct Actor {
     pub id: String,
     pub is_essential: bool,
     pub name: String,
+    pub class_id: Option<String>,
     pub active_missions: Vec<Mission>,
     pub completed_missions: Vec<Mission>,
     pub noise_level: NoiseLevel,
@@ -195,6 +200,10 @@ impl Actor {
     const INTERACT_RADIUS: f32 = 36.0;
 
     pub fn new(game_state: Handle<GameState>, controller_kind: ActorControllerKind, params: ActorParams) -> Self {
+        if params.can_level_up {
+            assert!(params.class_id.is_some(), "Actor id '{}' has `can_level_up` set to `true`, even though no `class_id` has been specified!", &params.id);
+        }
+
         let position = params.position.unwrap_or_default();
         let dialogue = if let Some(dialogue_id) = params.dialogue_id.clone() {
             let resources = storage::get::<Resources>();
@@ -205,6 +214,8 @@ impl Actor {
             None
         };
 
+        let stats = params.clone().into();
+
         let inventory = Inventory::from_prototypes(&params.inventory);
 
         let behavior_set_id = &params.behavior.behavior_set_id;
@@ -212,14 +223,15 @@ impl Actor {
             .expect(&format!("No behavior set with id '{}' was found in the directory!", behavior_set_id));
 
         Actor {
-            id: params.id.clone(),
+            id: params.id,
             is_essential: params.is_essential,
-            name: params.name.clone(),
+            class_id: params.class_id,
+            name: params.name,
             active_missions: Vec::new(),
             completed_missions: Vec::new(),
             noise_level: NoiseLevel::None,
-            behavior: params.behavior.clone(),
-            stats: params.clone().into(),
+            behavior: params.behavior,
+            stats,
             factions: params.factions,
             body: PhysicsBody::new(position, 0.0, params.collider),
             inventory,
@@ -230,7 +242,7 @@ impl Actor {
             experience: params.experience,
             dialogue,
             current_dialogue: None,
-            animation_player: SpriteAnimationPlayer::new(params.animation_player.clone()),
+            animation_player: SpriteAnimationPlayer::new(params.animation_player),
             noise_level_timer: 0.0,
             can_level_up: params.can_level_up,
             automaton: ActorBehaviorFamily::automaton_with_mode(behavior_constructor()),
@@ -243,6 +255,10 @@ impl Actor {
     }
 
     pub fn to_params(&self) -> ActorParams {
+        if self.can_level_up {
+            assert!(self.class_id.is_some(), "Actor id '{}' has `can_level_up` set to `true`, even though no `class_id` has been specified!", &self.id);
+        }
+
         let dialogue_id = if let Some(dialogue) = &self.dialogue {
             Some(dialogue.id.clone())
         } else {
@@ -251,6 +267,7 @@ impl Actor {
 
         ActorParams {
             id: self.id.clone(),
+            class_id: self.class_id.clone(),
             is_essential: self.is_essential,
             behavior: self.behavior.clone().into(),
             position: Some(self.body.position),
@@ -311,6 +328,7 @@ impl Actor {
 
         Actor {
             id: character.actor.id.clone(),
+            class_id: character.actor.class_id.clone(),
             is_essential: character.actor.is_essential,
             name: character.actor.name.clone(),
             stats,
@@ -339,6 +357,8 @@ impl Actor {
     pub fn to_character(&self, chapter_index: usize, map_id: &str, is_permadeath: bool) -> Character {
         let game_params = storage::get::<GameParams>();
 
+        let map_id = map_id.to_string();
+
         let items = self.inventory.items
             .iter()
             .map(|entry| entry.params.clone())
@@ -360,8 +380,8 @@ impl Actor {
             items,
             active_missions,
             completed_missions,
-            chapter_index: chapter_index,
-            map_id: map_id.to_string(),
+            chapter_index,
+            map_id,
             is_permadeath,
         }
     }
@@ -450,6 +470,7 @@ impl Actor {
             self.animation_player.set_frame(1);
             self.animation_player.stop();
         }
+
         if is_stationary {
             self.animation_player.set_frame(1);
             self.animation_player.stop();

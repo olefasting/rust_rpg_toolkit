@@ -1,7 +1,8 @@
 [
   {
-    "id": "new_character_prototype",
-    "name": "Unnamed Player",
+    "id": "test_class_prototype",
+    "name": "Unnamed Test Class Character",
+    "class": "test_class",
     "can_level_up": true,
     "factions": [
       "player",

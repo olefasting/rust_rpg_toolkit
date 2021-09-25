@@ -5,7 +5,7 @@ use std::{
 
 use macroquad::prelude::*;
 
-// Used for serde attributes
+// Used in serde attributes to skip serialization of bools that are false
 pub fn is_false(value: &bool) -> bool {
     *value
 }

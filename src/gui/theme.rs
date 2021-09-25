@@ -1,5 +1,6 @@
 use crate::{
     gui::*,
+    prelude::*,
 };
 
 fn sub_offsets(a: RectOffset, b: RectOffset) -> RectOffset {
@@ -20,18 +21,45 @@ pub enum MenuPosition {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MenuOption {
-    pub index: usize,
-    pub title: String,
+    #[serde(default)]
+    pub index: Option<usize>,
+    #[serde(default)]
+    pub title: Option<String>,
     #[serde(default)]
     pub push_down: bool,
+    #[serde(default)]
+    pub style_override: Option<MenuButtonStyle>,
+    #[serde(default, skip_serializing_if = "helpers::is_false")]
+    pub is_cancel: bool,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+impl Default for MenuOption {
+    fn default() -> Self {
+        MenuOption {
+            index: None,
+            title: None,
+            push_down: false,
+            style_override: None,
+            is_cancel: false,
+        }
+    }
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum MenuButtonStyle {
     None,
     FullWidth,
     Centered,
+    Label,
+    CenteredLabel,
+}
+
+impl MenuButtonStyle {
+    pub fn is_label(&self) -> bool {
+        let value = *self;
+        value == MenuButtonStyle::Label || value == MenuButtonStyle::CenteredLabel
+    }
 }
 
 impl MenuButtonStyle {
@@ -48,6 +76,7 @@ impl Default for MenuButtonStyle {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MenuParams {
+    pub id: String,
     #[serde(with = "json::def_vec2")]
     pub size: Vec2,
     pub position: MenuPosition,
@@ -61,6 +90,21 @@ pub struct MenuParams {
     pub custom_skin_id: Option<String>,
     #[serde(default)]
     pub is_static: bool,
+}
+
+impl Default for MenuParams {
+    fn default() -> Self {
+        MenuParams {
+            id: "".to_string(),
+            size: Vec2::ZERO,
+            position: MenuPosition::Centered,
+            title: None,
+            options: Vec::new(),
+            button_style: MenuButtonStyle::FullWidth,
+            custom_skin_id: None,
+            is_static: true,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -136,66 +180,38 @@ pub struct GuiTheme {
     pub checkbox_bg_clicked: GuiImage,
     pub checkbox_bg_selected: GuiImage,
     pub checkbox_bg_selected_hovered: GuiImage,
+    #[serde(default, skip)]
     pub menu_params: HashMap<String, MenuParams>,
+}
+
+impl GuiTheme {
+    const THEME_FILE_NAME: &'static str = "theme.json";
+    const MENUS_FILE_NAME: &'static str = "menus.json";
+
+    pub async fn load<P: AsRef<Path>>(data_path: P) -> Result<Self> {
+        let data_path = data_path.as_ref();
+        let gui_path = data_path.join("gui");
+
+        let theme_path = gui_path.join(Self::THEME_FILE_NAME);
+        let menus_path = gui_path.join(Self::MENUS_FILE_NAME);
+
+        let bytes = load_file(&theme_path.to_string_lossy()).await?;
+        let mut theme: Self = serde_json::from_slice(&bytes)?;
+
+        let bytes = load_file(&menus_path.to_string_lossy()).await?;
+        let menu_params: Vec<MenuParams> = serde_json::from_slice(&bytes)?;
+        for params in menu_params {
+            theme.menu_params.insert(params.id.clone(), params);
+        }
+
+        Ok(theme)
+    }
 }
 
 impl Default for GuiTheme {
     fn default() -> Self {
         let button_bg_margins = RectOffset::new(8.0, 8.0, 4.0, 4.0);
         let checkbox_bg_margins = RectOffset::new(2.0, 2.0, 2.0, 2.0);
-
-        let mut menu_params = HashMap::new();
-
-        let main_menu_params = MenuParams {
-            size: vec2(250.0, 250.0),
-            position: MenuPosition::Centered,
-            title: None,
-            options: vec![
-                MenuOption {
-                    index: 0,
-                    title: "Start Game".to_string(),
-                    push_down: false,
-                },
-                MenuOption {
-                    index: 1,
-                    title: "Settings".to_string(),
-                    push_down: false,
-                },
-                MenuOption {
-                    index: 2,
-                    title: "Modules".to_string(),
-                    push_down: false,
-                },
-                MenuOption {
-                    index: 3,
-                    title: "Quit".to_string(),
-                    push_down: true,
-                }
-            ],
-            button_style: MenuButtonStyle::FullWidth,
-            custom_skin_id: None,
-            is_static: true
-        };
-
-        menu_params.insert("main_menu".to_string(), main_menu_params);
-
-        let chapter_selection_menu_params = MenuParams {
-            size: vec2(200.0, 250.0),
-            position: MenuPosition::Centered,
-            title: Some("Select Chapter".to_string()),
-            options: vec![
-                MenuOption {
-                    index: 0,
-                    title: "Cancel".to_string(),
-                    push_down: true,
-                }
-            ],
-            button_style: MenuButtonStyle::FullWidth,
-            custom_skin_id: None,
-            is_static: true
-        };
-
-        menu_params.insert("chapter_selection".to_string(), chapter_selection_menu_params);
 
         GuiTheme {
             font_size: 16,
@@ -271,7 +287,7 @@ impl Default for GuiTheme {
                 image_id: "checkbox_background_selected_hovered".to_string(),
                 margins: checkbox_bg_margins,
             },
-            menu_params,
+            menu_params: HashMap::new(),
         }
     }
 }

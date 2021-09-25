@@ -1,6 +1,14 @@
 use crate::prelude::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CharacterClass {
+    pub id: String,
+    pub prototype_id: String,
+    pub name: String,
+    pub description: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MaterialAssetParams {
     pub id: String,
     pub fragment_shader_path: String,
@@ -50,6 +58,7 @@ pub struct AssetsParams {
 
 pub struct Resources {
     pub actors: HashMap<String, ActorParams>,
+    pub character_classes: HashMap<String, CharacterClass>,
     pub items: HashMap<String, ItemParams>,
     pub abilities: HashMap<String, AbilityParams>,
     pub missions: HashMap<String, MissionParams>,
@@ -64,6 +73,7 @@ pub struct Resources {
 }
 
 impl Resources {
+    const CLASSES_FILE_NAME: &'static str = "character_classes.json";
     const ACTORS_FILE_NAME: &'static str = "actors.json";
     const ITEMS_FILE_NAME: &'static str = "items.json";
     const MISSIONS_FILE_NAME: &'static str = "missions.json";
@@ -76,6 +86,12 @@ impl Resources {
 
     pub async fn new<P: AsRef<Path>>(data_path: P) -> Result<Self> {
         let data_path = data_path.as_ref();
+
+        let character_classes_path = data_path.join(Self::CLASSES_FILE_NAME);
+        let bytes = load_file(&character_classes_path.to_string_lossy()).await?;
+        let character_classes_data: Vec<CharacterClass> = serde_json::from_slice(&bytes)?;
+        let character_classes = HashMap::from_iter(
+            character_classes_data.into_iter().map(|class| (class.id.clone(), class)));
 
         let actors_file_path = data_path.join(Self::ACTORS_FILE_NAME);
         let bytes = load_file(&actors_file_path.to_string_lossy()).await?;
@@ -181,6 +197,7 @@ impl Resources {
 
         let resources = Resources {
             actors,
+            character_classes,
             items,
             abilities,
             missions,

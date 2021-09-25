@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use crate::gui::GuiTheme;
 
 #[derive(Debug, Clone)]
 pub struct GameParams {
@@ -7,7 +8,6 @@ pub struct GameParams {
     pub data_path: String,
     pub modules_path: String,
     pub characters_path: String,
-    pub new_character_prototype_id: String,
     pub new_character_build_points: u32,
     pub skip_character_creation: bool,
 }
@@ -20,7 +20,6 @@ impl Default for GameParams {
             data_path: "data".to_string(),
             modules_path: "modules".to_string(),
             characters_path: "characters".to_string(),
-            new_character_prototype_id: "new_character_prototype".to_string(),
             new_character_build_points: 6,
             skip_character_creation: false,
         }
@@ -76,10 +75,7 @@ pub async fn init(params: GameParams) -> Result<()> {
 
     load_resources().await;
 
-    let path = Path::new(&params.data_path).join("gui_theme.json");
-
-    let bytes = load_file(path.to_str().unwrap()).await?;
-    let gui_theme = serde_json::from_slice(&bytes)?;
+    let gui_theme = GuiTheme::load(&params.data_path).await?;
     let gui_skins = GuiSkins::new(gui_theme);
     storage::store(gui_skins);
 

@@ -26,10 +26,8 @@ pub use theme::{
     MenuButtonStyle,
 };
 
-pub use window_builder::{
-    WindowBuilder,
-    MenuBuilder,
-};
+pub use window_builder::WindowBuilder;
+pub use menu_builder::{MenuBuilder, MenuResult};
 
 pub use checkbox::Checkbox;
 use crate::prelude::*;
@@ -43,6 +41,7 @@ mod main_menu;
 mod confirmation_modal;
 mod checkbox;
 mod window_builder;
+mod menu_builder;
 
 #[derive(Debug, Clone)]
 pub struct GuiState {
