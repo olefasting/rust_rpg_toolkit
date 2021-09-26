@@ -37,6 +37,7 @@ pub use macroquad::{
     experimental::{
         collections::storage,
         scene::{
+            self,
             Node,
             RefMut,
             Handle,

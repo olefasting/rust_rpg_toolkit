@@ -1,23 +1,32 @@
 # Rust RPG Toolkit
 
-**PLEASE NOTE:** this in early and very heavy development. API is subject to constant change, as it has newly transitioned
-from being a game project to a library.
+**PLEASE NOTE: this in early and very heavy development. API is subject to constant change, as it has newly transitioned
+from being a game project to a library**
 
 This crate allows you to create tile-based, 2D action RPGs, using Rust amd JSON. It started out as a game project but was
 separated into its own project, as it grew in scope. It uses JSON files for most of its game data and resources specification,
 so that games can be created with very little interaction with the Rust code. This has the benefit of making the end product
 very easy to modify, both for non-developers involved in the development process, and by end users. Modification can be done,
-either by modifying a game's data files directly, or by creating user modules, which are supported, out of the box.
+either by modifying a game's data files directly, or by creating user modules, which are supported, out-of-the-box.
+
+Currently, as the name suggests, it is very RPG centric, but I am working on making it more flexible. As of writing this,
+things like "victory conditions" have yet to be implemented, progression only being possible through mission/quest development,
+at this stage, but I plan to design this in such a way that it allows the framework to be used for non-RPG genres, as well.
+
+I also plan to add the possibility to create games in other perspectives than top-down. It is very easy to implement, for example,
+a side scrolling view, as I already (more or less) have feature parity, as well as full compatability, with Tiled maps. Implementing
+side scrolling physics is just a matter of adding a few physics properties -- mainly gravity -- at this point...
 
 ## Features
 
-- Easy definition and modification of game data and resources, without having to tuch source code
+- Easy definition and modification of game data and resources, without having to touch source code or re-compile your project
 - Mod support out-of-the-box with modules that can extend or replace a game's data and resources
 - RPG mechanics, like character stats, items and an inventory system
 - Conversion from Tiled maps and instantiation of actors and items from map properties
 - Flexible AI behaviors
 - Dialogue system
 - Mission and reward system
+- UI and menus that can be built and themed via JSON
 - WebAssembly support with wasm-bindgen
 
 ## Current Milestones
@@ -29,6 +38,7 @@ release and publish on crates.io
 - [x] Define basic, default AI behaviors
 - [X] Refactor collision detection
 - [x] Polish pathfinding
+- [ ] Expanded character creation, with cosmetic options
 - [ ] Implement actor abilities (currently abilities are only implemented on items)
 - [ ] Refactor the UI system
 - [ ] Finalize the WASM build process
@@ -71,6 +81,44 @@ fn get_window_conf() -> WindowConf {
     }
 }
 
+struct ExampleNode {
+  pub position: Vec2,
+  pub size: Vec2,
+}
+
+impl BufferedDraw for ExampleNode {
+  fn buffered_draw(&mut self) {
+    // Draw node here, in stead of in Node::draw
+  }
+
+  fn get_z_index(&self) -> f32 {
+    // This is used to determine the order of draw calls, within
+    // the DrawBuffer. For normal sized actors, you can use y position
+    self.position.y
+  }
+
+  fn get_bounds(&self) -> Bounds {
+    // This is used when frustum culling (if bounds are within viewport,
+    // it will be drawn.
+    let rect = Rect::new(self.position.x, self.position.y, self.size.x, self.size.y);
+    Bounds::Rectangle(rect)
+  }
+}
+
+impl Node for ExampleNode {
+  fn ready(node: RefMut<Self>) {
+    // Add the node to the appropriate DrawBuffer. If you have multiple DrawBuffers for one
+    // type, for some reason, you'll have to make this a bit more elaborate.
+    let draw_buffer = scene::find_node_by_type::<DrawBuffer<Self>>().unwrap();
+    draw_buffer.buffered.push(node.handle());
+  }
+  
+  fn draw(_: RefMut<Self>) {
+    // Don't use this as it will be called by Macroquad, in addition to your `buffered_draw`
+    // implementation, only according to the order the node was added to the scene tree
+  }
+}
+
 #[macroquad::main(get_window_conf)]
 async fn main() -> Result<()> {
   let params = GameParams {
@@ -79,13 +127,35 @@ async fn main() -> Result<()> {
     ..Default::default()
   };
 
+  // Load game resources, apply modules and dispatch an event that opens the main menu when the game loop starts.
+  // This puts a Resources struct, holding all the games assets and data files, including everything from modules,
+  // into storage, so any code that requires access to such data, must be called after this.
   init(params).await?;
+  
+  /* Begin optional stuff */
 
+  // This defines the builder used when loading scenes and it is the best way to inject your own Macroquad
+  // scene node implementations into the scene tree and have them drawn when you want them to.
+  // The DrawBuffers require a type that implements BufferedDraw, so implementation of Macroquad's Node trait is,
+  // strictly speaking, not required. This is what it was meant to be used for, however.
+  // If you don't define your own scene builder, the default one will be used. 
+  SceneBuilder::new()
+          .with_draw_buffer::<ExampleNode>(DrawStage::Actors)
+          .make_default();
+  
+  // This is also where you want to define anything else that you reference in your game data, like custom ActorBehaviors,
+  // custom ButtonBuilders that are referenced in your customized GUI theme(s), etc. 
+  
+  /* End optional stuff */
+
+  // Handle event queue until encountering a Quit event
   while handle_queued_events().await? {
+    // Begin frame
     begin_frame();
 
     // ...
 
+    // End frame
     end_frame().await;
   }
 
