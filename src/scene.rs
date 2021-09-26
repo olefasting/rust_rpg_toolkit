@@ -28,6 +28,8 @@ pub enum DrawStage {
     Gui,
 }
 
+pub type SceneBuilderFunc = fn(chapter_index: usize, map_id: &str);
+
 // This is a builder for scenes in the game. It is not meant to be used to build scenes directly
 // (dispatch a `ChangeScene` event for that), but to create the default builder used by the event
 // handler when loading scenes by calling `make_default`.
@@ -35,6 +37,8 @@ pub struct SceneBuilder {
     chapter_index: Option<usize>,
     map_id: Option<String>,
     draw_stages: HashMap<DrawStage, Vec<fn()>>,
+    pre_build: SceneBuilderFunc,
+    post_build: SceneBuilderFunc,
 }
 
 impl SceneBuilder {
@@ -57,6 +61,8 @@ impl SceneBuilder {
             chapter_index: None,
             map_id: None,
             draw_stages,
+            pre_build: |_, _| {},
+            post_build: |_, _| {},
         }
     }
 
@@ -75,12 +81,25 @@ impl SceneBuilder {
             .get_mut(&draw_stage)
             .unwrap()
             .push(|| {
-                let draw_buffer = DrawBuffer::<T>::new();
-                scene::add_node(draw_buffer);
+                DrawBuffer::<T>::add_node();
             });
 
         SceneBuilder {
             draw_stages,
+            ..self
+        }
+    }
+
+    pub fn with_pre_build(self, pre_build: SceneBuilderFunc) -> Self {
+        SceneBuilder {
+            pre_build,
+            ..self
+        }
+    }
+
+    pub fn with_post_build(self, post_build: SceneBuilderFunc) -> Self {
+        SceneBuilder {
+            post_build,
             ..self
         }
     }
@@ -97,6 +116,8 @@ impl SceneBuilder {
         } else {
             (character.chapter_index, &character.map_id)
         };
+
+        (self.pre_build)(chapter_index, map_id);
 
         let resources = storage::get::<Resources>();
 
@@ -179,6 +200,8 @@ impl SceneBuilder {
         character.spawn(game_state, player_spawn_point);
 
         storage::store(map);
+
+        (self.post_build)(chapter_index, map_id);
 
         Ok(())
     }

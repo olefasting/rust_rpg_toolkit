@@ -8,6 +8,7 @@ pub struct GameParams {
     pub data_path: String,
     pub modules_path: String,
     pub characters_path: String,
+    pub assets_path: String,
     pub new_character_build_points: u32,
     pub skip_character_creation: bool,
 }
@@ -20,6 +21,7 @@ impl Default for GameParams {
             data_path: "data".to_string(),
             modules_path: "modules".to_string(),
             characters_path: "characters".to_string(),
+            assets_path: "assets".to_string(),
             new_character_build_points: 6,
             skip_character_creation: false,
         }
@@ -27,13 +29,12 @@ impl Default for GameParams {
 }
 
 #[cfg(not(any(target_family = "wasm", target_os = "android")))]
-async fn load_resources() {
-    let game_params = storage::get::<GameParams>();
+async fn load_resources(game_params: &GameParams) {
     let coroutine = {
         let game_params = game_params.clone();
 
         start_coroutine(async move {
-            let mut resources = Resources::new(&game_params.data_path).await.unwrap();
+            let mut resources = Resources::new(&game_params).await.unwrap();
             load_modules(&game_params, &mut resources).await.unwrap();
 
             storage::store(resources);
@@ -58,8 +59,7 @@ async fn load_resources() {
 }
 
 #[cfg(target_family = "wasm")]
-async fn load_resources() {
-    let game_params = storage::get::<GameParams>();
+async fn load_resources(game_params: &GameParams) {
     let mut state = ResourceLoadingState::None;
 
     let mut resources = Resources::new(&game_params.data_path).await.unwrap();
@@ -73,9 +73,9 @@ pub async fn init(params: GameParams) -> Result<()> {
     fs::create_dir_all(&params.characters_path)?;
     storage::store(params.clone());
 
-    load_resources().await;
+    load_resources(&params).await;
 
-    let gui_theme = GuiTheme::load(&params.data_path).await?;
+    let gui_theme = GuiTheme::load().await?;
     let gui_skins = GuiSkins::new(gui_theme);
     storage::store(gui_skins);
 

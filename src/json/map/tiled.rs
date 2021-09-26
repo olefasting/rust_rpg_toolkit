@@ -138,17 +138,9 @@ impl Into<Map> for TiledMap {
 
             let texture_id = texture_id.expect(&format!("Tiled tileset '{}' needs a 'texture_id' property!", tiled_tileset.name));
 
-            let mut normal_map_id = None;
-            if let Some(prop) = properties.remove("normal_map_id") {
-                if let MapProperty::String { value} = prop {
-                    normal_map_id = Some(value)
-                }
-            }
-
             let tileset = MapTileset {
                 id: tiled_tileset.name.clone(),
                 texture_id: texture_id.to_string(),
-                normal_map_id,
                 texture_size,
                 tile_size,
                 grid_size,

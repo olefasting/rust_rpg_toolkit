@@ -63,11 +63,13 @@ pub async fn handle_event(event: Event) -> Result<Event> {
             load_scene(character)?;
         }
         Event::ChangeMap { chapter_index, map_id } => {
-            let game_state = scene::find_node_by_type::<GameState>().unwrap();
-            let character = game_state
-                .get_player_character()
-                .expect("No player character found. Use `Event::StartGame` to start a new game!")
-                .with_map(chapter_index, &map_id);
+            let character = {
+                let game_state = scene::find_node_by_type::<GameState>().unwrap();
+                game_state
+                    .get_player_character()
+                    .expect("No player character found. Use `Event::StartGame` to start a new game!")
+                    .with_map(chapter_index, &map_id)
+            };
 
             load_scene(character)?;
         }

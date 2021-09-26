@@ -112,8 +112,9 @@ impl Resources {
 
     pub const WHITE_TEXTURE_ID: &'static str = "__WHITE_TEXTURE__";
 
-    pub async fn new<P: AsRef<Path>>(data_path: P) -> Result<Self> {
-        let data_path = data_path.as_ref();
+    pub async fn new(game_params: &GameParams) -> Result<Self> {
+        let data_path = Path::new(&game_params.data_path);
+        let assets_path = Path::new(&game_params.assets_path);
 
         let character_classes_path = data_path.join(Self::CLASSES_FILE_NAME);
         let bytes = load_file(&character_classes_path.to_string_lossy()).await?;
@@ -155,8 +156,8 @@ impl Resources {
         let bytes = load_file(&scenario_path.to_string_lossy()).await?;
         let chapter_params: Vec<ChapterParams> = serde_json::from_slice(&bytes)?;
         let mut chapters = Vec::new();
-        for chapter_params in chapter_params {
-            let chapter = Chapter::new(chapter_params).await?;
+        for params in chapter_params {
+            let chapter = Chapter::new(game_params, params).await?;
             chapters.push(chapter);
         }
 
@@ -164,13 +165,12 @@ impl Resources {
         let bytes = load_file(&assets_file_path.to_string_lossy()).await?;
         let assets: AssetsParams = serde_json::from_slice(&bytes)?;
 
-
         let mut materials = HashMap::new();
         for params in assets.materials.clone() {
             let id = params.id.clone();
-            let vertex_path = params.vertex_path.clone();
-            let fragment_path = params.fragment_path.clone();
-            let material = MaterialSource::new(&vertex_path, &fragment_path, params.into()).await?;
+            let vertex_path = assets_path.join(&params.vertex_path);
+            let fragment_path = assets_path.join(&params.fragment_path);
+            let material = MaterialSource::new(vertex_path, fragment_path, params.into()).await?;
             materials.insert(id, material);
         }
 
@@ -179,52 +179,66 @@ impl Resources {
         let white_texture = Texture2D::from_image(&white_image);
         white_texture.set_filter(FilterMode::Nearest);
 
-        let texture = Texture::new(white_texture, None);
+        let texture = Texture::new(white_texture, None, None);
         textures.insert(Self::WHITE_TEXTURE_ID.to_string(), texture);
 
         for params in &assets.textures {
-            let texture = load_texture(&params.path).await?;
+            let path = assets_path.join(&params.path);
+            let texture = load_texture(&path.to_string_lossy()).await?;
             texture.set_filter(params.filter_mode);
+
+            let mut height_map = None;
+            if let Some(path) = &params.height_map_path {
+                let path = assets_path.join(path);
+                let res = load_texture(&path.to_string_lossy()).await?;
+                res.set_filter(params.filter_mode);
+                height_map = Some(res);
+            }
 
             let mut normal_map = None;
             if let Some(path) = &params.normal_map_path {
-                let res = load_texture(path).await?;
+                let path = assets_path.join(path);
+                let res = load_texture(&path.to_string_lossy()).await?;
                 res.set_filter(params.filter_mode);
                 normal_map = Some(res);
             }
 
-            let texture = Texture::new(texture, normal_map);
+            let texture = Texture::new(texture, height_map, normal_map);
             textures.insert(params.id.clone(), texture);
         }
 
         let mut images = HashMap::new();
-        for image_params in &assets.images {
-            let bytes = load_file(&image_params.path).await?;
-            let format = match image_params.format.as_ref() {
+        for params in &assets.images {
+            let path = assets_path.join(&params.path);
+            let bytes = load_file(&path.to_string_lossy()).await?;
+            let format = match params.format.as_ref() {
                 Some(ext) => ImageFormat::from_extension(ext),
                 _ => None,
             };
 
             let image = Image::from_file_with_format(&bytes, format);
-            images.insert(image_params.id.clone(), image);
+            images.insert(params.id.clone(), image);
         }
 
         let mut font_bytes = HashMap::new();
-        for font_params in &assets.fonts {
-            let bytes = load_file(&font_params.path).await?;
-            font_bytes.insert(font_params.id.clone(), bytes);
+        for params in &assets.fonts {
+            let path = assets_path.join(&params.path);
+            let bytes = load_file(&path.to_string_lossy()).await?;
+            font_bytes.insert(params.id.clone(), bytes);
         }
 
         let mut sound_effects = HashMap::new();
-        for sound_params in &assets.sound_effects {
-            let sound = load_sound(&sound_params.path).await?;
-            sound_effects.insert(sound_params.id.clone(), sound);
+        for params in &assets.sound_effects {
+            let path = assets_path.join(&params.path);
+            let sound = load_sound(&path.to_string_lossy()).await?;
+            sound_effects.insert(params.id.clone(), sound);
         }
 
         let mut music = HashMap::new();
-        for music_params in &assets.music {
-            let track = load_sound(&music_params.path).await?;
-            music.insert(music_params.id.clone(), track);
+        for params in &assets.music {
+            let path = assets_path.join(&params.path);
+            let track = load_sound(&path.to_string_lossy()).await?;
+            music.insert(params.id.clone(), track);
         }
 
         let resources = Resources {

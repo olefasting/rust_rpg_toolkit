@@ -1,0 +1,59 @@
+[
+  {
+    "id": "test_class_prototype",
+    "name": "Unnamed Test Class Character",
+    "class": "test_class",
+    "can_level_up": true,
+    "factions": [
+      "player",
+      "bystanders",
+      "guards"
+    ],
+    "strength": 8,
+    "dexterity": 8,
+    "constitution": 8,
+    "intelligence": 8,
+    "willpower": 8,
+    "perception": 8,
+    "charisma": 8,
+    "items": [],
+    "credits": 100,
+    "collider": {
+      "x": -8.0,
+      "y": -8.0,
+      "width": 16.0,
+      "height": 16.0
+    },
+    "animation_player": {
+      "texture_id": "player",
+      "tile_size": {
+        "x": 32.0,
+        "y": 32.0
+      },
+      "offset": {
+        "x": -16.0,
+        "y": -24.0
+      },
+      "animations": [
+        {
+          "name": "down",
+          "row": 0,
+          "frames": 3,
+          "fps": 8
+        },
+        {
+          "name": "up",
+          "row": 1,
+          "frames": 3,
+          "fps": 8
+        },
+        {
+          "name": "right",
+          "row": 2,
+          "frames": 3,
+          "fps": 8
+        }
+      ]
+    }
+  }
+]

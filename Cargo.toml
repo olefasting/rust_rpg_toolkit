@@ -26,6 +26,11 @@ name = "example-project"
 path = "examples/example_project/src/main.rs"
 crate-type = ["bin"]
 
+[[example]]
+name = "building-scenes"
+path = "examples/building_scenes/src/main.rs"
+crate-type = ["bin"]
+
 [dependencies]
 # lazy_static = "1.4.0"
 chrono = "0.4.19"

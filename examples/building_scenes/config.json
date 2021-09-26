@@ -1,0 +1,12 @@
+{
+  "resolution": {
+    "x": 1920,
+    "y": 1080
+  },
+  "fullscreen": false,
+  "dynamic_lighting": false,
+  "post_processing": "crt",
+  "master_volume": 0,
+  "sound_effects_volume": 100,
+  "music_volume": 100
+}

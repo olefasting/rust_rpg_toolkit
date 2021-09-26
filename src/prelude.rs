@@ -23,7 +23,6 @@ pub(crate) use macroquad::{
     experimental::{
         animation::{
             AnimatedSprite,
-            Animation,
         },
     },
     audio::{
@@ -42,6 +41,7 @@ pub use macroquad::{
             RefMut,
             Handle,
         },
+        animation::Animation,
         coroutines::start_coroutine,
     },
     audio::{
@@ -186,6 +186,7 @@ pub use crate::{
     },
     scene::{
         DrawStage,
+        SceneBuilderFunc,
         SceneBuilder,
     },
     gui::{

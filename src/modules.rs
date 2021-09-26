@@ -4,7 +4,10 @@ use std::{
 
 use crate::prelude::*;
 
-use crate::resources::{MaterialAssetParams, TextureAssetParams, SoundAssetParams};
+use crate::resources::{MaterialAssetParams, TextureAssetParams, SoundAssetParams, ImageAssetParams, FontAssetParams};
+
+pub const ACTIVE_MODULES_FILE_NAME: &'static str = "active_modules.json";
+pub const MODULE_FILE_NAME: &'static str = "module.json";
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -22,6 +25,12 @@ pub(crate) enum ModuleDataFileKind {
 pub(crate) enum ModuleIntegration {
     Extend,
     Replace,
+}
+
+impl Default for ModuleIntegration {
+    fn default() -> Self {
+        Self::Extend
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -52,10 +61,58 @@ pub(crate) struct ModuleMaterials {
     pub files: Vec<MaterialAssetParams>,
 }
 
+impl Default for ModuleMaterials {
+    fn default() -> Self {
+        ModuleMaterials {
+            integration: Default::default(),
+            files: Vec::new(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub(crate) struct ModuleTextures {
     pub integration: ModuleIntegration,
     pub files: Vec<TextureAssetParams>,
+}
+
+impl Default for ModuleTextures {
+    fn default() -> Self {
+        ModuleTextures {
+            integration: Default::default(),
+            files: Vec::new(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub(crate) struct ModuleImages {
+    pub integration: ModuleIntegration,
+    pub files: Vec<ImageAssetParams>,
+}
+
+impl Default for ModuleImages {
+    fn default() -> Self {
+        ModuleImages {
+            integration: Default::default(),
+            files: Vec::new(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub(crate) struct ModuleFonts {
+    pub integration: ModuleIntegration,
+    pub files: Vec<FontAssetParams>,
+}
+
+impl Default for ModuleFonts {
+    fn default() -> Self {
+        ModuleFonts {
+            integration: Default::default(),
+            files: Vec::new(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -64,11 +121,28 @@ pub(crate) struct ModuleSounds {
     pub files: Vec<SoundAssetParams>,
 }
 
+impl Default for ModuleSounds {
+    fn default() -> Self {
+        ModuleSounds {
+            integration: Default::default(),
+            files: Vec::new(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub(crate) struct ModuleAssetsParams {
+    #[serde(default)]
     materials: ModuleMaterials,
+    #[serde(default)]
     textures: ModuleTextures,
+    #[serde(default)]
+    images: ModuleImages,
+    #[serde(default)]
+    fonts: ModuleFonts,
+    #[serde(default)]
     sound_effects: ModuleSounds,
+    #[serde(default)]
     music: ModuleSounds,
 }
 
@@ -118,7 +192,7 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
 
     'module: for module_name in active_modules {
         let module_path = modules_path.join(&module_name);
-        let module_file_path = module_path.join("module.json");
+        let module_file_path = module_path.join(MODULE_FILE_NAME);
 
         if module_path.exists() == false || module_file_path.exists() == false {
             println!("WARNING: Module '{}' could not be found, even though it is listed in the active modules file!", &module_name);
@@ -261,8 +335,8 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
                         resources.chapters = Vec::new();
                     }
 
-                    for mut chapter_params in scenario_params {
-                        chapter_params.maps.iter_mut().for_each(|map_params| {
+                    for mut params in scenario_params {
+                        params.maps.iter_mut().for_each(|map_params| {
                             let path = Path::new(&game_params.modules_path)
                                 .join(&module_name)
                                 .join(&map_params.path);
@@ -270,7 +344,7 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
                             map_params.path = path.to_string_lossy().to_string();
                         });
 
-                        let chapter = Chapter::new(chapter_params).await?;
+                        let chapter = Chapter::new(game_params, params).await?;
 
                         resources.chapters.push(chapter);
                     }
@@ -307,6 +381,14 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
                     let texture = load_texture(&path.to_string_lossy()).await?;
                     texture.set_filter(params.filter_mode);
 
+                    let mut height_map = None;
+                    if let Some(path) = &params.height_map_path {
+                        let path = module_path.join(path);
+                        let res = load_texture(&path.to_string_lossy()).await?;
+                        res.set_filter(params.filter_mode);
+                        height_map = Some(res);
+                    }
+
                     let mut normal_map = None;
                     if let Some(path) = &params.normal_map_path {
                         let path = module_path.join(path);
@@ -315,7 +397,7 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
                         normal_map = Some(res);
                     }
 
-                    let texture = Texture::new(texture, normal_map);
+                    let texture = Texture::new(texture, height_map, normal_map);
 
                     textures.insert(params.id.clone(), texture);
                 }
@@ -328,6 +410,48 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
                     }
 
                     ModuleIntegration::Replace => resources.textures = textures,
+                }
+            }
+            {
+                let mut images = HashMap::new();
+                for params in &module_assets.images.files {
+                    let path = module_path.join(&params.path);
+                    let bytes = load_file(&path.to_string_lossy()).await?;
+                    let format = match params.format.as_ref() {
+                        Some(ext) => ImageFormat::from_extension(ext),
+                        _ => None,
+                    };
+
+                    let image = Image::from_file_with_format(&bytes, format);
+                    images.insert(params.id.clone(), image);
+                }
+
+                match module_assets.images.integration {
+                    ModuleIntegration::Extend => {
+                        for (id, image) in images {
+                            resources.images.insert(id, image);
+                        }
+                    }
+
+                    ModuleIntegration::Replace => resources.images = images,
+                }
+            }
+            {
+                let mut font_bytes = HashMap::new();
+                for params in &module_assets.fonts.files {
+                    let path = module_path.join(&params.path);
+                    let bytes = load_file(&path.to_string_lossy()).await?;
+                    font_bytes.insert(params.id.clone(), bytes);
+                }
+
+                match module_assets.fonts.integration {
+                    ModuleIntegration::Extend => {
+                        for (id, font) in font_bytes {
+                            resources.font_bytes.insert(id, font);
+                        }
+                    }
+
+                    ModuleIntegration::Replace => resources.font_bytes = font_bytes,
                 }
             }
             {
@@ -372,9 +496,11 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
     Ok(())
 }
 
-pub(crate) fn get_available_modules(modules_path: &str) -> Result<HashMap<String, ModuleParams>> {
+pub(crate) fn get_available_modules() -> Result<HashMap<String, ModuleParams>> {
+    let game_params = storage::get::<GameParams>();
+    let path = Path::new(&game_params.modules_path);
     let mut res = HashMap::new();
-    for entry in fs::read_dir(modules_path)? {
+    for entry in fs::read_dir(path)? {
         if let Ok(entry) = entry {
             let path = entry.path();
             if path.is_dir() {
@@ -383,9 +509,9 @@ pub(crate) fn get_available_modules(modules_path: &str) -> Result<HashMap<String
                     .unwrap()
                     .to_string_lossy();
 
-                let module_file_path = path.join("module.json");
-                if module_file_path.exists() {
-                    let bytes = fs::read(module_file_path)?;
+                let file_path = path.join("module.json");
+                if file_path.exists() {
+                    let bytes = fs::read(file_path)?;
                     let module = serde_json::from_slice(&bytes)?;
                     res.insert(name.to_string(), module);
                 }

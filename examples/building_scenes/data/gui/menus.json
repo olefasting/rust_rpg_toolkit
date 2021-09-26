@@ -1,0 +1,108 @@
+[
+  {
+    "id": "main_menu",
+    "size": {
+      "x": 250.0,
+      "y": 250.0
+    },
+    "position": "centered",
+    "options": [
+      {
+        "index": 0,
+        "title": "Start Game"
+      },
+      {
+        "index": 1,
+        "title": "Settings"
+      },
+      {
+        "index": 2,
+        "title": "Modules"
+      },
+      {
+        "index": 3,
+        "title": "Quit",
+        "is_pushed_down": true
+      }
+    ],
+    "button_style":  {
+      "type": "normal"
+    },
+    "is_static": true
+  },
+  {
+    "id": "game_menu",
+    "size": {
+      "x": 250.0,
+      "y": 250.0
+    },
+    "position": "centered",
+    "options": [
+      {
+        "index": 0,
+        "title": "Resume"
+      },
+      {
+        "index": 1,
+        "title": "Save"
+      },
+      {
+        "index": 2,
+        "title": "Main Menu",
+        "is_pushed_down": true
+      },
+      {
+        "index": 3,
+        "title": "Quit",
+        "is_pushed_down": true
+      }
+    ],
+    "button_style": {
+      "type": "normal"
+    },
+    "is_static": true
+  },
+  {
+    "id": "chapter_selection",
+    "size": {
+      "x": 250.0,
+      "y": 300.0
+    },
+    "title": "Select Chapter",
+    "position": "centered",
+    "options": [
+      {
+        "title": "Cancel",
+        "is_pushed_down": true,
+        "is_cancel": true
+      }
+    ],
+    "button_style": {
+      "type": "normal"
+    },
+    "is_static": true
+  },
+  {
+    "id": "class_selection",
+    "size": {
+      "x": 250.0,
+      "y": 300.0
+    },
+    "title": "Select Class",
+    "position": "centered",
+    "options": [
+      {
+        "title": "Cancel",
+        "style_override": {
+          "type": "normal"
+        },
+        "is_pushed_down": true,
+        "is_cancel": true
+      }
+    ],
+    "button_style": {
+      "type": "label_only"
+    },
+    "is_static": true
+  }
+]

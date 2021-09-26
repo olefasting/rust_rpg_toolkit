@@ -3,6 +3,7 @@ use crate::gui::*;
 use crate::modules::{
     ModuleParams,
     get_available_modules,
+    ACTIVE_MODULES_FILE_NAME,
 };
 
 #[derive(Debug, Copy, Clone)]
@@ -79,10 +80,10 @@ pub(crate) async fn show_module_management() {
 
     let game_params = storage::get::<GameParams>();
 
-    let available_modules = get_available_modules(&game_params.modules_path).unwrap();
+    let available_modules = get_available_modules().unwrap();
 
-    let active_modules_file_path = format!("{}/active_modules.json", &game_params.modules_path);
-    let bytes = load_file(&active_modules_file_path).await.unwrap();
+    let active_modules_file_path = Path::new(&game_params.modules_path).join(ACTIVE_MODULES_FILE_NAME);
+    let bytes = load_file(&active_modules_file_path.to_string_lossy()).await.unwrap();
     let mut active_modules = serde_json::from_slice::<Vec<String>>(&bytes)
         .unwrap()
         .into_iter()

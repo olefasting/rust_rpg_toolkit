@@ -1,6 +1,6 @@
 /target
 /froggy/target
-/examples/example_project/assets/sound_effects/external/
+/examples/shared_resources/assets/sound_effects/external/
 /examples/example_project/web/assets
 /examples/example_project/web/*.d
 /examples/example_project/web/*.wasm

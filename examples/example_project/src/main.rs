@@ -2,7 +2,15 @@ use rust_rpg_toolkit::prelude::*;
 
 const GAME_NAME: &'static str = "example-project";
 const GAME_VERSION: &'static str = "0.1.0";
-const CONFIG_PATH: &'static str = "config.json";
+
+// Paths must be set for examples, as they are not using their own directory as working directory.
+// This is not necessary in a normal project....
+const CONFIG_PATH: &'static str = "examples/example_project/config.json";
+const DATA_PATH: &'static str = "examples/example_project/data";
+const MODULES_PATH: &'static str = "examples/example_project/modules";
+const CHARACTERS_PATH: &'static str = "examples/example_project/characters";
+
+const ASSETS_PATH: &'static str = "examples/shared_resources/assets";
 
 pub fn window_conf() -> WindowConf {
     let config = Config::load(CONFIG_PATH);
@@ -22,7 +30,10 @@ async fn main() -> Result<()> {
     let params = GameParams {
         name: GAME_NAME.to_string(),
         version: GAME_VERSION.to_string(),
-        skip_character_creation: true,
+        data_path: DATA_PATH.to_string(),
+        modules_path: MODULES_PATH.to_string(),
+        characters_path: CHARACTERS_PATH.to_string(),
+        assets_path: ASSETS_PATH.to_string(),
         ..Default::default()
     };
 

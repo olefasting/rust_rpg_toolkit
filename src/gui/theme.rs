@@ -85,8 +85,9 @@ impl GuiTheme {
     const THEME_FILE_NAME: &'static str = "theme.json";
     const MENUS_FILE_NAME: &'static str = "menus.json";
 
-    pub async fn load<P: AsRef<Path>>(data_path: P) -> Result<Self> {
-        let data_path = data_path.as_ref();
+    pub async fn load() -> Result<Self> {
+        let game_params = storage::get::<GameParams>();
+        let data_path = Path::new(&game_params.data_path);
         let gui_path = data_path.join("gui");
 
         let theme_path = gui_path.join(Self::THEME_FILE_NAME);

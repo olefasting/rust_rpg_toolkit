@@ -25,11 +25,14 @@ pub struct Chapter {
 }
 
 impl Chapter {
-    pub async fn new(params: ChapterParams) -> Result<Self> {
+    pub async fn new(game_params: &GameParams, params: ChapterParams) -> Result<Self> {
+        let data_path = Path::new(&game_params.data_path);
+
         let mut  maps = HashMap::new();
-        for map_params in params.maps {
-            let map = Map::load(&map_params.path).await?;
-            maps.insert(map_params.id.clone(), map);
+        for params in params.maps {
+            let path = data_path.join(&params.path);
+            let map = Map::load(path).await?;
+            maps.insert(params.id.clone(), map);
         }
 
         let chapter = Chapter {
@@ -43,11 +46,11 @@ impl Chapter {
     }
 }
 
-pub async fn load_maps(params: Vec<ChapterParams>) -> Result<Vec<Chapter>> {
+pub async fn load_maps(game_params: &GameParams, params: Vec<ChapterParams>) -> Result<Vec<Chapter>> {
     let mut chapters = Vec::new();
 
     for params in params {
-        let chapter = Chapter::new(params).await?;
+        let chapter = Chapter::new(game_params, params).await?;
         chapters.push(chapter);
     }
 

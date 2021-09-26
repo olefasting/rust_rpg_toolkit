@@ -6,11 +6,6 @@ use crate::prelude::*;
 
 use crate::json::TiledMap;
 
-pub struct TileEdge {
-    begin: UVec2,
-    end: UVec2,
-}
-
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ObjectLayerKind {
@@ -102,8 +97,6 @@ pub enum MapProperty {
 pub struct MapTileset {
     pub id: String,
     pub texture_id: String,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub normal_map_id: Option<String>,
     #[serde(with = "json::def_uvec2")]
     pub texture_size: UVec2,
     #[serde(with = "json::def_uvec2")]

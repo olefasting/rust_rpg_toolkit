@@ -1,0 +1,78 @@
+{
+  "game_version": "0.1.0",
+  "actor": {
+    "id": "6knxaw3c7b099m75",
+    "essential": false,
+    "name": "Test Character",
+    "class": "test_class",
+    "factions": [
+      "player",
+      "bystanders",
+      "guards"
+    ],
+    "behavior": {
+      "aggression": "neutral",
+      "behavior_set": "default_humanoid",
+      "is_stationary": true,
+      "is_on_guard": false,
+      "flee_at_health_factor": 0.0
+    },
+    "strength": 8,
+    "dexterity": 8,
+    "constitution": 8,
+    "intelligence": 8,
+    "willpower": 8,
+    "perception": 8,
+    "charisma": 8,
+    "current_health": 0.0,
+    "current_stamina": 0.0,
+    "current_energy": 0.0,
+    "collider": {
+      "x": -8.0,
+      "y": -8.0,
+      "w": 16.0,
+      "h": 16.0
+    },
+    "items": [],
+    "credits": 100,
+    "equipped_items": {},
+    "animation_player": {
+      "offset": {
+        "x": -16.0,
+        "y": -24.0
+      },
+      "texture_id": "player",
+      "tile_size": {
+        "x": 32.0,
+        "y": 32.0
+      },
+      "animations": [
+        {
+          "name": "down",
+          "row": 0,
+          "frames": 3,
+          "fps": 8
+        },
+        {
+          "name": "up",
+          "row": 1,
+          "frames": 3,
+          "fps": 8
+        },
+        {
+          "name": "right",
+          "row": 2,
+          "frames": 3,
+          "fps": 8
+        }
+      ]
+    },
+    "experience": 0
+  },
+  "items": [],
+  "active_missions": [],
+  "completed_missions": [],
+  "chapter_index": 0,
+  "map_id": "map_01",
+  "is_permadeath": false
+}

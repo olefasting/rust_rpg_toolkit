@@ -1,0 +1,15 @@
+[
+  {
+    "title": "Chapter I",
+    "description": "Chapter I description",
+    "initial_map_id": "map_01",
+    "maps": [
+      {
+        "id": "map_01",
+        "title": "First Map",
+        "description": "First Map description",
+        "path": "maps/map_01.json"
+      }
+    ]
+  }
+]

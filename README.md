@@ -81,44 +81,6 @@ fn get_window_conf() -> WindowConf {
     }
 }
 
-struct ExampleNode {
-  pub position: Vec2,
-  pub size: Vec2,
-}
-
-impl BufferedDraw for ExampleNode {
-  fn buffered_draw(&mut self) {
-    // Draw node here, in stead of in Node::draw
-  }
-
-  fn get_z_index(&self) -> f32 {
-    // This is used to determine the order of draw calls, within
-    // the DrawBuffer. For normal sized actors, you can use y position
-    self.position.y
-  }
-
-  fn get_bounds(&self) -> Bounds {
-    // This is used when frustum culling (if bounds are within viewport,
-    // it will be drawn.
-    let rect = Rect::new(self.position.x, self.position.y, self.size.x, self.size.y);
-    Bounds::Rectangle(rect)
-  }
-}
-
-impl Node for ExampleNode {
-  fn ready(node: RefMut<Self>) {
-    // Add the node to the appropriate DrawBuffer. If you have multiple DrawBuffers for one
-    // type, for some reason, you'll have to make this a bit more elaborate.
-    let draw_buffer = scene::find_node_by_type::<DrawBuffer<Self>>().unwrap();
-    draw_buffer.buffered.push(node.handle());
-  }
-  
-  fn draw(_: RefMut<Self>) {
-    // Don't use this as it will be called by Macroquad, in addition to your `buffered_draw`
-    // implementation, only according to the order the node was added to the scene tree
-  }
-}
-
 #[macroquad::main(get_window_conf)]
 async fn main() -> Result<()> {
   let params = GameParams {
@@ -140,7 +102,7 @@ async fn main() -> Result<()> {
   // strictly speaking, not required. This is what it was meant to be used for, however.
   // If you don't define your own scene builder, the default one will be used. 
   SceneBuilder::new()
-          .with_draw_buffer::<ExampleNode>(DrawStage::Actors)
+          .with_draw_buffer::<MyBufferedDrawImpl>(DrawStage::Actors)
           .make_default();
   
   // This is also where you want to define anything else that you reference in your game data, like custom ActorBehaviors,

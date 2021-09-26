@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
+    </configurations>
+  </component>
+  <component name="CargoProjects">
+    <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="22a0162b-a946-4d48-a00b-4c6245a2b392" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/rust_rpg_toolkit.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/building_scenes/config.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/building_scenes/data/abilities.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/building_scenes/data/actors.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/building_scenes/data/assets.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/building_scenes/data/character_classes.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/building_scenes/data/dialogue.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/building_scenes/data/gui/menus.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/building_scenes/data/gui/theme.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/building_scenes/data/items.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/building_scenes/data/missions.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/building_scenes/data/scenario.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/building_scenes/modules/active_modules.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/building_scenes/src/example_node.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples/building_scenes/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/capstone.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/assets/gui/blank_image.png" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/gui/blank_image.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/assets/gui/fonts/MinimalPixel v2.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/gui/fonts/MinimalPixel v2.ttf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/assets/gui/theme/button_background.png" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/gui/theme/button_background.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/assets/gui/theme/button_background_clicked.png" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/gui/theme/button_background_clicked.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/assets/gui/theme/button_background_hovered.png" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/gui/theme/button_background_hovered.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/assets/gui/theme/button_background_inactive.png" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/gui/theme/button_background_inactive.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/assets/gui/theme/checkbox_background.png" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/gui/theme/checkbox_background.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/assets/gui/theme/checkbox_background_clicked.png" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/gui/theme/checkbox_background_clicked.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/assets/gui/theme/checkbox_background_hovered.png" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/gui/theme/checkbox_background_hovered.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/assets/gui/theme/checkbox_background_selected.png" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/gui/theme/checkbox_background_selected.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/assets/gui/theme/checkbox_background_selected_hovered.png" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/gui/theme/checkbox_background_selected_hovered.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/assets/gui/theme/editbox_background.png" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/gui/theme/editbox_background.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/assets/gui/theme/window_background.png" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/gui/theme/window_background.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/assets/materials/crt.frag" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/materials/crt.frag" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/assets/materials/crt.vert" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/materials/crt.vert" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/assets/materials/dynamic_lighting.frag" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/materials/dynamic_lighting.frag" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/assets/materials/dynamic_lighting.vert" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/materials/dynamic_lighting.vert" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/assets/sound_effects/9mm_Glock_17.wav" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/sound_effects/9mm_Glock_17.wav" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/assets/sound_effects/M4A1_Single.wav" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/sound_effects/M4A1_Single.wav" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/assets/sound_effects/Sci Fi Blaster 1.wav" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/sound_effects/Sci Fi Blaster 1.wav" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/assets/sound_effects/Sci Fi Blaster 4.wav" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/sound_effects/Sci Fi Blaster 4.wav" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/assets/sound_effects/Sci Fi Blaster 9.wav" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/sound_effects/Sci Fi Blaster 9.wav" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/assets/sound_effects/Sci Fi Pistol 4.wav" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/sound_effects/Sci Fi Pistol 4.wav" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/assets/textures/credits.png" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/textures/credits.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/assets/textures/cyberpunk_city_pack_1.png" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/textures/cyberpunk_city_pack_1.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/assets/textures/cyberpunk_city_pack_2.png" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/textures/cyberpunk_city_pack_2.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/assets/textures/items.png" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/textures/items.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/assets/textures/mission_marker.png" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/textures/mission_marker.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/assets/textures/neo_zero_characters.png" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/textures/neo_zero_characters.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/assets/textures/neo_zero_props.png" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/textures/neo_zero_props.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/assets/textures/neo_zero_tiles.png" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/textures/neo_zero_tiles.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/assets/textures/player.png" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/textures/player.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/assets/textures/target_cursor.png" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/textures/target_cursor.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/assets/textures/white_texture.png" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/textures/white_texture.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/data/assets.json" beforeDir="false" afterPath="$PROJECT_DIR$/examples/example_project/data/assets.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/data/maps/tiled_maps/chapter_01_map_01.json" beforeDir="false" afterPath="$PROJECT_DIR$/examples/example_project/data/maps/tiled_maps/tiled_map.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/data/maps/tiled_maps/subway.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/data/scenario.json" beforeDir="false" afterPath="$PROJECT_DIR$/examples/example_project/data/scenario.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/example_project/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/chapter.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/chapter.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/character.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/character.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/events.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/events.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/game.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/main_menu/module_management.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/main_menu/module_management.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/theme.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/theme.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/json/map/tiled.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/json/map/tiled.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/map.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/map.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/prelude.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/prelude.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/texture.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/render/texture.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/resources.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/resources.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/scene.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/scene.rs" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MacroExpansionManager">
+    <option name="directoryName" value="0dtak1gh" />
+  </component>
+  <component name="ProjectId" id="1ygUMEmOe6Q9tORjC8sl6dqYc5e" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="RunOnceActivity.cidr.known.project.marker" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="cf.first.check.clang-format" value="false" />
+    <property name="cidr.known.project.marker" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/examples/custom_nodes" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="org.rust.cargo.project.model.PROJECT_DISCOVERY" value="true" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/examples/custom_nodes" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/examples/example_project/data" />
+      <recent name="$PROJECT_DIR$/examples/example_project" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Cargo.Run Building Scenes Example">
+    <configuration name="Build CLI" type="CargoCommandRunConfiguration" factoryName="Cargo Command" singleton="false">
+      <option name="command" value="build" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$/cli" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="emulateTerminal" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="backtrace" value="SHORT" />
+      <envs />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Build" type="CargoCommandRunConfiguration" factoryName="Cargo Command" singleton="false">
+      <option name="command" value="build" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="emulateTerminal" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="backtrace" value="SHORT" />
+      <envs />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Run Building Scenes Example" type="CargoCommandRunConfiguration" factoryName="Cargo Command" singleton="false">
+      <option name="command" value="run --example building-scenes" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="emulateTerminal" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="backtrace" value="SHORT" />
+      <envs />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Run Example Project" type="CargoCommandRunConfiguration" factoryName="Cargo Command" singleton="false">
+      <option name="command" value="run --example example-project" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="emulateTerminal" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="backtrace" value="SHORT" />
+      <envs />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
+      <option name="command" value="run" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="emulateTerminal" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="backtrace" value="SHORT" />
+      <envs />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Cargo.Build" />
+      <item itemvalue="Cargo.Build CLI" />
+      <item itemvalue="Cargo.Run Building Scenes Example" />
+      <item itemvalue="Cargo.Run Example Project" />
+    </list>
+  </component>
+  <component name="RustProjectSettings">
+    <option name="toolchainHomeDirectory" value="$USER_HOME$/.cargo/bin" />
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="22a0162b-a946-4d48-a00b-4c6245a2b392" name="Changes" comment="" />
+      <created>1632672676656</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1632672676656</updated>
+      <workItem from="1632672681834" duration="7136000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>
