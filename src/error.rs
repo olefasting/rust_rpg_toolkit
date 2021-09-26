@@ -4,6 +4,12 @@ use std::{
     string::FromUtf8Error,
 };
 
+use macroquad::prelude::{
+    FileError,
+    ShaderError,
+    FontError,
+};
+
 use crate::prelude::*;
 
 #[derive(Debug)]

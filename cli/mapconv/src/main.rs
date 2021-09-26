@@ -13,8 +13,6 @@ use rust_rpg_toolkit::{
 #[derive(StructOpt, Debug)]
 #[structopt(name = "mapconv")]
 struct Cli {
-    #[structopt(short, long)]
-    map_id: Option<String>,
     #[structopt(name = "FILE", parse(from_os_str))]
     file: PathBuf,
     #[structopt(name = "OUT", parse(from_os_str))]

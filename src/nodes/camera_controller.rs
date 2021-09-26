@@ -5,7 +5,7 @@ pub struct CameraController {
     pub rotation: f32,
     pub is_following: bool,
     scale: f32,
-    render_target: RenderTarget,
+    render_target: Option<RenderTarget>,
 }
 
 impl CameraController {
@@ -17,15 +17,18 @@ impl CameraController {
 
     pub fn new() -> Self {
         let scale = Self::DEFAULT_SCALE;
-        let render_target = new_render_target(scale);
 
-        CameraController {
+        let mut res = CameraController {
             position: Vec2::ZERO,
             rotation: 0.0,
             scale,
             is_following: false,
-            render_target,
-        }
+            render_target: None,
+        };
+
+        res.create_render_target();
+
+        res
     }
 
     pub fn add_node() -> Handle<Self> {
@@ -33,7 +36,7 @@ impl CameraController {
     }
 
     pub fn get_viewport(&self) -> Viewport {
-        let size = vec2(screen_width() / self.scale, screen_height() / self.scale);
+        let size = vec2(get_screen_width() / self.scale, get_screen_height() / self.scale);
         let position = self.position - size / 2.0;
         Viewport {
             position,
@@ -48,22 +51,33 @@ impl CameraController {
 
     pub fn set_scale(&mut self, scale: f32) {
         self.scale = scale;
-        self.render_target = new_render_target(self.scale);
+        self.create_render_target();
     }
 
-    pub fn get_render_target(&self) -> &RenderTarget {
-        &self.render_target
+    pub fn get_render_target(&self) -> Option<&RenderTarget> {
+        self.render_target.as_ref()
     }
 
     fn get_camera(&self) -> Camera2D {
         Camera2D {
             offset: vec2(0.0, 0.0),
             target: vec2(self.position.x.round(), self.position.y.round()),
-            zoom: vec2(self.scale / screen_width(), self.scale / screen_height()) * 2.0,
+            zoom: vec2(self.scale / get_screen_width(), self.scale / get_screen_height()) * 2.0,
             rotation: self.rotation,
-            render_target: Some(self.render_target),
+            render_target: self.render_target,
             ..Camera2D::default()
         }
+    }
+
+    fn create_render_target(&mut self) {
+        let res = new_render_target(
+            (get_screen_width() / self.scale) as u32,
+            (get_screen_height() / self.scale) as u32,
+        );
+
+        res.texture.set_filter(FilterMode::Nearest);
+
+        self.render_target = Some(res);
     }
 }
 
@@ -99,15 +113,4 @@ impl Node for CameraController {
     fn draw(node: RefMut<Self>) where Self: Sized {
         scene::set_camera(0, Some(node.get_camera()));
     }
-}
-
-fn new_render_target(scale: f32) -> RenderTarget {
-    let render_target = render_target(
-        (screen_width() / scale) as u32,
-        (screen_height() / scale) as u32,
-    );
-
-    render_target.texture.set_filter(FilterMode::Nearest);
-
-    render_target
 }

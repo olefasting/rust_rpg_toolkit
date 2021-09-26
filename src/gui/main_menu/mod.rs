@@ -81,7 +81,7 @@ pub async fn show_main_menu() -> Result<()> {
             }
         }
 
-        next_frame().await;
+        end_frame().await;
     }
 
     root_ui().pop_skin();
@@ -114,6 +114,6 @@ async fn draw_main_menu() -> MainMenuResult {
             }
         }
 
-        next_frame().await;
+        end_frame().await;
     }
 }

@@ -25,11 +25,14 @@ pub(crate) use macroquad::{
             AnimatedSprite,
         },
     },
-    audio::{
-        load_sound,
-        set_sound_volume,
+    prelude::{
+        get_internal_gl,
+        Texture2D,
+        Camera,
+        Camera2D,
+        clear_background,
+        next_frame,
     },
-    prelude::*,
 };
 
 pub use macroquad::{
@@ -44,14 +47,41 @@ pub use macroquad::{
         animation::Animation,
         coroutines::start_coroutine,
     },
-    audio::{
-        Sound,
-        play_sound,
-        play_sound_once,
-    },
     window::Conf as WindowConf,
     color,
     math::*,
+    prelude::{
+        Font,
+        load_ttf_font_from_bytes,
+        Color,
+        FilterMode,
+        rand,
+        UniformType,
+        MaterialParams,
+        Image,
+        ImageFormat,
+        get_fps,
+        get_frame_time,
+        get_time,
+        screen_width as get_screen_width,
+        screen_height as get_screen_height,
+        DrawTextureParams,
+        draw_line,
+        draw_rectangle,
+        draw_rectangle_lines,
+        draw_circle,
+        draw_circle_lines,
+        TextParams,
+        measure_text as get_text_measure,
+        RenderTarget,
+        render_target as new_render_target,
+        set_default_camera,
+        push_camera_state,
+        pop_camera_state,
+        gl_use_material,
+        gl_use_default_material,
+        PipelineParams,
+    },
 };
 
 pub(crate) use serde::{
@@ -92,6 +122,18 @@ pub use crate::{
     chapter::{
         Chapter,
         ChapterParams,
+    },
+    audio::{
+        Sound,
+        VolumeCategory,
+        get_volume,
+        load_sound,
+        load_sound_from_bytes,
+        play_sound,
+    },
+    file_io::{
+        load_file,
+        load_file_to_string,
     },
     error::{
         ErrorKind,
@@ -229,9 +271,9 @@ pub use crate::{
     render::{
         COLOR_NONE,
         draw_progress_bar,
-        draw_aligned_text,
+        draw_text,
         color_from_hex_string,
-        MaterialSource,
+        Material,
         use_default_material,
         Texture,
         Sprite,
@@ -240,6 +282,8 @@ pub use crate::{
         Viewport,
         HorizontalAlignment,
         VerticalAlignment,
+        draw_texture,
+        use_material,
     },
     ability::{
         Ability,

@@ -1,8 +1,13 @@
 use crate::prelude::*;
 
+use macroquad::material::{
+    self,
+    load_material,
+};
+
 #[derive(Debug, Clone)]
-pub struct MaterialSource {
-    compiled: Option<Material>,
+pub struct Material {
+    compiled: Option<material::Material>,
     vertex_src: String,
     fragment_src: String,
     textures: Vec<String>,
@@ -10,21 +15,21 @@ pub struct MaterialSource {
     pipeline_params: PipelineParams,
 }
 
-impl MaterialSource {
+impl Material {
     pub async fn new<P: AsRef<Path>>(vertex_path: P, fragment_path: P, params: MaterialParams) -> Result<Self> {
         let vertex_path = vertex_path.as_ref();
         let fragment_path = fragment_path.as_ref();
 
-        let vertex_bytes = load_file(&vertex_path.to_string_lossy()).await?;
+        let vertex_bytes = load_file(vertex_path).await?;
         let vertex_src = String::from_utf8(vertex_bytes)?;
 
-        let fragment_bytes = load_file(&fragment_path.to_string_lossy()).await?;
+        let fragment_bytes = load_file(fragment_path).await?;
         let fragment_src = String::from_utf8(fragment_bytes)?;
 
         let textures = params.textures;
         let uniforms = HashMap::from_iter(params.uniforms.into_iter());
 
-        let res = MaterialSource {
+        let res = Material {
             compiled: None,
             vertex_src,
             fragment_src,
@@ -40,14 +45,6 @@ impl MaterialSource {
 
     pub fn is_compiled(&self) -> bool {
         self.compiled.is_some()
-    }
-
-    pub fn get_ref(&self) -> Option<&Material> {
-        if let Some(material) = self.compiled.as_ref() {
-            return Some(material);
-        }
-
-        None
     }
 
     pub fn compile(&mut self) -> Result<()> {
@@ -80,7 +77,7 @@ impl MaterialSource {
 
     pub fn compile_and_use(&mut self) -> Result<()> {
         self.compile()?;
-        self.use_compiled()?;
+        self.use_material()?;
 
         Ok(())
     }
@@ -96,7 +93,7 @@ impl MaterialSource {
         Ok(())
     }
 
-    pub fn use_compiled(&self) -> Result<()> {
+    pub fn use_material(&self) -> Result<()> {
         if let Some(material) = self.compiled.clone() {
             gl_use_material(material);
         } else {
@@ -106,16 +103,12 @@ impl MaterialSource {
 
         Ok(())
     }
-
-    pub fn get_mut(&mut self) -> Option<&mut Material> {
-        if let Some(material) = self.compiled.as_mut() {
-            return Some(material);
-        }
-
-        None
-    }
 }
 
 pub fn use_default_material() {
     gl_use_default_material()
+}
+
+pub fn use_material(material: &Material) -> Result<()> {
+    material.use_material()
 }

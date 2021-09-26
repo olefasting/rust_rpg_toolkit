@@ -84,6 +84,6 @@ pub fn get_centered(size: Vec2, bounds: Vec2) -> Vec2 {
 }
 
 pub fn get_centered_on_screen(size: Vec2) -> Vec2 {
-    let bounds = vec2(screen_width(), screen_height());
+    let bounds = vec2(get_screen_width(), get_screen_height());
     get_centered(size, bounds)
 }

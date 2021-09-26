@@ -55,7 +55,7 @@ pub(crate) async fn draw_character_selection() -> CharacterSelectionResult {
             return result;
         }
 
-        next_frame().await;
+        end_frame().await;
     }
 }
 

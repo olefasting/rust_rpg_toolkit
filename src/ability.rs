@@ -187,7 +187,7 @@ impl Ability {
                     );
 
                     if let Some(sound_effect) = self.sound_effect {
-                        play_sound_once(sound_effect);
+                        play_sound(sound_effect, false);
                     }
                 },
                 AbilityDelivery::Melee => {
@@ -215,12 +215,12 @@ impl Ability {
 
                     if hit_success {
                         if let Some(sound_effect) = self.on_hit_sound_effect {
-                            play_sound_once(sound_effect);
+                            play_sound(sound_effect, false);
                         } else if let Some(sound_effect) = self.sound_effect {
-                            play_sound_once(sound_effect);
+                            play_sound(sound_effect, false);
                         }
                     } else if let Some(sound_effect) = self.sound_effect {
-                        play_sound_once(sound_effect);
+                        play_sound(sound_effect, false);
                     }
                 }
             }

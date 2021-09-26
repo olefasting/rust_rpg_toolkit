@@ -136,6 +136,6 @@ pub(crate) async fn show_settings() {
             return;
         }
 
-        next_frame().await;
+        end_frame().await;
     }
 }

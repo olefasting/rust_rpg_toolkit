@@ -6,6 +6,8 @@ use crate::prelude::*;
 
 use crate::resources::{MaterialAssetParams, TextureAssetParams, SoundAssetParams, ImageAssetParams, FontAssetParams};
 
+use macroquad::texture::load_texture;
+
 pub const ACTIVE_MODULES_FILE_NAME: &'static str = "active_modules.json";
 pub const MODULE_FILE_NAME: &'static str = "module.json";
 
@@ -187,7 +189,7 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
     let mut loaded_modules: Vec<(String, String)> = Vec::new();
 
     let active_modules_file_path = modules_path.join("active_modules.json");
-    let bytes = load_file(&active_modules_file_path.to_string_lossy()).await?;
+    let bytes = load_file(active_modules_file_path).await?;
     let active_modules: Vec<String> = serde_json::from_slice(&bytes)?;
 
     'module: for module_name in active_modules {
@@ -199,7 +201,7 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
             continue 'module;
         }
 
-        let bytes = load_file(&module_file_path.to_string_lossy()).await?;
+        let bytes = load_file(&module_file_path).await?;
         let module_params: ModuleParams = serde_json::from_slice(&bytes)?;
 
         if let Some(required_game_version) = &module_params.required_game_version {
@@ -231,7 +233,7 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
 
         for data in module_params.data {
             let data_file_path = module_path.join(&data.path);
-            let bytes = load_file(&data_file_path.to_string_lossy()).await?;
+            let bytes = load_file(data_file_path).await?;
             match data.kind {
                 ModuleDataFileKind::Actors => {
                     let actors: Vec<ActorParams> = serde_json::from_slice(&bytes)?;
@@ -360,7 +362,7 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
                     let vertex_path = module_path.join(&asset_params.vertex_path);
                     let fragment_path = module_path.join(&asset_params.fragment_path);
 
-                    let material = MaterialSource::new(vertex_path, fragment_path, asset_params.into()).await?;
+                    let material = Material::new(vertex_path, fragment_path, asset_params.into()).await?;
 
                     materials.insert(id, material);
                 }
@@ -416,7 +418,7 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
                 let mut images = HashMap::new();
                 for params in &module_assets.images.files {
                     let path = module_path.join(&params.path);
-                    let bytes = load_file(&path.to_string_lossy()).await?;
+                    let bytes = load_file(path).await?;
                     let format = match params.format.as_ref() {
                         Some(ext) => ImageFormat::from_extension(ext),
                         _ => None,
@@ -440,7 +442,7 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
                 let mut font_bytes = HashMap::new();
                 for params in &module_assets.fonts.files {
                     let path = module_path.join(&params.path);
-                    let bytes = load_file(&path.to_string_lossy()).await?;
+                    let bytes = load_file(path).await?;
                     font_bytes.insert(params.id.clone(), bytes);
                 }
 
@@ -458,7 +460,7 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
                 let mut sound_effects = HashMap::new();
                 for sound_params in module_assets.sound_effects.files {
                     let path = module_path.join(&sound_params.path);
-                    let sound = load_sound(&path.to_string_lossy()).await?;
+                    let sound = load_sound(VolumeCategory::SoundEffect, path).await?;
                     sound_effects.insert(sound_params.id, sound);
                 }
 
@@ -475,7 +477,7 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
                 let mut music = HashMap::new();
                 for music_params in module_assets.music.files {
                     let path = module_path.join(music_params.path);
-                    let music_file = load_sound(&path.to_string_lossy()).await?;
+                    let music_file = load_sound(VolumeCategory::Music, path).await?;
                     music.insert(music_params.id, music_file);
                 }
 

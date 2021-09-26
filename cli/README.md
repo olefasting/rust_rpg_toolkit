@@ -4,7 +4,9 @@ This crate contains various command line tools for use with the toolkit.
 
 ## mapconv
 
-`mapconv -i <input path> -o <output path>`
+Tool for converting from Tiled maps
+
+`mapconv <FILE> <OUT>`
 
 \
 \

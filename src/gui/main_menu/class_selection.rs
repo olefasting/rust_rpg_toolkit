@@ -42,6 +42,6 @@ pub(crate) async fn draw_class_selection() -> Option<String> {
             return res;
         }
 
-        next_frame().await;
+        end_frame().await;
     }
 }

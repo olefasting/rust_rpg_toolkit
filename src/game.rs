@@ -43,10 +43,12 @@ async fn load_resources(game_params: &GameParams) {
 
     while coroutine.is_done() == false {
         clear_background(color::BLACK);
-        draw_aligned_text(
+        draw_text(
             "Loading game resources...",
-            screen_width() / 2.0,
-            screen_height() / 2.0,
+            vec2(
+                get_screen_width() / 2.0,
+                get_screen_height() / 2.0,
+            ),
             HorizontalAlignment::Center,
             VerticalAlignment::Center,
             TextParams {
@@ -54,7 +56,7 @@ async fn load_resources(game_params: &GameParams) {
             },
         );
 
-        next_frame().await;
+        end_frame().await;
     }
 }
 

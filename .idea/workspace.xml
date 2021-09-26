@@ -10,15 +10,39 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="22a0162b-a946-4d48-a00b-4c6245a2b392" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/examples/shared_resources/assets/fonts.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/examples/shared_resources/assets/images.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/examples/shared_resources/assets/materials.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/examples/shared_resources/assets/music.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/examples/shared_resources/assets/sound_effects.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/examples/shared_resources/assets/textures.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/audio.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/file_io.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/example_project/data/assets.json" beforeDir="false" afterPath="$PROJECT_DIR$/examples/example_project/data/assets.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/shared_resources/assets/materials/dynamic_lighting.frag" beforeDir="false" afterPath="$PROJECT_DIR$/examples/shared_resources/assets/materials/dynamic_lighting.frag" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cli/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/cli/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cli/mapconv/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/cli/mapconv/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ability.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/ability.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/error.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/error.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/game.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/main_menu/character_creation.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/main_menu/character_creation.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/main_menu/character_selection.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/main_menu/character_selection.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/main_menu/class_selection.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/main_menu/class_selection.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/main_menu/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/main_menu/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/main_menu/module_management.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/main_menu/module_management.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/main_menu/settings.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/main_menu/settings.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/theme.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/theme.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/map.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/map.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/nodes/camera_controller.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/nodes/camera_controller.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/nodes/hud.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/nodes/hud.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/nodes/post_processing.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/nodes/post_processing.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/nodes/projectiles.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/nodes/projectiles.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/physics/physics_body.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/physics/physics_body.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/prelude.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/prelude.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/animation.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/render/animation.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/helpers.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/render/helpers.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/material.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/render/material.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/render/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/sprite.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/render/sprite.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/texture.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/render/texture.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/resources.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/resources.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -28,6 +52,13 @@
   </component>
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Rust File" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -66,7 +97,7 @@
       <recent name="$PROJECT_DIR$/examples/example_project" />
     </key>
   </component>
-  <component name="RunManager" selected="Cargo.Run Example Project">
+  <component name="RunManager" selected="Cargo.Build CLI">
     <configuration name="Build CLI" type="CargoCommandRunConfiguration" factoryName="Cargo Command" singleton="false">
       <option name="command" value="build" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$/cli" />
@@ -118,21 +149,6 @@
     <configuration name="Run Example Project" type="CargoCommandRunConfiguration" factoryName="Cargo Command" singleton="false">
       <option name="command" value="run --example example-project" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
-      <option name="channel" value="DEFAULT" />
-      <option name="requiredFeatures" value="true" />
-      <option name="allFeatures" value="false" />
-      <option name="emulateTerminal" value="false" />
-      <option name="withSudo" value="false" />
-      <option name="backtrace" value="SHORT" />
-      <envs />
-      <option name="isRedirectInput" value="false" />
-      <option name="redirectInputPath" value="" />
-      <method v="2">
-        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
-      <option name="command" value="run" />
       <option name="channel" value="DEFAULT" />
       <option name="requiredFeatures" value="true" />
       <option name="allFeatures" value="false" />

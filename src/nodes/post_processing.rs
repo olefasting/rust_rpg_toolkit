@@ -1,8 +1,10 @@
 use crate::prelude::*;
 
+use crate::macroquad::prelude::draw_texture_ex;
+
 pub struct PostProcessing {
-    lighting_material: Option<MaterialSource>,
-    effect_material: Option<MaterialSource>,
+    lighting_material: Option<Material>,
+    effect_material: Option<Material>,
     current_effect_material_id: Option<String>,
 }
 
@@ -85,7 +87,7 @@ impl Node for PostProcessing {
         let camera = scene::find_node_by_type::<CameraController>().unwrap();
 
         if let Some(material) = &node.lighting_material {
-            material.use_compiled().unwrap();
+            use_material(material).unwrap();
 
             for light in scene::find_nodes_by_type::<LightSource>() {}
         }
@@ -93,18 +95,19 @@ impl Node for PostProcessing {
         set_default_camera();
 
         if let Some(material) = &node.effect_material {
-            material.use_compiled().unwrap();
+            use_material(material).unwrap();
         } else {
             use_default_material();
         }
 
+        let render_target = camera.get_render_target().unwrap();
         draw_texture_ex(
-            camera.get_render_target().texture,
+            render_target.texture,
             0.0,
             0.0,
             color::WHITE,
             DrawTextureParams {
-                dest_size: Some(vec2(screen_width(), screen_height())),
+                dest_size: Some(vec2(get_screen_width(), get_screen_height())),
                 ..Default::default()
             },
         );

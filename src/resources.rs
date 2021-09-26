@@ -1,5 +1,10 @@
 use crate::prelude::*;
 
+use crate::macroquad::texture::{
+    Texture2D,
+    load_texture,
+};
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CharacterClass {
     pub id: String,
@@ -92,7 +97,7 @@ pub struct Resources {
     pub missions: HashMap<String, MissionParams>,
     pub dialogue: HashMap<String, Dialogue>,
     pub chapters: Vec<Chapter>,
-    pub materials: HashMap<String, MaterialSource>,
+    pub materials: HashMap<String, Material>,
     pub textures: HashMap<String, Texture>,
     pub images: HashMap<String, Image>,
     pub font_bytes: HashMap<String, Vec<u8>>,
@@ -123,43 +128,43 @@ impl Resources {
         let assets_path = Path::new(&game_params.assets_path);
 
         let character_classes_path = data_path.join(Self::CLASSES_FILE_NAME);
-        let bytes = load_file(&character_classes_path.to_string_lossy()).await?;
+        let bytes = load_file(&character_classes_path).await?;
         let character_classes_data: Vec<CharacterClass> = serde_json::from_slice(&bytes)?;
         let character_classes = HashMap::from_iter(
             character_classes_data.into_iter().map(|class| (class.id.clone(), class)));
 
         let actors_file_path = data_path.join(Self::ACTORS_FILE_NAME);
-        let bytes = load_file(&actors_file_path.to_string_lossy()).await?;
+        let bytes = load_file(&actors_file_path).await?;
         let actor_data: Vec<ActorParams> = serde_json::from_slice(&bytes)?;
         let actors = HashMap::from_iter(
             actor_data.into_iter().map(|params| (params.id.clone(), params)));
 
         let items_file_path = data_path.join(Self::ITEMS_FILE_NAME);
-        let bytes = load_file(&items_file_path.to_string_lossy()).await?;
+        let bytes = load_file(&items_file_path).await?;
         let items_data: Vec<ItemParams> = serde_json::from_slice(&bytes)?;
         let items = HashMap::from_iter(
             items_data.into_iter().map(|params| (params.id.clone(), params)));
 
         let missions_file_path = data_path.join(Self::MISSIONS_FILE_NAME);
-        let bytes = load_file(&missions_file_path.to_string_lossy()).await?;
+        let bytes = load_file(&missions_file_path).await?;
         let missions_data: Vec<MissionParams> = serde_json::from_slice(&bytes)?;
         let missions = HashMap::from_iter(
             missions_data.into_iter().map(|mission| (mission.id.clone(), mission)));
 
         let dialogue_file_path = data_path.join(Self::DIALOGUE_FILE_NAME);
-        let bytes = load_file(&dialogue_file_path.to_string_lossy()).await?;
+        let bytes = load_file(&dialogue_file_path).await?;
         let dialogue_data: Vec<Dialogue> = serde_json::from_slice(&bytes)?;
         let dialogue = HashMap::from_iter(
             dialogue_data.into_iter().map(|dialogue| (dialogue.id.clone(), dialogue)));
 
         let abilities_file_path = data_path.join(Self::ABILITIES_FILE_NAME);
-        let bytes = load_file(&abilities_file_path.to_string_lossy()).await?;
+        let bytes = load_file(&abilities_file_path).await?;
         let ability_data: Vec<AbilityParams> = serde_json::from_slice(&bytes)?;
         let abilities = HashMap::from_iter(
             ability_data.into_iter().map(|ability| (ability.id.clone(), ability)));
 
         let scenario_path = data_path.join(Self::SCENARIO_FILE_NAME);
-        let bytes = load_file(&scenario_path.to_string_lossy()).await?;
+        let bytes = load_file(&scenario_path).await?;
         let chapter_params: Vec<ChapterParams> = serde_json::from_slice(&bytes)?;
         let mut chapters = Vec::new();
         for params in chapter_params {
@@ -168,7 +173,7 @@ impl Resources {
         }
 
         let materials_file_path = assets_path.join(Self::MATERIALS_FILE_NAME);
-        let bytes = load_file(&materials_file_path.to_string_lossy()).await?;
+        let bytes = load_file(&materials_file_path).await?;
         let material_assets: Vec<MaterialAssetParams> = serde_json::from_slice(&bytes)?;
 
         let mut materials = HashMap::new();
@@ -176,12 +181,12 @@ impl Resources {
             let id = params.id.clone();
             let vertex_path = assets_path.join(&params.vertex_path);
             let fragment_path = assets_path.join(&params.fragment_path);
-            let material = MaterialSource::new(vertex_path, fragment_path, params.into()).await?;
+            let material = Material::new(vertex_path, fragment_path, params.into()).await?;
             materials.insert(id, material);
         }
 
         let textures_file_path = assets_path.join(Self::TEXTURES_FILE_NAME);
-        let bytes = load_file(&textures_file_path.to_string_lossy()).await?;
+        let bytes = load_file(&textures_file_path).await?;
         let texture_assets: Vec<TextureAssetParams> = serde_json::from_slice(&bytes)?;
 
         let mut textures = HashMap::new();
@@ -218,13 +223,13 @@ impl Resources {
         }
 
         let images_file_path = assets_path.join(Self::IMAGES_FILE_NAME);
-        let bytes = load_file(&images_file_path.to_string_lossy()).await?;
+        let bytes = load_file(&images_file_path).await?;
         let image_assets: Vec<ImageAssetParams> = serde_json::from_slice(&bytes)?;
 
         let mut images = HashMap::new();
         for params in image_assets {
             let path = assets_path.join(&params.path);
-            let bytes = load_file(&path.to_string_lossy()).await?;
+            let bytes = load_file(&path).await?;
             let format = match params.format.as_ref() {
                 Some(ext) => ImageFormat::from_extension(ext),
                 _ => None,
@@ -235,35 +240,35 @@ impl Resources {
         }
 
         let fonts_file_path = assets_path.join(Self::FONTS_FILE_NAME);
-        let bytes = load_file(&fonts_file_path.to_string_lossy()).await?;
+        let bytes = load_file(&fonts_file_path).await?;
         let font_assets: Vec<FontAssetParams> = serde_json::from_slice(&bytes)?;
 
         let mut font_bytes = HashMap::new();
         for params in font_assets {
             let path = assets_path.join(&params.path);
-            let bytes = load_file(&path.to_string_lossy()).await?;
+            let bytes = load_file(&path).await?;
             font_bytes.insert(params.id.clone(), bytes);
         }
 
         let sound_effects_file_path = assets_path.join(Self::SOUND_EFFECTS_FILE_NAME);
-        let bytes = load_file(&sound_effects_file_path.to_string_lossy()).await?;
+        let bytes = load_file(&sound_effects_file_path).await?;
         let sound_effect_assets: Vec<SoundAssetParams> = serde_json::from_slice(&bytes)?;
 
         let mut sound_effects = HashMap::new();
         for params in sound_effect_assets {
             let path = assets_path.join(&params.path);
-            let sound = load_sound(&path.to_string_lossy()).await?;
+            let sound = load_sound(VolumeCategory::SoundEffect, path).await?;
             sound_effects.insert(params.id.clone(), sound);
         }
 
         let music_file_path = assets_path.join(Self::MUSIC_FILE_NAME);
-        let bytes = load_file(&music_file_path.to_string_lossy()).await?;
+        let bytes = load_file(&music_file_path).await?;
         let music_assets: Vec<SoundAssetParams> = serde_json::from_slice(&bytes)?;
 
         let mut music = HashMap::new();
         for params in music_assets {
             let path = assets_path.join(&params.path);
-            let track = load_sound(&path.to_string_lossy()).await?;
+            let track = load_sound(VolumeCategory::Music, path).await?;
             music.insert(params.id.clone(), track);
         }
 
@@ -283,8 +288,6 @@ impl Resources {
             music,
         };
 
-        resources.update_sound_volume();
-
         Ok(resources)
     }
 
@@ -293,19 +296,5 @@ impl Resources {
             .expect(&format!("No font with id '{}' was found!", font_id));
         let font = load_ttf_font_from_bytes(&bytes)?;
         Ok(font)
-    }
-
-    // Volume isn't working yet in macroquad, so this does nothing, for now
-    pub(crate) fn update_sound_volume(&self) {
-        let config = storage::get::<Config>();
-        let master_volume = (config.master_volume as f32 / 100.0).clamp(0.0, 1.0);
-        let sound_effects_volume = (config.sound_effects_volume as f32 / 100.0).clamp(0.0, 1.0) * master_volume;
-        let music_volume = (config.music_volume as f32 / 100.0).clamp(0.0, 1.0) * master_volume;
-        for (_, sound) in self.sound_effects.clone() {
-            set_sound_volume(sound, sound_effects_volume);
-        }
-        for (_, sound) in self.music.clone() {
-            set_sound_volume(sound, music_volume);
-        }
     }
 }

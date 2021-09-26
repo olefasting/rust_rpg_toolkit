@@ -93,10 +93,10 @@ impl GuiTheme {
         let theme_path = gui_path.join(Self::THEME_FILE_NAME);
         let menus_path = gui_path.join(Self::MENUS_FILE_NAME);
 
-        let bytes = load_file(&theme_path.to_string_lossy()).await?;
+        let bytes = load_file(theme_path).await?;
         let mut theme: Self = serde_json::from_slice(&bytes)?;
 
-        let bytes = load_file(&menus_path.to_string_lossy()).await?;
+        let bytes = load_file(menus_path).await?;
         let menu_params: Vec<MenuParams> = serde_json::from_slice(&bytes)?;
         for params in menu_params {
             theme.menu_params.insert(params.id.clone(), params);

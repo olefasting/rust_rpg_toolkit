@@ -27,7 +27,7 @@ impl Default for SpriteAnimationParams {
                     name: "idle".to_string(),
                     row: 0,
                     frames: 1,
-                    fps: 8
+                    fps: 8,
                 },
             ),
             should_play: false,
@@ -105,12 +105,11 @@ impl SpriteAnimationPlayer {
 
     pub fn draw(&mut self, position: Vec2, rotation: f32) {
         let resources = storage::get::<Resources>();
-        let texture = resources.textures.get(&self.texture_id).cloned().unwrap();
-        draw_texture_ex(
-            texture.get(),
-            position.x + self.offset.x,
-            position.y + self.offset.y,
-            color::WHITE,
+        let texture = resources.textures.get(&self.texture_id).unwrap();
+        draw_texture(
+            texture,
+            position + self.offset,
+            None,
             DrawTextureParams {
                 source: Some(self.animated_sprite.frame().source_rect),
                 dest_size: Some(self.animated_sprite.frame().dest_size),

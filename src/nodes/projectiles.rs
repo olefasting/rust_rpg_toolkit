@@ -176,7 +176,7 @@ impl Node for Projectiles {
                         for effect in projectile.effects.clone() {
                             if other_actor.apply_effect(&projectile.actor_id, projectile.actor, &projectile.factions, effect) {
                                 if let Some(sound_effect) = projectile.on_hit_sound_effect {
-                                    play_sound_once(sound_effect);
+                                    play_sound(sound_effect, false);
                                 }
                                 return false;
                             } else {
@@ -191,7 +191,7 @@ impl Node for Projectiles {
             for (_, kind) in map.get_collisions(collider) {
                 if kind == CollisionKind::Solid {
                     if let Some(sound_effect) = projectile.on_hit_sound_effect {
-                        play_sound_once(sound_effect);
+                        play_sound(sound_effect, false);
                     }
                     return false;
                 }

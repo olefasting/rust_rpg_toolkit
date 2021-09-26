@@ -22,10 +22,12 @@ impl Node for Hud {
         if game_state.in_debug_mode {
             push_camera_state();
             set_default_camera();
-            draw_aligned_text(
+            draw_text(
                 "DEBUG MODE",
-                screen_width() / 2.0,
-                50.0,
+                vec2(
+                    get_screen_width() / 2.0,
+                    50.0,
+                ),
                 HorizontalAlignment::Center,
                 VerticalAlignment::Top,
                 TextParams {
@@ -34,10 +36,12 @@ impl Node for Hud {
                     ..Default::default()
                 },
             );
-            draw_aligned_text(
+            draw_text(
                 &format!("fps: {}", get_fps()),
-                screen_width() - 50.0,
-                50.0,
+                vec2(
+                    get_screen_width() - 50.0,
+                    50.0,
+                ),
                 HorizontalAlignment::Right,
                 VerticalAlignment::Top,
                 Default::default(),
@@ -78,11 +82,13 @@ impl Node for Hud {
                             //     position.y = 16.0;
                             //     rotation = deg_to_rad(180.0);
                             // }
-                            draw_texture_ex(
-                                texture.get(),
-                                position.x - 16.0,
-                                position.y,
-                                color,
+                            draw_texture(
+                                texture,
+                                vec2(
+                                    position.x - 16.0,
+                                    position.y,
+                                ),
+                                Some(color),
                                 DrawTextureParams {
                                     rotation,
                                     ..Default::default()
@@ -116,11 +122,13 @@ impl Node for Hud {
                                 //     position.y = 16.0;
                                 //     rotation = deg_to_rad(180.0);
                                 // }
-                                draw_texture_ex(
-                                    texture.get(),
-                                    position.x - 16.0,
-                                    position.y,
-                                    color,
+                                draw_texture(
+                                    texture,
+                                    vec2(
+                                        position.x - 16.0,
+                                        position.y,
+                                    ),
+                                    Some(color),
                                     DrawTextureParams {
                                         rotation,
                                         ..Default::default()
@@ -134,10 +142,12 @@ impl Node for Hud {
 
             let len = actor.active_missions.len();
             if len > 0 {
-                draw_aligned_text(
+                draw_text(
                     "Active missions:",
-                    screen_width() - 50.0,
-                    250.0,
+                    vec2(
+                        get_screen_width() - 50.0,
+                        250.0,
+                    ),
                     HorizontalAlignment::Right,
                     VerticalAlignment::Center,
                     Default::default(),
@@ -146,10 +156,12 @@ impl Node for Hud {
 
             for i in 0..len {
                 let mission = actor.active_missions.get(i).unwrap();
-                draw_aligned_text(
+                draw_text(
                     &mission.title,
-                    screen_width() - 50.0,
-                    (300.0) + i as f32 * (50.0),
+                    vec2(
+                        get_screen_width() - 50.0,
+                        (300.0) + i as f32 * (50.0),
+                    ),
                     HorizontalAlignment::Right,
                     VerticalAlignment::Center,
                     Default::default(),
@@ -158,10 +170,12 @@ impl Node for Hud {
 
             let len = actor.completed_missions.len();
             if len > 0 {
-                draw_aligned_text(
+                draw_text(
                     "Completed missions:",
-                    screen_width() - 50.0,
-                    400.0,
+                    vec2(
+                        get_screen_width() - 50.0,
+                        400.0,
+                    ),
                     HorizontalAlignment::Right,
                     VerticalAlignment::Center,
                     Default::default(),
@@ -170,10 +184,12 @@ impl Node for Hud {
 
             for i in 0..len {
                 let mission = actor.completed_missions.get(i).unwrap();
-                draw_aligned_text(
+                draw_text(
                     &mission.title,
-                    screen_width() - 50.0,
-                    450.0 + i as f32 * (50.0),
+                    vec2(
+                        get_screen_width() - 50.0,
+                        450.0 + i as f32 * (50.0),
+                    ),
                     HorizontalAlignment::Right,
                     VerticalAlignment::Center,
                     Default::default(),

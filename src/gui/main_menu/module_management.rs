@@ -83,7 +83,7 @@ pub(crate) async fn show_module_management() {
     let available_modules = get_available_modules().unwrap();
 
     let active_modules_file_path = Path::new(&game_params.modules_path).join(ACTIVE_MODULES_FILE_NAME);
-    let bytes = load_file(&active_modules_file_path.to_string_lossy()).await.unwrap();
+    let bytes = load_file(&active_modules_file_path).await.unwrap();
     let mut active_modules = serde_json::from_slice::<Vec<String>>(&bytes)
         .unwrap()
         .into_iter()
@@ -220,6 +220,6 @@ pub(crate) async fn show_module_management() {
             return;
         }
 
-        next_frame().await;
+        end_frame().await;
     }
 }

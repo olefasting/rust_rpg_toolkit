@@ -307,14 +307,12 @@ impl Map {
 
                                     let texture = resources.textures
                                         .get(&tile.texture_id)
-                                        .cloned()
                                         .expect(&format!("No texture with id '{}'!", tile.texture_id));
 
-                                    draw_texture_ex(
-                                        texture.get(),
-                                        world_position.x,
-                                        world_position.y,
-                                        color::WHITE,
+                                    draw_texture(
+                                        texture,
+                                        world_position,
+                                        None,
                                         DrawTextureParams {
                                             source: Some(Rect::new(
                                                 tile.texture_coords.x, // + 0.1,

@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use crate::prelude::macroquad::text::draw_text_ex;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -92,10 +93,9 @@ pub fn draw_progress_bar(
     }
     {
         if let Some(text) = text {
-            draw_aligned_text(
+            draw_text(
                 text,
-                position.x,
-                position.y,
+                position,
                 HorizontalAlignment::Center,
                 VerticalAlignment::Center,
                 text_params.unwrap_or(TextParams {
@@ -107,27 +107,28 @@ pub fn draw_progress_bar(
     }
 }
 
-pub fn draw_aligned_text(text: &str, x: f32, y: f32, ha: HorizontalAlignment, va: VerticalAlignment, params: TextParams) {
-    let measure = measure_text(
+pub fn draw_text(text: &str, position: Vec2, ha: HorizontalAlignment, va: VerticalAlignment, params: TextParams) {
+    let measure = get_text_measure(
         text,
         Some(params.font),
         params.font_size,
         params.font_scale,
     );
+
     let x = match ha {
-        HorizontalAlignment::Left => x,
+        HorizontalAlignment::Left => position.x,
         _ => {
             if ha == HorizontalAlignment::Center {
-                x - (measure.width / 2.0)
+                position.x - (measure.width / 2.0)
             } else {
-                x - measure.width
+                position.x - measure.width
             }
         }
     };
     let y = match va {
-        VerticalAlignment::Top => y + measure.height,
-        VerticalAlignment::Center => y + measure.height / 2.0,
-        _ => y,
+        VerticalAlignment::Top => position.y + measure.height,
+        VerticalAlignment::Center => position.y + measure.height / 2.0,
+        _ => position.y,
     };
 
     draw_text_ex(text, x, y, params);

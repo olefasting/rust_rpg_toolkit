@@ -22,12 +22,11 @@ pub struct Sprite {
 impl Sprite {
     pub fn draw(&self, position: Vec2, rotation: f32) {
         let resources = storage::get::<Resources>();
-        let texture = resources.textures.get(&self.texture_id).cloned().unwrap();
-        draw_texture_ex(
-            texture.get(),
-            position.x + self.offset.x,
-            position.y + self.offset.y,
-            color::WHITE,
+        let texture = resources.textures.get(&self.texture_id).unwrap();
+        draw_texture(
+            texture,
+            position + self.offset,
+            None,
             DrawTextureParams {
                 source: Some(Rect::new(
                     (self.texture_coords.x * self.tile_size.x) as f32,

@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use macroquad::prelude::draw_texture_ex;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Texture {
@@ -35,4 +36,18 @@ impl Texture {
     pub fn get_normal_map(&self) -> Option<Texture2D> {
         self.normal_map
     }
+
+    pub fn draw(&self, position: Vec2, color: Option<Color>, params: DrawTextureParams) {
+        draw_texture_ex(
+            self.texture,
+            position.x,
+            position.y,
+            color.unwrap_or(color::WHITE),
+            params,
+        )
+    }
+}
+
+pub fn draw_texture(texture: &Texture, position: Vec2, color: Option<Color>, params: DrawTextureParams) {
+    texture.draw(position, color, params)
 }

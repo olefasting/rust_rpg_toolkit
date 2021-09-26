@@ -1,8 +1,12 @@
-pub use texture::Texture;
+pub use texture::{
+    Texture,
+    draw_texture,
+};
 
 pub use material::{
-    MaterialSource,
+    Material,
     use_default_material,
+    use_material,
 };
 
 pub use sprite::{
@@ -22,7 +26,7 @@ pub use helpers::{
     VerticalAlignment,
     HorizontalAlignment,
     draw_progress_bar,
-    draw_aligned_text,
+    draw_text,
     color_from_hex_string,
 };
 

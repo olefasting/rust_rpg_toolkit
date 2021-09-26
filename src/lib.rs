@@ -30,6 +30,8 @@ pub mod events;
 pub mod character;
 pub mod player;
 pub mod scene;
+pub mod audio;
+pub mod file_io;
 
 pub use macroquad;
 pub use serde;

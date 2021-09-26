@@ -11,12 +11,12 @@ categories = ["game-engines"]
 license = "MIT"
 repository = "https://github.com/olefasting/rust_rpg_toolkit"
 
-[features]
-default = []
-collision_between_actors = []
-
 [profile.dev.package."*"]
 opt-level = 3
+
+[features]
+default = []
+collision-between-actors = []
 
 [workspace]
 members = ["cli"]

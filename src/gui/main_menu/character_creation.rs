@@ -168,7 +168,7 @@ pub(crate) async fn draw_character_creation(class_id: &str) -> Option<Character>
             return res;
         }
 
-        next_frame().await;
+        end_frame().await;
     }
 }
 
@@ -242,7 +242,7 @@ pub(crate) async fn draw_set_character_name() -> Option<String> {
             return res;
         }
 
-        next_frame().await;
+        end_frame().await;
     }
 }
 

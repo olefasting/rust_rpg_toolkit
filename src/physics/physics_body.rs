@@ -44,15 +44,14 @@ impl PhysicsBody {
                 }
 
                 let position = collider.get_center();
-                draw_aligned_text(
+                draw_text(
                     match kind {
                         CollisionKind::Actor => "A",
                         CollisionKind::Barrier => "B",
                         CollisionKind::Solid => "S",
                         CollisionKind::None => "?",
                     },
-                    position.x,
-                    position.y,
+                    position,
                     HorizontalAlignment::Center,
                     VerticalAlignment::Center,
                     TextParams {

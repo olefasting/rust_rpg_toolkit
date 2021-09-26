@@ -55,7 +55,7 @@ rust-rpg-toolkit = { git = "https://github.com/olefasting/rust_rpg_toolkit.git" 
 
 ### Crate features
 
-- `collision_between_actors` If this is enabled, actors will collide with other actors, not just the map.
+- `collision-between-actors` If this is enabled, actors will collide with other actors, not just the map.
   This is not recommended at this stage, as navigation does not take other actors into consideration.
 
 ### Example
@@ -128,7 +128,7 @@ async fn main() -> Result<()> {
 
 Any game you create should also have an assets folder. Copy the one included in the example project as a starting point...
 
-The example project can be built and run using the following cargo command, from the example project directory:
+The example project can be built and run using the following cargo command:
 
 `cargo run --example example-project`
 
