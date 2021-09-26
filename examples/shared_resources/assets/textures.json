@@ -1,0 +1,34 @@
+[
+  {
+    "id": "target_cursor",
+    "path": "textures/target_cursor.png"
+  },
+  {
+    "id": "characters",
+    "path": "textures/neo_zero_characters.png"
+  },
+  {
+    "id": "player",
+    "path": "textures/player.png"
+  },
+  {
+    "id": "props",
+    "path": "textures/neo_zero_props.png"
+  },
+  {
+    "id": "tiles",
+    "path": "textures/neo_zero_tiles.png"
+  },
+  {
+    "id": "items",
+    "path": "textures/items.png"
+  },
+  {
+    "id": "credits",
+    "path": "textures/credits.png"
+  },
+  {
+    "id": "mission_marker",
+    "path": "textures/mission_marker.png"
+  }
+]

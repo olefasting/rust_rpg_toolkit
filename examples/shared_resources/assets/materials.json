@@ -1,0 +1,13 @@
+[
+  {
+    "id": "dynamic_lighting",
+    "fragment_path": "materials/dynamic_lighting.frag",
+    "vertex_path": "materials/dynamic_lighting.vert",
+    "uniforms": []
+  },
+  {
+    "id": "crt",
+    "fragment_path": "materials/crt.frag",
+    "vertex_path": "materials/crt.vert"
+  }
+]

@@ -108,7 +108,13 @@ impl Resources {
     const DIALOGUE_FILE_NAME: &'static str = "dialogue.json";
     const ABILITIES_FILE_NAME: &'static str = "abilities.json";
     const SCENARIO_FILE_NAME: &'static str = "scenario.json";
-    const ASSETS_FILE_NAME: &'static str = "assets.json";
+
+    const MATERIALS_FILE_NAME: &'static str = "materials.json";
+    const TEXTURES_FILE_NAME: &'static str = "textures.json";
+    const IMAGES_FILE_NAME: &'static str = "images.json";
+    const FONTS_FILE_NAME: &'static str = "fonts.json";
+    const SOUND_EFFECTS_FILE_NAME: &'static str = "sound_effects.json";
+    const MUSIC_FILE_NAME: &'static str = "music.json";
 
     pub const WHITE_TEXTURE_ID: &'static str = "__WHITE_TEXTURE__";
 
@@ -161,18 +167,22 @@ impl Resources {
             chapters.push(chapter);
         }
 
-        let assets_file_path = data_path.join(Self::ASSETS_FILE_NAME);
-        let bytes = load_file(&assets_file_path.to_string_lossy()).await?;
-        let assets: AssetsParams = serde_json::from_slice(&bytes)?;
+        let materials_file_path = assets_path.join(Self::MATERIALS_FILE_NAME);
+        let bytes = load_file(&materials_file_path.to_string_lossy()).await?;
+        let material_assets: Vec<MaterialAssetParams> = serde_json::from_slice(&bytes)?;
 
         let mut materials = HashMap::new();
-        for params in assets.materials.clone() {
+        for params in material_assets {
             let id = params.id.clone();
             let vertex_path = assets_path.join(&params.vertex_path);
             let fragment_path = assets_path.join(&params.fragment_path);
             let material = MaterialSource::new(vertex_path, fragment_path, params.into()).await?;
             materials.insert(id, material);
         }
+
+        let textures_file_path = assets_path.join(Self::TEXTURES_FILE_NAME);
+        let bytes = load_file(&textures_file_path.to_string_lossy()).await?;
+        let texture_assets: Vec<TextureAssetParams> = serde_json::from_slice(&bytes)?;
 
         let mut textures = HashMap::new();
         let white_image = Image::gen_image_color(32, 32, color::WHITE);
@@ -182,7 +192,7 @@ impl Resources {
         let texture = Texture::new(white_texture, None, None);
         textures.insert(Self::WHITE_TEXTURE_ID.to_string(), texture);
 
-        for params in &assets.textures {
+        for params in texture_assets {
             let path = assets_path.join(&params.path);
             let texture = load_texture(&path.to_string_lossy()).await?;
             texture.set_filter(params.filter_mode);
@@ -207,8 +217,12 @@ impl Resources {
             textures.insert(params.id.clone(), texture);
         }
 
+        let images_file_path = assets_path.join(Self::IMAGES_FILE_NAME);
+        let bytes = load_file(&images_file_path.to_string_lossy()).await?;
+        let image_assets: Vec<ImageAssetParams> = serde_json::from_slice(&bytes)?;
+
         let mut images = HashMap::new();
-        for params in &assets.images {
+        for params in image_assets {
             let path = assets_path.join(&params.path);
             let bytes = load_file(&path.to_string_lossy()).await?;
             let format = match params.format.as_ref() {
@@ -220,22 +234,34 @@ impl Resources {
             images.insert(params.id.clone(), image);
         }
 
+        let fonts_file_path = assets_path.join(Self::FONTS_FILE_NAME);
+        let bytes = load_file(&fonts_file_path.to_string_lossy()).await?;
+        let font_assets: Vec<FontAssetParams> = serde_json::from_slice(&bytes)?;
+
         let mut font_bytes = HashMap::new();
-        for params in &assets.fonts {
+        for params in font_assets {
             let path = assets_path.join(&params.path);
             let bytes = load_file(&path.to_string_lossy()).await?;
             font_bytes.insert(params.id.clone(), bytes);
         }
 
+        let sound_effects_file_path = assets_path.join(Self::SOUND_EFFECTS_FILE_NAME);
+        let bytes = load_file(&sound_effects_file_path.to_string_lossy()).await?;
+        let sound_effect_assets: Vec<SoundAssetParams> = serde_json::from_slice(&bytes)?;
+
         let mut sound_effects = HashMap::new();
-        for params in &assets.sound_effects {
+        for params in sound_effect_assets {
             let path = assets_path.join(&params.path);
             let sound = load_sound(&path.to_string_lossy()).await?;
             sound_effects.insert(params.id.clone(), sound);
         }
 
+        let music_file_path = assets_path.join(Self::MUSIC_FILE_NAME);
+        let bytes = load_file(&music_file_path.to_string_lossy()).await?;
+        let music_assets: Vec<SoundAssetParams> = serde_json::from_slice(&bytes)?;
+
         let mut music = HashMap::new();
-        for params in &assets.music {
+        for params in music_assets {
             let path = assets_path.join(&params.path);
             let track = load_sound(&path.to_string_lossy()).await?;
             music.insert(params.id.clone(), track);

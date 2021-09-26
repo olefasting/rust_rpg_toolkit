@@ -1,0 +1,50 @@
+[
+  {
+    "id": "blank_image",
+    "path": "gui/blank_image.png"
+  },
+  {
+    "id": "window_background",
+    "path": "gui/theme/window_background.png"
+  },
+  {
+    "id": "editbox_background",
+    "path": "gui/theme/editbox_background.png"
+  },
+  {
+    "id": "checkbox_background",
+    "path": "gui/theme/checkbox_background.png"
+  },
+  {
+    "id": "checkbox_background_clicked",
+    "path": "gui/theme/checkbox_background_clicked.png"
+  },
+  {
+    "id": "checkbox_background_hovered",
+    "path": "gui/theme/checkbox_background_hovered.png"
+  },
+  {
+    "id": "checkbox_background_selected",
+    "path": "gui/theme/checkbox_background_selected.png"
+  },
+  {
+    "id": "checkbox_background_selected_hovered",
+    "path": "gui/theme/checkbox_background_selected_hovered.png"
+  },
+  {
+    "id": "button_background",
+    "path": "gui/theme/button_background.png"
+  },
+  {
+    "id": "button_background_hovered",
+    "path": "gui/theme/button_background_clicked.png"
+  },
+  {
+    "id": "button_background_clicked",
+    "path": "gui/theme/button_background_hovered.png"
+  },
+  {
+    "id": "button_background_inactive",
+    "path": "gui/theme/button_background_inactive.png"
+  }
+]
