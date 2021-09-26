@@ -1,13 +1,23 @@
+pub use texture::Texture;
+
+pub use material::{
+    MaterialSource,
+    use_default_material,
+};
+
 pub use sprite::{
     Sprite,
 };
+
 pub use animation::{
     SpriteAnimationPlayer,
     SpriteAnimationParams,
 };
+
 pub use viewport::{
     Viewport,
 };
+
 pub use helpers::{
     VerticalAlignment,
     HorizontalAlignment,
@@ -20,6 +30,8 @@ pub mod sprite;
 pub mod animation;
 pub mod viewport;
 pub mod helpers;
+pub mod texture;
+pub mod material;
 
 use crate::prelude::*;
 

@@ -79,7 +79,7 @@ impl Node for Hud {
                             //     rotation = deg_to_rad(180.0);
                             // }
                             draw_texture_ex(
-                                texture.clone(),
+                                texture.get(),
                                 position.x - 16.0,
                                 position.y,
                                 color,
@@ -117,7 +117,7 @@ impl Node for Hud {
                                 //     rotation = deg_to_rad(180.0);
                                 // }
                                 draw_texture_ex(
-                                    texture.clone(),
+                                    texture.get(),
                                     position.x - 16.0,
                                     position.y,
                                     color,

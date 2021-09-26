@@ -22,6 +22,7 @@ struct Custom {
 pub enum ErrorKind {
     File,
     Parse,
+    Material,
 }
 
 impl ErrorKind {
@@ -29,6 +30,7 @@ impl ErrorKind {
         match *self {
             ErrorKind::File => "file error",
             ErrorKind::Parse => "parse error",
+            ErrorKind::Material => "material error",
         }
     }
 }
@@ -45,6 +47,12 @@ impl Error {
                 kind,
                 error: error.into(),
             }))
+        }
+    }
+
+    pub fn from_str(kind: ErrorKind, message: &'static &'static str) -> Error {
+        Error {
+            repr: Repr::Message(kind, message),
         }
     }
 }
@@ -92,7 +100,7 @@ impl From<FontError> for Error {
 
 impl From<ShaderError> for Error {
     fn from(error: ShaderError) -> Self {
-        Error::new(ErrorKind::Parse, error)
+        Error::new(ErrorKind::Material, error)
     }
 }
 

@@ -30,7 +30,7 @@ impl GameState {
     }
 
     pub fn add_node(player_spawn_point: Vec2, character: &Character) -> Handle<Self> {
-        let game_state = Self::new( player_spawn_point, character);
+        let game_state = Self::new(player_spawn_point, character);
         scene::add_node(game_state)
     }
 

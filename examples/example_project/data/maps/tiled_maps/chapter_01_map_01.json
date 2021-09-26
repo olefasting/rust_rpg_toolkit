@@ -569,25 +569,6 @@
          "tilecount":100,
          "tileheight":16,
          "tilewidth":16
-        }, 
-        {
-         "columns":4,
-         "firstgid":501,
-         "image":"..\/..\/..\/assets\/textures\/items.png",
-         "imageheight":64,
-         "imagewidth":64,
-         "margin":0,
-         "name":"items",
-         "properties":[
-                {
-                 "name":"texture_id",
-                 "type":"string",
-                 "value":"items"
-                }],
-         "spacing":0,
-         "tilecount":16,
-         "tileheight":16,
-         "tilewidth":16
         }],
  "tilewidth":16,
  "type":"map",

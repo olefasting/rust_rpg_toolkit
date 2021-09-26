@@ -281,22 +281,14 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
         if let Some(module_assets) = module_params.assets {
             {
                 let mut materials = HashMap::new();
-                for material_params in module_assets.materials.files {
-                    let vertex_shader_path = module_path.join(&material_params.vertex_shader_path);
-                    let vertex_shader = load_file(&vertex_shader_path.to_string_lossy()).await.unwrap();
+                for asset_params in module_assets.materials.files {
+                    let id = asset_params.id.clone();
+                    let vertex_path = module_path.join(&asset_params.vertex_path);
+                    let fragment_path = module_path.join(&asset_params.fragment_path);
 
-                    let fragment_shader_path = module_path.join(&material_params.fragment_shader_path);
-                    let fragment_shader = load_file(&fragment_shader_path.to_string_lossy()).await.unwrap();
+                    let material = MaterialSource::new(vertex_path, fragment_path, asset_params.into()).await?;
 
-                    let material = load_material(
-                        &String::from_utf8(vertex_shader).unwrap(),
-                        &String::from_utf8(fragment_shader).unwrap(),
-                        MaterialParams {
-                            ..Default::default()
-                        },
-                    ).unwrap();
-
-                    materials.insert(material_params.id, material);
+                    materials.insert(id, material);
                 }
 
                 match module_assets.materials.integration {
@@ -310,12 +302,22 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
             }
             {
                 let mut textures = HashMap::new();
-                for texture_params in module_assets.textures.files {
-                    let path = module_path.join(&texture_params.path);
+                for params in module_assets.textures.files {
+                    let path = module_path.join(&params.path);
                     let texture = load_texture(&path.to_string_lossy()).await?;
-                    texture.set_filter(texture_params.filter_mode);
+                    texture.set_filter(params.filter_mode);
 
-                    textures.insert(texture_params.id.clone(), texture);
+                    let mut normal_map = None;
+                    if let Some(path) = &params.normal_map_path {
+                        let path = module_path.join(path);
+                        let res = load_texture(&path.to_string_lossy()).await?;
+                        res.set_filter(params.filter_mode);
+                        normal_map = Some(res);
+                    }
+
+                    let texture = Texture::new(texture, normal_map);
+
+                    textures.insert(params.id.clone(), texture);
                 }
 
                 match module_assets.textures.integration {

@@ -787,7 +787,7 @@ impl Node for Actor {
         draw_buffer.buffered.push(node.handle());
 
         if node.is_local_player() {
-            let mut camera = scene::find_node_by_type::<Camera>().unwrap();
+            let mut camera = scene::find_node_by_type::<CameraController>().unwrap();
             camera.position = node.body.position;
         }
     }

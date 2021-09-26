@@ -1,4 +1,4 @@
-pub use camera::Camera;
+pub use camera_controller::CameraController;
 pub use continuous_beams::ContinuousBeams;
 pub use draw_buffer::DrawBuffer;
 pub use game_state::{
@@ -21,7 +21,7 @@ pub use map_renderer::MapRenderer;
 
 pub mod projectiles;
 pub mod game_state;
-pub mod camera;
+pub mod camera_controller;
 pub mod item;
 pub mod continuous_beams;
 pub mod draw_buffer;

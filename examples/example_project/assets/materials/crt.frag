@@ -1,10 +1,12 @@
 #version 100
 
 precision lowp float;
+
 varying vec4 color;
 varying vec2 uv;
 
 uniform sampler2D Texture;
+
 // https://www.shadertoy.com/view/XtlSD7
 vec2 CRTCurveUV(vec2 uv) {
     uv = uv * 2.0 - 1.0;

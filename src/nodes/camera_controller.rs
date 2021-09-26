@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub struct Camera {
+pub struct CameraController {
     pub position: Vec2,
     pub rotation: f32,
     pub is_following: bool,
@@ -8,7 +8,7 @@ pub struct Camera {
     render_target: RenderTarget,
 }
 
-impl Camera {
+impl CameraController {
     const FOLLOW_THRESHOLD_FRACTION: f32 = 0.4;
     const FOLLOW_END_AT_DISTANCE: f32 = 20.0;
     const FOLLOW_LERP_FRACTION: f32 = 0.03;
@@ -17,13 +17,9 @@ impl Camera {
 
     pub fn new() -> Self {
         let scale = Self::DEFAULT_SCALE;
-        let render_target = render_target(
-            (screen_width() / scale) as u32,
-            (screen_height() / scale) as u32,
-        );
-        render_target.texture.set_filter(FilterMode::Nearest);
+        let render_target = new_render_target(scale);
 
-        Camera {
+        CameraController {
             position: Vec2::ZERO,
             rotation: 0.0,
             scale,
@@ -33,7 +29,7 @@ impl Camera {
     }
 
     pub fn add_node() -> Handle<Self> {
-        scene::add_node(Camera::new())
+        scene::add_node(CameraController::new())
     }
 
     pub fn get_viewport(&self) -> Viewport {
@@ -51,13 +47,8 @@ impl Camera {
     }
 
     pub fn set_scale(&mut self, scale: f32) {
-        let render_target = render_target(
-            (screen_width() / scale) as u32,
-            (screen_height() / scale) as u32,
-        );
-        render_target.texture.set_filter(FilterMode::Nearest);
-        self.render_target = render_target;
         self.scale = scale;
+        self.render_target = new_render_target(self.scale);
     }
 
     pub fn get_render_target(&self) -> &RenderTarget {
@@ -76,7 +67,7 @@ impl Camera {
     }
 }
 
-impl Node for Camera {
+impl Node for CameraController {
     fn ready(node: RefMut<Self>) {
         storage::store(node.get_viewport());
     }
@@ -108,4 +99,15 @@ impl Node for Camera {
     fn draw(node: RefMut<Self>) where Self: Sized {
         scene::set_camera(0, Some(node.get_camera()));
     }
+}
+
+fn new_render_target(scale: f32) -> RenderTarget {
+    let render_target = render_target(
+        (screen_width() / scale) as u32,
+        (screen_height() / scale) as u32,
+    );
+
+    render_target.texture.set_filter(FilterMode::Nearest);
+
+    render_target
 }

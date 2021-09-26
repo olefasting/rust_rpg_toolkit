@@ -5,6 +5,8 @@ pub struct SpriteAnimationParams {
     #[serde(with = "json::def_vec2")]
     pub offset: Vec2,
     pub texture_id: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub normal_map_id: Option<String>,
     #[serde(with = "json::def_vec2")]
     pub tile_size: Vec2,
     #[serde(with = "json::vec_animation")]
@@ -18,6 +20,7 @@ impl Default for SpriteAnimationParams {
         SpriteAnimationParams {
             offset: vec2(-8.0, -8.0),
             texture_id: Resources::WHITE_TEXTURE_ID.to_string(),
+            normal_map_id: None,
             tile_size: vec2(16.0, 16.0),
             animations: vec!(
                 Animation {
@@ -39,6 +42,7 @@ pub struct SpriteAnimationPlayer {
     pub flip_x: bool,
     pub flip_y: bool,
     texture_id: String,
+    normal_map_id: Option<String>,
     tile_size: Vec2,
     animations: Vec<Animation>,
     animated_sprite: AnimatedSprite,
@@ -58,7 +62,8 @@ impl SpriteAnimationPlayer {
             rotation: 0.0,
             flip_x: false,
             flip_y: false,
-            texture_id: params.texture_id.to_string(),
+            texture_id: params.texture_id,
+            normal_map_id: params.normal_map_id,
             tile_size: Vec2::from(params.tile_size),
             animations: params.animations,
             animated_sprite,
@@ -100,8 +105,9 @@ impl SpriteAnimationPlayer {
 
     pub fn draw(&mut self, position: Vec2, rotation: f32) {
         let resources = storage::get::<Resources>();
+        let texture = resources.textures.get(&self.texture_id).cloned().unwrap();
         draw_texture_ex(
-            resources.textures.get(&self.texture_id).cloned().unwrap(),
+            texture.get(),
             position.x + self.offset.x,
             position.y + self.offset.y,
             color::WHITE,
@@ -122,6 +128,7 @@ impl Into<SpriteAnimationParams> for SpriteAnimationPlayer {
         SpriteAnimationParams {
             offset: self.offset,
             texture_id: self.texture_id,
+            normal_map_id: self.normal_map_id,
             tile_size: self.tile_size,
             animations: self.animations,
             should_play: self.animated_sprite.playing,

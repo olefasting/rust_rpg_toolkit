@@ -6,6 +6,11 @@ use crate::prelude::*;
 
 use crate::json::TiledMap;
 
+pub struct TileEdge {
+    begin: UVec2,
+    end: UVec2,
+}
+
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ObjectLayerKind {
@@ -80,33 +85,6 @@ pub struct MapObject {
     pub properties: HashMap<String, MapProperty>,
 }
 
-// #[derive(Debug, Clone, Serialize, Deserialize)]
-// pub enum MapPropertyType {
-//     /* unsupported:
-//     #[serde(rename = "bool")]
-//     BoolType,
-//     #[serde(rename = "float")]
-//     FloatType,
-//     #[serde(rename = "integer")]
-//     IntType,
-//     #[serde(rename = "object")]
-//     ObjectType,
-//      */
-//     #[serde(rename = "string")]
-//     StringType,
-//     #[serde(rename = "color")]
-//     ColorType,
-//     #[serde(rename = "file")]
-//     FileType,
-// }
-//
-// #[derive(Debug, Clone, Serialize, Deserialize)]
-// pub struct MapProperty {
-//     pub value: String,
-//     #[serde(rename = "type")]
-//     pub value_type: MapPropertyType,
-// }
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
 pub enum MapProperty {
@@ -124,6 +102,8 @@ pub enum MapProperty {
 pub struct MapTileset {
     pub id: String,
     pub texture_id: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub normal_map_id: Option<String>,
     #[serde(with = "json::def_uvec2")]
     pub texture_size: UVec2,
     #[serde(with = "json::def_uvec2")]
@@ -336,8 +316,9 @@ impl Map {
                                         .get(&tile.texture_id)
                                         .cloned()
                                         .expect(&format!("No texture with id '{}'!", tile.texture_id));
+
                                     draw_texture_ex(
-                                        texture,
+                                        texture.get(),
                                         world_position.x,
                                         world_position.y,
                                         color::WHITE,
@@ -387,7 +368,7 @@ impl BaseMap for Map {
         let x = idx as u32 % self.grid_size.y;
         let y = idx as u32 / self.grid_size.y;
         for (layer_id, layer) in &self.layers {
-            if layer.collision == CollisionKind::Solid && self.get_tile(layer_id, x, y).is_some() {
+            if layer.is_visible && layer.collision == CollisionKind::Solid && self.get_tile(layer_id, x, y).is_some() {
                 return true;
             }
         }
@@ -431,51 +412,53 @@ impl BaseMap for Map {
         // }
 
         for (_, layer) in &self.layers {
-            match layer.collision {
-                CollisionKind::None => continue,
-                _ => {
-                    if exits.0 == false || layer.tiles[n as usize].is_some() {
-                        exits.0 = false;
-                        exits.1 = false;
-                        exits.7 = false;
-                    }
+            if layer.is_visible {
+                match layer.collision {
+                    CollisionKind::None => continue,
+                    _ => {
+                        if exits.0 == false || layer.tiles[n as usize].is_some() {
+                            exits.0 = false;
+                            exits.1 = false;
+                            exits.7 = false;
+                        }
 
-                    if exits.1 == false || layer.tiles[ne as usize].is_some() {
-                        exits.1 = false;
-                    }
+                        if exits.1 == false || layer.tiles[ne as usize].is_some() {
+                            exits.1 = false;
+                        }
 
-                    if exits.2 == false || layer.tiles[e as usize].is_some() {
-                        exits.2 = false;
-                        exits.1 = false;
-                        exits.3 = false;
-                    }
+                        if exits.2 == false || layer.tiles[e as usize].is_some() {
+                            exits.2 = false;
+                            exits.1 = false;
+                            exits.3 = false;
+                        }
 
-                    if exits.3 == false || layer.tiles[se as usize].is_some() {
-                        exits.3 = false;
-                    }
+                        if exits.3 == false || layer.tiles[se as usize].is_some() {
+                            exits.3 = false;
+                        }
 
-                    if exits.4 == false || layer.tiles[s as usize].is_some() {
-                        exits.4 = false;
-                        exits.3 = false;
-                        exits.5 = false;
-                    }
+                        if exits.4 == false || layer.tiles[s as usize].is_some() {
+                            exits.4 = false;
+                            exits.3 = false;
+                            exits.5 = false;
+                        }
 
-                    if exits.5 == false || layer.tiles[sw as usize].is_some() {
-                        exits.5 = false;
-                    }
+                        if exits.5 == false || layer.tiles[sw as usize].is_some() {
+                            exits.5 = false;
+                        }
 
-                    if exits.6 == false || layer.tiles[w as usize].is_some() {
-                        exits.6 = false;
-                        exits.5 = false;
-                        exits.7 = false;
-                    }
+                        if exits.6 == false || layer.tiles[w as usize].is_some() {
+                            exits.6 = false;
+                            exits.5 = false;
+                            exits.7 = false;
+                        }
 
-                    if exits.7 == false || layer.tiles[nw as usize].is_some() {
-                        exits.7 = false;
-                    }
+                        if exits.7 == false || layer.tiles[nw as usize].is_some() {
+                            exits.7 = false;
+                        }
 
-                    if exits == (false, false, false, false, false, false, false, false) {
-                        break;
+                        if exits == (false, false, false, false, false, false, false, false) {
+                            break;
+                        }
                     }
                 }
             }

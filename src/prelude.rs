@@ -93,6 +93,7 @@ pub use crate::{
         ChapterParams,
     },
     error::{
+        ErrorKind,
         Error,
         Result,
     },
@@ -146,8 +147,8 @@ pub use crate::{
             ActorBehaviorFamily,
             ActorAggression,
         },
-        LightSource,
-        Camera,
+        light_source::LightSource,
+        CameraController,
         ContinuousBeams,
         draw_buffer::{
             DrawBuffer,
@@ -228,6 +229,9 @@ pub use crate::{
         draw_progress_bar,
         draw_aligned_text,
         color_from_hex_string,
+        MaterialSource,
+        use_default_material,
+        Texture,
         Sprite,
         SpriteAnimationParams,
         SpriteAnimationPlayer,

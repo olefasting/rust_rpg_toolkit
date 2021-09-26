@@ -8,6 +8,8 @@ pub struct Config {
     pub resolution: UVec2,
     #[serde(default)]
     pub fullscreen: bool,
+    #[serde(default)]
+    pub dynamic_lighting: bool,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub post_processing: Option<String>,
     #[serde(default)]
@@ -26,6 +28,7 @@ impl Default for Config {
         Config {
             resolution: uvec2(1920, 1080),
             fullscreen: true,
+            dynamic_lighting: true,
             post_processing: None,
             master_volume: 100,
             sound_effects_volume: 100,

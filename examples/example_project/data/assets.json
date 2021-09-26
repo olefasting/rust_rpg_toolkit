@@ -1,9 +1,15 @@
 {
   "materials": [
     {
+      "id": "dynamic_lighting",
+      "fragment_path": "assets/materials/dynamic_lighting.frag",
+      "vertex_path": "assets/materials/dynamic_lighting.vert",
+      "uniforms": []
+    },
+    {
       "id": "crt",
-      "fragment_shader_path": "assets/materials/crt_fragment.glsl",
-      "vertex_shader_path": "assets/materials/crt_vertex.glsl"
+      "fragment_path": "assets/materials/crt.frag",
+      "vertex_path": "assets/materials/crt.vert"
     }
   ],
   "textures": [
@@ -30,10 +36,6 @@
     {
       "id": "items",
       "path": "assets/textures/items.png"
-    },
-    {
-      "id": "fireball",
-      "path": "assets/textures/fireball.png"
     },
     {
       "id": "credits",

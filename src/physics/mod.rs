@@ -20,7 +20,7 @@ pub use raycast::raycast;
 
 pub const COLLISION_RESOLUTION: f32 = 0.25;
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CollisionKind {
     #[serde(rename = "none")]
     None,

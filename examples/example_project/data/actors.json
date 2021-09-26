@@ -31,6 +31,7 @@
     },
     "animation_player": {
       "texture_id": "player",
+      "normal_map_id": "player_n",
       "tile_size": {
         "x": 32.0,
         "y": 32.0
@@ -92,6 +93,7 @@
     },
     "animation_player": {
       "texture_id": "characters",
+      "normal_map_id": "characters_n",
       "tile_size": {
         "x": 32.0,
         "y": 32.0
@@ -155,6 +157,7 @@
     },
     "animation_player": {
       "texture_id": "characters",
+      "normal_map_id": "characters_n",
       "tile_size": {
         "x": 32.0,
         "y": 32.0
@@ -216,6 +219,7 @@
     },
     "animation_player": {
       "texture_id": "characters",
+      "normal_map_id": "characters_n",
       "tile_size": {
         "x": 32.0,
         "y": 32.0
@@ -277,6 +281,7 @@
     },
     "animation_player": {
       "texture_id": "characters",
+      "normal_map_id": "characters_n",
       "tile_size": {
         "x": 32.0,
         "y": 32.0
@@ -335,6 +340,7 @@
     },
     "animation_player": {
       "texture_id": "characters",
+      "normal_map_id": "characters_n",
       "tile_size": {
         "x": 32.0,
         "y": 32.0
@@ -395,6 +401,7 @@
     },
     "animation_player": {
       "texture_id": "characters",
+      "normal_map_id": "characters_n",
       "tile_size": {
         "x": 32.0,
         "y": 32.0

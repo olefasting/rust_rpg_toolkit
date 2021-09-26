@@ -3,9 +3,10 @@ use crate::gui::*;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum MenuButtonStyle {
-    None,
-    FullWidth,
-    Centered,
+    Normal {
+        #[serde(default)]
+        is_condensed: bool,
+    },
     LabelOnly {
         #[serde(default)]
         is_centered: bool
@@ -14,23 +15,15 @@ pub enum MenuButtonStyle {
 }
 
 impl MenuButtonStyle {
-    pub fn is_none(&self) -> bool {
-        if let Self::None = self {
+    pub fn is_normal(&self) -> bool {
+        if let Self::Normal { is_condensed: _ } = self {
             return true;
         }
 
         false
     }
 
-    pub fn is_set_width(&self) -> bool {
-        if let Self::FullWidth = self {
-            return true;
-        }
-
-        false
-    }
-
-    pub fn is_label(&self) -> bool {
+    pub fn is_label_only(&self) -> bool {
         if let Self::LabelOnly { is_centered: _ } = self {
             return true;
         }
@@ -49,7 +42,7 @@ impl MenuButtonStyle {
 
 impl Default for MenuButtonStyle {
     fn default() -> Self {
-        Self::FullWidth
+        Self::Normal { is_condensed: false }
     }
 }
 
@@ -101,7 +94,6 @@ pub struct MenuParams {
     pub title: Option<String>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub options: Vec<MenuOption>,
-    #[serde(default, skip_serializing_if = "MenuButtonStyle::is_none")]
     pub button_style: MenuButtonStyle,
     #[serde(default)]
     pub is_static: bool,
@@ -115,7 +107,7 @@ impl Default for MenuParams {
             position: MenuPosition::Centered,
             title: None,
             options: Vec::new(),
-            button_style: MenuButtonStyle::FullWidth,
+            button_style: Default::default(),
             is_static: true,
         }
     }
@@ -176,6 +168,7 @@ impl MenuBuilder {
 
         window_builder.build(ui, |ui| {
             let gui_skins = storage::get::<GuiSkins>();
+            ui.push_skin(&gui_skins.default);
 
             let full_width = self.params.size.x - (gui_skins.theme.window_margins.left + gui_skins.theme.window_margins.right);
 
@@ -203,24 +196,28 @@ impl MenuBuilder {
                 let mut builder = if let MenuButtonStyle::Custom { builder_id } = &style {
                     get_button_builder(builder_id)
                 } else {
-                    let style = match style {
-                        MenuButtonStyle::FullWidth => ButtonStyle::SetWidth { width: full_width },
-                        MenuButtonStyle::LabelOnly { is_centered } => ButtonStyle::LabelOnly { width: full_width, is_centered },
-                        _ => ButtonStyle::None,
+                    let mut builder = ButtonBuilder::new();
+
+                    match style {
+                        MenuButtonStyle::Normal { is_condensed } => {
+                            let width = Some(full_width);
+                            let style = ButtonStyle::Normal { width, is_condensed };
+                            builder = builder.with_style(style);
+                        },
+                        MenuButtonStyle::LabelOnly { is_centered } => {
+                            let width = full_width;
+                            let style = ButtonStyle::LabelOnly { width, is_centered };
+                            builder = builder.with_style(style);
+                        },
+                        _ => {}
                     };
 
-                    ButtonBuilder::new().with_style(style)
+                    builder
                 };
 
                 if let Some(title) = &opt.title {
-                    builder = builder.with_label(title)
+                    builder = builder.with_label(title);
                 }
-
-                let is_centered = if let MenuButtonStyle::Centered = style {
-                    true
-                } else {
-                    false
-                };
 
                 let menu_result = if opt.is_cancel {
                     MenuResult::Cancel
@@ -228,7 +225,9 @@ impl MenuBuilder {
                     MenuResult::Index(opt.index.unwrap())
                 };
 
-                builders.push((builder, is_centered, opt.is_pushed_down, menu_result));
+                let params = (builder, opt.is_pushed_down, menu_result);
+
+                builders.push(params);
             }
 
             let mut next_top_y = 0.0;
@@ -240,23 +239,14 @@ impl MenuBuilder {
 
             let mut next_bottom_y =  self.params.size.y - gui_skins.theme.window_margins.top - gui_skins.theme.window_margins.bottom;
 
-            for (builder, _, is_push_down, _) in &builders {
+            for (builder, is_push_down, _) in &builders {
                 if *is_push_down {
                     next_bottom_y -= builder.get_height() + 2.0;
                 }
             }
 
-            for (builder, is_centered, is_push_down, menu_result) in builders {
+            for (builder, is_push_down, menu_result) in builders {
                 let mut position = Vec2::ZERO;
-
-                if is_centered {
-                    let mut button_width = gui_skins.theme.button_margins.left + gui_skins.theme.button_margins.right;
-                    if let Some(label) = &self.params.title {
-                        button_width += ui.calc_size(label).x;
-                    }
-
-                    position.x = full_width / 2.0 - button_width / 2.0;
-                }
 
                 let button_height = builder.get_height();
 
@@ -272,6 +262,8 @@ impl MenuBuilder {
                     res = menu_result;
                 }
             }
+
+            ui.pop_skin();
         });
 
         res

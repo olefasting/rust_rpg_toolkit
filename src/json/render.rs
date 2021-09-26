@@ -130,3 +130,22 @@ pub enum FilterModeDef {
     #[serde(alias = "nearest_neighbor")]
     Nearest,
 }
+
+#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
+#[serde(remote = "UniformType", rename_all = "snake_case")]
+pub enum UniformTypeDef {
+    #[serde(alias = "float")]
+    Float1,
+    #[serde(alias = "vec2")]
+    Float2,
+    #[serde(alias = "vec3")]
+    Float3,
+    #[serde(alias = "vec4")]
+    Float4,
+    #[serde(alias = "int")]
+    Int1,
+    Int2,
+    Int3,
+    Int4,
+    Mat4,
+}

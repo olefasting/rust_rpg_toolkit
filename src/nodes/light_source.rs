@@ -1,13 +1,4 @@
-use macroquad::{
-    experimental::{
-        scene::{
-            Node,
-            Handle,
-        },
-    },
-    color,
-    prelude::*,
-};
+use crate::prelude::*;
 
 pub struct LightSource {
     pub position: Vec2,
@@ -21,7 +12,9 @@ impl LightSource {
     pub const DEFAULT_COLOR: Color = color::WHITE;
     pub const DEFAULT_INTENSITY: f32 = 0.1;
 
-    pub fn new(position: Vec2, size: Vec2, color: Color, intensity: f32) -> Self {
+    pub fn new(position: Vec2, size: Vec2, color: Color, intensity: f32, ttl: Option<f32>) -> Self {
+        let intensity = intensity.clamp(0.0, 1.0);
+
         LightSource {
             position,
             size,
@@ -30,9 +23,13 @@ impl LightSource {
         }
     }
 
-    pub fn add_node(position: Vec2, size: Vec2, color: Color, intensity: f32) -> Handle<Self> {
-        scene::add_node(Self::new(position, size, color, intensity))
+    pub fn add_node(position: Vec2, size: Vec2, color: Color, intensity: f32, ttl: Option<f32>) -> Handle<Self> {
+        scene::add_node(Self::new(position, size, color, intensity, ttl))
     }
 }
 
-impl Node for LightSource {}
+impl Node for LightSource {
+    fn update(mut node: RefMut<Self>) {
+
+    }
+}

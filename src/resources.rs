@@ -8,13 +8,6 @@ pub struct CharacterClass {
     pub description: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct MaterialAssetParams {
-    pub id: String,
-    pub fragment_shader_path: String,
-    pub vertex_shader_path: String,
-}
-
 fn default_filter_mode() -> FilterMode {
     FilterMode::Nearest
 }
@@ -23,6 +16,10 @@ fn default_filter_mode() -> FilterMode {
 pub struct TextureAssetParams {
     pub id: String,
     pub path: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub height_map_path: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub normal_map_path: Option<String>,
     #[serde(default = "default_filter_mode", with = "json::FilterModeDef")]
     pub filter_mode: FilterMode,
 }
@@ -56,6 +53,37 @@ pub struct AssetsParams {
     music: Vec<SoundAssetParams>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UniformAssetParams {
+    pub name: String,
+    #[serde(rename = "type", with = "json::UniformTypeDef")]
+    pub value_type: UniformType,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MaterialAssetParams {
+    pub id: String,
+    pub vertex_path: String,
+    pub fragment_path: String,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub textures: Vec<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub uniforms: Vec<UniformAssetParams>,
+}
+
+impl Into<MaterialParams> for MaterialAssetParams {
+    fn into(self) -> MaterialParams {
+        let textures = self.textures;
+        let uniforms = self.uniforms.into_iter().map(|params| (params.name, params.value_type)).collect();
+
+        MaterialParams {
+            textures,
+            uniforms,
+            pipeline_params: Default::default(),
+        }
+    }
+}
+
 pub struct Resources {
     pub actors: HashMap<String, ActorParams>,
     pub character_classes: HashMap<String, CharacterClass>,
@@ -64,8 +92,8 @@ pub struct Resources {
     pub missions: HashMap<String, MissionParams>,
     pub dialogue: HashMap<String, Dialogue>,
     pub chapters: Vec<Chapter>,
-    pub materials: HashMap<String, Material>,
-    pub textures: HashMap<String, Texture2D>,
+    pub materials: HashMap<String, MaterialSource>,
+    pub textures: HashMap<String, Texture>,
     pub images: HashMap<String, Image>,
     pub font_bytes: HashMap<String, Vec<u8>>,
     pub sound_effects: HashMap<String, Sound>,
@@ -138,31 +166,35 @@ impl Resources {
 
 
         let mut materials = HashMap::new();
-        for material_params in &assets.materials {
-            let vertex_shader = load_file(&material_params.vertex_shader_path).await?;
-            let fragment_shader = load_file(&material_params.fragment_shader_path).await?;
-
-            let material = load_material(
-                &String::from_utf8(vertex_shader)?,
-                &String::from_utf8(fragment_shader)?,
-                MaterialParams {
-                    ..Default::default()
-                },
-            )?;
-
-            materials.insert(material_params.id.clone(), material);
+        for params in assets.materials.clone() {
+            let id = params.id.clone();
+            let vertex_path = params.vertex_path.clone();
+            let fragment_path = params.fragment_path.clone();
+            let material = MaterialSource::new(&vertex_path, &fragment_path, params.into()).await?;
+            materials.insert(id, material);
         }
 
         let mut textures = HashMap::new();
         let white_image = Image::gen_image_color(32, 32, color::WHITE);
         let white_texture = Texture2D::from_image(&white_image);
         white_texture.set_filter(FilterMode::Nearest);
-        textures.insert(Self::WHITE_TEXTURE_ID.to_string(), white_texture);
 
-        for texture_params in &assets.textures {
-            let texture = load_texture(&texture_params.path).await?;
-            texture.set_filter(texture_params.filter_mode);
-            textures.insert(texture_params.id.clone(), texture);
+        let texture = Texture::new(white_texture, None);
+        textures.insert(Self::WHITE_TEXTURE_ID.to_string(), texture);
+
+        for params in &assets.textures {
+            let texture = load_texture(&params.path).await?;
+            texture.set_filter(params.filter_mode);
+
+            let mut normal_map = None;
+            if let Some(path) = &params.normal_map_path {
+                let res = load_texture(path).await?;
+                res.set_filter(params.filter_mode);
+                normal_map = Some(res);
+            }
+
+            let texture = Texture::new(texture, normal_map);
+            textures.insert(params.id.clone(), texture);
         }
 
         let mut images = HashMap::new();

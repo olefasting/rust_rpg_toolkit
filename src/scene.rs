@@ -111,7 +111,7 @@ impl SceneBuilder {
 
         let game_state = GameState::add_node(player_spawn_point, &character);
 
-        Camera::add_node();
+        CameraController::add_node();
 
         for constructor in self.draw_stages.get(&DrawStage::Map).unwrap() {
             constructor();
@@ -143,7 +143,7 @@ impl SceneBuilder {
             constructor();
         }
 
-        PostProcessing::add_node();
+        PostProcessing::add_node()?;
 
         for constructor in self.draw_stages.get(&DrawStage::Gui).unwrap() {
             constructor();
@@ -259,5 +259,5 @@ fn spawn_light_source(map_object: &MapObject) {
         }
     }
 
-    LightSource::add_node(map_object.position, size, color, intensity);
+    LightSource::add_node(map_object.position, size, color, intensity, None);
 }

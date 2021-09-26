@@ -13,6 +13,8 @@ pub struct Sprite {
     #[serde(with = "json::def_uvec2")]
     pub tile_size: UVec2,
     pub texture_id: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub normal_map_id: Option<String>,
     #[serde(with = "json::def_uvec2")]
     pub texture_coords: UVec2,
 }
@@ -20,8 +22,9 @@ pub struct Sprite {
 impl Sprite {
     pub fn draw(&self, position: Vec2, rotation: f32) {
         let resources = storage::get::<Resources>();
+        let texture = resources.textures.get(&self.texture_id).cloned().unwrap();
         draw_texture_ex(
-            resources.textures.get(&self.texture_id).cloned().unwrap(),
+            texture.get(),
             position.x + self.offset.x,
             position.y + self.offset.y,
             color::WHITE,
@@ -51,6 +54,7 @@ impl Default for Sprite {
             offset: Vec2::ZERO,
             rotation: 0.0,
             texture_id: Resources::WHITE_TEXTURE_ID.to_string(),
+            normal_map_id: None,
             tile_size: uvec2(16, 16),
             texture_coords: uvec2(0, 0),
             flip_x: false,

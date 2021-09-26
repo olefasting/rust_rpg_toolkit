@@ -26,7 +26,7 @@
       }
     ],
     "button_style":  {
-      "type": "full_width"
+      "type": "normal"
     },
     "is_static": true
   },
@@ -58,7 +58,7 @@
       }
     ],
     "button_style": {
-      "type": "full_width"
+      "type": "normal"
     },
     "is_static": true
   },
@@ -78,7 +78,7 @@
       }
     ],
     "button_style": {
-      "type": "full_width"
+      "type": "normal"
     },
     "is_static": true
   },
@@ -94,15 +94,14 @@
       {
         "title": "Cancel",
         "style_override": {
-          "type": "full_width"
+          "type": "normal"
         },
         "is_pushed_down": true,
         "is_cancel": true
       }
     ],
     "button_style": {
-      "type": "label_only",
-      "is_centered": false
+      "type": "label_only"
     },
     "is_static": true
   }

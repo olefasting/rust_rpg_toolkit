@@ -180103,10 +180103,6 @@
             "y": 4.0
           },
           "properties": {
-            "intensity": {
-              "type": "string",
-              "value": "0.1"
-            },
             "color": {
               "type": "color",
               "value": {
@@ -180115,6 +180111,10 @@
                 "blue": 0.0,
                 "alpha": 0.0
               }
+            },
+            "intensity": {
+              "type": "string",
+              "value": "0.1"
             }
           }
         }
@@ -180188,13 +180188,13 @@
             "y": 253.0
           },
           "properties": {
-            "prototype_id": {
-              "type": "string",
-              "value": "enemy_thug"
-            },
             "instance_id": {
               "type": "string",
               "value": "thug_03"
+            },
+            "prototype_id": {
+              "type": "string",
+              "value": "enemy_thug"
             }
           }
         },
@@ -180205,11 +180205,11 @@
             "y": 546.3333
           },
           "properties": {
-            "prototype_id": {
+            "instance_id": {
               "type": "string",
               "value": "guard_boss"
             },
-            "instance_id": {
+            "prototype_id": {
               "type": "string",
               "value": "guard_boss"
             }
@@ -180402,24 +180402,6 @@
       },
       "first_tile_id": 401,
       "tile_cnt": 100
-    },
-    {
-      "id": "items",
-      "texture_id": "items",
-      "texture_size": {
-        "x": 64,
-        "y": 64
-      },
-      "tile_size": {
-        "x": 16,
-        "y": 16
-      },
-      "grid_size": {
-        "x": 4,
-        "y": 4
-      },
-      "first_tile_id": 501,
-      "tile_cnt": 16
     }
   ]
 }
