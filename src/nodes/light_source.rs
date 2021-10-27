@@ -12,7 +12,7 @@ impl LightSource {
     pub const DEFAULT_COLOR: Color = color::WHITE;
     pub const DEFAULT_INTENSITY: f32 = 0.1;
 
-    pub fn new(position: Vec2, size: Vec2, color: Color, intensity: f32, ttl: Option<f32>) -> Self {
+    pub fn new(position: Vec2, size: Vec2, color: Color, intensity: f32, _ttl: Option<f32>) -> Self {
         let intensity = intensity.clamp(0.0, 1.0);
 
         LightSource {
@@ -29,7 +29,7 @@ impl LightSource {
 }
 
 impl Node for LightSource {
-    fn update(mut node: RefMut<Self>) {
+    fn update(_node: RefMut<Self>) {
 
     }
 }

@@ -40,6 +40,13 @@ pub struct TiledPolyPoint {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+pub struct TiledTileAttribute {
+    id: u32,
+    #[serde(rename = "type")]
+    attribute: String,
+}
+
+#[derive(Debug, Clone, Deserialize)]
 pub struct TiledTileset {
     pub columns: i32,
     pub image: String,
@@ -49,6 +56,8 @@ pub struct TiledTileset {
     pub name: String,
     #[serde(default)]
     pub properties: Option<Vec<TiledProperty>>,
+    #[serde(default, rename = "tiles")]
+    pub tile_attributes: Option<Vec<TiledTileAttribute>>,
     pub spacing: i32,
     pub tileheight: i32,
     pub tilewidth: i32,
@@ -121,6 +130,17 @@ impl Into<Map> for TiledMap {
             let tile_size = uvec2(tiled_tileset.tilewidth as u32, tiled_tileset.tileheight as u32);
             let grid_size = uvec2(tiled_tileset.columns as u32, tiled_tileset.tilecount as u32 / tiled_tileset.columns as u32);
 
+            let mut tile_attributes = HashMap::new();
+            if let Some(tiled_tile_attributes) = tiled_tileset.tile_attributes {
+                for tiled_attr in tiled_tile_attributes {
+                    if tile_attributes.contains_key(&tiled_attr.id) == false {
+                        tile_attributes.insert(tiled_attr.id, Vec::new());
+                    }
+
+                    tile_attributes.get_mut(&tiled_attr.id).unwrap().push(tiled_attr.attribute);
+                }
+            }
+
             let mut properties = HashMap::new();
             if let Some(tiled_props) = tiled_tileset.properties {
                 for tiled_prop in tiled_props {
@@ -146,6 +166,7 @@ impl Into<Map> for TiledMap {
                 grid_size,
                 first_tile_id: tiled_tileset.firstgid,
                 tile_cnt: tiled_tileset.tilecount,
+                tile_attributes,
                 properties,
             };
 
@@ -172,11 +193,18 @@ impl Into<Map> for TiledMap {
                         .unwrap();
 
                     let tile_id = tile_id - tileset.first_tile_id;
+
+                    let attributes = tileset.tile_attributes
+                        .get(&tile_id)
+                        .cloned()
+                        .unwrap_or_default();
+
                     let tile = MapTile {
                         tile_id,
                         tileset_id: tileset.id.clone(),
                         texture_id: tileset.texture_id.clone(),
                         texture_coords: tileset.get_texture_coords(tile_id),
+                        attributes,
                     };
 
                     Some(tile)

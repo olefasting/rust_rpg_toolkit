@@ -9,6 +9,13 @@
         "title": "First Map",
         "description": "First Map description",
         "path": "maps/map_01.json"
+      },
+      {
+        "id": "map_02",
+        "title": "Second Map (Tiled test)",
+        "description": "Second Map description",
+        "path": "maps/tiled_maps/tiled_map.json",
+        "is_tiled": true
       }
     ]
   }

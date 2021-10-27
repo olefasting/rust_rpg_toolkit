@@ -6,6 +6,8 @@ pub struct MapParams {
     pub title: String,
     pub description: String,
     pub path: String,
+    #[serde(default)]
+    pub is_tiled: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -31,7 +33,12 @@ impl Chapter {
         let mut  maps = HashMap::new();
         for params in params.maps {
             let path = data_path.join(&params.path);
-            let map = Map::load(path).await?;
+            let map = if params.is_tiled {
+                Map::load_tiled(path, None).await?
+            } else {
+                Map::load(path).await?
+            };
+
             maps.insert(params.id.clone(), map);
         }
 

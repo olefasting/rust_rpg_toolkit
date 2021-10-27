@@ -1,6 +1,7 @@
 use std::{
     fmt,
     result,
+    error,
     string::FromUtf8Error,
 };
 
@@ -12,9 +13,9 @@ use macroquad::prelude::{
 
 use crate::prelude::*;
 
-#[derive(Debug)]
 enum Repr {
-    Message(ErrorKind, &'static &'static str),
+    Simple(ErrorKind),
+    SimpleMessage(ErrorKind, &'static &'static str),
     Custom(Box<Custom>),
 }
 
@@ -32,7 +33,7 @@ pub enum ErrorKind {
 }
 
 impl ErrorKind {
-    pub(crate) fn to_str(&self) -> &'static str {
+    pub(crate) fn as_str(&self) -> &'static str {
         match *self {
             ErrorKind::File => "file error",
             ErrorKind::Parse => "parse error",
@@ -43,6 +44,12 @@ impl ErrorKind {
 
 pub struct Error {
     repr: Repr,
+}
+
+impl fmt::Debug for Error {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        fmt::Debug::fmt(&self.repr, f)
+    }
 }
 
 impl Error {
@@ -56,9 +63,25 @@ impl Error {
         }
     }
 
-    pub fn from_str(kind: ErrorKind, message: &'static &'static str) -> Error {
+    pub const fn new_const(kind: ErrorKind, msg: &'static &'static str) -> Self {
+        Self {
+            repr: Repr::SimpleMessage(kind, msg),
+        }
+    }
+
+    pub fn kind(&self) -> ErrorKind {
+        match self.repr {
+            Repr::Custom(ref c) => c.kind,
+            Repr::Simple(kind) => kind,
+            Repr::SimpleMessage(kind, _) => kind,
+        }
+    }
+}
+
+impl From<ErrorKind> for Error {
+    fn from(kind: ErrorKind) -> Self {
         Error {
-            repr: Repr::Message(kind, message),
+            repr: Repr::Simple(kind),
         }
     }
 }
@@ -66,19 +89,61 @@ impl Error {
 impl fmt::Display for Error {
     fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.repr {
-            Repr::Message(_, &msg) => msg.fmt(fmt),
             Repr::Custom(ref c) => c.error.fmt(fmt),
+            Repr::Simple(kind) => write!(fmt, "{}", kind.as_str()),
+            Repr::SimpleMessage(_, &msg) => msg.fmt(fmt),
         }
     }
 }
 
-impl fmt::Debug for Error {
+impl fmt::Debug for Repr {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        fmt::Debug::fmt(&self.repr, f)
+        match *self {
+            Repr::Simple(kind) => {
+                f.debug_tuple("Kind")
+                    .field(&kind)
+                    .finish()
+            }
+            Repr::SimpleMessage(kind, &message) => {
+                f.debug_struct("Error")
+                    .field("kind", &kind)
+                    .field("message", &message)
+                    .finish()
+            }
+            Repr::Custom(ref c) => {
+                c.error.fmt(f)
+            }
+        }
     }
 }
 
-impl std::error::Error for Error {}
+impl error::Error for Error {
+    #[allow(deprecated, deprecated_in_future)]
+    fn description(&self) -> &str {
+        match self.repr {
+            Repr::Simple(kind) => kind.as_str(),
+            Repr::SimpleMessage(_, &msg) => msg,
+            Repr::Custom(ref c) => c.error.description(),
+        }
+    }
+
+    #[allow(deprecated)]
+    fn cause(&self) -> Option<&dyn error::Error> {
+        match self.repr {
+            Repr::Simple(..) => None,
+            Repr::SimpleMessage(..) => None,
+            Repr::Custom(ref c) => c.error.cause(),
+        }
+    }
+
+    fn source(&self) -> Option<&(dyn error::Error + 'static)> {
+        match self.repr {
+            Repr::Simple(..) => None,
+            Repr::SimpleMessage(..) => None,
+            Repr::Custom(ref c) => c.error.source(),
+        }
+    }
+}
 
 impl From<io::Error> for Error {
     fn from(error: io::Error) -> Error {

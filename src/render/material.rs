@@ -86,7 +86,7 @@ impl Material {
         if let Some(compiled) = &mut self.compiled {
             compiled.delete();
         } else {
-            let err = Error::from_str(ErrorKind::Material, &"Attempting to delete a material that has not been compiled");
+            let err = Error::new_const(ErrorKind::Material, &"Attempting to delete a material that has not been compiled");
             return Err(err);
         }
 
@@ -97,7 +97,7 @@ impl Material {
         if let Some(material) = self.compiled.clone() {
             gl_use_material(material);
         } else {
-            let err = Error::from_str(ErrorKind::Material, &"Attempting to use a material that has not been compiled");
+            let err = Error::new_const(ErrorKind::Material, &"Attempting to use a material that has not been compiled");
             return Err(err);
         }
 

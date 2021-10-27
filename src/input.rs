@@ -313,6 +313,7 @@ pub(crate) fn get_gamepad_id(player_id: &str) -> Option<GamepadId> {
     context.mappings.get(player_id).cloned()
 }
 
+#[allow(dead_code)]
 pub(crate) fn get_events(player_id: &str) -> InputEventIterator {
     if let Some(gamepad_id) = get_gamepad_id(player_id) {
         return InputEventIterator::new(gamepad_id);

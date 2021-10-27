@@ -114,11 +114,17 @@ impl From<MapDef> for Map {
                                     && tile_id < tileset.first_tile_id + tileset.tile_cnt) {
                                 Some((_, tileset)) => {
                                     let tile_id = tile_id - tileset.first_tile_id;
+                                    let attributes = tileset.tile_attributes
+                                        .get(&tile_id)
+                                        .cloned()
+                                        .unwrap_or_default();
+
                                     let tile = MapTile {
                                         tile_id,
                                         tileset_id: tileset.id.clone(),
                                         texture_id: tileset.texture_id.clone(),
                                         texture_coords: tileset.get_texture_coords(tile_id),
+                                        attributes,
                                     };
 
                                     Some(tile)

@@ -89,7 +89,7 @@ impl Node for PostProcessing {
         if let Some(material) = &node.lighting_material {
             use_material(material).unwrap();
 
-            for light in scene::find_nodes_by_type::<LightSource>() {}
+            for _light in scene::find_nodes_by_type::<LightSource>() {}
         }
 
         set_default_camera();

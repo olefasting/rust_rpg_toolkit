@@ -26,9 +26,7 @@ pub(crate) use macroquad::{
         },
     },
     prelude::{
-        get_internal_gl,
         Texture2D,
-        Camera,
         Camera2D,
         clear_background,
         next_frame,

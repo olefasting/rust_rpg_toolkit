@@ -17,6 +17,33 @@ pub enum VerticalAlignment {
     Bottom,
 }
 
+pub fn draw_text(text: &str, position: Vec2, ha: HorizontalAlignment, va: VerticalAlignment, params: TextParams) {
+    let measure = get_text_measure(
+        text,
+        Some(params.font),
+        params.font_size,
+        params.font_scale,
+    );
+
+    let x = match ha {
+        HorizontalAlignment::Left => position.x,
+        _ => {
+            if ha == HorizontalAlignment::Center {
+                position.x - (measure.width / 2.0)
+            } else {
+                position.x - measure.width
+            }
+        }
+    };
+    let y = match va {
+        VerticalAlignment::Top => position.y + measure.height,
+        VerticalAlignment::Center => position.y + measure.height / 2.0,
+        _ => position.y,
+    };
+
+    draw_text_ex(text, x, y, params);
+}
+
 pub fn draw_progress_bar(
     current_value: f32,
     max_value: f32,
@@ -105,33 +132,6 @@ pub fn draw_progress_bar(
             );
         }
     }
-}
-
-pub fn draw_text(text: &str, position: Vec2, ha: HorizontalAlignment, va: VerticalAlignment, params: TextParams) {
-    let measure = get_text_measure(
-        text,
-        Some(params.font),
-        params.font_size,
-        params.font_scale,
-    );
-
-    let x = match ha {
-        HorizontalAlignment::Left => position.x,
-        _ => {
-            if ha == HorizontalAlignment::Center {
-                position.x - (measure.width / 2.0)
-            } else {
-                position.x - measure.width
-            }
-        }
-    };
-    let y = match va {
-        VerticalAlignment::Top => position.y + measure.height,
-        VerticalAlignment::Center => position.y + measure.height / 2.0,
-        _ => position.y,
-    };
-
-    draw_text_ex(text, x, y, params);
 }
 
 pub fn color_from_hex_string(str: &str) -> Color {

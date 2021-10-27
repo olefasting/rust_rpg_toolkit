@@ -67,6 +67,8 @@ pub struct MapTile {
     pub texture_id: String,
     #[serde(with = "json::def_vec2")]
     pub texture_coords: Vec2,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub attributes: Vec<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -105,6 +107,8 @@ pub struct MapTileset {
     pub grid_size: UVec2,
     pub first_tile_id: u32,
     pub tile_cnt: u32,
+    #[serde(default, skip_serializing_if = "HashMap::is_empty")]
+    pub tile_attributes: HashMap<u32, Vec<String>>,
     #[serde(default, skip_serializing_if = "HashMap::is_empty")]
     pub properties: HashMap<String, MapProperty>,
 }
@@ -155,26 +159,21 @@ impl Map {
     pub const PLAYER_SPAWN_POINT_NAME: &'static str = "player";
 
     pub async fn load<P: AsRef<Path>>(path: P) -> Result<Self> {
-        let bytes = load_file(path.as_ref().to_str().unwrap()).await?;
+        let bytes = load_file(path).await?;
         let map = serde_json::from_slice(&bytes).unwrap();
         Ok(map)
     }
 
     pub async fn load_tiled<P: AsRef<Path>>(path: P, export_path: Option<P>) -> Result<Self> {
-        let path = path.as_ref().to_str().unwrap();
         let bytes = load_file(path).await?;
         let tiled_map: TiledMap = serde_json::from_slice(&bytes)?;
-        let map = Map::from_tiled(tiled_map);
+        let map: Map = tiled_map.into();
 
         if let Some(export_path) = export_path {
             map.save(export_path)?;
         }
 
         Ok(map)
-    }
-
-    pub fn from_tiled(tiled_map: TiledMap) -> Self {
-        tiled_map.into()
     }
 
     pub fn to_grid(&self, rect: Rect) -> URect {
@@ -293,12 +292,16 @@ impl Map {
         );
 
         let resources = storage::get::<Resources>();
-        for layer_id in &self.draw_order {
-            if let Some(layer) = self.layers.get(layer_id) {
+
+        let mut draw_order = self.draw_order.clone();
+        draw_order.reverse();
+
+        for layer_id in draw_order {
+            if let Some(layer) = self.layers.get(&layer_id) {
                 if layer.is_visible {
                     match layer.kind {
                         MapLayerKind::TileLayer => {
-                            for (x, y, tile) in self.get_tiles(layer_id, Some(rect)) {
+                            for (x, y, tile) in self.get_tiles(&layer_id, Some(rect)) {
                                 if let Some(tile) = tile {
                                     let world_position = self.world_offset + vec2(
                                         x as f32 * self.tile_size.x,
