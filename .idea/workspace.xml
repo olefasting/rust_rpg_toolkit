@@ -11,8 +11,8 @@
   <component name="ChangeListManager">
     <list default="true" id="22a0162b-a946-4d48-a00b-4c6245a2b392" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/building_scenes/data/scenario.json" beforeDir="false" afterPath="$PROJECT_DIR$/examples/building_scenes/data/scenario.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/game.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/game.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/resources.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/resources.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,11 +68,6 @@
     </key>
   </component>
   <component name="RunManager" selected="Cargo.Run Building Scenes Example">
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="Build CLI" type="CargoCommandRunConfiguration" factoryName="Cargo Command" singleton="false">
       <option name="command" value="build" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$/cli" />
@@ -171,7 +166,8 @@
       <workItem from="1636065512690" duration="262000" />
       <workItem from="1636226277282" duration="599000" />
       <workItem from="1636314346005" duration="608000" />
-      <workItem from="1636677400517" duration="200000" />
+      <workItem from="1636677400517" duration="257000" />
+      <workItem from="1636677771850" duration="151000" />
     </task>
     <servers />
   </component>

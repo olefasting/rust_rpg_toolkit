@@ -35,7 +35,7 @@ async fn load_resources(game_params: &GameParams) {
 
         start_coroutine(async move {
             match Resources::new(&game_params).await {
-                Err(err) => println!("Resources: {}", err),
+                Err(err) => panic!("Resources: {}", err),
                 Ok(mut resources) => {
                     load_modules(&game_params, &mut resources).await.unwrap();
 
