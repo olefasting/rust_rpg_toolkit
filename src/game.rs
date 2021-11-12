@@ -34,10 +34,14 @@ async fn load_resources(game_params: &GameParams) {
         let game_params = game_params.clone();
 
         start_coroutine(async move {
-            let mut resources = Resources::new(&game_params).await.unwrap();
-            load_modules(&game_params, &mut resources).await.unwrap();
+            match Resources::new(&game_params).await {
+                Err(err) => println!("Resources: {}", err),
+                Ok(mut resources) => {
+                    load_modules(&game_params, &mut resources).await.unwrap();
 
-            storage::store(resources);
+                    storage::store(resources);
+                }
+            }
         })
     };
 

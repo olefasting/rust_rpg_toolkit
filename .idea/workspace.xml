@@ -11,19 +11,8 @@
   <component name="ChangeListManager">
     <list default="true" id="22a0162b-a946-4d48-a00b-4c6245a2b392" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/examples/building_scenes/data/scenario.json" beforeDir="false" afterPath="$PROJECT_DIR$/examples/building_scenes/data/scenario.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/chapter.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/chapter.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/error.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/error.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/input.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/input.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/json/map/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/json/map/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/json/map/tiled.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/json/map/tiled.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/map.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/map.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/nodes/light_source.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/nodes/light_source.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/nodes/post_processing.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/nodes/post_processing.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/prelude.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/prelude.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/render/helpers.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/render/helpers.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/render/material.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/render/material.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/game.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,6 +58,7 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/examples/building_scenes/data/maps/tiled_maps" />
       <recent name="$PROJECT_DIR$/examples/custom_nodes" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -78,6 +68,11 @@
     </key>
   </component>
   <component name="RunManager" selected="Cargo.Run Building Scenes Example">
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="Build CLI" type="CargoCommandRunConfiguration" factoryName="Cargo Command" singleton="false">
       <option name="command" value="build" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$/cli" />
@@ -142,11 +137,6 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
     <list>
       <item itemvalue="Cargo.Build" />
       <item itemvalue="Cargo.Build CLI" />
@@ -176,7 +166,12 @@
       <workItem from="1634080794257" duration="2345000" />
       <workItem from="1634429280713" duration="22000" />
       <workItem from="1634541041998" duration="24000" />
-      <workItem from="1635372461631" duration="1541000" />
+      <workItem from="1635372461631" duration="1702000" />
+      <workItem from="1635488691676" duration="96000" />
+      <workItem from="1636065512690" duration="262000" />
+      <workItem from="1636226277282" duration="599000" />
+      <workItem from="1636314346005" duration="608000" />
+      <workItem from="1636677400517" duration="200000" />
     </task>
     <servers />
   </component>
