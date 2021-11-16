@@ -1,6 +1,6 @@
 # Rust RPG Toolkit
 
-**PLEASE NOTE: this in early and very heavy development. API is subject to constant change, as it has newly transitioned
+**PLEASE NOTE: this is in early development. API is subject to constant change, as it has newly transitioned
 from being a game project to a library**
 
 This crate allows you to create tile-based, 2D action RPGs, using Rust amd JSON. It started out as a game project but was
