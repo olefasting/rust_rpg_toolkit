@@ -59,10 +59,10 @@ rust-rpg-toolkit = "0.1.0"
 ```rust
 use rust_rpg_toolkit::prelude::*;
 
-const GAME_NAME: &'static str = "My Awesome Game";
-const GAME_VERSION: &'static str = "0.1.0";
+const GAME_NAME: &str = "My Awesome Game";
+const GAME_VERSION: &str = "0.1.0";
 
-const CONFIG_PATH: &'static str = "config.json";
+const CONFIG_PATH: &str = "config.json";
 
 fn get_window_conf() -> WindowConf {
     let config = Config::load(CONFIG_PATH);
