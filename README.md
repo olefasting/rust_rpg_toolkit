@@ -31,9 +31,6 @@ side scrolling physics is just a matter of adding a few physics properties -- ma
 
 ## Current Milestones
 
-These are the tasks that currently have priority. When these are done, the goal is to push out the first
-release and publish on crates.io
-
 - [x] Re-design actor behavior system
 - [x] Define basic, default AI behaviors
 - [X] Refactor collision detection
@@ -50,7 +47,7 @@ If you want to try it out, you might still do so, by depending on this git repos
 
 ```toml
 [dependencies]
-rust-rpg-toolkit = { git = "https://github.com/olefasting/rust_rpg_toolkit.git" }
+rust-rpg-toolkit = "0.1.0"
 ```
 
 ### Crate features

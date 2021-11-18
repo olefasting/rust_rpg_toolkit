@@ -896,7 +896,7 @@ dependencies = [
 
 [[package]]
 name = "rust-rpg-toolkit"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "bracket-pathfinding",
  "chrono",
@@ -912,7 +912,7 @@ dependencies = [
 
 [[package]]
 name = "rust-rpg-toolkit-cli"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "quicli",
  "rust-rpg-toolkit",
