@@ -12,9 +12,16 @@ pub enum DialogueRequirement {
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum DialogueAction {
     OpenTrade,
-    StartMission { mission_id: String },
-    CompleteMission { mission_id: String },
-    MapTransition { chapter_index: usize, map_id: String },
+    StartMission {
+        mission_id: String,
+    },
+    CompleteMission {
+        mission_id: String,
+    },
+    MapTransition {
+        chapter_index: usize,
+        map_id: String,
+    },
     CompleteChapter,
 }
 
@@ -50,12 +57,22 @@ impl Dialogue {
             for requirement in &option.requirements {
                 match requirement {
                     DialogueRequirement::ActiveMission { mission_id } => {
-                        if actor.active_missions.iter().find(|mission| mission.id == mission_id.clone()).is_none() {
+                        if actor
+                            .active_missions
+                            .iter()
+                            .find(|mission| mission.id == mission_id.clone())
+                            .is_none()
+                        {
                             continue 'option;
                         }
-                    },
+                    }
                     DialogueRequirement::CompletedMission { mission_id } => {
-                        if actor.completed_missions.iter().find(|mission| mission.id == mission_id.clone()).is_none() {
+                        if actor
+                            .completed_missions
+                            .iter()
+                            .find(|mission| mission.id == mission_id.clone())
+                            .is_none()
+                        {
                             continue 'option;
                         }
                     }
@@ -69,12 +86,22 @@ impl Dialogue {
             for exclusion in &option.exclusions {
                 match exclusion {
                     DialogueRequirement::ActiveMission { mission_id } => {
-                        if actor.active_missions.iter().find(|mission| mission.id == mission_id.clone()).is_some() {
+                        if actor
+                            .active_missions
+                            .iter()
+                            .find(|mission| mission.id == mission_id.clone())
+                            .is_some()
+                        {
                             continue 'option;
                         }
-                    },
+                    }
                     DialogueRequirement::CompletedMission { mission_id } => {
-                        if actor.completed_missions.iter().find(|mission| mission.id == mission_id.clone()).is_some() {
+                        if actor
+                            .completed_missions
+                            .iter()
+                            .find(|mission| mission.id == mission_id.clone())
+                            .is_some()
+                        {
                             continue 'option;
                         }
                     }
@@ -96,30 +123,41 @@ impl Dialogue {
         if let Some(action) = self.action.clone() {
             let resources = storage::get::<Resources>();
             match action {
-                DialogueAction::OpenTrade => { todo!() },
+                DialogueAction::OpenTrade => {
+                    todo!()
+                }
                 DialogueAction::CompleteMission { mission_id } => {
-                    actor.active_missions = actor.active_missions
+                    actor.active_missions = actor
+                        .active_missions
                         .clone()
                         .into_iter()
                         .map(|mut mission| {
-                        if mission.id == mission_id {
-                            mission.objectives = mission.objectives
-                                .into_iter()
-                                .map(|(objective, _)| (objective, true))
-                                .collect();
-                        }
-                        mission.is_completed = true;
-                        mission
-                    }).collect();
-                },
+                            if mission.id == mission_id {
+                                mission.objectives = mission
+                                    .objectives
+                                    .into_iter()
+                                    .map(|(objective, _)| (objective, true))
+                                    .collect();
+                            }
+                            mission.is_completed = true;
+                            mission
+                        })
+                        .collect();
+                }
                 DialogueAction::StartMission { mission_id } => {
                     let params = resources.missions.get(&mission_id).cloned().unwrap();
                     actor.active_missions.push(Mission::new(params));
-                },
-                DialogueAction::MapTransition { chapter_index, map_id } => {
+                }
+                DialogueAction::MapTransition {
+                    chapter_index,
+                    map_id,
+                } => {
                     actor.current_dialogue = None;
-                    dispatch_event(Event::ChangeMap { chapter_index, map_id });
-                },
+                    dispatch_event(Event::ChangeMap {
+                        chapter_index,
+                        map_id,
+                    });
+                }
                 DialogueAction::CompleteChapter => todo!(),
             }
         }

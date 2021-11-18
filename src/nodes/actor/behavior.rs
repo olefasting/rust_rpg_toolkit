@@ -1,9 +1,6 @@
 use crate::prelude::*;
 
-use mode::{
-    Family,
-    Mode,
-};
+use mode::{Family, Mode};
 
 #[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -20,7 +17,11 @@ pub fn default_behavior_set() -> String {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ActorBehaviorParams {
     pub aggression: ActorAggression,
-    #[serde(default, with = "json::opt_vec2", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "json::opt_vec2",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub home: Option<Vec2>,
     #[serde(default = "default_behavior_set", rename = "behavior_set")]
     pub behavior_set_id: String,
@@ -51,7 +52,7 @@ impl Default for ActorBehaviorParams {
     }
 }
 
-pub trait ActorBehavior: Mode<Family=ActorBehaviorFamily> {
+pub trait ActorBehavior: Mode<Family = ActorBehaviorFamily> {
     fn update(
         self: Box<Self>,
         params: ActorBehaviorParams,

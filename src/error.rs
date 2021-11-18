@@ -1,15 +1,6 @@
-use std::{
-    fmt,
-    result,
-    error,
-    string::FromUtf8Error,
-};
+use std::{error, fmt, result, string::FromUtf8Error};
 
-use macroquad::prelude::{
-    FileError,
-    ShaderError,
-    FontError,
-};
+use macroquad::prelude::{FileError, FontError, ShaderError};
 
 use crate::prelude::*;
 
@@ -54,12 +45,14 @@ impl fmt::Debug for Error {
 
 impl Error {
     pub fn new<E>(kind: ErrorKind, error: E) -> Error
-        where E: Into<Box<dyn std::error::Error + Send + Sync>> {
+    where
+        E: Into<Box<dyn std::error::Error + Send + Sync>>,
+    {
         Error {
             repr: Repr::Custom(Box::new(Custom {
                 kind,
                 error: error.into(),
-            }))
+            })),
         }
     }
 
@@ -99,20 +92,13 @@ impl fmt::Display for Error {
 impl fmt::Debug for Repr {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
-            Repr::Simple(kind) => {
-                f.debug_tuple("Kind")
-                    .field(&kind)
-                    .finish()
-            }
-            Repr::SimpleMessage(kind, &message) => {
-                f.debug_struct("Error")
-                    .field("kind", &kind)
-                    .field("message", &message)
-                    .finish()
-            }
-            Repr::Custom(ref c) => {
-                c.error.fmt(f)
-            }
+            Repr::Simple(kind) => f.debug_tuple("Kind").field(&kind).finish(),
+            Repr::SimpleMessage(kind, &message) => f
+                .debug_struct("Error")
+                .field("kind", &kind)
+                .field("message", &message)
+                .finish(),
+            Repr::Custom(ref c) => c.error.fmt(f),
         }
     }
 }

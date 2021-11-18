@@ -2,7 +2,13 @@ use crate::gui::*;
 
 const MINIMUM_CHARACTER_NAME_LENGTH: usize = 4;
 
-fn draw_character_attribute(ui: &mut Ui, i: usize, name: &str, value: &mut u32, build_points: &mut u32) {
+fn draw_character_attribute(
+    ui: &mut Ui,
+    i: usize,
+    name: &str,
+    value: &mut u32,
+    build_points: &mut u32,
+) {
     let gui_skins = storage::get::<GuiSkins>();
 
     let y_offset = i as f32 * 22.0;
@@ -91,25 +97,75 @@ pub(crate) async fn draw_character_creation(class_id: &str) -> Option<Character>
 
                 ui.label(None, &format!("Build points: {}", build_points));
 
-                let bottom_y = WINDOW_HEIGHT - GuiSkins::ELEMENT_MARGIN - GuiSkins::BUTTON_HEIGHT - GuiSkins::WINDOW_MARGIN_Y * 2.0;
+                let bottom_y = WINDOW_HEIGHT
+                    - GuiSkins::ELEMENT_MARGIN
+                    - GuiSkins::BUTTON_HEIGHT
+                    - GuiSkins::WINDOW_MARGIN_Y * 2.0;
                 let columns_y = 84.0;
                 let column_height = bottom_y - columns_y - 24.0 - GuiSkins::ELEMENT_MARGIN;
 
-                widgets::Group::new(hash!(), vec2(96.0, column_height)).position(vec2(0.0, columns_y)).ui(ui, |ui| {
-                    draw_character_attribute(ui, 0, "STR", &mut params.strength, &mut build_points);
-                    draw_character_attribute(ui, 1, "DEX", &mut params.dexterity, &mut build_points);
-                    draw_character_attribute(ui, 2, "CON", &mut params.constitution, &mut build_points);
-                    draw_character_attribute(ui, 3, "INT", &mut params.intelligence, &mut build_points);
-                    draw_character_attribute(ui, 4, "WIL", &mut params.willpower, &mut build_points);
-                    draw_character_attribute(ui, 5, "PER", &mut params.perception, &mut build_points);
-                    draw_character_attribute(ui, 6, "CHA", &mut params.charisma, &mut build_points);
-                });
+                widgets::Group::new(hash!(), vec2(96.0, column_height))
+                    .position(vec2(0.0, columns_y))
+                    .ui(ui, |ui| {
+                        draw_character_attribute(
+                            ui,
+                            0,
+                            "STR",
+                            &mut params.strength,
+                            &mut build_points,
+                        );
+                        draw_character_attribute(
+                            ui,
+                            1,
+                            "DEX",
+                            &mut params.dexterity,
+                            &mut build_points,
+                        );
+                        draw_character_attribute(
+                            ui,
+                            2,
+                            "CON",
+                            &mut params.constitution,
+                            &mut build_points,
+                        );
+                        draw_character_attribute(
+                            ui,
+                            3,
+                            "INT",
+                            &mut params.intelligence,
+                            &mut build_points,
+                        );
+                        draw_character_attribute(
+                            ui,
+                            4,
+                            "WIL",
+                            &mut params.willpower,
+                            &mut build_points,
+                        );
+                        draw_character_attribute(
+                            ui,
+                            5,
+                            "PER",
+                            &mut params.perception,
+                            &mut build_points,
+                        );
+                        draw_character_attribute(
+                            ui,
+                            6,
+                            "CHA",
+                            &mut params.charisma,
+                            &mut build_points,
+                        );
+                    });
 
-                widgets::Group::new(hash!(), vec2(165.0, column_height)).position(vec2(100.0, columns_y)).ui(ui, |ui| {
-                    //draw_checkbox(ui, hash!(), vec2(0.0, 130.0), "Hardcore", &mut is_permadeath);
+                widgets::Group::new(hash!(), vec2(165.0, column_height))
+                    .position(vec2(100.0, columns_y))
+                    .ui(ui, |ui| {
+                        //draw_checkbox(ui, hash!(), vec2(0.0, 130.0), "Hardcore", &mut is_permadeath);
 
-                    Checkbox::new(hash!(), vec2(0.0, 130.0), "Hardcore", &mut is_permadeath).ui(ui);
-                });
+                        Checkbox::new(hash!(), vec2(0.0, 130.0), "Hardcore", &mut is_permadeath)
+                            .ui(ui);
+                    });
 
                 if should_show_build_points_warning {
                     let label = "You have unspent build points!";
@@ -126,7 +182,10 @@ pub(crate) async fn draw_character_creation(class_id: &str) -> Option<Character>
                 }
 
                 let btn_y = bottom_y + GuiSkins::ELEMENT_MARGIN;
-                let btn_size = vec2((WINDOW_WIDTH  - GuiSkins::ELEMENT_MARGIN) / 2.0 - GuiSkins::WINDOW_MARGIN_X, GuiSkins::BUTTON_HEIGHT);
+                let btn_size = vec2(
+                    (WINDOW_WIDTH - GuiSkins::ELEMENT_MARGIN) / 2.0 - GuiSkins::WINDOW_MARGIN_X,
+                    GuiSkins::BUTTON_HEIGHT,
+                );
 
                 if name_warning.is_some() || build_points > 0 {
                     ui.push_skin(&gui_skins.inactive_button);
@@ -179,8 +238,13 @@ pub(crate) async fn draw_set_character_name() -> Option<String> {
     let gui_skins = storage::get::<GuiSkins>();
 
     let size = vec2(WINDOW_WIDTH, WINDOW_HEIGHT);
-    let btn_y = size.y - gui_skins.theme.button_height - (gui_skins.theme.window_margins.top + gui_skins.theme.window_margins.bottom);
-    let btn_width = (size.x - (gui_skins.theme.window_margins.left + gui_skins.theme.window_margins.right) - 2.0) / 2.0;
+    let btn_y = size.y
+        - gui_skins.theme.button_height
+        - (gui_skins.theme.window_margins.top + gui_skins.theme.window_margins.bottom);
+    let btn_width = (size.x
+        - (gui_skins.theme.window_margins.left + gui_skins.theme.window_margins.right)
+        - 2.0)
+        / 2.0;
     let btn_size = vec2(btn_width, gui_skins.theme.button_height);
 
     let mut name = "".to_string();

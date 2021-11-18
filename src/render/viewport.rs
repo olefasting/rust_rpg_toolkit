@@ -19,12 +19,7 @@ impl Viewport {
     }
 
     pub fn get_rect(&self) -> Rect {
-        Rect::new(
-            self.position.x,
-            self.position.y,
-            self.size.x,
-            self.size.y,
-        )
+        Rect::new(self.position.x, self.position.y, self.size.x, self.size.y)
     }
 
     pub fn get_center(&self) -> Vec2 {

@@ -1,9 +1,6 @@
 use crate::prelude::*;
 
-use crate::macroquad::texture::{
-    Texture2D,
-    load_texture,
-};
+use crate::macroquad::texture::{load_texture, Texture2D};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CharacterClass {
@@ -76,10 +73,14 @@ pub struct MaterialAssetParams {
     pub uniforms: Vec<UniformAssetParams>,
 }
 
-impl Into<MaterialParams> for MaterialAssetParams {
-    fn into(self) -> MaterialParams {
-        let textures = self.textures;
-        let uniforms = self.uniforms.into_iter().map(|params| (params.name, params.value_type)).collect();
+impl From<MaterialAssetParams> for MaterialParams {
+    fn from(params: MaterialAssetParams) -> MaterialParams {
+        let textures = params.textures;
+        let uniforms = params
+            .uniforms
+            .into_iter()
+            .map(|u| (u.name, u.value_type))
+            .collect();
 
         MaterialParams {
             textures,
@@ -133,7 +134,10 @@ impl Resources {
         let bytes = load_file(&character_classes_path).await?;
         let character_classes_data: Vec<CharacterClass> = serde_json::from_slice(&bytes)?;
         let character_classes = HashMap::from_iter(
-            character_classes_data.into_iter().map(|class| (class.id.clone(), class)));
+            character_classes_data
+                .into_iter()
+                .map(|class| (class.id.clone(), class)),
+        );
 
         #[cfg(debug_assertions)]
         println!("Resources: Loading actors");
@@ -141,7 +145,10 @@ impl Resources {
         let bytes = load_file(&actors_file_path).await?;
         let actor_data: Vec<ActorParams> = serde_json::from_slice(&bytes)?;
         let actors = HashMap::from_iter(
-            actor_data.into_iter().map(|params| (params.id.clone(), params)));
+            actor_data
+                .into_iter()
+                .map(|params| (params.id.clone(), params)),
+        );
 
         #[cfg(debug_assertions)]
         println!("Resources: Loading items");
@@ -149,7 +156,10 @@ impl Resources {
         let bytes = load_file(&items_file_path).await?;
         let items_data: Vec<ItemParams> = serde_json::from_slice(&bytes)?;
         let items = HashMap::from_iter(
-            items_data.into_iter().map(|params| (params.id.clone(), params)));
+            items_data
+                .into_iter()
+                .map(|params| (params.id.clone(), params)),
+        );
 
         #[cfg(debug_assertions)]
         println!("Resources: Loading missions");
@@ -157,7 +167,10 @@ impl Resources {
         let bytes = load_file(&missions_file_path).await?;
         let missions_data: Vec<MissionParams> = serde_json::from_slice(&bytes)?;
         let missions = HashMap::from_iter(
-            missions_data.into_iter().map(|mission| (mission.id.clone(), mission)));
+            missions_data
+                .into_iter()
+                .map(|mission| (mission.id.clone(), mission)),
+        );
 
         #[cfg(debug_assertions)]
         println!("Resources: Loading dialogue");
@@ -165,7 +178,10 @@ impl Resources {
         let bytes = load_file(&dialogue_file_path).await?;
         let dialogue_data: Vec<Dialogue> = serde_json::from_slice(&bytes)?;
         let dialogue = HashMap::from_iter(
-            dialogue_data.into_iter().map(|dialogue| (dialogue.id.clone(), dialogue)));
+            dialogue_data
+                .into_iter()
+                .map(|dialogue| (dialogue.id.clone(), dialogue)),
+        );
 
         #[cfg(debug_assertions)]
         println!("Resources: Loading abilities");
@@ -173,7 +189,10 @@ impl Resources {
         let bytes = load_file(&abilities_file_path).await?;
         let ability_data: Vec<AbilityParams> = serde_json::from_slice(&bytes)?;
         let abilities = HashMap::from_iter(
-            ability_data.into_iter().map(|ability| (ability.id.clone(), ability)));
+            ability_data
+                .into_iter()
+                .map(|ability| (ability.id.clone(), ability)),
+        );
 
         #[cfg(debug_assertions)]
         println!("Resources: Loading scenario");
@@ -318,9 +337,11 @@ impl Resources {
     }
 
     pub fn get_font(&self, font_id: &str) -> Result<Font> {
-        let bytes = self.font_bytes.get(font_id)
-            .expect(&format!("No font with id '{}' was found!", font_id));
-        let font = load_ttf_font_from_bytes(&bytes)?;
+        let bytes = self
+            .font_bytes
+            .get(font_id)
+            .unwrap_or_else(|| panic!("No font with id '{}' was found!", font_id));
+        let font = load_ttf_font_from_bytes(bytes)?;
         Ok(font)
     }
 }

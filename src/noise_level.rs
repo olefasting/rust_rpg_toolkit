@@ -74,7 +74,7 @@ impl Ord for NoiseLevel {
             Self::Extreme => match other {
                 Self::None | Self::Silent | Self::Moderate | Self::Loud => Ordering::Greater,
                 Self::Extreme => Ordering::Equal,
-            }
+            },
         }
     }
 }

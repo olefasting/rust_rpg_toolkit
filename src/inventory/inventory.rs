@@ -62,13 +62,18 @@ impl Inventory {
     pub fn from_prototypes(params: &InventoryParams) -> Self {
         let resources = storage::get::<Resources>();
         Inventory {
-            items: params.items.clone().into_iter().map(|id| {
-                let params = resources.items.get(&id).cloned().unwrap();
-                InventoryEntry::new(ItemParams {
-                    id: generate_id(),
-                    ..params
+            items: params
+                .items
+                .clone()
+                .into_iter()
+                .map(|id| {
+                    let params = resources.items.get(&id).cloned().unwrap();
+                    InventoryEntry::new(ItemParams {
+                        id: generate_id(),
+                        ..params
+                    })
                 })
-            }).collect(),
+                .collect(),
             credits: params.credits,
         }
     }
@@ -79,7 +84,7 @@ impl Inventory {
             if let Some(params) = item_params.into_iter().find(|item| item.id == entry) {
                 items.push(InventoryEntry {
                     params: params.clone(),
-                    equipped_to: EquipmentSlot::None
+                    equipped_to: EquipmentSlot::None,
                 });
             }
         }
@@ -90,12 +95,16 @@ impl Inventory {
     }
 
     pub fn get_all_of_kind(&self, kinds: &[ItemKind]) -> Vec<InventoryEntry> {
-        self.items.clone().into_iter().filter(|item| {
-            if kinds.contains(&item.params.kind) {
-                return true;
-            }
-            false
-        }).collect()
+        self.items
+            .clone()
+            .into_iter()
+            .filter(|item| {
+                if kinds.contains(&item.params.kind) {
+                    return true;
+                }
+                false
+            })
+            .collect()
     }
 
     pub fn pick_up(&mut self, item: RefMut<Item>) {
@@ -118,7 +127,8 @@ impl Inventory {
     }
 
     pub fn drop(&mut self, item_id: &str, position: Vec2) -> bool {
-        let items: Vec<InventoryEntry> = self.items
+        let items: Vec<InventoryEntry> = self
+            .items
             .drain_filter(|entry| {
                 if entry.params.id == item_id && entry.params.is_quest_item == false {
                     let params = ItemParams {
@@ -173,15 +183,25 @@ impl Inventory {
 
     pub fn to_params(&self) -> InventoryParams {
         InventoryParams {
-            items: self.items.iter().map( | entry| entry.params.id.clone()).collect(),
+            items: self
+                .items
+                .iter()
+                .map(|entry| entry.params.id.clone())
+                .collect(),
             credits: self.credits,
         }
     }
 
     fn randomize_drop_position(position: Vec2) -> Vec2 {
         vec2(
-            rand::gen_range(position.x - Self::DROP_ALL_POSITION_VARIANCE, position.x + Self::DROP_ALL_POSITION_VARIANCE),
-            rand::gen_range(position.y - Self::DROP_ALL_POSITION_VARIANCE, position.y + Self::DROP_ALL_POSITION_VARIANCE),
+            rand::gen_range(
+                position.x - Self::DROP_ALL_POSITION_VARIANCE,
+                position.x + Self::DROP_ALL_POSITION_VARIANCE,
+            ),
+            rand::gen_range(
+                position.y - Self::DROP_ALL_POSITION_VARIANCE,
+                position.y + Self::DROP_ALL_POSITION_VARIANCE,
+            ),
         )
     }
 }

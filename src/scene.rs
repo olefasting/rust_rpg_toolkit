@@ -77,12 +77,9 @@ impl SceneBuilder {
     pub fn with_draw_buffer<T: 'static + BufferedDraw>(self, draw_stage: DrawStage) -> Self {
         let mut draw_stages = self.draw_stages;
 
-        draw_stages
-            .get_mut(&draw_stage)
-            .unwrap()
-            .push(|| {
-                DrawBuffer::<T>::add_node();
-            });
+        draw_stages.get_mut(&draw_stage).unwrap().push(|| {
+            DrawBuffer::<T>::add_node();
+        });
 
         SceneBuilder {
             draw_stages,
@@ -91,17 +88,11 @@ impl SceneBuilder {
     }
 
     pub fn with_pre_build(self, pre_build: SceneBuilderFunc) -> Self {
-        SceneBuilder {
-            pre_build,
-            ..self
-        }
+        SceneBuilder { pre_build, ..self }
     }
 
     pub fn with_post_build(self, post_build: SceneBuilderFunc) -> Self {
-        SceneBuilder {
-            post_build,
-            ..self
-        }
+        SceneBuilder { post_build, ..self }
     }
 
     pub fn make_default(self) {
@@ -121,14 +112,18 @@ impl SceneBuilder {
 
         let resources = storage::get::<Resources>();
 
-        let chapter = resources.chapters.get(chapter_index)
-            .expect(&format!("Scene could not build, due to an invalid chapter index ({})!", chapter_index));
+        let chapter = resources.chapters.get(chapter_index).expect(&format!(
+            "Scene could not build, due to an invalid chapter index ({})!",
+            chapter_index
+        ));
 
         let map = chapter.maps.get(map_id).cloned()
             .expect(&format!("Scene could not build as no map with id '{}' was found in chapter '{}' (chapter index: {})!", map_id, &chapter.title, chapter_index));
 
-        let player_spawn_point = map.player_spawn_point
-            .expect(&format!("No player spawn point defined in map '{}' of chapter '{}' (chapter index: {})", map_id, chapter.title, chapter_index));
+        let player_spawn_point = map.player_spawn_point.expect(&format!(
+            "No player spawn point defined in map '{}' of chapter '{}' (chapter index: {})",
+            map_id, chapter.title, chapter_index
+        ));
 
         let game_state = GameState::add_node(player_spawn_point, &character);
 
@@ -209,7 +204,10 @@ impl SceneBuilder {
 
 fn spawn_item(map_object: &MapObject) {
     if let Some(prop) = map_object.properties.get("prototype_id").cloned() {
-        if let MapProperty::String { value: prototype_id } = prop {
+        if let MapProperty::String {
+            value: prototype_id,
+        } = prop
+        {
             if prototype_id == "credits" {
                 if let Some(prop) = map_object.properties.get("amount") {
                     if let MapProperty::Int { value } = prop {
@@ -238,7 +236,10 @@ fn spawn_item(map_object: &MapObject) {
 
 fn spawn_actor(game_state: Handle<GameState>, map_object: &MapObject) {
     if let Some(prop) = map_object.properties.get("prototype_id") {
-        if let MapProperty::String { value: prototype_id } = prop {
+        if let MapProperty::String {
+            value: prototype_id,
+        } = prop
+        {
             let mut instance_id = None;
             if let Some(prop) = map_object.properties.get("instance_id").cloned() {
                 if let MapProperty::String { value } = prop {
@@ -255,7 +256,8 @@ fn spawn_actor(game_state: Handle<GameState>, map_object: &MapObject) {
                     id: instance_id.unwrap_or(generate_id()),
                     position: Some(map_object.position),
                     ..params
-                });
+                },
+            );
 
             actor.stats.recalculate_derived();
             actor.stats.restore_vitals();

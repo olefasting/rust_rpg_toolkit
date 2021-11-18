@@ -3,17 +3,17 @@ use crate::gui::*;
 fn draw_entry(ui: &mut Ui, player: &mut RefMut<Actor>, entry: &InventoryEntry) {
     let gui_skins = storage::get::<GuiSkins>();
 
-    widgets::Group::new(hash!(), vec2(250.0 , 30.0 )).ui(ui, |ui| {
-        ui.label(vec2(0.0, 0.0) , &entry.params.name);
+    widgets::Group::new(hash!(), vec2(250.0, 30.0)).ui(ui, |ui| {
+        ui.label(vec2(0.0, 0.0), &entry.params.name);
         if entry.equipped_to == EquipmentSlot::None {
             ui.push_skin(&gui_skins.condensed_button);
-            if ui.button(vec2(160.0, 0.0) , "Equip") {
+            if ui.button(vec2(160.0, 0.0), "Equip") {
                 player.equip_item(&entry.params.id);
             }
             ui.pop_skin();
         } else {
             ui.push_skin(&gui_skins.condensed_button);
-            if ui.button(vec2(150.0, 0.0) , "Unequip") {
+            if ui.button(vec2(150.0, 0.0), "Unequip") {
                 player.unequip_item(&entry.params.id);
             }
             ui.pop_skin();
@@ -21,7 +21,7 @@ fn draw_entry(ui: &mut Ui, player: &mut RefMut<Actor>, entry: &InventoryEntry) {
 
         if entry.params.is_quest_item == false {
             ui.push_skin(&gui_skins.condensed_button_inactive);
-            if ui.button(vec2(210.0, 0.0) , "Drop") {
+            if ui.button(vec2(210.0, 0.0), "Drop") {
                 player.unequip_item(&entry.params.id);
                 let position = player.body.position;
                 player.inventory.drop(&entry.params.id, position);
@@ -45,9 +45,20 @@ pub fn draw_inventory_window() {
                 WindowBuilder::new(hash!(), size)
                     .with_pos(position, false)
                     .build(&mut *root_ui(), |ui| {
-                        ui.label(None, &format!("credits: {}, weight: {}/{}", player.inventory.credits, player.inventory.get_total_weight(), player.stats.carry_capacity));
+                        ui.label(
+                            None,
+                            &format!(
+                                "credits: {}, weight: {}/{}",
+                                player.inventory.credits,
+                                player.inventory.get_total_weight(),
+                                player.stats.carry_capacity
+                            ),
+                        );
                         {
-                            let items = player.inventory.get_all_of_kind(&[ItemKind::OneHandedWeapon, ItemKind::TwoHandedWeapon]);
+                            let items = player.inventory.get_all_of_kind(&[
+                                ItemKind::OneHandedWeapon,
+                                ItemKind::TwoHandedWeapon,
+                            ]);
                             if items.len() > 0 {
                                 for item in &items {
                                     draw_entry(ui, &mut player, item);

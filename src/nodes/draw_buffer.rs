@@ -1,24 +1,14 @@
-use std::{
-    cmp::Ordering,
-};
+use std::cmp::Ordering;
 
 use macroquad::{
     experimental::{
-        scene::{
-            Node,
-            Handle,
-            RefMut,
-        },
         collections::storage,
+        scene::{Handle, Node, RefMut},
     },
     prelude::*,
 };
 
-use crate::{
-    render::Viewport,
-    physics::Collider,
-    math::Circle,
-};
+use crate::{math::Circle, physics::Collider, render::Viewport};
 
 pub enum Bounds {
     Point(Vec2),

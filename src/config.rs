@@ -46,8 +46,7 @@ impl Config {
     #[cfg(any(target_family = "unix", target_family = "windows"))]
     pub fn load(path: &str) -> Self {
         let mut config: Config = if let Ok(json) = fs::read_to_string(path) {
-            serde_json::from_str(&json)
-                .expect(&format!("Unable to parse config file '{}'!", path))
+            serde_json::from_str(&json).expect(&format!("Unable to parse config file '{}'!", path))
         } else {
             Default::default()
         };
@@ -67,8 +66,8 @@ impl Config {
         let web_storage = &mut quad_storage::STORAGE.lock().unwrap();
 
         let mut config = if let Some(json) = web_storage.get(key) {
-            let mut config: Config = serde_json::from_str(&json)
-                .expect("Unable to parse config from web storage!");
+            let mut config: Config =
+                serde_json::from_str(&json).expect("Unable to parse config from web storage!");
             storage::store(config.clone());
             config
         } else {
@@ -84,16 +83,14 @@ impl Config {
     #[cfg(any(target_family = "unix", target_family = "windows"))]
     pub fn save(&self) {
         assert_eq!(self.path.is_empty(), false, "Config path is not set!");
-        let json = serde_json::to_string_pretty(self)
-            .expect("Error parsing config!");
+        let json = serde_json::to_string_pretty(self).expect("Error parsing config!");
         fs::write(&self.path, &json).expect("Error saving config to file!");
     }
 
     #[cfg(target_family = "wasm")]
     pub fn save(&self) {
         let storage = &mut quad_storage::STORAGE.lock().unwrap();
-        let json = serde_json::to_string_pretty(self)
-            .expect("Error parsing config!");
+        let json = serde_json::to_string_pretty(self).expect("Error parsing config!");
         storage.set(self.path, &json)
     }
 }

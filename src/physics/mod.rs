@@ -1,20 +1,15 @@
 use crate::prelude::*;
 
-mod physics_body;
-mod collider;
 mod beam;
+mod collider;
+mod physics_body;
 mod raycast;
 
-pub use physics_body::{
-    PhysicsBody,
-};
+pub use physics_body::PhysicsBody;
 
 pub use collider::Collider;
 
-pub use beam::{
-    beam_collision_check,
-    get_beam_end,
-};
+pub use beam::{beam_collision_check, get_beam_end};
 
 pub use raycast::raycast;
 

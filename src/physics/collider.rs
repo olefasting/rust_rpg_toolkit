@@ -1,9 +1,6 @@
 use macroquad::prelude::*;
 
-use serde::{
-    Serialize,
-    Deserialize,
-};
+use serde::{Deserialize, Serialize};
 
 use crate::math::Circle;
 
@@ -41,19 +38,33 @@ impl Collider {
 
     pub fn with_padding(self, padding: f32) -> Collider {
         match self {
-            Collider::Rectangle { x, y, w, h } =>
-                Collider::Rectangle { x: x - padding, y: y - padding, w: w + padding * 2.0, h: h + padding * 2.0 },
-            Collider::Circle { x, y, r } =>
-                Collider::Circle { x, y, r: r + padding },
+            Collider::Rectangle { x, y, w, h } => Collider::Rectangle {
+                x: x - padding,
+                y: y - padding,
+                w: w + padding * 2.0,
+                h: h + padding * 2.0,
+            },
+            Collider::Circle { x, y, r } => Collider::Circle {
+                x,
+                y,
+                r: r + padding,
+            },
         }
     }
 
     pub fn with_offset(self, offset: Vec2) -> Collider {
         match self {
-            Collider::Rectangle { x, y, w, h } =>
-                Collider::Rectangle { x: x + offset.x, y: y + offset.y, w, h },
-            Collider::Circle { x, y, r } =>
-                Collider::Circle { x: x + offset.x, y: y + offset.y, r },
+            Collider::Rectangle { x, y, w, h } => Collider::Rectangle {
+                x: x + offset.x,
+                y: y + offset.y,
+                w,
+                h,
+            },
+            Collider::Circle { x, y, r } => Collider::Circle {
+                x: x + offset.x,
+                y: y + offset.y,
+                r,
+            },
         }
     }
 
@@ -76,48 +87,40 @@ impl Collider {
             Collider::Rectangle { x, y, w, h } => {
                 let rect = Rect::new(x, y, w, h);
                 match other {
-                    Collider::Rectangle { x, y, w, h} =>
-                        rect.overlaps(&Rect::new(x, y, w, h)),
-                    Collider::Circle { x, y, r } =>
-                        Circle::new(x, y, r).overlaps_rect(&rect),
+                    Collider::Rectangle { x, y, w, h } => rect.overlaps(&Rect::new(x, y, w, h)),
+                    Collider::Circle { x, y, r } => Circle::new(x, y, r).overlaps_rect(&rect),
                 }
-            },
+            }
             Collider::Circle { x, y, r } => {
                 let circle = Circle::new(x, y, r);
                 match other {
-                    Collider::Rectangle { x, y, w, h } =>
-                        circle.overlaps_rect(&Rect::new(x, y, w, h)),
-                    Collider::Circle { x, y, r } =>
-                        Circle::new(x, y, r).overlaps(&circle),
+                    Collider::Rectangle { x, y, w, h } => {
+                        circle.overlaps_rect(&Rect::new(x, y, w, h))
+                    }
+                    Collider::Circle { x, y, r } => Circle::new(x, y, r).overlaps(&circle),
                 }
-            },
+            }
         }
     }
 
     pub fn overlaps_rect(self, rect: &Rect) -> bool {
         match self {
-            Collider::Rectangle { x, y, w, h } =>
-                Rect::new(x, y, w, h).overlaps(rect),
-            Collider::Circle { x, y, r } =>
-                Circle::new(x, y, r).overlaps_rect(rect),
+            Collider::Rectangle { x, y, w, h } => Rect::new(x, y, w, h).overlaps(rect),
+            Collider::Circle { x, y, r } => Circle::new(x, y, r).overlaps_rect(rect),
         }
     }
 
     pub fn overlaps_circle(self, circle: &Circle) -> bool {
         match self {
-            Collider::Rectangle { x, y, w, h } =>
-                circle.overlaps_rect(&Rect::new(x, y, w, h)),
-            Collider::Circle { x, y, r } =>
-                Circle::new(x, y, r).overlaps(circle),
+            Collider::Rectangle { x, y, w, h } => circle.overlaps_rect(&Rect::new(x, y, w, h)),
+            Collider::Circle { x, y, r } => Circle::new(x, y, r).overlaps(circle),
         }
     }
 
     pub fn contains(self, position: Vec2) -> bool {
         match self {
-            Collider::Rectangle { x, y, w, h } =>
-                Rect::new(x, y, w, h).contains(position),
-            Collider::Circle { x, y, r } =>
-                Circle::new(x, y, r).contains(&position),
+            Collider::Rectangle { x, y, w, h } => Rect::new(x, y, w, h).contains(position),
+            Collider::Circle { x, y, r } => Circle::new(x, y, r).contains(&position),
         }
     }
 }
@@ -125,10 +128,8 @@ impl Collider {
 impl Into<Rect> for Collider {
     fn into(self) -> Rect {
         match self {
-            Collider::Rectangle { x, y, w, h } =>
-                Rect::new(x, y, w, h),
-            Collider::Circle { x, y, r } =>
-                Rect::new(x - r, y - r, r * 2.0, r * 2.0),
+            Collider::Rectangle { x, y, w, h } => Rect::new(x, y, w, h),
+            Collider::Circle { x, y, r } => Rect::new(x - r, y - r, r * 2.0, r * 2.0),
         }
     }
 }

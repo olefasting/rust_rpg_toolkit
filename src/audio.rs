@@ -1,9 +1,6 @@
 use crate::prelude::*;
 
-use macroquad::audio::{
-    self,
-    PlaySoundParams,
-};
+use macroquad::audio::{self, PlaySoundParams};
 
 // This is used to determine what volume to use when playing a sound file
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -33,20 +30,15 @@ pub fn get_volume(category: VolumeCategory) -> f32 {
     let config = storage::get::<Config>();
     let master_volume = config.master_volume as f32 / 100.0;
     match category {
-        VolumeCategory::SoundEffect =>
-            (config.sound_effects_volume as f32 / 100.0) * master_volume,
-        VolumeCategory::Music =>
-            (config.music_volume as f32 / 100.0) * master_volume,
+        VolumeCategory::SoundEffect => (config.sound_effects_volume as f32 / 100.0) * master_volume,
+        VolumeCategory::Music => (config.music_volume as f32 / 100.0) * master_volume,
     }
 }
 
 pub async fn load_sound_from_bytes(category: VolumeCategory, bytes: &[u8]) -> Result<Sound> {
     let sound = audio::load_sound_from_bytes(bytes).await?;
 
-    let res = Sound {
-        sound,
-        category,
-    };
+    let res = Sound { sound, category };
 
     Ok(res)
 }

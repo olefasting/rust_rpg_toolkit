@@ -1,21 +1,14 @@
 use std::ops::Sub;
 
 use macroquad::{
-    experimental::scene::{
-        Node,
-        Handle,
-        RefMut,
-    },
     color,
+    experimental::scene::{Handle, Node, RefMut},
     prelude::*,
 };
 
-use crate::{
-    nodes::Actor,
-    physics::beam_collision_check,
-};
-use crate::physics::get_beam_end;
 use crate::ability::Effect;
+use crate::physics::get_beam_end;
+use crate::{nodes::Actor, physics::beam_collision_check};
 
 pub struct ContinuousBeam {
     pub actor_id: String,
@@ -28,6 +21,7 @@ pub struct ContinuousBeam {
     pub end: Vec2,
 }
 
+#[derive(Default)]
 pub struct ContinuousBeams {
     active: Vec<ContinuousBeam>,
 }
@@ -39,9 +33,7 @@ impl ContinuousBeams {
     const WIDTH_TOLERANCE_FACTOR: f32 = 350.0;
 
     pub fn new() -> Self {
-        ContinuousBeams {
-            active: Vec::new(),
-        }
+        ContinuousBeams { active: Vec::new() }
     }
 
     pub fn add_node() -> Handle<Self> {
@@ -87,9 +79,20 @@ impl Node for ContinuousBeams {
                     Some(collider) => collider.get_position(),
                     None => other_actor.body.position,
                 };
-                if beam_collision_check(position, beam.origin, beam.end, beam.width,Self::WIDTH_TOLERANCE_FACTOR) {
+                if beam_collision_check(
+                    position,
+                    beam.origin,
+                    beam.end,
+                    beam.width,
+                    Self::WIDTH_TOLERANCE_FACTOR,
+                ) {
                     for effect in beam.effects.clone() {
-                        if other_actor.apply_effect(&beam.actor_id, beam.actor, &beam.factions, effect) {
+                        if other_actor.apply_effect(
+                            &beam.actor_id,
+                            beam.actor,
+                            &beam.factions,
+                            effect,
+                        ) {
                             if beam.origin.distance(position) < beam.origin.distance(cutoff) {
                                 cutoff = position;
                             }
@@ -99,7 +102,11 @@ impl Node for ContinuousBeams {
                     }
                 }
             }
-            beam.end = beam.origin + beam.end.sub(beam.origin).clamp_length(0.0, beam.origin.distance(cutoff));
+            beam.end = beam.origin
+                + beam
+                    .end
+                    .sub(beam.origin)
+                    .clamp_length(0.0, beam.origin.distance(cutoff));
         }
     }
 
@@ -107,12 +114,7 @@ impl Node for ContinuousBeams {
         node.active.retain(|beam| {
             let mut highlight = color::WHITE;
             highlight.a = 0.5;
-            draw_circle(
-                beam.end.x,
-                beam.end.y,
-                beam.width / 2.0,
-                beam.color,
-            );
+            draw_circle(beam.end.x, beam.end.y, beam.width / 2.0, beam.color);
             draw_line(
                 beam.origin.x,
                 beam.origin.y,

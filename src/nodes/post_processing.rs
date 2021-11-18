@@ -39,7 +39,11 @@ impl PostProcessing {
 
         if config.dynamic_lighting {
             if self.lighting_material.is_none() {
-                let mut material = resources.materials.get(Self::LIGHTING_MATERIAL_ID).cloned().unwrap();
+                let mut material = resources
+                    .materials
+                    .get(Self::LIGHTING_MATERIAL_ID)
+                    .cloned()
+                    .unwrap();
                 material.compile()?;
                 self.lighting_material = Some(material);
             }

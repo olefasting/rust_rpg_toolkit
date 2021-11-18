@@ -11,7 +11,88 @@
   <component name="ChangeListManager">
     <list default="true" id="22a0162b-a946-4d48-a00b-4c6245a2b392" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cli/mapconv/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/cli/mapconv/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/building_scenes/src/example_node.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/building_scenes/src/example_node.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ability.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/ability.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/audio.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/audio.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/behavior_sets/default_humanoid.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/behavior_sets/default_humanoid.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/behavior_sets/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/behavior_sets/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/chapter.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/chapter.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/character.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/character.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/config.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/config.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/dialogue.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/dialogue.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/error.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/error.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/events.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/events.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/file_io.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/file_io.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/game.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/button_builder.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/button_builder.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/checkbox.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/checkbox.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/confirmation_modal.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/confirmation_modal.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/game_menu.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/game_menu.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/inventory.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/inventory.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/main_menu/character_creation.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/main_menu/character_creation.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/main_menu/character_selection.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/main_menu/character_selection.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/main_menu/class_selection.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/main_menu/class_selection.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/main_menu/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/main_menu/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/main_menu/module_management.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/main_menu/module_management.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/main_menu/settings.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/main_menu/settings.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/menu_builder.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/menu_builder.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/theme.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/theme.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/window_builder.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/window_builder.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/helpers.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/helpers.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/input.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/input.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/inventory/equipped.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/inventory/equipped.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/inventory/inventory.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/inventory/inventory.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/inventory/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/inventory/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/json/gui.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/json/gui.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/json/map/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/json/map/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/json/map/tiled.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/json/map/tiled.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/json/math.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/json/math.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/json/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/json/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/json/render.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/json/render.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/map.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/map.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/math/circle.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/math/circle.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/math/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/math/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/math/rect.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/math/rect.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/missions.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/missions.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modules.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/nodes/actor/behavior.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/nodes/actor/behavior.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/nodes/actor/controller.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/nodes/actor/controller.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/nodes/actor/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/nodes/actor/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/nodes/actor/stats.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/nodes/actor/stats.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/nodes/camera_controller.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/nodes/camera_controller.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/nodes/continuous_beams.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/nodes/continuous_beams.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/nodes/draw_buffer.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/nodes/draw_buffer.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/nodes/game_state.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/nodes/game_state.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/nodes/hud.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/nodes/hud.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/nodes/item.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/nodes/item.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/nodes/light_source.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/nodes/light_source.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/nodes/map_renderer.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/nodes/map_renderer.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/nodes/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/nodes/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/nodes/post_processing.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/nodes/post_processing.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/nodes/projectiles.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/nodes/projectiles.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/noise_level.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/noise_level.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/physics/beam.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/physics/beam.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/physics/collider.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/physics/collider.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/physics/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/physics/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/physics/physics_body.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/physics/physics_body.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/physics/raycast.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/physics/raycast.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/player.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/player.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/prelude.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/prelude.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/animation.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/render/animation.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/helpers.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/render/helpers.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/material.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/render/material.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/render/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/sprite.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/render/sprite.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/texture.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/render/texture.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/render/viewport.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/render/viewport.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/resources.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/resources.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/scene.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/scene.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/versions.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/versions.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,7 +132,7 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="cf.first.check.clang-format" value="false" />
     <property name="cidr.known.project.marker" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../FishFight" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="org.rust.cargo.project.model.PROJECT_DISCOVERY" value="true" />
   </component>
@@ -67,6 +148,11 @@
     </key>
   </component>
   <component name="RunManager" selected="Cargo.Run Building Scenes Example">
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="Build CLI" type="CargoCommandRunConfiguration" factoryName="Cargo Command" singleton="false">
       <option name="command" value="build" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$/cli" />
@@ -97,6 +183,38 @@
       <option name="redirectInputPath" value="" />
       <method v="2">
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Clippy" type="CargoCommandRunConfiguration" factoryName="Cargo Command" nameIsGenerated="true">
+      <option name="command" value="clippy -- -W clippy::correctness -D warnings" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="emulateTerminal" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="backtrace" value="SHORT" />
+      <envs />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Format" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
+      <option name="command" value="fmt" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="emulateTerminal" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="backtrace" value="SHORT" />
+      <envs />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="RunConfigurationTask" enabled="true" run_configuration_name="Clippy" run_configuration_type="CargoCommandRunConfiguration" />
       </method>
     </configuration>
     <configuration name="Run Building Scenes Example" type="CargoCommandRunConfiguration" factoryName="Cargo Command" singleton="false">
@@ -133,6 +251,8 @@
     </configuration>
     <list>
       <item itemvalue="Cargo.Build" />
+      <item itemvalue="Cargo.Clippy" />
+      <item itemvalue="Cargo.Format" />
       <item itemvalue="Cargo.Build CLI" />
       <item itemvalue="Cargo.Run Building Scenes Example" />
       <item itemvalue="Cargo.Run Example Project" />
@@ -170,7 +290,8 @@
       <workItem from="1636722392552" duration="599000" />
       <workItem from="1636811516095" duration="599000" />
       <workItem from="1636856419591" duration="614000" />
-      <workItem from="1637101104458" duration="17000" />
+      <workItem from="1637101104458" duration="73000" />
+      <workItem from="1637231574055" duration="4161000" />
     </task>
     <servers />
   </component>

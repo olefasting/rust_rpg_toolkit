@@ -17,7 +17,11 @@ impl ExampleNode {
         }
     }
 
-    pub fn add_node(position: Vec2, size: Vec2, sprite_params: SpriteAnimationParams) -> Handle<Self> {
+    pub fn add_node(
+        position: Vec2,
+        size: Vec2,
+        sprite_params: SpriteAnimationParams,
+    ) -> Handle<Self> {
         let node = Self::new(position, size, sprite_params);
         scene::add_node(node)
     }

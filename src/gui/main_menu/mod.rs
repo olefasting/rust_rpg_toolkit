@@ -1,13 +1,13 @@
-mod character_selection;
 mod character_creation;
+mod character_selection;
 //mod chapter_selection;
+mod class_selection;
 mod module_management;
 mod settings;
-mod class_selection;
 
-use class_selection::draw_class_selection;
-use character_selection::{CharacterSelectionResult, draw_character_selection};
 use character_creation::{draw_character_creation, draw_set_character_name};
+use character_selection::{draw_character_selection, CharacterSelectionResult};
+use class_selection::draw_class_selection;
 use module_management::show_module_management;
 use settings::show_settings;
 
@@ -26,49 +26,41 @@ pub async fn show_main_menu() -> Result<()> {
 
     'menu: loop {
         match draw_main_menu().await {
-            MainMenuResult::StartGame => {
-                match draw_character_selection().await {
-                    CharacterSelectionResult::SelectCharacter(character) => {
-                        dispatch_event(Event::StartGame { character });
-                        break 'menu;
-                    }
-                    CharacterSelectionResult::CreateCharacter => {
-                        match draw_class_selection().await {
-                            Some(class_id) => {
-                                let game_params = storage::get::<GameParams>();
-                                if game_params.skip_character_creation {
-                                    if let Some(name) = draw_set_character_name().await {
-                                        let resources = storage::get::<Resources>();
-                                        let class = resources.character_classes.get(&class_id).unwrap();
-                                        let prototype = resources.actors.get(&class.prototype_id).cloned().unwrap();
+            MainMenuResult::StartGame => match draw_character_selection().await {
+                CharacterSelectionResult::SelectCharacter(character) => {
+                    dispatch_event(Event::StartGame { character });
+                    break 'menu;
+                }
+                CharacterSelectionResult::CreateCharacter => match draw_class_selection().await {
+                    Some(class_id) => {
+                        let game_params = storage::get::<GameParams>();
+                        if game_params.skip_character_creation {
+                            if let Some(name) = draw_set_character_name().await {
+                                let resources = storage::get::<Resources>();
+                                let class = resources.character_classes.get(&class_id).unwrap();
+                                let prototype =
+                                    resources.actors.get(&class.prototype_id).cloned().unwrap();
 
-                                        let params = ActorParams {
-                                            name,
-                                            ..prototype
-                                        };
+                                let params = ActorParams { name, ..prototype };
 
-                                        let character: Character = params.into();
+                                let character: Character = params.into();
 
-                                        character.save()?;
+                                character.save()?;
 
-                                        dispatch_event(Event::StartGame { character });
-                                        break 'menu;
-                                    }
-                                } else {
-                                    if let Some(character) = draw_character_creation(&class_id).await {
-                                        character.save()?;
-
-                                        dispatch_event(Event::StartGame { character });
-                                        break 'menu;
-                                    }
-                                }
+                                dispatch_event(Event::StartGame { character });
+                                break 'menu;
                             }
-                            None => {}
+                        } else if let Some(character) = draw_character_creation(&class_id).await {
+                            character.save()?;
+
+                            dispatch_event(Event::StartGame { character });
+                            break 'menu;
                         }
                     }
-                    CharacterSelectionResult::Cancel => {}
-                }
-            }
+                    None => {}
+                },
+                CharacterSelectionResult::Cancel => {}
+            },
             MainMenuResult::Settings => {
                 show_settings().await;
             }
@@ -96,7 +88,12 @@ const OPT_QUIT: usize = 3;
 
 async fn draw_main_menu() -> MainMenuResult {
     let gui_skins = storage::get::<GuiSkins>();
-    let params = gui_skins.theme.menu_params.get("main_menu").cloned().unwrap();
+    let params = gui_skins
+        .theme
+        .menu_params
+        .get("main_menu")
+        .cloned()
+        .unwrap();
     let builder = MenuBuilder::new(hash!(), params);
 
     loop {

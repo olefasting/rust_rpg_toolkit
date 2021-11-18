@@ -1,5 +1,5 @@
-use crate::prelude::*;
 use crate::gui::GuiTheme;
+use crate::prelude::*;
 
 #[derive(Debug, Clone)]
 pub struct GameParams {
@@ -49,10 +49,7 @@ async fn load_resources(game_params: &GameParams) {
         clear_background(color::BLACK);
         draw_text(
             "Loading game resources...",
-            vec2(
-                get_screen_width() / 2.0,
-                get_screen_height() / 2.0,
-            ),
+            vec2(get_screen_width() / 2.0, get_screen_height() / 2.0),
             HorizontalAlignment::Center,
             VerticalAlignment::Center,
             TextParams {
@@ -69,7 +66,9 @@ async fn load_resources(game_params: &GameParams) {
     let mut state = ResourceLoadingState::None;
 
     let mut resources = Resources::new(&game_params.data_path).await.unwrap();
-    load_modules(&mut state, &game_params, &mut resources).await.unwrap();
+    load_modules(&mut state, &game_params, &mut resources)
+        .await
+        .unwrap();
 
     storage::store(resources);
 }
@@ -86,8 +85,7 @@ pub async fn init(params: GameParams) -> Result<()> {
     storage::store(gui_skins);
 
     let player_id = generate_id();
-    let gamepad_id = map_gamepad(&player_id);
-    let local_player = LocalPlayer::new(&player_id, gamepad_id);
+    let local_player = LocalPlayer::new(&player_id);
     storage::store(local_player);
 
     dispatch_event(Event::OpenMainMenu);
@@ -97,7 +95,6 @@ pub async fn init(params: GameParams) -> Result<()> {
 
 pub fn begin_frame() {
     clear_background(color::BLACK);
-    update_input();
     draw_gui();
 }
 

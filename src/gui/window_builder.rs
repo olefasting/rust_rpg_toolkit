@@ -55,7 +55,7 @@ impl WindowBuilder {
                 ui.pop_skin();
 
                 f(ui);
-            })
+            });
         }
 
         window.ui(ui, f)

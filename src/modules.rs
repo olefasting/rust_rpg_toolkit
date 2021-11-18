@@ -1,15 +1,15 @@
-use std::{
-    path::Path,
-};
+use std::path::Path;
 
 use crate::prelude::*;
 
-use crate::resources::{MaterialAssetParams, TextureAssetParams, SoundAssetParams, ImageAssetParams, FontAssetParams};
+use crate::resources::{
+    FontAssetParams, ImageAssetParams, MaterialAssetParams, SoundAssetParams, TextureAssetParams,
+};
 
 use macroquad::texture::load_texture;
 
-pub const ACTIVE_MODULES_FILE_NAME: &'static str = "active_modules.json";
-pub const MODULE_FILE_NAME: &'static str = "module.json";
+pub const ACTIVE_MODULES_FILE_NAME: &str = "active_modules.json";
+pub const MODULE_FILE_NAME: &str = "module.json";
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -57,19 +57,10 @@ impl Default for ModuleDependencyParams {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub(crate) struct ModuleMaterials {
     pub integration: ModuleIntegration,
     pub files: Vec<MaterialAssetParams>,
-}
-
-impl Default for ModuleMaterials {
-    fn default() -> Self {
-        ModuleMaterials {
-            integration: Default::default(),
-            files: Vec::new(),
-        }
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -87,34 +78,16 @@ impl Default for ModuleTextures {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub(crate) struct ModuleImages {
     pub integration: ModuleIntegration,
     pub files: Vec<ImageAssetParams>,
 }
 
-impl Default for ModuleImages {
-    fn default() -> Self {
-        ModuleImages {
-            integration: Default::default(),
-            files: Vec::new(),
-        }
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub(crate) struct ModuleFonts {
     pub integration: ModuleIntegration,
     pub files: Vec<FontAssetParams>,
-}
-
-impl Default for ModuleFonts {
-    fn default() -> Self {
-        ModuleFonts {
-            integration: Default::default(),
-            files: Vec::new(),
-        }
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -183,7 +156,10 @@ impl Default for ModuleParams {
     }
 }
 
-pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resources) -> Result<()> {
+pub(crate) async fn load_modules(
+    game_params: &GameParams,
+    resources: &mut Resources,
+) -> Result<()> {
     let modules_path = Path::new(&game_params.modules_path);
 
     let mut loaded_modules: Vec<(String, String)> = Vec::new();
@@ -220,13 +196,21 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
         }
 
         for dependency in module_params.dependencies {
-            if loaded_modules.iter().find(|(name, version)| {
-                if let Some(required_version) = &dependency.version {
-                    return *name == dependency.name && check_version(required_version, version);
-                }
-                *name == dependency.name
-            }).is_none() {
-                println!("WARNING: Module '{}' was not loaded as its dependency on '{}' was unmet!", &module_name, &dependency.name);
+            if loaded_modules
+                .iter()
+                .find(|(name, version)| {
+                    if let Some(required_version) = &dependency.version {
+                        return *name == dependency.name
+                            && check_version(required_version, version);
+                    }
+                    *name == dependency.name
+                })
+                .is_none()
+            {
+                println!(
+                    "WARNING: Module '{}' was not loaded as its dependency on '{}' was unmet!",
+                    &module_name, &dependency.name
+                );
                 continue 'module;
             }
         }
@@ -248,7 +232,7 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
                                 actors
                                     .into_iter()
                                     .map(|params| (params.id.clone(), params))
-                                    .collect::<Vec<(String, ActorParams)>>()
+                                    .collect::<Vec<(String, ActorParams)>>(),
                             );
                             resources.actors = hash_map;
                         }
@@ -267,7 +251,7 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
                                 dialogue
                                     .into_iter()
                                     .map(|params| (params.id.clone(), params))
-                                    .collect::<Vec<(String, Dialogue)>>()
+                                    .collect::<Vec<(String, Dialogue)>>(),
                             );
                             resources.dialogue = hash_map;
                         }
@@ -286,7 +270,7 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
                                 missions
                                     .into_iter()
                                     .map(|params| (params.id.clone(), params))
-                                    .collect::<Vec<(String, MissionParams)>>()
+                                    .collect::<Vec<(String, MissionParams)>>(),
                             );
                             resources.missions = hash_map;
                         }
@@ -305,7 +289,7 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
                                 items
                                     .into_iter()
                                     .map(|params| (params.id.clone(), params))
-                                    .collect::<Vec<(String, ItemParams)>>()
+                                    .collect::<Vec<(String, ItemParams)>>(),
                             );
                             resources.items = hash_map;
                         }
@@ -324,7 +308,7 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
                                 abilities
                                     .into_iter()
                                     .map(|params| (params.id.clone(), params))
-                                    .collect::<Vec<(String, AbilityParams)>>()
+                                    .collect::<Vec<(String, AbilityParams)>>(),
                             );
                             resources.abilities = hash_map;
                         }
@@ -362,7 +346,8 @@ pub(crate) async fn load_modules(game_params: &GameParams, resources: &mut Resou
                     let vertex_path = module_path.join(&asset_params.vertex_path);
                     let fragment_path = module_path.join(&asset_params.fragment_path);
 
-                    let material = Material::new(vertex_path, fragment_path, asset_params.into()).await?;
+                    let material =
+                        Material::new(vertex_path, fragment_path, asset_params.into()).await?;
 
                     materials.insert(id, material);
                 }
@@ -506,10 +491,7 @@ pub(crate) fn get_available_modules() -> Result<HashMap<String, ModuleParams>> {
         if let Ok(entry) = entry {
             let path = entry.path();
             if path.is_dir() {
-                let name = path
-                    .file_name()
-                    .unwrap()
-                    .to_string_lossy();
+                let name = path.file_name().unwrap().to_string_lossy();
 
                 let file_path = path.join("module.json");
                 if file_path.exists() {

@@ -27,10 +27,10 @@ pub(crate) async fn draw_character_selection() -> CharacterSelectionResult {
         if let Some(i) = delete_i {
             let character: &Character = characters.get(i).unwrap();
 
-            let modal_body = vec!(
+            let modal_body = vec![
                 "Are you sure you want to delete".to_string(),
                 format!("'{}'?", character.actor.name),
-            );
+            ];
 
             match draw_confirmation_modal(&mut *root_ui(), modal_body) {
                 Some(true) => {
@@ -42,13 +42,11 @@ pub(crate) async fn draw_character_selection() -> CharacterSelectionResult {
                 Some(false) => delete_i = None,
                 _ => {}
             }
+        } else if let Some(i) = selected_i {
+            let character: &Character = characters.get(i).unwrap();
+            result = draw_character_details(&mut selected_i, &mut delete_i, character)
         } else {
-            if let Some(i) = selected_i {
-                let character: &Character = characters.get(i).unwrap();
-                result = draw_character_details(&mut selected_i, &mut delete_i, character)
-            } else {
-                result = draw_character_list(&mut selected_i, &characters);
-            }
+            result = draw_character_list(&mut selected_i, &characters);
         }
 
         if let Some(result) = result {
@@ -59,13 +57,19 @@ pub(crate) async fn draw_character_selection() -> CharacterSelectionResult {
     }
 }
 
-fn draw_character_list(selected_i: &mut Option<usize>, characters: &Vec<Character>) -> Option<CharacterSelectionResult> {
+fn draw_character_list(
+    selected_i: &mut Option<usize>,
+    characters: &Vec<Character>,
+) -> Option<CharacterSelectionResult> {
     const WINDOW_WIDTH: f32 = 300.0;
     const WINDOW_HEIGHT: f32 = 250.0;
 
     let size = vec2(WINDOW_WIDTH, WINDOW_HEIGHT);
 
-    let btn_size = vec2((WINDOW_WIDTH - GuiSkins::WINDOW_MARGIN_X * 2.0) / 2.0 - GuiSkins::ELEMENT_MARGIN, GuiSkins::BUTTON_HEIGHT);
+    let btn_size = vec2(
+        (WINDOW_WIDTH - GuiSkins::WINDOW_MARGIN_X * 2.0) / 2.0 - GuiSkins::ELEMENT_MARGIN,
+        GuiSkins::BUTTON_HEIGHT,
+    );
     let btn_position_y = WINDOW_HEIGHT - GuiSkins::WINDOW_MARGIN_Y * 2.0 - GuiSkins::BUTTON_HEIGHT;
 
     let mut result = None;
@@ -80,21 +84,26 @@ fn draw_character_list(selected_i: &mut Option<usize>, characters: &Vec<Characte
             ui.pop_skin();
 
             let margins = vec2(GuiSkins::WINDOW_MARGIN_X, GuiSkins::WINDOW_MARGIN_Y) * 2.0;
-            let size = vec2(size.x, size.y - 45.0 - GuiSkins::WINDOW_MARGIN_Y - GuiSkins::BUTTON_HEIGHT) - margins;
+            let size = vec2(
+                size.x,
+                size.y - 45.0 - GuiSkins::WINDOW_MARGIN_Y - GuiSkins::BUTTON_HEIGHT,
+            ) - margins;
 
-            widgets::Group::new(hash!(), size).position(vec2(0.0, 45.0)).ui(ui, |ui| {
-                for i in 0..characters.len() {
-                    let character = characters.get(i).unwrap();
+            widgets::Group::new(hash!(), size)
+                .position(vec2(0.0, 45.0))
+                .ui(ui, |ui| {
+                    for i in 0..characters.len() {
+                        let character = characters.get(i).unwrap();
 
-                    let y_offset = i as f32 * 22.0;
+                        let y_offset = i as f32 * 22.0;
 
-                    ui.push_skin(&gui_skins.label_button);
-                    if ui.button(vec2(2.0, y_offset), character.actor.name.deref()) {
-                        *selected_i = Some(i);
+                        ui.push_skin(&gui_skins.label_button);
+                        if ui.button(vec2(2.0, y_offset), character.actor.name.deref()) {
+                            *selected_i = Some(i);
+                        }
+                        ui.pop_skin();
                     }
-                    ui.pop_skin();
-                }
-            });
+                });
 
             let create_btn = widgets::Button::new("Create")
                 .size(btn_size)
@@ -118,14 +127,21 @@ fn draw_character_list(selected_i: &mut Option<usize>, characters: &Vec<Characte
     result
 }
 
-fn draw_character_details(selected_i: &mut Option<usize>, delete_i: &mut Option<usize>, character: &Character) -> Option<CharacterSelectionResult> {
+fn draw_character_details(
+    selected_i: &mut Option<usize>,
+    delete_i: &mut Option<usize>,
+    character: &Character,
+) -> Option<CharacterSelectionResult> {
     const WINDOW_WIDTH: f32 = 400.0;
     const WINDOW_HEIGHT: f32 = 500.0;
 
     let size = vec2(WINDOW_WIDTH, WINDOW_HEIGHT);
     let position = get_centered_on_screen(size);
 
-    let btn_size = vec2((WINDOW_WIDTH - GuiSkins::WINDOW_MARGIN_X * 2.0) / 2.0 - GuiSkins::ELEMENT_MARGIN, GuiSkins::BUTTON_HEIGHT);
+    let btn_size = vec2(
+        (WINDOW_WIDTH - GuiSkins::WINDOW_MARGIN_X * 2.0) / 2.0 - GuiSkins::ELEMENT_MARGIN,
+        GuiSkins::BUTTON_HEIGHT,
+    );
     let btn_position_y = WINDOW_HEIGHT - GuiSkins::WINDOW_MARGIN_Y * 2.0 - GuiSkins::BUTTON_HEIGHT;
 
     let mut result = None;
@@ -139,8 +155,17 @@ fn draw_character_details(selected_i: &mut Option<usize>, delete_i: &mut Option<
             ui.label(None, &character.actor.name);
             ui.pop_skin();
 
-            let delete_btn_size = vec2(WINDOW_WIDTH - GuiSkins::WINDOW_MARGIN_X * 2.0, GuiSkins::BUTTON_HEIGHT);
-            let delete_btn_position = vec2(0.0, WINDOW_HEIGHT - GuiSkins::WINDOW_MARGIN_Y * 2.0 - GuiSkins::BUTTON_HEIGHT * 2.0 - GuiSkins::ELEMENT_MARGIN);
+            let delete_btn_size = vec2(
+                WINDOW_WIDTH - GuiSkins::WINDOW_MARGIN_X * 2.0,
+                GuiSkins::BUTTON_HEIGHT,
+            );
+            let delete_btn_position = vec2(
+                0.0,
+                WINDOW_HEIGHT
+                    - GuiSkins::WINDOW_MARGIN_Y * 2.0
+                    - GuiSkins::BUTTON_HEIGHT * 2.0
+                    - GuiSkins::ELEMENT_MARGIN,
+            );
 
             let delete_btn = widgets::Button::new("Delete")
                 .size(delete_btn_size)

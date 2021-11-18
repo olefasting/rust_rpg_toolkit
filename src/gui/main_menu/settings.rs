@@ -102,7 +102,6 @@ pub(crate) async fn show_settings() {
                 should_cancel = cancel_btn;
             });
 
-
         if resolution_regex.is_match(&resolution_x_str) == false {
             resolution_x_str = config.resolution.x.to_string();
         }
@@ -116,7 +115,8 @@ pub(crate) async fn show_settings() {
             resolution_y_str.parse().unwrap(),
         );
 
-        will_require_restart = resolution != config.resolution || fullscreen_cfg != config.fullscreen;
+        will_require_restart =
+            resolution != config.resolution || fullscreen_cfg != config.fullscreen;
 
         if should_save || should_cancel {
             root_ui().pop_skin();

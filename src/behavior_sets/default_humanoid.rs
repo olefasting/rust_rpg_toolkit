@@ -42,8 +42,7 @@ impl ActorBehavior for IdleMode {
                 .filter(|actor| position.distance(actor.body.position) <= stats.view_distance)
                 .collect::<Vec<RefMut<Actor>>>();
 
-            enemies.sort_by(|a, b|
-                sort_by_distance(position, &a.body.position, &b.body.position));
+            enemies.sort_by(|a, b| sort_by_distance(position, &a.body.position, &b.body.position));
 
             'actor: for actor in enemies {
                 for faction in &actor.factions {
@@ -70,18 +69,22 @@ impl ActorBehavior for IdleMode {
             if params.is_on_guard {
                 let mut noisy_actors = scene::find_nodes_by_type::<Actor>()
                     .into_iter()
-                    .filter(|actor|
+                    .filter(|actor| {
                         actor.noise_level >= NoiseLevel::Moderate
-                            && position.distance(actor.body.position) <= actor.noise_level.to_range())
+                            && position.distance(actor.body.position)
+                                <= actor.noise_level.to_range()
+                    })
                     .collect::<Vec<RefMut<Actor>>>();
 
-                noisy_actors.sort_by(|a, b|
-                    sort_by_distance(position, &a.body.position, &b.body.position));
+                noisy_actors
+                    .sort_by(|a, b| sort_by_distance(position, &a.body.position, &b.body.position));
 
                 for actor in noisy_actors {
                     let distance = position.distance(actor.body.position);
                     // TODO: make hearing distance dependent on PER
-                    if distance <= actor.noise_level.to_range() && distance >= stats.view_distance * 0.9 {
+                    if distance <= actor.noise_level.to_range()
+                        && distance >= stats.view_distance * 0.9
+                    {
                         return InvestigateMode::new(actor.body.position);
                     }
                 }
@@ -164,10 +167,7 @@ pub struct AttackMode {
 
 impl AttackMode {
     pub fn new(target: Handle<Actor>) -> Box<Self> {
-        Box::new(AttackMode {
-            target,
-            path: None,
-        })
+        Box::new(AttackMode { target, path: None })
     }
 }
 
@@ -228,9 +228,7 @@ pub struct FleeMode {
 
 impl FleeMode {
     pub fn new(from: Handle<Actor>) -> Box<Self> {
-        Box::new(FleeMode {
-            from,
-        })
+        Box::new(FleeMode { from })
     }
 }
 
@@ -337,7 +335,8 @@ impl ActorBehavior for EquipWeaponMode {
     ) -> Box<dyn ActorBehavior> {
         if let Some(weapon) = inventory
             .get_all_of_kind(&[ItemKind::TwoHandedWeapon, ItemKind::OneHandedWeapon])
-            .first() {
+            .first()
+        {
             controller.equip_weapon = Some(weapon.params.id.clone());
         }
 
@@ -345,7 +344,11 @@ impl ActorBehavior for EquipWeaponMode {
     }
 }
 
-fn process_path(position: Vec2, controller: &mut ActorController, mut path: NavigationPath) -> Option<NavigationPath> {
+fn process_path(
+    position: Vec2,
+    controller: &mut ActorController,
+    mut path: NavigationPath,
+) -> Option<NavigationPath> {
     if let Some(mut node) = path.nodes.first().cloned() {
         if position.distance(node) <= 2.0 {
             path.nodes.remove(0);

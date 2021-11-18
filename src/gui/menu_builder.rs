@@ -9,9 +9,11 @@ pub enum MenuButtonStyle {
     },
     LabelOnly {
         #[serde(default)]
-        is_centered: bool
+        is_centered: bool,
     },
-    Custom { builder_id: String },
+    Custom {
+        builder_id: String,
+    },
 }
 
 impl MenuButtonStyle {
@@ -42,17 +44,16 @@ impl MenuButtonStyle {
 
 impl Default for MenuButtonStyle {
     fn default() -> Self {
-        Self::Normal { is_condensed: false }
+        Self::Normal {
+            is_condensed: false,
+        }
     }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum MenuPosition {
-    Normal(
-        #[serde(with = "json::def_vec2")]
-        Vec2
-    ),
+    Normal(#[serde(with = "json::def_vec2")] Vec2),
     CenteredVertically(f32),
     CenteredHorizontally(f32),
     Centered,
@@ -144,10 +145,7 @@ pub struct MenuBuilder {
 
 impl MenuBuilder {
     pub fn new(id: Id, params: MenuParams) -> Self {
-        MenuBuilder {
-            id,
-            params,
-        }
+        MenuBuilder { id, params }
     }
 
     pub fn build(&self, ui: &mut Ui) -> MenuResult {
@@ -158,10 +156,18 @@ impl MenuBuilder {
         }
 
         window_builder = match self.params.position {
-            MenuPosition::Normal(position) => window_builder.with_pos(position, self.params.is_static),
+            MenuPosition::Normal(position) => {
+                window_builder.with_pos(position, self.params.is_static)
+            }
             MenuPosition::Centered => window_builder.with_centered_pos(self.params.is_static),
-            MenuPosition::CenteredHorizontally(y) => window_builder.with_pos(vec2(get_centered_on_screen(self.params.size).x, y), self.params.is_static),
-            MenuPosition::CenteredVertically(x) => window_builder.with_pos(vec2(x, get_centered_on_screen(self.params.size).y), self.params.is_static),
+            MenuPosition::CenteredHorizontally(y) => window_builder.with_pos(
+                vec2(get_centered_on_screen(self.params.size).x, y),
+                self.params.is_static,
+            ),
+            MenuPosition::CenteredVertically(x) => window_builder.with_pos(
+                vec2(x, get_centered_on_screen(self.params.size).y),
+                self.params.is_static,
+            ),
         };
 
         let mut res = MenuResult::None;
@@ -170,7 +176,8 @@ impl MenuBuilder {
             let gui_skins = storage::get::<GuiSkins>();
             ui.push_skin(&gui_skins.default);
 
-            let full_width = self.params.size.x - (gui_skins.theme.window_margins.left + gui_skins.theme.window_margins.right);
+            let full_width = self.params.size.x
+                - (gui_skins.theme.window_margins.left + gui_skins.theme.window_margins.right);
 
             let mut opts = self.params.options.clone();
             opts.sort_by(|a, b| a.index.cmp(&b.index));
@@ -179,20 +186,36 @@ impl MenuBuilder {
             let mut indices = Vec::new();
             for opt in &mut opts {
                 if let Some(i) = opt.index {
-                    assert_eq!(indices.contains(&i), false, "Duplicate opt indices '{}' in menu '{}'", i, self.params.id);
+                    assert_eq!(
+                        indices.contains(&i),
+                        false,
+                        "Duplicate opt indices '{}' in menu '{}'",
+                        i,
+                        self.params.id
+                    );
                     indices.push(i);
                 } else if opt.is_cancel {
-                    assert_eq!(has_cancel, false, "Multiple cancel options in menu '{}'!", self.params.id);
+                    assert_eq!(
+                        has_cancel, false,
+                        "Multiple cancel options in menu '{}'!",
+                        self.params.id
+                    );
                     has_cancel = true;
                 } else {
-                    panic!("Encountered a menu option without an index in menu '{}'!", self.params.id);
+                    panic!(
+                        "Encountered a menu option without an index in menu '{}'!",
+                        self.params.id
+                    );
                 }
             }
 
             let mut builders = Vec::new();
 
             for opt in &opts {
-                let style = opt.style_override.clone().unwrap_or(self.params.button_style.clone());
+                let style = opt
+                    .style_override
+                    .clone()
+                    .unwrap_or(self.params.button_style.clone());
                 let mut builder = if let MenuButtonStyle::Custom { builder_id } = &style {
                     get_button_builder(builder_id)
                 } else {
@@ -201,14 +224,17 @@ impl MenuBuilder {
                     match style {
                         MenuButtonStyle::Normal { is_condensed } => {
                             let width = Some(full_width);
-                            let style = ButtonStyle::Normal { width, is_condensed };
+                            let style = ButtonStyle::Normal {
+                                width,
+                                is_condensed,
+                            };
                             builder = builder.with_style(style);
-                        },
+                        }
                         MenuButtonStyle::LabelOnly { is_centered } => {
                             let width = full_width;
                             let style = ButtonStyle::LabelOnly { width, is_centered };
                             builder = builder.with_style(style);
-                        },
+                        }
                         _ => {}
                     };
 
@@ -237,7 +263,9 @@ impl MenuBuilder {
                 ui.pop_skin();
             }
 
-            let mut next_bottom_y =  self.params.size.y - gui_skins.theme.window_margins.top - gui_skins.theme.window_margins.bottom;
+            let mut next_bottom_y = self.params.size.y
+                - gui_skins.theme.window_margins.top
+                - gui_skins.theme.window_margins.bottom;
 
             for (builder, is_push_down, _) in &builders {
                 if *is_push_down {

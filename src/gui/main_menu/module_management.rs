@@ -1,10 +1,6 @@
 use crate::gui::*;
 
-use crate::modules::{
-    ModuleParams,
-    get_available_modules,
-    ACTIVE_MODULES_FILE_NAME,
-};
+use crate::modules::{get_available_modules, ModuleParams, ACTIVE_MODULES_FILE_NAME};
 
 #[derive(Debug, Copy, Clone)]
 enum LoadOrderChange {
@@ -31,7 +27,14 @@ fn module_index_to_id(i: usize) -> (u64, u64) {
     (id, id + 1)
 }
 
-fn draw_module_entry(ui: &mut Ui, i: usize, name: &str, params: &ModuleParams, value: &mut bool, is_dragging: bool) -> Drag {
+fn draw_module_entry(
+    ui: &mut Ui,
+    i: usize,
+    name: &str,
+    params: &ModuleParams,
+    value: &mut bool,
+    is_dragging: bool,
+) -> Drag {
     let gui_skins = storage::get::<GuiSkins>();
 
     let module_list_entry_skin = gui_skins.custom.get("module_list_entry").unwrap();
@@ -82,7 +85,8 @@ pub(crate) async fn show_module_management() {
 
     let available_modules = get_available_modules().unwrap();
 
-    let active_modules_file_path = Path::new(&game_params.modules_path).join(ACTIVE_MODULES_FILE_NAME);
+    let active_modules_file_path =
+        Path::new(&game_params.modules_path).join(ACTIVE_MODULES_FILE_NAME);
     let bytes = load_file(&active_modules_file_path).await.unwrap();
     let mut active_modules = serde_json::from_slice::<Vec<String>>(&bytes)
         .unwrap()
@@ -91,7 +95,10 @@ pub(crate) async fn show_module_management() {
         .collect::<Vec<String>>();
 
     let mut module_state: HashMap<String, bool> = HashMap::from_iter(
-        available_modules.iter().map(|(name, _)| (name.clone(), active_modules.contains(name))));
+        available_modules
+            .iter()
+            .map(|(name, _)| (name.clone(), active_modules.contains(name))),
+    );
 
     let mut is_dragging = false;
     let mut load_order_change = None;
@@ -106,45 +113,47 @@ pub(crate) async fn show_module_management() {
 
                 let size = vec2(450.0, 550.0);
 
-                widgets::Group::new(hash!(), size).position(vec2(0.0, 48.0)).ui(ui, |ui| {
-                    let mut i = 0;
-                    for name in &active_modules {
-                        if let Some(module) = available_modules.get(name) {
-                            let value = module_state.get_mut(name).unwrap();
+                widgets::Group::new(hash!(), size)
+                    .position(vec2(0.0, 48.0))
+                    .ui(ui, |ui| {
+                        let mut i = 0;
+                        for name in &active_modules {
+                            if let Some(module) = available_modules.get(name) {
+                                let value = module_state.get_mut(name).unwrap();
 
-                            match draw_module_entry(ui, i, &name, &module, value, is_dragging) {
-                                Drag::Dropped(_, Some(id)) => {
-                                    is_dragging = false;
+                                match draw_module_entry(ui, i, &name, &module, value, is_dragging) {
+                                    Drag::Dropped(_, Some(id)) => {
+                                        is_dragging = false;
 
-                                    let (target_i, is_entry) = id_to_module_index(id);
-                                    load_order_change = if is_entry {
-                                        Some(LoadOrderChange::LoadAfter { i, target_i })
-                                    } else {
-                                        Some(LoadOrderChange::LoadBefore { i, target_i })
-                                    };
+                                        let (target_i, is_entry) = id_to_module_index(id);
+                                        load_order_change = if is_entry {
+                                            Some(LoadOrderChange::LoadAfter { i, target_i })
+                                        } else {
+                                            Some(LoadOrderChange::LoadBefore { i, target_i })
+                                        };
+                                    }
+                                    Drag::Dropped(_, _) => {
+                                        is_dragging = false;
+                                    }
+                                    Drag::Dragging(_pos, _id) => {
+                                        is_dragging = true;
+                                    }
+                                    _ => {}
                                 }
-                                Drag::Dropped(_, _) => {
-                                    is_dragging = false;
-                                }
-                                Drag::Dragging(_pos, _id) => {
-                                    is_dragging = true;
-                                }
-                                _ => {}
+
+                                i += 1;
                             }
-
-                            i += 1;
                         }
-                    }
 
-                    for (name, module) in &available_modules {
-                        if active_modules.contains(name) == false {
-                            let value = module_state.get_mut(name).unwrap();
-                            draw_module_entry(ui, i, &name, &module, value, false);
+                        for (name, module) in &available_modules {
+                            if active_modules.contains(name) == false {
+                                let value = module_state.get_mut(name).unwrap();
+                                draw_module_entry(ui, i, &name, &module, value, false);
 
-                            i += 1;
+                                i += 1;
+                            }
                         }
-                    }
-                });
+                    });
 
                 if will_require_restart {
                     ui.push_skin(&gui_skins.warning_label);
@@ -173,22 +182,14 @@ pub(crate) async fn show_module_management() {
                 LoadOrderChange::LoadBefore { i, target_i } => {
                     let entry = active_modules.remove(i);
 
-                    let target_i = if i < target_i {
-                        target_i - 1
-                    } else {
-                        target_i
-                    };
+                    let target_i = if i < target_i { target_i - 1 } else { target_i };
 
                     active_modules.insert(target_i, entry);
                 }
                 LoadOrderChange::LoadAfter { i, target_i } => {
                     let entry = active_modules.remove(i);
 
-                    let target_i = if i < target_i {
-                        target_i
-                    } else {
-                        target_i + 1
-                    };
+                    let target_i = if i < target_i { target_i } else { target_i + 1 };
 
                     active_modules.insert(target_i, entry);
                 }

@@ -22,14 +22,12 @@ impl Default for SpriteAnimationParams {
             texture_id: Resources::WHITE_TEXTURE_ID.to_string(),
             normal_map_id: None,
             tile_size: vec2(16.0, 16.0),
-            animations: vec!(
-                Animation {
-                    name: "idle".to_string(),
-                    row: 0,
-                    frames: 1,
-                    fps: 8,
-                },
-            ),
+            animations: vec![Animation {
+                name: "idle".to_string(),
+                row: 0,
+                frames: 1,
+                fps: 8,
+            }],
             should_play: false,
         }
     }

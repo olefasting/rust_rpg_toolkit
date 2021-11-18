@@ -18,7 +18,8 @@ pub fn get_toolkit_version() -> String {
 
 pub fn to_int_version(version: &str) -> u32 {
     let regex = Regex::new(r"(?P<major>[0-9]+).(?P<minor>[0-9]+)(.(?P<patch>[0-9]+))?").unwrap();
-    let captures = regex.captures(version)
+    let captures = regex
+        .captures(version)
         .expect(&format!("Invalid version string '{}'!", version));
 
     let major = captures["major"].parse::<u32>().unwrap();

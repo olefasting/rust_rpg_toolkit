@@ -1,7 +1,12 @@
 use crate::gui::*;
 
 fn sub_offsets(a: RectOffset, b: RectOffset) -> RectOffset {
-    RectOffset::new(a.left - b.left, a.right - b.right, a.top - b.top, a.bottom - b.bottom)
+    RectOffset::new(
+        a.left - b.left,
+        a.right - b.right,
+        a.top - b.top,
+        a.bottom - b.bottom,
+    )
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -135,12 +140,12 @@ impl Default for GuiTheme {
             group_border_color_hovered: Color::from_rgba(0, 0, 0, 0),
             group_border_color_clicked: Color::from_rgba(0, 0, 0, 0),
             group_margins: RectOffset::new(0.0, 0.0, 0.0, 0.0),
-            scrollbar_color: Color::from_rgba(58, 68,68, 255),
-            scrollbar_color_hovered: Color::from_rgba(58, 68,102, 255),
-            scrollbar_color_clicked: Color::from_rgba(58, 68,102, 255),
-            scrollbar_handle_color: Color::from_rgba(58, 68,68, 255),
-            scrollbar_handle_color_hovered: Color::from_rgba(58, 68,102, 255),
-            scrollbar_handle_color_clicked: Color::from_rgba(58, 68,102, 255),
+            scrollbar_color: Color::from_rgba(58, 68, 68, 255),
+            scrollbar_color_hovered: Color::from_rgba(58, 68, 102, 255),
+            scrollbar_color_clicked: Color::from_rgba(58, 68, 102, 255),
+            scrollbar_handle_color: Color::from_rgba(58, 68, 68, 255),
+            scrollbar_handle_color_hovered: Color::from_rgba(58, 68, 102, 255),
+            scrollbar_handle_color_clicked: Color::from_rgba(58, 68, 102, 255),
             window_bg: GuiImage {
                 image_id: "window_background".to_string(),
                 margins: RectOffset::new(52.0, 52.0, 52.0, 52.0),
@@ -219,20 +224,45 @@ impl GuiSkins {
     pub fn new(theme: GuiTheme) -> Self {
         let resources = storage::get::<Resources>();
 
-        let window_bg = resources.images.get(&theme.window_bg.image_id).cloned().unwrap();
+        let window_bg = resources
+            .images
+            .get(&theme.window_bg.image_id)
+            .cloned()
+            .unwrap();
 
         let editbox_bg = resources.images.get(&theme.editbox_bg.image_id).unwrap();
 
         let button_bg = resources.images.get(&theme.button_bg.image_id).unwrap();
-        let button_bg_hovered = resources.images.get(&theme.button_bg_hovered.image_id).unwrap();
-        let button_bg_clicked = resources.images.get(&theme.button_bg_clicked.image_id).unwrap();
-        let button_bg_inactive = resources.images.get(&theme.button_bg_inactive.image_id).unwrap();
+        let button_bg_hovered = resources
+            .images
+            .get(&theme.button_bg_hovered.image_id)
+            .unwrap();
+        let button_bg_clicked = resources
+            .images
+            .get(&theme.button_bg_clicked.image_id)
+            .unwrap();
+        let button_bg_inactive = resources
+            .images
+            .get(&theme.button_bg_inactive.image_id)
+            .unwrap();
 
         let checkbox_bg = resources.images.get(&theme.checkbox_bg.image_id).unwrap();
-        let checkbox_bg_hovered = resources.images.get(&theme.checkbox_bg_hovered.image_id).unwrap();
-        let checkbox_bg_clicked = resources.images.get(&theme.checkbox_bg_clicked.image_id).unwrap();
-        let checkbox_bg_selected = resources.images.get(&theme.checkbox_bg_selected.image_id).unwrap();
-        let checkbox_bg_selected_hovered = resources.images.get(&theme.checkbox_bg_selected_hovered.image_id).unwrap();
+        let checkbox_bg_hovered = resources
+            .images
+            .get(&theme.checkbox_bg_hovered.image_id)
+            .unwrap();
+        let checkbox_bg_clicked = resources
+            .images
+            .get(&theme.checkbox_bg_clicked.image_id)
+            .unwrap();
+        let checkbox_bg_selected = resources
+            .images
+            .get(&theme.checkbox_bg_selected.image_id)
+            .unwrap();
+        let checkbox_bg_selected_hovered = resources
+            .images
+            .get(&theme.checkbox_bg_selected_hovered.image_id)
+            .unwrap();
 
         let blank_image = resources.images.get("blank_image").unwrap();
 
@@ -443,7 +473,10 @@ impl GuiSkins {
         let inactive_button = {
             let button_style = root_ui()
                 .style_builder()
-                .margin(sub_offsets(theme.button_margins, theme.button_bg_inactive.margins))
+                .margin(sub_offsets(
+                    theme.button_margins,
+                    theme.button_bg_inactive.margins,
+                ))
                 .background_margin(theme.button_bg_inactive.margins)
                 .background(button_bg_inactive.clone())
                 .background_hovered(button_bg_inactive.clone())

@@ -13,7 +13,11 @@ pub struct ItemParams {
     pub id: String,
     pub name: String,
     pub description: String,
-    #[serde(default, with = "json::opt_vec2", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "json::opt_vec2",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub position: Option<Vec2>,
     pub kind: ItemKind,
     pub weight: f32,
@@ -80,11 +84,7 @@ impl Item {
     }
 
     pub fn to_params(&self) -> ItemParams {
-        let ability_id = if let Some(ability) = &self.ability {
-            Some(ability.id.clone())
-        } else {
-            None
-        };
+        let ability_id = self.ability.as_ref().map(|ability| ability.id.clone());
 
         ItemParams {
             id: self.id.clone(),
@@ -95,7 +95,7 @@ impl Item {
             weight: self.weight,
             ability_id,
             sprite: self.sprite.clone(),
-            is_quest_item: self.is_quest_item
+            is_quest_item: self.is_quest_item,
         }
     }
 }

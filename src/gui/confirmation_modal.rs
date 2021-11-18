@@ -3,7 +3,10 @@ use crate::gui::*;
 pub fn draw_confirmation_modal(ui: &mut Ui, body: Vec<String>) -> Option<bool> {
     let mut res = None;
 
-    let mut size = vec2(0.0, GuiSkins::BUTTON_HEIGHT + GuiSkins::ELEMENT_MARGIN + GuiSkins::WINDOW_MARGIN_Y * 2.0);
+    let mut size = vec2(
+        0.0,
+        GuiSkins::BUTTON_HEIGHT + GuiSkins::ELEMENT_MARGIN + GuiSkins::WINDOW_MARGIN_Y * 2.0,
+    );
 
     for line in &body {
         let line_size = ui.calc_size(line);
@@ -25,7 +28,10 @@ pub fn draw_confirmation_modal(ui: &mut Ui, body: Vec<String>) -> Option<bool> {
             }
 
             let buttons_y = size.y - GuiSkins::WINDOW_MARGIN_Y * 2.0 - GuiSkins::BUTTON_HEIGHT;
-            let buttons_size = vec2((size.x - GuiSkins::ELEMENT_MARGIN) / 2.0 - GuiSkins::WINDOW_MARGIN_X, GuiSkins::BUTTON_HEIGHT);
+            let buttons_size = vec2(
+                (size.x - GuiSkins::ELEMENT_MARGIN) / 2.0 - GuiSkins::WINDOW_MARGIN_X,
+                GuiSkins::BUTTON_HEIGHT,
+            );
 
             let confirm_btn = widgets::Button::new("Confirm")
                 .position(vec2(0.0, buttons_y))

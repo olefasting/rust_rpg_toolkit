@@ -1,9 +1,6 @@
-use serde::{
-    Serialize,
-    Deserialize,
-};
+use serde::{Deserialize, Serialize};
 
-use macroquad::math::{Vec2, Rect, vec2};
+use macroquad::math::{vec2, Rect, Vec2};
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub struct Circle {
@@ -15,11 +12,7 @@ pub struct Circle {
 
 impl Circle {
     pub fn new(x: f32, y: f32, r: f32) -> Self {
-        Circle {
-            x,
-            y,
-            r,
-        }
+        Circle { x, y, r }
     }
 
     pub fn point(&self) -> Vec2 {
@@ -51,7 +44,7 @@ impl Circle {
     pub fn overlaps_rect(&self, rect: &Rect) -> bool {
         let dist_x = (self.x - rect.x).abs();
         let dist_y = (self.y - rect.y).abs();
-        if dist_x > rect.w / 2.0 + self.r  || dist_y > rect.h / 2.0 + self.r {
+        if dist_x > rect.w / 2.0 + self.r || dist_y > rect.h / 2.0 + self.r {
             return false;
         }
         if dist_x <= rect.w / 2.0 || dist_y <= rect.h / 2.0 {

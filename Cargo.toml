@@ -1,13 +1,13 @@
 [package]
 name = "rust-rpg-toolkit"
-version = "0.1.0"
+version = "0.0.1"
 edition = "2018"
 authors = ["Ole A. Sjo Fasting <oasf@polygo.no>"]
 description = "An engine for creating action RPGs with Rust and/or JSON"
 documentation = "https://github.com/olefasting/rust_rpg_toolkit/tree/master/docs"
 readme = "./README.md"
-keywords = ["game", "engine", "sdk"]
-categories = ["game-engines"]
+keywords = ["gamedev", "engine", "sdk"]
+categories = ["game-development", "game-engines"]
 license = "MIT"
 repository = "https://github.com/olefasting/rust_rpg_toolkit"
 
@@ -32,20 +32,20 @@ path = "examples/building_scenes/src/main.rs"
 crate-type = ["bin"]
 
 [dependencies]
+ff-particles = { version = "0.1", features = ["serde"] }
+fishsticks = { git = "https://github.com/PotatoTech/fishsticks", features = ["bundled-sdl2"] }
+
 # lazy_static = "1.4"
 chrono = "0.4"
 regex = "1.5"
-hex = "0.4"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 
 macroquad = { version = "0.3" }
-macroquad-particles = { version = "0.1", features = ["nanoserde"] }
 macroquad-profiler = "0.1"
 quad-storage = "0.1"
 
 mode = "0.4"
-gilrs = { version = "0.8", features = ["serde-serialize", "wasm-bindgen"] }
 bracket-pathfinding = "0.8"
 
 # [target.'cfg(target_arch = "wasm32")'.dependencies]

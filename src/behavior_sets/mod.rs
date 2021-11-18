@@ -1,11 +1,11 @@
-use crate::prelude::*;
 use crate::behavior_sets::default_humanoid::IdleMode;
+use crate::prelude::*;
 
 pub mod default_humanoid;
 
 pub type ActorBehaviorConstructor = fn() -> Box<dyn ActorBehavior>;
 
-pub const DEFAULT_BEHAVIOR_SET_ID: &'static str = "default_humanoid";
+pub const DEFAULT_BEHAVIOR_SET_ID: &str = "default_humanoid";
 
 static mut DIRECTORY: Option<HashMap<String, ActorBehaviorConstructor>> = None;
 
@@ -13,7 +13,10 @@ fn get_directory() -> &'static mut HashMap<String, ActorBehaviorConstructor> {
     unsafe {
         if DIRECTORY.is_none() {
             DIRECTORY = Some(HashMap::new());
-            DIRECTORY.as_mut().unwrap().insert(DEFAULT_BEHAVIOR_SET_ID.to_string(), IdleMode::new);
+            DIRECTORY
+                .as_mut()
+                .unwrap()
+                .insert(DEFAULT_BEHAVIOR_SET_ID.to_string(), IdleMode::new);
         }
 
         DIRECTORY.as_mut().unwrap()

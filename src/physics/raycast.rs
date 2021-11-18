@@ -2,7 +2,12 @@ use crate::prelude::*;
 
 use super::COLLISION_RESOLUTION;
 
-pub fn raycast(origin: Vec2, end: Vec2, ignore_barriers: bool, ignore_actors: bool) -> Option<Vec2> {
+pub fn raycast(
+    origin: Vec2,
+    end: Vec2,
+    ignore_barriers: bool,
+    ignore_actors: bool,
+) -> Option<Vec2> {
     if origin.distance(end) > COLLISION_RESOLUTION {
         let map = storage::get::<Map>();
         let direction = end.sub(origin).normalize_or_zero();
@@ -17,7 +22,7 @@ pub fn raycast(origin: Vec2, end: Vec2, ignore_barriers: bool, ignore_actors: bo
                 }
             }
             if ignore_actors == false {
-                for actor in  scene::find_nodes_by_type::<Actor>() {
+                for actor in scene::find_nodes_by_type::<Actor>() {
                     if let Some(other_collider) = actor.body.get_offset_collider() {
                         if other_collider.contains(current) {
                             return Some(current);

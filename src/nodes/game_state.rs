@@ -36,7 +36,8 @@ impl GameState {
 
     pub fn get_player_character(&self) -> Option<Character> {
         if let Some(actor) = get_player_actor() {
-            let character = actor.to_character(self.chapter_index, &self.map_id, self.is_permadeath);
+            let character =
+                actor.to_character(self.chapter_index, &self.map_id, self.is_permadeath);
             return Some(character);
         }
         None

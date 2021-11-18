@@ -1,17 +1,37 @@
 use crate::gui::*;
 
-pub type ButtonBuildFunc = fn(ui: &mut Ui, size: Vec2, position: Option<Vec2>, label: &Option<String>, is_inactive: bool) -> bool;
+pub type ButtonBuildFunc = fn(
+    ui: &mut Ui,
+    size: Vec2,
+    position: Option<Vec2>,
+    label: &Option<String>,
+    is_inactive: bool,
+) -> bool;
 
 #[derive(Copy, Clone)]
 pub enum ButtonStyle {
-    Normal { width: Option<f32>, is_condensed: bool },
-    LabelOnly { width: f32, is_centered: bool },
-    Custom { size: Vec2, should_handle_clicks: bool, build_func: ButtonBuildFunc },
+    Normal {
+        width: Option<f32>,
+        is_condensed: bool,
+    },
+    LabelOnly {
+        width: f32,
+        is_centered: bool,
+    },
+    Custom {
+        size: Vec2,
+        should_handle_clicks: bool,
+        build_func: ButtonBuildFunc,
+    },
 }
 
 impl ButtonStyle {
     pub fn is_normal(&self) -> bool {
-        if let Self::Normal { width: _, is_condensed: _ } = self {
+        if let Self::Normal {
+            width: _,
+            is_condensed: _,
+        } = self
+        {
             return true;
         }
 
@@ -19,7 +39,11 @@ impl ButtonStyle {
     }
 
     pub fn is_label_only(&self) -> bool {
-        if let Self::LabelOnly { width: _, is_centered: _ } = self {
+        if let Self::LabelOnly {
+            width: _,
+            is_centered: _,
+        } = self
+        {
             return true;
         }
 
@@ -27,7 +51,12 @@ impl ButtonStyle {
     }
 
     pub fn is_custom(&self) -> bool {
-        if let Self::Custom { size: _, should_handle_clicks: _, build_func: _ } = self {
+        if let Self::Custom {
+            size: _,
+            should_handle_clicks: _,
+            build_func: _,
+        } = self
+        {
             return true;
         }
 
@@ -37,7 +66,10 @@ impl ButtonStyle {
 
 impl Default for ButtonStyle {
     fn default() -> Self {
-        Self::Normal { width: None, is_condensed: false }
+        Self::Normal {
+            width: None,
+            is_condensed: false,
+        }
     }
 }
 
@@ -59,9 +91,7 @@ pub fn register_button_builder(id: &str, builder: ButtonBuilder) {
 }
 
 pub fn try_get_button_builder(id: &str) -> Option<ButtonBuilder> {
-    unsafe {
-        get_directory().get(id).cloned()
-    }
+    unsafe { get_directory().get(id).cloned() }
 }
 
 pub fn get_button_builder(id: &str) -> ButtonBuilder {
@@ -103,10 +133,7 @@ impl ButtonBuilder {
     }
 
     pub fn with_style(self, style: ButtonStyle) -> Self {
-        ButtonBuilder {
-            style,
-            ..self
-        }
+        ButtonBuilder { style, ..self }
     }
 
     pub fn set_highlighted(self) -> Self {
@@ -130,7 +157,12 @@ impl ButtonBuilder {
     pub fn build(&self, ui: &mut Ui) -> bool {
         let gui_skins = storage::get::<GuiSkins>();
 
-        if let ButtonStyle::Custom { size, should_handle_clicks, build_func } = self.style {
+        if let ButtonStyle::Custom {
+            size,
+            should_handle_clicks,
+            build_func,
+        } = self.style
+        {
             let mut res = false;
 
             ui.push_skin(&gui_skins.custom_button);
@@ -159,19 +191,20 @@ impl ButtonBuilder {
             let position = self.position.unwrap_or(Vec2::ZERO);
 
             match self.style {
-                ButtonStyle::Normal { width, is_condensed } => {
+                ButtonStyle::Normal {
+                    width,
+                    is_condensed,
+                } => {
                     if is_condensed {
                         if self.is_inactive {
                             ui.push_skin(&gui_skins.condensed_button_inactive);
                         } else {
                             ui.push_skin(&gui_skins.condensed_button);
                         }
+                    } else if self.is_inactive {
+                        ui.push_skin(&gui_skins.inactive_button);
                     } else {
-                        if self.is_inactive {
-                            ui.push_skin(&gui_skins.inactive_button);
-                        } else {
-                            ui.push_skin(&gui_skins.default);
-                        }
+                        ui.push_skin(&gui_skins.default);
                     }
 
                     let width = if let Some(width) = width {
@@ -182,7 +215,9 @@ impl ButtonBuilder {
                             label_width += ui.calc_size(label).x;
                         }
 
-                        label_width + gui_skins.theme.button_margins.left + gui_skins.theme.button_margins.right
+                        label_width
+                            + gui_skins.theme.button_margins.left
+                            + gui_skins.theme.button_margins.right
                     };
 
                     let size = vec2(width, height);
@@ -220,7 +255,11 @@ impl ButtonBuilder {
     pub fn get_height(&self) -> f32 {
         let gui_skins = storage::get::<GuiSkins>();
         match self.style {
-            ButtonStyle::Custom { size, should_handle_clicks: _, build_func: _ } => size.y,
+            ButtonStyle::Custom {
+                size,
+                should_handle_clicks: _,
+                build_func: _,
+            } => size.y,
             _ => gui_skins.theme.button_height,
         }
     }

@@ -1,16 +1,10 @@
-use macroquad::{
-    color,
-    prelude::*
-};
+use macroquad::{color, prelude::*};
 
-use serde::{
-    Serialize,
-    Deserialize,
-};
+use serde::{Deserialize, Serialize};
 
 use crate::{
-    nodes::{Actor, Item},
     json,
+    nodes::{Actor, Item},
 };
 
 const MISSION_MARKER_Y_OFFSET: f32 = 16.0;
@@ -38,19 +32,25 @@ impl MissionObjective {
             Self::Kill { actor_id } => {
                 for actor in scene::find_nodes_by_type::<Actor>() {
                     if actor.id == actor_id {
-                        return Some(vec2(actor.body.position.x, actor.body.position.y - MISSION_MARKER_Y_OFFSET));
+                        return Some(vec2(
+                            actor.body.position.x,
+                            actor.body.position.y - MISSION_MARKER_Y_OFFSET,
+                        ));
                     }
                 }
                 None
-            },
+            }
             Self::FindItem { item_id } => {
                 for item in scene::find_nodes_by_type::<Item>() {
                     if item.id == item_id {
-                        return Some(vec2(item.position.x, item.position.y - MISSION_MARKER_Y_OFFSET));
+                        return Some(vec2(
+                            item.position.x,
+                            item.position.y - MISSION_MARKER_Y_OFFSET,
+                        ));
                     }
                 }
                 None
-            },
+            }
             _ => None,
         }
     }
@@ -59,17 +59,28 @@ impl MissionObjective {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum MissionReward {
-    Item { prototype_id: String, amount: u32 },
-    Credits { amount: u32 },
+    Item {
+        prototype_id: String,
+        amount: u32,
+    },
+    Credits {
+        amount: u32,
+    },
     #[serde(rename = "xp", alias = "experience")]
-    Experience { amount: u32 },
+    Experience {
+        amount: u32,
+    },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum MissionMarker {
-    Actor { actor_id: String },
-    Item { item_id: String },
+    Actor {
+        actor_id: String,
+    },
+    Item {
+        item_id: String,
+    },
     Location {
         #[serde(with = "json::def_vec2")]
         target: Vec2,
@@ -90,19 +101,25 @@ impl MissionMarker {
             Self::Actor { actor_id } => {
                 for actor in scene::find_nodes_by_type::<Actor>() {
                     if actor.id == actor_id {
-                        return Some(vec2(actor.body.position.x, actor.body.position.y - MISSION_MARKER_Y_OFFSET));
+                        return Some(vec2(
+                            actor.body.position.x,
+                            actor.body.position.y - MISSION_MARKER_Y_OFFSET,
+                        ));
                     }
                 }
                 None
-            },
+            }
             Self::Item { item_id } => {
                 for item in scene::find_nodes_by_type::<Item>() {
                     if item.id == item_id {
-                        return Some(vec2(item.position.x, item.position.y - MISSION_MARKER_Y_OFFSET));
+                        return Some(vec2(
+                            item.position.x,
+                            item.position.y - MISSION_MARKER_Y_OFFSET,
+                        ));
                     }
                 }
                 None
-            },
+            }
             Self::Location { target } => Some(target),
         }
     }
@@ -136,7 +153,7 @@ impl Default for MissionParams {
             rewards: Vec::new(),
             next_mission_ids: Vec::new(),
             marker: None,
-            no_autocompletion: false
+            no_autocompletion: false,
         }
     }
 }
@@ -160,7 +177,11 @@ impl Mission {
             id: params.id,
             title: params.title,
             description: params.description,
-            objectives: params.objectives.into_iter().map(|objective| (objective, false)).collect(),
+            objectives: params
+                .objectives
+                .into_iter()
+                .map(|objective| (objective, false))
+                .collect(),
             rewards: params.rewards,
             next_mission_ids: params.next_mission_ids,
             marker: params.marker,

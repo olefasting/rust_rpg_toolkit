@@ -34,10 +34,7 @@ impl Sprite {
                     self.tile_size.x as f32,
                     self.tile_size.y as f32,
                 )),
-                dest_size: Some(vec2(
-                    self.tile_size.x as f32,
-                    self.tile_size.y as f32,
-                )),
+                dest_size: Some(vec2(self.tile_size.x as f32, self.tile_size.y as f32)),
                 flip_x: self.flip_x,
                 flip_y: self.flip_y,
                 rotation: self.rotation + rotation,

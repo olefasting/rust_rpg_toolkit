@@ -1,41 +1,23 @@
-pub use texture::{
-    Texture,
-    draw_texture,
-};
+pub use texture::{draw_texture, Texture};
 
-pub use material::{
-    Material,
-    use_default_material,
-    use_material,
-};
+pub use material::{use_default_material, use_material, Material};
 
-pub use sprite::{
-    Sprite,
-};
+pub use sprite::Sprite;
 
-pub use animation::{
-    SpriteAnimationPlayer,
-    SpriteAnimationParams,
-};
+pub use animation::{SpriteAnimationParams, SpriteAnimationPlayer};
 
-pub use viewport::{
-    Viewport,
-};
+pub use viewport::Viewport;
 
 pub use helpers::{
-    VerticalAlignment,
-    HorizontalAlignment,
-    draw_progress_bar,
-    draw_text,
-    color_from_hex_string,
+    color_from_hex_string, draw_progress_bar, draw_text, HorizontalAlignment, VerticalAlignment,
 };
 
-pub mod sprite;
 pub mod animation;
-pub mod viewport;
 pub mod helpers;
-pub mod texture;
 pub mod material;
+pub mod sprite;
+pub mod texture;
+pub mod viewport;
 
 use crate::prelude::*;
 

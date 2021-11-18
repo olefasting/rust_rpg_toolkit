@@ -1,6 +1,4 @@
-use crate::{
-    prelude::*,
-};
+use crate::prelude::*;
 
 #[derive(Debug, Clone)]
 pub enum ActorControllerKind {
@@ -52,7 +50,6 @@ impl ActorController {
     }
 
     pub fn is_attacking(&self) -> bool {
-        self.should_use_weapon
-            || self.should_use_selected_ability
+        self.should_use_weapon || self.should_use_selected_ability
     }
 }

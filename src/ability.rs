@@ -1,3 +1,4 @@
+use crate::nodes::projectiles::ProjectileParams;
 use crate::prelude::*;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -34,9 +35,17 @@ pub enum AbilityDelivery {
 #[derive(Clone, Serialize, Deserialize)]
 pub struct AbilityParams {
     pub id: String,
-    #[serde(default, rename = "sound_effect", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        rename = "sound_effect",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub sound_effect_id: Option<String>,
-    #[serde(default, rename = "on_hit_sound_effect", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        rename = "on_hit_sound_effect",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub on_hit_sound_effect_id: Option<String>,
     #[serde(default)]
     pub noise_level: NoiseLevel,
@@ -51,7 +60,11 @@ pub struct AbilityParams {
     pub energy_cost: f32,
     pub range: f32,
     pub effects: Vec<Effect>,
-    #[serde(default, with = "json::opt_color", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "json::opt_color",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub color_override: Option<Color>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub size_override: Option<f32>,
@@ -104,17 +117,25 @@ impl Ability {
 
         let mut sound_effect = None;
         if let Some(sound_effect_id) = params.sound_effect_id {
-            let res = resources.sound_effects.get(&sound_effect_id)
+            let res = resources
+                .sound_effects
+                .get(&sound_effect_id)
                 .cloned()
-                .expect(&format!("Unable to find sound effect with id '{}'", &sound_effect_id));
+                .unwrap_or_else(|| {
+                    panic!("Unable to find sound effect with id '{}'", &sound_effect_id)
+                });
             sound_effect = Some(res);
         }
 
         let mut on_hit_sound_effect = None;
         if let Some(sound_effect_id) = params.on_hit_sound_effect_id {
-            let res = resources.sound_effects.get(&sound_effect_id)
+            let res = resources
+                .sound_effects
+                .get(&sound_effect_id)
                 .cloned()
-                .expect(&format!("Unable to find sound effect with id '{}'", &sound_effect_id));
+                .unwrap_or_else(|| {
+                    panic!("Unable to find sound effect with id '{}'", &sound_effect_id)
+                });
             on_hit_sound_effect = Some(res);
         }
 
@@ -139,8 +160,8 @@ impl Ability {
         if self.cooldown_timer >= self.cooldown
             && (self.health_cost == 0.0 || node.stats.current_health >= self.health_cost)
             && (self.stamina_cost == 0.0 || node.stats.current_stamina >= self.stamina_cost)
-            && (self.energy_cost == 0.0 || node.stats.current_energy >= self.energy_cost) {
-
+            && (self.energy_cost == 0.0 || node.stats.current_energy >= self.energy_cost)
+        {
             self.cooldown_timer = 0.0;
 
             node.set_noise_level(self.noise_level);
@@ -152,7 +173,8 @@ impl Ability {
                 AbilityDelivery::ContinuousBeam => {
                     let end = node.body.position + direction * self.range;
 
-                    let mut continuous_beams = scene::find_node_by_type::<ContinuousBeams>().unwrap();
+                    let mut continuous_beams =
+                        scene::find_node_by_type::<ContinuousBeams>().unwrap();
                     continuous_beams.spawn(
                         &node.id,
                         node.handle(),
@@ -163,52 +185,56 @@ impl Ability {
                         origin,
                         end,
                     );
-                },
+                }
                 AbilityDelivery::Projectile {
                     projectile_kind,
                     spread,
                     speed,
                 } => {
-                    let mut projectiles = scene::find_node_by_type::<Projectiles>().unwrap();
-                    projectiles.spawn(
-                        &node.id,
-                        node.handle(),
-                        &node.factions,
-                        projectile_kind,
-                        &self.effects,
-                        self.color_override,
-                        self.size_override,
+                    let params = ProjectileParams {
+                        kind: projectile_kind,
+                        effects: self.effects.clone(),
+                        color: self
+                            .color_override
+                            .unwrap_or(Projectiles::DEFAULT_PROJECTILE_COLOR),
+                        size: self
+                            .size_override
+                            .unwrap_or(Projectiles::DEFAULT_PROJECTILE_SIZE),
                         origin,
                         direction,
                         speed,
-                        spread,
-                        self.range,
-                        self.on_hit_sound_effect,
-                    );
+                        range: self.range,
+                        on_hit_sound_effect: self.on_hit_sound_effect,
+                    };
+
+                    let mut projectiles = scene::find_node_by_type::<Projectiles>().unwrap();
+                    projectiles.spawn(&node.id, node.handle(), &node.factions, spread, params);
 
                     if let Some(sound_effect) = self.sound_effect {
                         play_sound(sound_effect, false);
                     }
-                },
+                }
                 AbilityDelivery::Melee => {
-                    let collider = Collider::circle(
-                        origin.x,
-                        origin.y,
-                        self.range,
-                    );
+                    let collider = Collider::circle(origin.x, origin.y, self.range);
 
                     let mut hit_success = false;
 
                     for mut other_actor in scene::find_nodes_by_type::<Actor>() {
-                        hit_success = if let Some(other_collider) = other_actor.body.get_offset_collider() {
-                            collider.overlaps(other_collider)
-                        } else {
-                            collider.contains(other_actor.body.position)
-                        };
+                        hit_success =
+                            if let Some(other_collider) = other_actor.body.get_offset_collider() {
+                                collider.overlaps(other_collider)
+                            } else {
+                                collider.contains(other_actor.body.position)
+                            };
 
                         if hit_success {
                             for effect in self.effects.clone() {
-                                other_actor.apply_effect(&node.id, node.handle(), &node.factions, effect);
+                                other_actor.apply_effect(
+                                    &node.id,
+                                    node.handle(),
+                                    &node.factions,
+                                    effect,
+                                );
                             }
                         }
                     }

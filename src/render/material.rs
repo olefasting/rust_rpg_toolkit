@@ -1,9 +1,6 @@
 use crate::prelude::*;
 
-use macroquad::material::{
-    self,
-    load_material,
-};
+use macroquad::material::{self, load_material};
 
 #[derive(Debug, Clone)]
 pub struct Material {
@@ -16,7 +13,11 @@ pub struct Material {
 }
 
 impl Material {
-    pub async fn new<P: AsRef<Path>>(vertex_path: P, fragment_path: P, params: MaterialParams) -> Result<Self> {
+    pub async fn new<P: AsRef<Path>>(
+        vertex_path: P,
+        fragment_path: P,
+        params: MaterialParams,
+    ) -> Result<Self> {
         let vertex_path = vertex_path.as_ref();
         let fragment_path = fragment_path.as_ref();
 
@@ -53,7 +54,8 @@ impl Material {
         }
 
         let textures = self.textures.clone();
-        let uniforms = self.uniforms
+        let uniforms = self
+            .uniforms
             .iter()
             .map(|(key, value)| (key.clone(), *value))
             .collect();
@@ -86,7 +88,10 @@ impl Material {
         if let Some(compiled) = &mut self.compiled {
             compiled.delete();
         } else {
-            let err = Error::new_const(ErrorKind::Material, &"Attempting to delete a material that has not been compiled");
+            let err = Error::new_const(
+                ErrorKind::Material,
+                &"Attempting to delete a material that has not been compiled",
+            );
             return Err(err);
         }
 
@@ -97,7 +102,10 @@ impl Material {
         if let Some(material) = self.compiled.clone() {
             gl_use_material(material);
         } else {
-            let err = Error::new_const(ErrorKind::Material, &"Attempting to use a material that has not been compiled");
+            let err = Error::new_const(
+                ErrorKind::Material,
+                &"Attempting to use a material that has not been compiled",
+            );
             return Err(err);
         }
 

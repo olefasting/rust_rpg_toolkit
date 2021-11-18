@@ -1,23 +1,20 @@
 use macroquad::prelude::*;
 
-use serde::{
-    Serialize,
-    Deserialize,
-};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub struct URect {
     pub x: u32,
     pub y: u32,
-    #[serde(rename = "width", alias ="w")]
+    #[serde(rename = "width", alias = "w")]
     pub w: u32,
-    #[serde(rename = "height", alias ="h")]
+    #[serde(rename = "height", alias = "h")]
     pub h: u32,
 }
 
 impl URect {
     pub fn new(x: u32, y: u32, w: u32, h: u32) -> Self {
-        URect { x,y, w, h }
+        URect { x, y, w, h }
     }
 
     pub fn point(&self) -> UVec2 {

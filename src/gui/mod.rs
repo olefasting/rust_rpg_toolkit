@@ -1,59 +1,36 @@
 use std::ops::Deref;
 
-pub use macroquad::{
-    ui::{
-        Drag,
-        hash,
-        root_ui,
-        Skin,
-        Ui,
-        widgets,
-        Id,
-    },
-};
 pub use character::draw_character_window;
 pub use confirmation_modal::draw_confirmation_modal;
 pub use dialogue::draw_dialogue_window;
 pub use game_menu::draw_game_menu;
 pub use inventory::draw_inventory_window;
+pub use macroquad::ui::{hash, root_ui, widgets, Drag, Id, Skin, Ui};
 pub use main_menu::show_main_menu;
-pub use theme::{
-    GuiSkins,
-    GuiTheme,
-};
+pub use theme::{GuiSkins, GuiTheme};
 
 pub use window_builder::WindowBuilder;
 
 pub use menu_builder::{
-    MenuButtonStyle,
-    MenuBuilder,
-    MenuResult,
-    MenuPosition,
-    MenuParams,
-    MenuOption,
+    MenuBuilder, MenuButtonStyle, MenuOption, MenuParams, MenuPosition, MenuResult,
 };
 
-pub use button_builder::{
-    try_get_button_builder,
-    get_button_builder,
-    ButtonStyle,
-    ButtonBuilder,
-};
+pub use button_builder::{get_button_builder, try_get_button_builder, ButtonBuilder, ButtonStyle};
 
-pub use checkbox::Checkbox;
 use crate::prelude::*;
+pub use checkbox::Checkbox;
 
-mod inventory;
+mod button_builder;
 mod character;
+mod checkbox;
+mod confirmation_modal;
 mod dialogue;
 mod game_menu;
-mod theme;
+mod inventory;
 mod main_menu;
-mod confirmation_modal;
-mod checkbox;
-mod window_builder;
 mod menu_builder;
-mod button_builder;
+mod theme;
+mod window_builder;
 
 #[derive(Debug, Clone)]
 pub struct GuiState {

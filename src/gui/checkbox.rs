@@ -13,7 +13,12 @@ pub struct Checkbox<'a> {
 impl<'a> Checkbox<'a> {
     const ALLOW_CLICK_ON_LABEL: bool = true;
 
-    pub fn new<P: Into<Option<Vec2>>>(id: Id, position: P, label: &str, value: &'a mut bool) -> Self {
+    pub fn new<P: Into<Option<Vec2>>>(
+        id: Id,
+        position: P,
+        label: &str,
+        value: &'a mut bool,
+    ) -> Self {
         Checkbox {
             id,
             position: position.into(),
@@ -45,7 +50,8 @@ impl<'a> Checkbox<'a> {
         ui.separator();
 
         let label_size = ui.calc_size(&self.label);
-        let label_height = label_size.y - gui_skins.theme.label_margins.top - gui_skins.theme.label_margins.bottom;
+        let label_height =
+            label_size.y - gui_skins.theme.label_margins.top - gui_skins.theme.label_margins.bottom;
         let checkbox_size = vec2(label_height, label_height);
         let total_size = vec2(checkbox_size.x * 1.5, 0.0) + label_size;
 

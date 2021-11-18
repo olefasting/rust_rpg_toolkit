@@ -1,8 +1,6 @@
 use crate::prelude::*;
 
-use super::{
-    COLLISION_RESOLUTION,
-};
+use super::COLLISION_RESOLUTION;
 
 #[derive(Clone)]
 pub struct PhysicsBody {
@@ -28,19 +26,17 @@ impl PhysicsBody {
         if game_state.in_debug_mode {
             if let Some(collider) = self.get_offset_collider() {
                 match collider {
-                    Collider::Rectangle { x, y, w, h } =>
-                        draw_rectangle_lines(x, y, w, h, 2.0, color::RED),
-                    Collider::Circle { x, y, r } =>
-                        draw_circle_lines(x, y, r, 2.0, color::RED)
+                    Collider::Rectangle { x, y, w, h } => {
+                        draw_rectangle_lines(x, y, w, h, 2.0, color::RED)
+                    }
+                    Collider::Circle { x, y, r } => draw_circle_lines(x, y, r, 2.0, color::RED),
                 }
             }
 
             for (collider, kind) in self.last_collisions.clone() {
                 match collider {
-                    Collider::Rectangle { x, y, w, h } =>
-                        draw_rectangle(x, y, w, h, color::RED),
-                    Collider::Circle { x, y, r } =>
-                        draw_circle(x, y, r, color::RED),
+                    Collider::Rectangle { x, y, w, h } => draw_rectangle(x, y, w, h, color::RED),
+                    Collider::Circle { x, y, r } => draw_circle(x, y, r, color::RED),
                 }
 
                 let position = collider.get_center();
@@ -67,14 +63,7 @@ impl PhysicsBody {
             };
 
             let end = begin + self.velocity * 10.0;
-            draw_line(
-                begin.x,
-                begin.y,
-                end.x,
-                end.y,
-                2.0,
-                color::RED,
-            );
+            draw_line(begin.x, begin.y, end.x, end.y, 2.0, color::RED);
         }
     }
 
@@ -96,7 +85,7 @@ impl PhysicsBody {
 
             if movement != Vec2::ZERO {
                 #[cfg(feature = "collision_between_actors")]
-                    let nearby_actors = {
+                let nearby_actors = {
                     let viewport = storage::get::<Viewport>();
                     scene::find_nodes_by_type::<Actor>()
                         .into_iter()
@@ -125,19 +114,21 @@ impl PhysicsBody {
                 while final_movement.x != movement.x {
                     x_collisions.clear();
 
-                    let modified_increment = if final_movement.x.abs() < movement.x.abs() - increment.x.abs() {
-                        vec2(increment.x, 0.0)
-                    } else {
-                        vec2(movement.x - final_movement.x, 0.0)
-                    };
+                    let modified_increment =
+                        if final_movement.x.abs() < movement.x.abs() - increment.x.abs() {
+                            vec2(increment.x, 0.0)
+                        } else {
+                            vec2(movement.x - final_movement.x, 0.0)
+                        };
 
                     let modified_collider = collider.with_offset(modified_increment);
 
                     #[cfg(feature = "collision_between_actors")]
-                        {
-                            let mut actor_collisions = check_actor_collisions(modified_collider, &nearby_actors);
-                            x_collisions.append(&mut actor_collisions);
-                        }
+                    {
+                        let mut actor_collisions =
+                            check_actor_collisions(modified_collider, &nearby_actors);
+                        x_collisions.append(&mut actor_collisions);
+                    }
 
                     let mut map_collisions = check_map_collision(modified_collider);
                     x_collisions.append(&mut map_collisions);
@@ -153,19 +144,21 @@ impl PhysicsBody {
                 while final_movement.y != movement.y {
                     y_collisions.clear();
 
-                    let modified_increment = if final_movement.y.abs() < movement.y.abs() - increment.y.abs() {
-                        vec2(0.0, increment.y)
-                    } else {
-                        vec2(0.0, movement.y - final_movement.y)
-                    };
+                    let modified_increment =
+                        if final_movement.y.abs() < movement.y.abs() - increment.y.abs() {
+                            vec2(0.0, increment.y)
+                        } else {
+                            vec2(0.0, movement.y - final_movement.y)
+                        };
 
                     let modified_collider = collider.with_offset(modified_increment);
 
                     #[cfg(feature = "collision_between_actors")]
-                        {
-                            let mut actor_collisions = check_actor_collisions(modified_collider, &nearby_actors);
-                            y_collisions.append(&mut actor_collisions);
-                        }
+                    {
+                        let mut actor_collisions =
+                            check_actor_collisions(modified_collider, &nearby_actors);
+                        y_collisions.append(&mut actor_collisions);
+                    }
 
                     let mut map_collisions = check_map_collision(modified_collider);
                     y_collisions.append(&mut map_collisions);
@@ -203,7 +196,10 @@ fn check_map_collision(collider: Collider) -> Vec<(Collider, CollisionKind)> {
 }
 
 #[cfg(feature = "collision_between_actors")]
-fn check_actor_collisions(collider: Collider, actors: &Vec<RefMut<Actor>>) -> Vec<(Collider, CollisionKind)> {
+fn check_actor_collisions(
+    collider: Collider,
+    actors: &Vec<RefMut<Actor>>,
+) -> Vec<(Collider, CollisionKind)> {
     let mut collisions = Vec::new();
     for actor in actors {
         if let Some(other_collider) = actor.body.get_offset_collider() {

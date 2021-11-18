@@ -9,7 +9,11 @@ pub struct Texture {
 }
 
 impl Texture {
-    pub fn new(texture: Texture2D, height_map: Option<Texture2D>, normal_map: Option<Texture2D>) -> Self {
+    pub fn new(
+        texture: Texture2D,
+        height_map: Option<Texture2D>,
+        normal_map: Option<Texture2D>,
+    ) -> Self {
         Texture {
             texture,
             height_map,
@@ -48,6 +52,11 @@ impl Texture {
     }
 }
 
-pub fn draw_texture(texture: &Texture, position: Vec2, color: Option<Color>, params: DrawTextureParams) {
+pub fn draw_texture(
+    texture: &Texture,
+    position: Vec2,
+    color: Option<Color>,
+    params: DrawTextureParams,
+) {
     texture.draw(position, color, params)
 }

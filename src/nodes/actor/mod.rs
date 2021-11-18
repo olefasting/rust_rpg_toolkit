@@ -2,27 +2,23 @@ use crate::prelude::*;
 
 use mode::Family;
 
-pub use behavior::{
-    ActorAggression,
-    ActorBehavior,
-    ActorBehaviorParams,
-    ActorBehaviorFamily,
-};
-pub use controller::{
-    ActorController,
-    ActorControllerKind,
-};
+pub use behavior::{ActorAggression, ActorBehavior, ActorBehaviorFamily, ActorBehaviorParams};
+pub use controller::{ActorController, ActorControllerKind};
 
 pub use stats::ActorStats;
 
+mod behavior;
 mod controller;
 mod stats;
-mod behavior;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ActorParams {
     pub id: String,
-    #[serde(default, rename = "essential", skip_serializing_if = "helpers::is_false")]
+    #[serde(
+        default,
+        rename = "essential",
+        skip_serializing_if = "helpers::is_false"
+    )]
     pub is_essential: bool,
     pub name: String,
     #[serde(default, rename = "class", skip_serializing_if = "Option::is_none")]
@@ -31,7 +27,11 @@ pub struct ActorParams {
     pub factions: Vec<String>,
     #[serde(default)]
     pub behavior: ActorBehaviorParams,
-    #[serde(default, with = "json::opt_vec2", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "json::opt_vec2",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub position: Option<Vec2>,
     pub strength: u32,
     pub dexterity: u32,
@@ -199,7 +199,11 @@ impl Actor {
     const PICK_UP_RADIUS: f32 = 36.0;
     const INTERACT_RADIUS: f32 = 36.0;
 
-    pub fn new(game_state: Handle<GameState>, controller_kind: ActorControllerKind, params: ActorParams) -> Self {
+    pub fn new(
+        game_state: Handle<GameState>,
+        controller_kind: ActorControllerKind,
+        params: ActorParams,
+    ) -> Self {
         if params.can_level_up {
             assert!(params.class_id.is_some(), "Actor id '{}' has `can_level_up` set to `true`, even though no `class_id` has been specified!", &params.id);
         }
@@ -235,7 +239,10 @@ impl Actor {
             body: PhysicsBody::new(position, 0.0, params.collider),
             inventory,
             equipped_items: params.equipped_items,
-            weapon_ability: EquippedWeaponsAbilities { main_hand: None, offhand: None },
+            weapon_ability: EquippedWeaponsAbilities {
+                main_hand: None,
+                offhand: None,
+            },
             selected_ability: None,
             controller: ActorController::new(controller_kind),
             experience: params.experience,
@@ -249,7 +256,11 @@ impl Actor {
         }
     }
 
-    pub fn add_node(game_state: Handle<GameState>, controller_kind: ActorControllerKind, params: ActorParams) -> Handle<Self> {
+    pub fn add_node(
+        game_state: Handle<GameState>,
+        controller_kind: ActorControllerKind,
+        params: ActorParams,
+    ) -> Handle<Self> {
         scene::add_node(Self::new(game_state, controller_kind, params))
     }
 
@@ -292,10 +303,16 @@ impl Actor {
         }
     }
 
-    pub fn from_saved(game_state: Handle<GameState>, position: Vec2, controller_kind: ActorControllerKind, character: &Character) -> Self {
+    pub fn from_saved(
+        game_state: Handle<GameState>,
+        position: Vec2,
+        controller_kind: ActorControllerKind,
+        character: &Character,
+    ) -> Self {
         let resources = storage::get::<Resources>();
 
-        let active_missions = character.active_missions
+        let active_missions = character
+            .active_missions
             .iter()
             .map(|mission_id| {
                 let params = resources.missions.get(mission_id).cloned().unwrap();
@@ -303,7 +320,8 @@ impl Actor {
             })
             .collect();
 
-        let completed_missions = character.completed_missions
+        let completed_missions = character
+            .completed_missions
             .iter()
             .map(|mission_id| {
                 let params = resources.missions.get(mission_id).cloned().unwrap();
@@ -338,7 +356,10 @@ impl Actor {
             body,
             inventory: Inventory::from_saved(&character.actor.inventory, &character.items),
             equipped_items: character.actor.equipped_items.clone(),
-            weapon_ability: EquippedWeaponsAbilities { main_hand: None, offhand: None },
+            weapon_ability: EquippedWeaponsAbilities {
+                main_hand: None,
+                offhand: None,
+            },
             selected_ability: None,
             controller: ActorController::new(controller_kind),
             experience: character.actor.experience,
@@ -352,22 +373,31 @@ impl Actor {
         }
     }
 
-    pub fn to_character(&self, chapter_index: usize, map_id: &str, is_permadeath: bool) -> Character {
+    pub fn to_character(
+        &self,
+        chapter_index: usize,
+        map_id: &str,
+        is_permadeath: bool,
+    ) -> Character {
         let game_params = storage::get::<GameParams>();
 
         let map_id = map_id.to_string();
 
-        let items = self.inventory.items
+        let items = self
+            .inventory
+            .items
             .iter()
             .map(|entry| entry.params.clone())
             .collect();
 
-        let active_missions = self.active_missions
+        let active_missions = self
+            .active_missions
             .iter()
             .map(|mission| mission.id.clone())
             .collect();
 
-        let completed_missions = self.completed_missions
+        let completed_missions = self
+            .completed_missions
             .iter()
             .map(|mission| mission.id.clone())
             .collect();
@@ -384,16 +414,31 @@ impl Actor {
         }
     }
 
-    pub fn take_damage(&mut self, actor_id: &str, actor: Handle<Actor>, _damage_type: DamageType, amount: f32) {
+    pub fn take_damage(
+        &mut self,
+        actor_id: &str,
+        actor: Handle<Actor>,
+        _damage_type: DamageType,
+        amount: f32,
+    ) {
         self.behavior.attackers.insert(actor_id.to_string(), actor);
         if self.is_essential == false {
             self.stats.current_health -= amount;
         }
     }
 
-    pub fn apply_effect(&mut self, actor_id: &str, actor: Handle<Actor>, factions: &[String], effect: Effect) -> bool {
+    pub fn apply_effect(
+        &mut self,
+        actor_id: &str,
+        actor: Handle<Actor>,
+        factions: &[String],
+        effect: Effect,
+    ) -> bool {
         match effect {
-            Effect::Damage { damage_type, amount } => {
+            Effect::Damage {
+                damage_type,
+                amount,
+            } => {
                 if actor_id != self.id {
                     for faction in factions {
                         if self.factions.contains(faction) {
@@ -520,7 +565,11 @@ impl Actor {
                             }
                         }
                         MissionObjective::FindItem { item_id } => {
-                            let res = self.inventory.items.iter().find(|entry| entry.params.id == item_id.clone());
+                            let res = self
+                                .inventory
+                                .items
+                                .iter()
+                                .find(|entry| entry.params.id == item_id.clone());
                             if res.is_some() {
                                 objective.1 = true;
                             }
@@ -531,41 +580,46 @@ impl Actor {
             }
         }
 
-        let mut completed_missions: Vec<Mission> = active_missions.drain_filter(|mission| {
-            for (_, is_completed) in mission.objectives.clone() {
-                if is_completed == false {
-                    return false;
-                }
-            }
-
-            if mission.no_autocompletion == false {
-                mission.is_completed = true;
-            }
-
-            if mission.is_completed {
-                let resources = storage::get::<Resources>();
-                for reward in &mission.rewards {
-                    match reward {
-                        MissionReward::Item { prototype_id, amount } => {
-                            let params = resources.items.get(prototype_id).unwrap();
-                            for _ in 0..*amount {
-                                self.inventory.add_item(params.clone());
-                            }
-                        }
-                        MissionReward::Credits { amount } => {
-                            self.inventory.add_credits(*amount);
-                        }
-                        MissionReward::Experience { amount } => {
-                            self.add_experience(*amount);
-                        }
+        let mut completed_missions: Vec<Mission> = active_missions
+            .drain_filter(|mission| {
+                for (_, is_completed) in mission.objectives.clone() {
+                    if is_completed == false {
+                        return false;
                     }
                 }
 
-                return true;
-            }
+                if mission.no_autocompletion == false {
+                    mission.is_completed = true;
+                }
 
-            false
-        }).collect();
+                if mission.is_completed {
+                    let resources = storage::get::<Resources>();
+                    for reward in &mission.rewards {
+                        match reward {
+                            MissionReward::Item {
+                                prototype_id,
+                                amount,
+                            } => {
+                                let params = resources.items.get(prototype_id).unwrap();
+                                for _ in 0..*amount {
+                                    self.inventory.add_item(params.clone());
+                                }
+                            }
+                            MissionReward::Credits { amount } => {
+                                self.inventory.add_credits(*amount);
+                            }
+                            MissionReward::Experience { amount } => {
+                                self.add_experience(*amount);
+                            }
+                        }
+                    }
+
+                    return true;
+                }
+
+                false
+            })
+            .collect();
 
         let resources = storage::get::<Resources>();
         for mission in &completed_missions {
@@ -591,7 +645,9 @@ impl Actor {
         if let Some(entry) = found_entry {
             slot = match entry.params.kind {
                 ItemKind::OneHandedWeapon => {
-                    if self.equipped_items.main_hand.is_some() && self.equipped_items.off_hand.is_none() {
+                    if self.equipped_items.main_hand.is_some()
+                        && self.equipped_items.off_hand.is_none()
+                    {
                         EquipmentSlot::OffHand
                     } else {
                         EquipmentSlot::MainHand
@@ -620,7 +676,12 @@ impl Actor {
             }
         }
 
-        if let Some(entry) = self.inventory.items.iter_mut().find(|entry| entry.params.id == item_id) {
+        if let Some(entry) = self
+            .inventory
+            .items
+            .iter_mut()
+            .find(|entry| entry.params.id == item_id)
+        {
             entry.equipped_to = slot;
         }
     }
@@ -629,14 +690,14 @@ impl Actor {
         let item_ids = match slot {
             EquipmentSlot::MainHand => {
                 if let Some(item_id) = self.equipped_items.main_hand.clone() {
-                    vec!(item_id)
+                    vec![item_id]
                 } else {
                     Vec::new()
                 }
             }
             EquipmentSlot::OffHand => {
                 if let Some(item_id) = self.equipped_items.off_hand.clone() {
-                    vec!(item_id)
+                    vec![item_id]
                 } else {
                     Vec::new()
                 }
@@ -672,7 +733,12 @@ impl Actor {
                 self.weapon_ability.offhand = None;
             }
         }
-        if let Some(entry) = self.inventory.items.iter_mut().find(|entry| entry.params.id == item_id.to_string()) {
+        if let Some(entry) = self
+            .inventory
+            .items
+            .iter_mut()
+            .find(|entry| entry.params.id == item_id.to_string())
+        {
             entry.equipped_to = EquipmentSlot::None;
         }
     }
@@ -683,8 +749,15 @@ impl BufferedDraw for Actor {
         let game_state = scene::get_node(self.game_state);
         self.body.debug_draw(&game_state);
 
-        let (position, rotation, offset_y, alignment, length, height, border) =
-            (self.body.position, self.body.rotation, Self::HEALTH_BAR_OFFSET_Y, HorizontalAlignment::Center, Self::HEALTH_BAR_LENGTH, Self::HEALTH_BAR_HEIGHT, 1.0);
+        let (position, rotation, offset_y, alignment, length, height, border) = (
+            self.body.position,
+            self.body.rotation,
+            Self::HEALTH_BAR_OFFSET_Y,
+            HorizontalAlignment::Center,
+            Self::HEALTH_BAR_LENGTH,
+            Self::HEALTH_BAR_HEIGHT,
+            1.0,
+        );
 
         self.animation_player.draw(position, rotation);
 
@@ -824,12 +897,18 @@ impl Node for Actor {
         node.controller.move_direction = Vec2::ZERO;
         node.controller.should_start_interaction = false;
         node.controller.should_pick_up_items = false;
-        node.controller.should_sprint = node.controller.is_sprint_locked && node.controller.should_sprint;
+        node.controller.should_sprint =
+            node.controller.is_sprint_locked && node.controller.should_sprint;
 
         {
             let game_state = scene::get_node(node.game_state);
             let mut i: usize = 0;
-            let mut keys = node.behavior.attackers.keys().cloned().collect::<Vec<String>>();
+            let mut keys = node
+                .behavior
+                .attackers
+                .keys()
+                .cloned()
+                .collect::<Vec<String>>();
             while i < node.behavior.attackers.keys().len() {
                 let actor_id = &keys[i];
                 if game_state.dead_actors.contains(actor_id) {
@@ -870,17 +949,19 @@ impl Node for Actor {
 
                 let inventory = node.inventory.clone();
                 let equipped_items = node.equipped_items.clone();
-                Automaton::next(&mut node.automaton, |mode| mode.update(
-                    params,
-                    &factions,
-                    stats,
-                    position,
-                    &mut controller,
-                    weapon_range,
-                    selected_ability_range,
-                    inventory,
-                    equipped_items,
-                ));
+                Automaton::next(&mut node.automaton, |mode| {
+                    mode.update(
+                        params,
+                        &factions,
+                        stats,
+                        position,
+                        &mut controller,
+                        weapon_range,
+                        selected_ability_range,
+                        inventory,
+                        equipped_items,
+                    )
+                });
 
                 node.controller = controller;
             }
@@ -903,7 +984,8 @@ impl Node for Actor {
             if node.current_dialogue.is_some() {
                 node.current_dialogue = None;
             } else {
-                let collider = Collider::circle(0.0, 0.0, Self::INTERACT_RADIUS).with_offset(node.body.position);
+                let collider = Collider::circle(0.0, 0.0, Self::INTERACT_RADIUS)
+                    .with_offset(node.body.position);
                 for actor in scene::find_nodes_by_type::<Actor>() {
                     if let Some(other_collider) = actor.body.get_offset_collider() {
                         if collider.overlaps(other_collider) {
@@ -934,7 +1016,10 @@ impl Node for Actor {
         node.stats.update();
 
         let controller = node.controller.clone();
-        node.set_animation(controller.aim_direction, controller.move_direction == Vec2::ZERO);
+        node.set_animation(
+            controller.aim_direction,
+            controller.move_direction == Vec2::ZERO,
+        );
 
         if controller.should_use_weapon {
             let origin = node.body.position;
@@ -957,7 +1042,8 @@ impl Node for Actor {
             node.selected_ability = secondary_ability;
         }
 
-        let collider = Collider::circle(0.0, 0.0, Self::PICK_UP_RADIUS).with_offset(node.body.position);
+        let collider =
+            Collider::circle(0.0, 0.0, Self::PICK_UP_RADIUS).with_offset(node.body.position);
         for credits in scene::find_nodes_by_type::<Credits>() {
             if collider.contains(credits.position) {
                 node.inventory.credits += credits.amount;
@@ -975,17 +1061,20 @@ impl Node for Actor {
 
         let direction = controller.move_direction;
         node.body.velocity = if direction != Vec2::ZERO {
-            direction * if node.inventory.get_total_weight() >= node.stats.carry_capacity {
-                node.set_noise_level(Self::MOVE_NOISE_LEVEL);
-                node.stats.move_speed * Self::ENCUMBERED_SPEED_FACTOR
-            } else if node.controller.should_sprint && node.stats.current_stamina >= Self::SPRINT_STAMINA_COST {
-                node.set_noise_level(Self::SPRINT_NOISE_LEVEL);
-                node.stats.current_stamina -= Self::SPRINT_STAMINA_COST;
-                node.stats.move_speed * Self::SPRINT_SPEED_FACTOR
-            } else {
-                node.set_noise_level(Self::MOVE_NOISE_LEVEL);
-                node.stats.move_speed
-            }
+            direction
+                * if node.inventory.get_total_weight() >= node.stats.carry_capacity {
+                    node.set_noise_level(Self::MOVE_NOISE_LEVEL);
+                    node.stats.move_speed * Self::ENCUMBERED_SPEED_FACTOR
+                } else if node.controller.should_sprint
+                    && node.stats.current_stamina >= Self::SPRINT_STAMINA_COST
+                {
+                    node.set_noise_level(Self::SPRINT_NOISE_LEVEL);
+                    node.stats.current_stamina -= Self::SPRINT_STAMINA_COST;
+                    node.stats.move_speed * Self::SPRINT_SPEED_FACTOR
+                } else {
+                    node.set_noise_level(Self::MOVE_NOISE_LEVEL);
+                    node.stats.move_speed
+                }
         } else {
             Vec2::ZERO
         };

@@ -1,5 +1,6 @@
 use crate::prelude::*;
 
+#[derive(Default)]
 pub struct CameraController {
     pub position: Vec2,
     pub rotation: f32,
@@ -36,7 +37,10 @@ impl CameraController {
     }
 
     pub fn get_viewport(&self) -> Viewport {
-        let size = vec2(get_screen_width() / self.scale, get_screen_height() / self.scale);
+        let size = vec2(
+            get_screen_width() / self.scale,
+            get_screen_height() / self.scale,
+        );
         let position = self.position - size / 2.0;
         Viewport {
             position,
@@ -62,7 +66,10 @@ impl CameraController {
         Camera2D {
             offset: vec2(0.0, 0.0),
             target: vec2(self.position.x.round(), self.position.y.round()),
-            zoom: vec2(self.scale / get_screen_width(), self.scale / get_screen_height()) * 2.0,
+            zoom: vec2(
+                self.scale / get_screen_width(),
+                self.scale / get_screen_height(),
+            ) * 2.0,
             rotation: self.rotation,
             render_target: self.render_target,
             ..Camera2D::default()
@@ -93,10 +100,15 @@ impl Node for CameraController {
             let bounds = {
                 let size = viewport.size * Self::FOLLOW_THRESHOLD_FRACTION;
                 let center = viewport.get_center();
-                Rect::new(center.x - size.x / 2.0, center.y - size.y / 2.0, size.x, size.y)
+                Rect::new(
+                    center.x - size.x / 2.0,
+                    center.y - size.y / 2.0,
+                    size.x,
+                    size.y,
+                )
             };
 
-            if node.is_following || bounds.contains(actor.body.position) == false {
+            if node.is_following || !bounds.contains(actor.body.position) {
                 let distance = actor.body.position.sub(node.position);
                 if distance.length() > Self::FOLLOW_END_AT_DISTANCE {
                     node.is_following = true;
@@ -110,7 +122,10 @@ impl Node for CameraController {
         storage::store(viewport);
     }
 
-    fn draw(node: RefMut<Self>) where Self: Sized {
+    fn draw(node: RefMut<Self>)
+    where
+        Self: Sized,
+    {
         scene::set_camera(0, Some(node.get_camera()));
     }
 }

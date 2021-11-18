@@ -1,7 +1,4 @@
-use std::ops::{
-    Sub,
-    Mul,
-};
+use std::ops::{Mul, Sub};
 
 use crate::prelude::*;
 
@@ -10,6 +7,18 @@ use crate::prelude::*;
 pub enum ProjectileKind {
     Bullet,
     Beam,
+}
+
+pub struct ProjectileParams {
+    pub kind: ProjectileKind,
+    pub effects: Vec<Effect>,
+    pub color: Color,
+    pub size: f32,
+    pub origin: Vec2,
+    pub direction: Vec2,
+    pub speed: f32,
+    pub range: f32,
+    pub on_hit_sound_effect: Option<Sound>,
 }
 
 pub struct Projectile {
@@ -34,45 +43,38 @@ impl Projectile {
         actor_id: &str,
         actor: Handle<Actor>,
         factions: &[String],
-        kind: ProjectileKind,
-        effects: Vec<Effect>,
-        color: Color,
-        size: f32,
-        origin: Vec2,
-        direction: Vec2,
-        speed: f32,
-        range: f32,
-        on_hit_sound_effect: Option<Sound>,
+        params: ProjectileParams,
     ) -> Self {
         Projectile {
             actor_id: actor_id.to_string(),
             actor,
             factions: factions.to_vec(),
-            kind,
-            effects,
-            color,
-            size,
-            origin,
-            position: origin,
-            direction,
-            speed,
+            kind: params.kind,
+            effects: params.effects,
+            color: params.color,
+            size: params.size,
+            origin: params.origin,
+            position: params.origin,
+            direction: params.direction,
+            speed: params.speed,
             distance_traveled: 0.0,
-            range,
-            on_hit_sound_effect,
+            range: params.range,
+            on_hit_sound_effect: params.on_hit_sound_effect,
         }
     }
 }
 
+#[derive(Default)]
 pub struct Projectiles {
     active: Vec<Projectile>,
 }
 
 impl Projectiles {
-    const DEFAULT_PROJECTILE_COLOR: Color = color::YELLOW;
-    const DEFAULT_PROJECTILE_SIZE: f32 = 1.0;
+    pub const DEFAULT_PROJECTILE_COLOR: Color = color::YELLOW;
+    pub const DEFAULT_PROJECTILE_SIZE: f32 = 1.0;
 
-    const DEFAULT_BEAM_COLOR: Color = color::RED;
-    const DEFAULT_BEAM_SIZE: f32 = 2.0;
+    pub const DEFAULT_BEAM_COLOR: Color = color::RED;
+    pub const DEFAULT_BEAM_SIZE: f32 = 2.0;
 
     const MIN_PROJECTILE_SPEED: f32 = 1.0;
     const MAX_PROJECTILE_SPEED: f32 = 200.0;
@@ -89,9 +91,7 @@ impl Projectiles {
     const BEAM_LENGTH_FACTOR_MAX: f32 = 6.0;
 
     pub fn new() -> Self {
-        Projectiles {
-            active: Vec::new(),
-        }
+        Projectiles { active: Vec::new() }
     }
 
     pub fn add_node() -> Handle<Self> {
@@ -103,56 +103,24 @@ impl Projectiles {
         actor_id: &str,
         actor: Handle<Actor>,
         factions: &[String],
-        kind: ProjectileKind,
-        effects: &[Effect],
-        color_override: Option<Color>,
-        size_override: Option<f32>,
-        origin: Vec2,
-        direction: Vec2,
-        speed: f32,
         spread: f32,
-        range: f32,
-        on_hit_sound_effect: Option<Sound>,
+        mut params: ProjectileParams,
     ) {
-        let spread_target = direction * Self::SPREAD_CALCULATION_DISTANCE;
-        let direction = vec2(
+        let spread_target = params.direction * Self::SPREAD_CALCULATION_DISTANCE;
+        params.direction = vec2(
             rand::gen_range(spread_target.x - spread, spread_target.x + spread),
             rand::gen_range(spread_target.y - spread, spread_target.y + spread),
-        ).normalize_or_zero();
+        )
+        .normalize_or_zero();
 
-        let color = if let Some(color) = color_override {
-            color
-        } else {
-            match kind {
-                ProjectileKind::Bullet => Self::DEFAULT_PROJECTILE_COLOR,
-                ProjectileKind::Beam => Self::DEFAULT_BEAM_COLOR,
-            }
-        };
-        let size = if let Some(size) = size_override {
-            size
-        } else {
-            match kind {
-                ProjectileKind::Bullet => Self::DEFAULT_PROJECTILE_SIZE,
-                ProjectileKind::Beam => Self::DEFAULT_BEAM_SIZE,
-            }
-        };
+        params.speed = rand::gen_range(
+            params.speed * Self::SPEED_VARIANCE_MIN,
+            params.speed * Self::SPEED_VARIANCE_MAX,
+        )
+        .clamp(Self::MIN_PROJECTILE_SPEED, Self::MAX_PROJECTILE_SPEED);
 
-        let speed = rand::gen_range(speed * Self::SPEED_VARIANCE_MIN, speed * Self::SPEED_VARIANCE_MAX).clamp(Self::MIN_PROJECTILE_SPEED, Self::MAX_PROJECTILE_SPEED);
-
-        self.active.push(Projectile::new(
-            actor_id,
-            actor,
-            factions,
-            kind,
-            effects.to_vec(),
-            color,
-            size,
-            origin,
-            direction,
-            speed,
-            range,
-            on_hit_sound_effect,
-        ));
+        self.active
+            .push(Projectile::new(actor_id, actor, factions, params));
     }
 }
 
@@ -169,19 +137,32 @@ impl Node for Projectiles {
                 return false;
             }
 
-            let collider = Collider::circle(0.0, 0.0, projectile.size / 2.0).with_offset(projectile.position);
+            let collider =
+                Collider::circle(0.0, 0.0, projectile.size / 2.0).with_offset(projectile.position);
             'outer: for mut other_actor in scene::find_nodes_by_type::<Actor>() {
                 if let Some(other_collider) = other_actor.body.get_offset_collider() {
                     if collider.overlaps(other_collider) {
-                        for effect in projectile.effects.clone() {
-                            if other_actor.apply_effect(&projectile.actor_id, projectile.actor, &projectile.factions, effect) {
-                                if let Some(sound_effect) = projectile.on_hit_sound_effect {
-                                    play_sound(sound_effect, false);
-                                }
-                                return false;
+                        let mut is_hit = false;
+
+                        for effect in &projectile.effects {
+                            if other_actor.apply_effect(
+                                &projectile.actor_id,
+                                projectile.actor,
+                                &projectile.factions,
+                                effect.clone(),
+                            ) {
+                                is_hit = true;
                             } else {
                                 continue 'outer;
                             }
+                        }
+
+                        if is_hit {
+                            if let Some(sound_effect) = projectile.on_hit_sound_effect {
+                                play_sound(sound_effect, false);
+                            }
+
+                            return false;
                         }
                     }
                 }
@@ -196,7 +177,7 @@ impl Node for Projectiles {
                     return false;
                 }
             }
-            return true;
+            true
         });
     }
 
@@ -207,12 +188,13 @@ impl Node for Projectiles {
             if frustum.contains(projectile.position) {
                 match projectile.kind {
                     ProjectileKind::Bullet => {
-                        let mut begin = projectile
-                            .position.sub(projectile.direction.mul(
-                            projectile.size * rand::gen_range(
-                                Self::PROJECTILE_LENGTH_FACTOR_MIN,
-                                Self::PROJECTILE_LENGTH_FACTOR_MAX,
-                            )));
+                        let mut begin = projectile.position.sub(projectile.direction.mul(
+                            projectile.size
+                                * rand::gen_range(
+                                    Self::PROJECTILE_LENGTH_FACTOR_MIN,
+                                    Self::PROJECTILE_LENGTH_FACTOR_MAX,
+                                ),
+                        ));
 
                         if begin.distance(projectile.position) > projectile.distance_traveled {
                             begin = projectile.origin;
@@ -228,24 +210,20 @@ impl Node for Projectiles {
                         );
                     }
                     ProjectileKind::Beam => {
-                        let mut begin = projectile
-                            .position.sub(projectile.direction.mul(
-                            projectile.size * rand::gen_range(
-                                Self::BEAM_LENGTH_FACTOR_MIN,
-                                Self::BEAM_LENGTH_FACTOR_MAX,
-                            )));
+                        let mut begin = projectile.position.sub(projectile.direction.mul(
+                            projectile.size
+                                * rand::gen_range(
+                                    Self::BEAM_LENGTH_FACTOR_MIN,
+                                    Self::BEAM_LENGTH_FACTOR_MAX,
+                                ),
+                        ));
 
                         if begin.distance(projectile.position) > projectile.distance_traveled {
                             begin = projectile.origin;
                         }
 
                         if projectile.size > 2.0 {
-                            draw_circle(
-                                begin.x,
-                                begin.y,
-                                projectile.size / 2.0,
-                                projectile.color,
-                            );
+                            draw_circle(begin.x, begin.y, projectile.size / 2.0, projectile.color);
                             draw_circle(
                                 projectile.position.x,
                                 projectile.position.y,

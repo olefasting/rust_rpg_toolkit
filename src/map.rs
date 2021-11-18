@@ -1,6 +1,8 @@
 use std::path::Path;
 
-use bracket_pathfinding::prelude::{Algorithm2D, BaseMap, SmallVec, Point, DistanceAlg, a_star_search};
+use bracket_pathfinding::prelude::{
+    a_star_search, Algorithm2D, BaseMap, DistanceAlg, Point, SmallVec,
+};
 
 use crate::prelude::*;
 
@@ -59,7 +61,6 @@ impl Default for MapLayer {
     }
 }
 
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MapTile {
     pub tile_id: u32,
@@ -76,7 +77,11 @@ pub struct MapObject {
     pub name: String,
     #[serde(with = "json::def_vec2")]
     pub position: Vec2,
-    #[serde(default, with = "json::opt_vec2", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "json::opt_vec2",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub size: Option<Vec2>,
     #[serde(default, skip_serializing_if = "HashMap::is_empty")]
     pub properties: HashMap<String, MapProperty>,
@@ -85,13 +90,21 @@ pub struct MapObject {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
 pub enum MapProperty {
-    Bool { value: bool },
-    Float { value: f32 },
-    Int { value: i32 },
-    String { value: String },
+    Bool {
+        value: bool,
+    },
+    Float {
+        value: f32,
+    },
+    Int {
+        value: i32,
+    },
+    String {
+        value: String,
+    },
     Color {
         #[serde(with = "json::ColorDef")]
-        value: Color
+        value: Color,
     },
 }
 
@@ -123,16 +136,15 @@ impl MapTileset {
 
 impl From<String> for CollisionKind {
     fn from(str: String) -> Self {
-        if str == "barrier".to_string() {
+        if str == *"barrier" {
             CollisionKind::Barrier
-        } else if str == "solid".to_string() {
+        } else if str == *"solid" {
             CollisionKind::Solid
         } else {
             CollisionKind::None
         }
     }
 }
-
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(into = "json::MapDef", from = "json::MapDef")]
@@ -184,8 +196,10 @@ impl Map {
     }
 
     pub fn to_coords(&self, position: Vec2) -> UVec2 {
-        let x = (((position.x - self.world_offset.x) / self.tile_size.x) as u32).clamp(0, self.grid_size.x - 1);
-        let y = (((position.y - self.world_offset.y) / self.tile_size.y) as u32).clamp(0, self.grid_size.y - 1);
+        let x = (((position.x - self.world_offset.x) / self.tile_size.x) as u32)
+            .clamp(0, self.grid_size.x - 1);
+        let y = (((position.y - self.world_offset.y) / self.tile_size.y) as u32)
+            .clamp(0, self.grid_size.y - 1);
         uvec2(x, y)
     }
 
@@ -197,9 +211,10 @@ impl Map {
     }
 
     pub fn get_tile(&self, layer_id: &str, x: u32, y: u32) -> &Option<MapTile> {
-        let layer = self.layers
+        let layer = self
+            .layers
             .get(layer_id)
-            .expect(&format!("No layer with id '{}'!", layer_id));
+            .unwrap_or_else(|| panic!("No layer with id '{}'!", layer_id));
 
         if x >= self.grid_size.x || y >= self.grid_size.y {
             return &None;
@@ -210,9 +225,11 @@ impl Map {
     }
 
     pub fn get_tiles(&self, layer_id: &str, rect: Option<URect>) -> MapTileIterator {
-        let rect = rect.unwrap_or(URect::new(0, 0, self.grid_size.x, self.grid_size.y));
-        let layer = self.layers.get(layer_id)
-            .expect(&format!("No layer with id '{}'!", layer_id));
+        let rect = rect.unwrap_or_else(|| URect::new(0, 0, self.grid_size.x, self.grid_size.y));
+        let layer = self
+            .layers
+            .get(layer_id)
+            .unwrap_or_else(|| panic!("No layer with id '{}'!", layer_id));
 
         MapTileIterator::new(layer, rect)
     }
@@ -228,13 +245,14 @@ impl Map {
         );
 
         if path.success {
-            if path.steps.len() > 0 {
+            if !path.steps.is_empty() {
                 path.steps.remove(0);
             }
 
             let p = self.index_to_point2d(path.destination);
             let destination = self.to_position(uvec2(p.x as u32, p.y as u32));
-            let nodes = path.steps
+            let nodes = path
+                .steps
                 .into_iter()
                 .map(|idx| {
                     let p = self.index_to_point2d(idx);
@@ -242,10 +260,7 @@ impl Map {
                 })
                 .collect();
 
-            let path = NavigationPath {
-                destination,
-                nodes,
-            };
+            let path = NavigationPath { destination, nodes };
 
             return Some(path);
         }
@@ -256,23 +271,20 @@ impl Map {
     pub fn get_collisions(&self, collider: Collider) -> Vec<(Vec2, CollisionKind)> {
         let rect = self.to_grid(collider.with_padding(self.tile_size.x * 2.0).into());
         let mut collisions = Vec::new();
-        for (_, layer) in &self.layers {
-            if layer.is_visible {
-                if layer.collision != CollisionKind::None {
-                    for (x, y, tile) in self.get_tiles(&layer.id, Some(rect)) {
-                        if let Some(_) = tile {
-                            let tile_position = self.to_position(uvec2(x, y));
-                            if Collider::rect(
-                                tile_position.x,
-                                tile_position.y,
-                                self.tile_size.x,
-                                self.tile_size.y,
-                            ).overlaps(collider) {
-                                collisions.push((
-                                    tile_position,
-                                    layer.collision.clone(),
-                                ));
-                            }
+        for layer in self.layers.values() {
+            if layer.is_visible && layer.collision != CollisionKind::None {
+                for (x, y, tile) in self.get_tiles(&layer.id, Some(rect)) {
+                    if tile.is_some() {
+                        let tile_position = self.to_position(uvec2(x, y));
+                        if Collider::rect(
+                            tile_position.x,
+                            tile_position.y,
+                            self.tile_size.x,
+                            self.tile_size.y,
+                        )
+                        .overlaps(collider)
+                        {
+                            collisions.push((tile_position, layer.collision.clone()));
                         }
                     }
                 }
@@ -282,7 +294,7 @@ impl Map {
     }
 
     pub fn draw(&self, rect: Option<URect>) {
-        let rect = rect.unwrap_or(URect::new(0, 0, self.grid_size.x, self.grid_size.y));
+        let rect = rect.unwrap_or_else(|| URect::new(0, 0, self.grid_size.x, self.grid_size.y));
         draw_rectangle(
             self.world_offset.x + (rect.x as f32 * self.tile_size.x),
             self.world_offset.y + (rect.y as f32 * self.tile_size.y),
@@ -299,41 +311,37 @@ impl Map {
         for layer_id in draw_order {
             if let Some(layer) = self.layers.get(&layer_id) {
                 if layer.is_visible {
-                    match layer.kind {
-                        MapLayerKind::TileLayer => {
-                            for (x, y, tile) in self.get_tiles(&layer_id, Some(rect)) {
-                                if let Some(tile) = tile {
-                                    let world_position = self.world_offset + vec2(
+                    if let MapLayerKind::TileLayer = layer.kind {
+                        for (x, y, tile) in self.get_tiles(&layer_id, Some(rect)) {
+                            if let Some(tile) = tile {
+                                let world_position = self.world_offset
+                                    + vec2(
                                         x as f32 * self.tile_size.x,
                                         y as f32 * self.tile_size.y,
                                     );
 
-                                    let texture = resources.textures
-                                        .get(&tile.texture_id)
-                                        .expect(&format!("No texture with id '{}'!", tile.texture_id));
+                                let texture =
+                                    resources.textures.get(&tile.texture_id).unwrap_or_else(|| {
+                                        panic!("No texture with id '{}'!", tile.texture_id)
+                                    });
 
-                                    draw_texture(
-                                        texture,
-                                        world_position,
-                                        None,
-                                        DrawTextureParams {
-                                            source: Some(Rect::new(
-                                                tile.texture_coords.x, // + 0.1,
-                                                tile.texture_coords.y, // + 0.1,
-                                                self.tile_size.x, // - 0.2,
-                                                self.tile_size.y, // - 0.2,
-                                            )),
-                                            dest_size: Some(vec2(
-                                                self.tile_size.x,
-                                                self.tile_size.y,
-                                            )),
-                                            ..Default::default()
-                                        },
-                                    );
-                                }
+                                draw_texture(
+                                    texture,
+                                    world_position,
+                                    None,
+                                    DrawTextureParams {
+                                        source: Some(Rect::new(
+                                            tile.texture_coords.x, // + 0.1,
+                                            tile.texture_coords.y, // + 0.1,
+                                            self.tile_size.x,      // - 0.2,
+                                            self.tile_size.y,      // - 0.2,
+                                        )),
+                                        dest_size: Some(vec2(self.tile_size.x, self.tile_size.y)),
+                                        ..Default::default()
+                                    },
+                                );
                             }
                         }
-                        _ => {}
                     }
                 }
             }
@@ -362,7 +370,10 @@ impl BaseMap for Map {
         let x = idx as u32 % self.grid_size.y;
         let y = idx as u32 / self.grid_size.y;
         for (layer_id, layer) in &self.layers {
-            if layer.is_visible && layer.collision == CollisionKind::Solid && self.get_tile(layer_id, x, y).is_some() {
+            if layer.is_visible
+                && layer.collision == CollisionKind::Solid
+                && self.get_tile(layer_id, x, y).is_some()
+            {
                 return true;
             }
         }
@@ -405,48 +416,48 @@ impl BaseMap for Map {
         //     exits.7 = exits.7 == true && exits.6 == true && exits.0 == true && layer.tiles[nw as usize].is_some();
         // }
 
-        for (_, layer) in &self.layers {
+        for layer in self.layers.values() {
             if layer.is_visible {
                 match layer.collision {
                     CollisionKind::None => continue,
                     _ => {
-                        if exits.0 == false || layer.tiles[n as usize].is_some() {
+                        if !exits.0 || layer.tiles[n as usize].is_some() {
                             exits.0 = false;
                             exits.1 = false;
                             exits.7 = false;
                         }
 
-                        if exits.1 == false || layer.tiles[ne as usize].is_some() {
+                        if !exits.1 || layer.tiles[ne as usize].is_some() {
                             exits.1 = false;
                         }
 
-                        if exits.2 == false || layer.tiles[e as usize].is_some() {
+                        if !exits.2 || layer.tiles[e as usize].is_some() {
                             exits.2 = false;
                             exits.1 = false;
                             exits.3 = false;
                         }
 
-                        if exits.3 == false || layer.tiles[se as usize].is_some() {
+                        if !exits.3 || layer.tiles[se as usize].is_some() {
                             exits.3 = false;
                         }
 
-                        if exits.4 == false || layer.tiles[s as usize].is_some() {
+                        if !exits.4 || layer.tiles[s as usize].is_some() {
                             exits.4 = false;
                             exits.3 = false;
                             exits.5 = false;
                         }
 
-                        if exits.5 == false || layer.tiles[sw as usize].is_some() {
+                        if !exits.5 || layer.tiles[sw as usize].is_some() {
                             exits.5 = false;
                         }
 
-                        if exits.6 == false || layer.tiles[w as usize].is_some() {
+                        if !exits.6 || layer.tiles[w as usize].is_some() {
                             exits.6 = false;
                             exits.5 = false;
                             exits.7 = false;
                         }
 
-                        if exits.7 == false || layer.tiles[nw as usize].is_some() {
+                        if !exits.7 || layer.tiles[nw as usize].is_some() {
                             exits.7 = false;
                         }
 
@@ -459,14 +470,30 @@ impl BaseMap for Map {
         }
 
         let mut res = SmallVec::new();
-        if exits.0 { res.push((n as usize, 1.0)) }
-        if exits.1 { res.push((ne as usize, 1.0)) }
-        if exits.2 { res.push((e as usize, 1.0)) }
-        if exits.3 { res.push((se as usize, 1.0)) }
-        if exits.4 { res.push((s as usize, 1.0)) }
-        if exits.5 { res.push((sw as usize, 1.0)) }
-        if exits.6 { res.push((w as usize, 1.0)) }
-        if exits.7 { res.push((nw as usize, 1.0)) }
+        if exits.0 {
+            res.push((n as usize, 1.0))
+        }
+        if exits.1 {
+            res.push((ne as usize, 1.0))
+        }
+        if exits.2 {
+            res.push((e as usize, 1.0))
+        }
+        if exits.3 {
+            res.push((se as usize, 1.0))
+        }
+        if exits.4 {
+            res.push((s as usize, 1.0))
+        }
+        if exits.5 {
+            res.push((sw as usize, 1.0))
+        }
+        if exits.6 {
+            res.push((w as usize, 1.0))
+        }
+        if exits.7 {
+            res.push((nw as usize, 1.0))
+        }
         res
     }
 
@@ -516,11 +543,7 @@ impl<'a> Iterator for MapTileIterator<'a> {
 
         let i = (self.current.1 * self.layer.grid_size.x + self.current.0) as usize;
 
-        let res = Some((
-            self.current.0,
-            self.current.1,
-            &self.layer.tiles[i],
-        ));
+        let res = Some((self.current.0, self.current.1, &self.layer.tiles[i]));
 
         self.current = next;
 

@@ -24,10 +24,7 @@ impl Node for Hud {
             set_default_camera();
             draw_text(
                 "DEBUG MODE",
-                vec2(
-                    get_screen_width() / 2.0,
-                    50.0,
-                ),
+                vec2(get_screen_width() / 2.0, 50.0),
                 HorizontalAlignment::Center,
                 VerticalAlignment::Top,
                 TextParams {
@@ -38,10 +35,7 @@ impl Node for Hud {
             );
             draw_text(
                 &format!("fps: {}", get_fps()),
-                vec2(
-                    get_screen_width() - 50.0,
-                    50.0,
-                ),
+                vec2(get_screen_width() - 50.0, 50.0),
                 HorizontalAlignment::Right,
                 VerticalAlignment::Top,
                 Default::default(),
@@ -84,10 +78,7 @@ impl Node for Hud {
                             // }
                             draw_texture(
                                 texture,
-                                vec2(
-                                    position.x - 16.0,
-                                    position.y,
-                                ),
+                                vec2(position.x - 16.0, position.y),
                                 Some(color),
                                 DrawTextureParams {
                                     rotation,
@@ -124,10 +115,7 @@ impl Node for Hud {
                                 // }
                                 draw_texture(
                                     texture,
-                                    vec2(
-                                        position.x - 16.0,
-                                        position.y,
-                                    ),
+                                    vec2(position.x - 16.0, position.y),
                                     Some(color),
                                     DrawTextureParams {
                                         rotation,
@@ -144,10 +132,7 @@ impl Node for Hud {
             if len > 0 {
                 draw_text(
                     "Active missions:",
-                    vec2(
-                        get_screen_width() - 50.0,
-                        250.0,
-                    ),
+                    vec2(get_screen_width() - 50.0, 250.0),
                     HorizontalAlignment::Right,
                     VerticalAlignment::Center,
                     Default::default(),
@@ -158,10 +143,7 @@ impl Node for Hud {
                 let mission = actor.active_missions.get(i).unwrap();
                 draw_text(
                     &mission.title,
-                    vec2(
-                        get_screen_width() - 50.0,
-                        (300.0) + i as f32 * (50.0),
-                    ),
+                    vec2(get_screen_width() - 50.0, (300.0) + i as f32 * (50.0)),
                     HorizontalAlignment::Right,
                     VerticalAlignment::Center,
                     Default::default(),
@@ -172,10 +154,7 @@ impl Node for Hud {
             if len > 0 {
                 draw_text(
                     "Completed missions:",
-                    vec2(
-                        get_screen_width() - 50.0,
-                        400.0,
-                    ),
+                    vec2(get_screen_width() - 50.0, 400.0),
                     HorizontalAlignment::Right,
                     VerticalAlignment::Center,
                     Default::default(),
@@ -186,10 +165,7 @@ impl Node for Hud {
                 let mission = actor.completed_missions.get(i).unwrap();
                 draw_text(
                     &mission.title,
-                    vec2(
-                        get_screen_width() - 50.0,
-                        450.0 + i as f32 * (50.0),
-                    ),
+                    vec2(get_screen_width() - 50.0, 450.0 + i as f32 * (50.0)),
                     HorizontalAlignment::Right,
                     VerticalAlignment::Center,
                     Default::default(),
@@ -199,8 +175,14 @@ impl Node for Hud {
             pop_camera_state();
 
             let height = Actor::HEALTH_BAR_HEIGHT * viewport.scale;
-            let (position, offset_y, alignment, length, height, border) =
-                (vec2(10.0, 10.0), height / 2.0, HorizontalAlignment::Left, (Actor::HEALTH_BAR_LENGTH * viewport.scale), height, viewport.scale);
+            let (position, offset_y, alignment, length, height, border) = (
+                vec2(10.0, 10.0),
+                height / 2.0,
+                HorizontalAlignment::Left,
+                (Actor::HEALTH_BAR_LENGTH * viewport.scale),
+                height,
+                viewport.scale,
+            );
 
             draw_progress_bar(
                 actor.stats.current_health,

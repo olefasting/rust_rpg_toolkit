@@ -5,8 +5,13 @@ const EVENT_QUEUE_SIZE: usize = 512;
 #[derive(Debug, Clone)]
 pub enum Event {
     OpenMainMenu,
-    StartGame { character: Character },
-    ChangeMap { chapter_index: usize, map_id: String },
+    StartGame {
+        character: Character,
+    },
+    ChangeMap {
+        chapter_index: usize,
+        map_id: String,
+    },
     Save,
     Respawn,
     Quit,
@@ -18,7 +23,10 @@ impl Event {
         match self {
             OpenMainMenu => "open main menu",
             StartGame { character: _ } => "start game",
-            ChangeMap { chapter_index: _, map_id: _ } => "change map",
+            ChangeMap {
+                chapter_index: _,
+                map_id: _,
+            } => "change map",
             Save => "save",
             Respawn => "respawn",
             Quit => "quit",
@@ -62,12 +70,17 @@ pub async fn handle_event(event: Event) -> Result<Event> {
         Event::StartGame { character } => {
             load_scene(character)?;
         }
-        Event::ChangeMap { chapter_index, map_id } => {
+        Event::ChangeMap {
+            chapter_index,
+            map_id,
+        } => {
             let character = {
                 let game_state = scene::find_node_by_type::<GameState>().unwrap();
                 game_state
                     .get_player_character()
-                    .expect("No player character found. Use `Event::StartGame` to start a new game!")
+                    .expect(
+                        "No player character found. Use `Event::StartGame` to start a new game!",
+                    )
                     .with_map(chapter_index, &map_id)
             };
 

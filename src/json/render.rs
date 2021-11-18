@@ -3,13 +3,13 @@ use crate::prelude::*;
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(remote = "Color")]
 pub struct ColorDef {
-    #[serde(rename = "red", alias ="r")]
+    #[serde(rename = "red", alias = "r")]
     pub r: f32,
-    #[serde(rename = "green", alias ="g")]
+    #[serde(rename = "green", alias = "g")]
     pub g: f32,
-    #[serde(rename = "blue", alias ="b")]
+    #[serde(rename = "blue", alias = "b")]
     pub b: f32,
-    #[serde(rename = "alpha", alias ="a")]
+    #[serde(rename = "alpha", alias = "a")]
     pub a: f32,
 }
 
@@ -36,12 +36,12 @@ impl From<ColorDef> for Color {
 }
 
 pub mod opt_color {
-    use super::{Color};
-    use serde::{Serialize, Serializer, Deserialize, Deserializer};
+    use super::Color;
+    use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
     pub fn serialize<S>(value: &Option<Color>, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: Serializer,
+    where
+        S: Serializer,
     {
         #[derive(Serialize)]
         struct Helper<'a>(#[serde(with = "super::ColorDef")] &'a Color);
@@ -50,8 +50,8 @@ pub mod opt_color {
     }
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<Color>, D::Error>
-        where
-            D: Deserializer<'de>,
+    where
+        D: Deserializer<'de>,
     {
         #[derive(Deserialize)]
         struct Helper(#[serde(with = "super::ColorDef")] Color);
@@ -94,11 +94,11 @@ impl From<AnimationDef> for Animation {
 
 pub mod vec_animation {
     use super::{Animation, AnimationDef};
-    use serde::{Serialize, Serializer, Deserialize, Deserializer};
+    use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
     pub fn serialize<S>(value: &Vec<Animation>, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: Serializer,
+    where
+        S: Serializer,
     {
         #[derive(Serialize)]
         struct Helper<'a>(#[serde(with = "AnimationDef")] &'a Animation);
@@ -111,14 +111,17 @@ pub mod vec_animation {
     }
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Vec<Animation>, D::Error>
-        where
-            D: Deserializer<'de>,
+    where
+        D: Deserializer<'de>,
     {
         #[derive(Deserialize)]
         struct Helper(#[serde(with = "AnimationDef")] Animation);
 
         let helper = Vec::deserialize(deserializer)?;
-        Ok(helper.iter().map(|Helper(external)| external.clone()).collect())
+        Ok(helper
+            .iter()
+            .map(|Helper(external)| external.clone())
+            .collect())
     }
 }
 

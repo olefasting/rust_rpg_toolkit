@@ -30,7 +30,7 @@ impl Chapter {
     pub async fn new(game_params: &GameParams, params: ChapterParams) -> Result<Self> {
         let data_path = Path::new(&game_params.data_path);
 
-        let mut  maps = HashMap::new();
+        let mut maps = HashMap::new();
         for params in params.maps {
             let path = data_path.join(&params.path);
             let map = if params.is_tiled {
@@ -53,7 +53,10 @@ impl Chapter {
     }
 }
 
-pub async fn load_maps(game_params: &GameParams, params: Vec<ChapterParams>) -> Result<Vec<Chapter>> {
+pub async fn load_maps(
+    game_params: &GameParams,
+    params: Vec<ChapterParams>,
+) -> Result<Vec<Chapter>> {
     let mut chapters = Vec::new();
 
     for params in params {

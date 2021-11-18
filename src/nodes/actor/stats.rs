@@ -56,15 +56,20 @@ impl ActorStats {
     }
 
     pub fn recalculate_derived(&mut self) {
-        self.max_health = (self.constitution + self.strength / 4 + self.willpower / 4) as f32 * 100.0;
-        self.max_stamina = (self.constitution + self.dexterity / 4 + self.willpower / 4) as f32 * 100.0;
+        self.max_health =
+            (self.constitution + self.strength / 4 + self.willpower / 4) as f32 * 100.0;
+        self.max_stamina =
+            (self.constitution + self.dexterity / 4 + self.willpower / 4) as f32 * 100.0;
         self.max_energy = (self.willpower + self.constitution / 2) as f32 * 100.0;
-        self.health_regen = (self.constitution + self.strength / 4 + self.willpower / 4) as f32 * 0.1;
-        self.stamina_regen = (self.constitution + self.dexterity / 4 + self.willpower / 4) as f32 * 8.0;
+        self.health_regen =
+            (self.constitution + self.strength / 4 + self.willpower / 4) as f32 * 0.1;
+        self.stamina_regen =
+            (self.constitution + self.dexterity / 4 + self.willpower / 4) as f32 * 8.0;
         self.energy_regen = (self.willpower + self.constitution / 2) as f32 * 0.5;
         self.move_speed = (self.dexterity + self.strength / 4 + self.willpower / 4) as f32 * 0.1;
         self.view_distance = (self.perception + self.intelligence / 2) as f32 * 20.0;
-        self.carry_capacity = (self.strength + self.constitution / 4 + self.willpower / 4) as f32 * 50.0;
+        self.carry_capacity =
+            (self.strength + self.constitution / 4 + self.willpower / 4) as f32 * 50.0;
     }
 
     pub fn update(&mut self) {

@@ -1,6 +1,4 @@
-use crate::{
-    prelude::*,
-};
+use crate::prelude::*;
 
 use crate::map::{MapProperty, ObjectLayerKind};
 
@@ -126,9 +124,18 @@ impl Into<Map> for TiledMap {
 
         let mut tilesets = HashMap::new();
         for tiled_tileset in self.tilesets {
-            let texture_size = uvec2(tiled_tileset.imagewidth as u32, tiled_tileset.imageheight as u32);
-            let tile_size = uvec2(tiled_tileset.tilewidth as u32, tiled_tileset.tileheight as u32);
-            let grid_size = uvec2(tiled_tileset.columns as u32, tiled_tileset.tilecount as u32 / tiled_tileset.columns as u32);
+            let texture_size = uvec2(
+                tiled_tileset.imagewidth as u32,
+                tiled_tileset.imageheight as u32,
+            );
+            let tile_size = uvec2(
+                tiled_tileset.tilewidth as u32,
+                tiled_tileset.tileheight as u32,
+            );
+            let grid_size = uvec2(
+                tiled_tileset.columns as u32,
+                tiled_tileset.tilecount as u32 / tiled_tileset.columns as u32,
+            );
 
             let mut tile_attributes = HashMap::new();
             if let Some(tiled_tile_attributes) = tiled_tileset.tile_attributes {
@@ -137,7 +144,10 @@ impl Into<Map> for TiledMap {
                         tile_attributes.insert(tiled_attr.id, Vec::new());
                     }
 
-                    tile_attributes.get_mut(&tiled_attr.id).unwrap().push(tiled_attr.attribute);
+                    tile_attributes
+                        .get_mut(&tiled_attr.id)
+                        .unwrap()
+                        .push(tiled_attr.attribute);
                 }
             }
 
@@ -151,12 +161,15 @@ impl Into<Map> for TiledMap {
 
             let mut texture_id = None;
             if let Some(prop) = properties.remove("texture_id") {
-                if let MapProperty::String { value} = prop {
+                if let MapProperty::String { value } = prop {
                     texture_id = Some(value)
                 }
             }
 
-            let texture_id = texture_id.expect(&format!("Tiled tileset '{}' needs a 'texture_id' property!", tiled_tileset.name));
+            let texture_id = texture_id.expect(&format!(
+                "Tiled tileset '{}' needs a 'texture_id' property!",
+                tiled_tileset.name
+            ));
 
             let tileset = MapTileset {
                 id: tiled_tileset.name.clone(),
@@ -185,7 +198,8 @@ impl Into<Map> for TiledMap {
                         .iter()
                         .find_map(|(_, tileset)| {
                             if tile_id >= tileset.first_tile_id
-                                && tile_id <= tileset.first_tile_id + tileset.tile_cnt {
+                                && tile_id <= tileset.first_tile_id + tileset.tile_cnt
+                            {
                                 return Some(tileset);
                             }
                             None
@@ -194,7 +208,8 @@ impl Into<Map> for TiledMap {
 
                     let tile_id = tile_id - tileset.first_tile_id;
 
-                    let attributes = tileset.tile_attributes
+                    let attributes = tileset
+                        .tile_attributes
                         .get(&tile_id)
                         .cloned()
                         .unwrap_or_default();
@@ -214,7 +229,6 @@ impl Into<Map> for TiledMap {
 
                 tiles.push(res);
             }
-
 
             let mut objects = Vec::new();
             for object in &tiled_layer.objects {
@@ -275,7 +289,7 @@ impl Into<Map> for TiledMap {
 
             let mut collision = CollisionKind::None;
             if let Some(prop) = properties.remove("collision") {
-                if let MapProperty::String { value} = prop {
+                if let MapProperty::String { value } = prop {
                     collision = CollisionKind::from(value)
                 }
             }
@@ -331,7 +345,12 @@ fn pair_from_tiled_prop(tiled_prop: TiledProperty) -> (String, MapProperty) {
         TiledProperty::Float { name, value } => (name, MapProperty::Float { value }),
         TiledProperty::Int { name, value } => (name, MapProperty::Int { value }),
         TiledProperty::String { name, value } => (name, MapProperty::String { value }),
-        TiledProperty::Color { name, value } => (name, MapProperty::Color { value: color_from_hex_string(&value) }),
+        TiledProperty::Color { name, value } => (
+            name,
+            MapProperty::Color {
+                value: color_from_hex_string(&value),
+            },
+        ),
         TiledProperty::Object { name, value } => (name, MapProperty::Int { value }),
         TiledProperty::File { name, value } => (name, MapProperty::String { value }),
     }
