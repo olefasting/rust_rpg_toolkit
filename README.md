@@ -42,8 +42,7 @@ side scrolling physics is just a matter of adding a few physics properties -- ma
 
 ## Using the library
 
-This has not been published on crates.io yet, and it will not be done until a more stable beta stage.
-If you want to try it out, you might still do so, by depending on this git repository:
+To get started, add the following to your `Cargo.toml` file:
 
 ```toml
 [dependencies]
