@@ -114,16 +114,16 @@ impl TiledMap {
     pub const FILE_VALUE_TYPE: &'static str = "file";
 }
 
-impl Into<Map> for TiledMap {
-    fn into(self) -> Map {
-        let background_color = if let Some(background_color) = self.backgroundcolor {
+impl From<TiledMap> for Map {
+    fn from(map: TiledMap) -> Map {
+        let background_color = if let Some(background_color) = map.backgroundcolor {
             color_from_hex_string(&background_color)
         } else {
             color::BLACK
         };
 
         let mut tilesets = HashMap::new();
-        for tiled_tileset in self.tilesets {
+        for tiled_tileset in map.tilesets {
             let texture_size = uvec2(
                 tiled_tileset.imagewidth as u32,
                 tiled_tileset.imageheight as u32,
@@ -138,21 +138,21 @@ impl Into<Map> for TiledMap {
             );
 
             let mut tile_attributes = HashMap::new();
-            if let Some(tiled_tile_attributes) = tiled_tileset.tile_attributes {
+            if let Some(tiled_tile_attributes) = &tiled_tileset.tile_attributes {
                 for tiled_attr in tiled_tile_attributes {
-                    if tile_attributes.contains_key(&tiled_attr.id) == false {
-                        tile_attributes.insert(tiled_attr.id, Vec::new());
-                    }
+                    tile_attributes
+                        .entry(tiled_attr.id)
+                        .or_insert_with(Vec::new);
 
                     tile_attributes
                         .get_mut(&tiled_attr.id)
                         .unwrap()
-                        .push(tiled_attr.attribute);
+                        .push(tiled_attr.attribute.clone());
                 }
             }
 
             let mut properties = HashMap::new();
-            if let Some(tiled_props) = tiled_tileset.properties {
+            if let Some(tiled_props) = tiled_tileset.properties.clone() {
                 for tiled_prop in tiled_props {
                     let (name, prop) = pair_from_tiled_prop(tiled_prop);
                     properties.insert(name, prop);
@@ -160,16 +160,16 @@ impl Into<Map> for TiledMap {
             }
 
             let mut texture_id = None;
-            if let Some(prop) = properties.remove("texture_id") {
-                if let MapProperty::String { value } = prop {
-                    texture_id = Some(value)
-                }
+            if let Some(MapProperty::String { value }) = properties.remove("texture_id") {
+                texture_id = Some(value)
             }
 
-            let texture_id = texture_id.expect(&format!(
-                "Tiled tileset '{}' needs a 'texture_id' property!",
-                tiled_tileset.name
-            ));
+            let texture_id = texture_id.unwrap_or_else(|| {
+                panic!(
+                    "Tiled tileset '{}' needs a 'texture_id' property!",
+                    &tiled_tileset.name
+                )
+            });
 
             let tileset = MapTileset {
                 id: tiled_tileset.name.clone(),
@@ -190,7 +190,7 @@ impl Into<Map> for TiledMap {
 
         let mut layers = HashMap::new();
         let mut draw_order = Vec::new();
-        for tiled_layer in &self.layers {
+        for tiled_layer in &map.layers {
             let mut tiles = Vec::new();
             for tile_id in tiled_layer.data.clone() {
                 let res = if tile_id != 0 {
@@ -264,7 +264,7 @@ impl Into<Map> for TiledMap {
                 objects.push(object);
             }
 
-            let grid_size = uvec2(self.width, self.height);
+            let grid_size = uvec2(map.width, map.height);
 
             let mut object_layer_kind = ObjectLayerKind::None;
             let mut properties = HashMap::new();
@@ -288,13 +288,11 @@ impl Into<Map> for TiledMap {
             }
 
             let mut collision = CollisionKind::None;
-            if let Some(prop) = properties.remove("collision") {
-                if let MapProperty::String { value } = prop {
-                    collision = CollisionKind::from(value)
-                }
+            if let Some(MapProperty::String { value }) = properties.remove("collision") {
+                collision = CollisionKind::from(value)
             }
 
-            let kind = if tiled_layer.layer_type == "tilelayer".to_string() {
+            let kind = if tiled_layer.layer_type == *"tilelayer" {
                 MapLayerKind::TileLayer
             } else {
                 MapLayerKind::ObjectLayer(object_layer_kind)
@@ -315,10 +313,10 @@ impl Into<Map> for TiledMap {
             layers.insert(layer.id.clone(), layer);
         }
 
-        let grid_size = uvec2(self.width, self.height);
+        let grid_size = uvec2(map.width, map.height);
 
         let mut properties = HashMap::new();
-        if let Some(tiled_props) = self.properties {
+        if let Some(tiled_props) = map.properties {
             for tiled_prop in tiled_props {
                 let (name, prop) = pair_from_tiled_prop(tiled_prop);
                 properties.insert(name, prop);
@@ -329,7 +327,7 @@ impl Into<Map> for TiledMap {
             background_color,
             world_offset: Vec2::ZERO,
             grid_size,
-            tile_size: vec2(self.tilewidth as f32, self.tileheight as f32),
+            tile_size: vec2(map.tilewidth as f32, map.tileheight as f32),
             layers,
             tilesets,
             draw_order,

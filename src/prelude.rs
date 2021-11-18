@@ -40,8 +40,6 @@ pub(crate) use serde::{Deserialize, Serialize};
 
 pub(crate) use serde_json;
 
-pub use fishsticks::GamepadId;
-
 pub use mode::{self, Automaton, Mode};
 
 pub(crate) use crate::{gui::draw_gui, modules::load_modules, scene::load_scene};

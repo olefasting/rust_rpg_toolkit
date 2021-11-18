@@ -1,10 +1,11 @@
 use crate::prelude::*;
 
+#[derive(Default)]
 pub struct IdleMode;
 
 impl IdleMode {
-    pub fn new() -> Box<dyn ActorBehavior> {
-        Box::new(IdleMode {})
+    pub fn new() -> Self {
+        IdleMode {}
     }
 }
 
@@ -25,7 +26,7 @@ impl ActorBehavior for IdleMode {
         _: Inventory,
         _: EquippedItems,
     ) -> Box<dyn ActorBehavior> {
-        if params.attackers.len() > 0 {
+        if !params.attackers.is_empty() {
             for (_, attacker) in params.attackers.clone() {
                 if let Some(attacker) = scene::try_get_node(attacker) {
                     if position.distance(attacker.body.position) <= stats.view_distance * 0.9 {
@@ -153,7 +154,7 @@ impl ActorBehavior for GoToMode {
         }
 
         if self.path.is_none() {
-            return IdleMode::new();
+            return Box::new(IdleMode::new());
         }
 
         self
@@ -214,7 +215,7 @@ impl ActorBehavior for AttackMode {
 
             controller.aim_direction = target.body.position.sub(position).normalize_or_zero();
         } else {
-            return IdleMode::new();
+            return Box::new(IdleMode::new());
         }
 
         controller.should_sprint = true;
@@ -257,7 +258,7 @@ impl ActorBehavior for FleeMode {
             }
         }
 
-        IdleMode::new()
+        Box::new(IdleMode::new())
     }
 }
 
@@ -293,7 +294,7 @@ impl ActorBehavior for InvestigateMode {
         _: EquippedItems,
     ) -> Box<dyn ActorBehavior> {
         if position.distance(self.location) <= stats.view_distance * 0.9 {
-            return IdleMode::new();
+            return Box::new(IdleMode::new());
         }
 
         self.path = if let Some(path) = self.path {
@@ -340,7 +341,7 @@ impl ActorBehavior for EquipWeaponMode {
             controller.equip_weapon = Some(weapon.params.id.clone());
         }
 
-        IdleMode::new()
+        Box::new(IdleMode::new())
     }
 }
 

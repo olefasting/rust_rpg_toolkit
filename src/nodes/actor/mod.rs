@@ -92,33 +92,33 @@ impl Default for ActorParams {
     }
 }
 
-impl Into<ActorStats> for ActorParams {
-    fn into(self) -> ActorStats {
+impl From<ActorParams> for ActorStats {
+    fn from(params: ActorParams) -> ActorStats {
         ActorStats {
-            strength: self.strength,
-            dexterity: self.dexterity,
-            constitution: self.constitution,
-            intelligence: self.intelligence,
-            willpower: self.willpower,
-            perception: self.perception,
-            charisma: self.charisma,
-            current_health: self.current_health,
-            current_stamina: self.current_stamina,
-            current_energy: self.current_energy,
+            strength: params.strength,
+            dexterity: params.dexterity,
+            constitution: params.constitution,
+            intelligence: params.intelligence,
+            willpower: params.willpower,
+            perception: params.perception,
+            charisma: params.charisma,
+            current_health: params.current_health,
+            current_stamina: params.current_stamina,
+            current_energy: params.current_energy,
             ..Default::default()
         }
     }
 }
 
-impl Into<Character> for ActorParams {
-    fn into(self) -> Character {
+impl From<ActorParams> for Character {
+    fn from(params: ActorParams) -> Character {
         let game_params = storage::get::<GameParams>();
         let resources = storage::get::<Resources>();
 
         let mut item_ids = Vec::new();
         let mut items = Vec::new();
 
-        for entry in self.inventory.items {
+        for entry in params.inventory.items {
             let id = generate_id();
             let params = resources.items.get(&entry).cloned().unwrap();
             items.push(ItemParams {
@@ -132,9 +132,9 @@ impl Into<Character> for ActorParams {
             id: generate_id(),
             inventory: InventoryParams {
                 items: item_ids,
-                credits: self.inventory.credits,
+                credits: params.inventory.credits,
             },
-            ..self
+            ..params
         };
 
         let chapter_index = 0;
@@ -269,17 +269,13 @@ impl Actor {
             assert!(self.class_id.is_some(), "Actor id '{}' has `can_level_up` set to `true`, even though no `class_id` has been specified!", &self.id);
         }
 
-        let dialogue_id = if let Some(dialogue) = &self.dialogue {
-            Some(dialogue.id.clone())
-        } else {
-            None
-        };
+        let dialogue_id = self.dialogue.as_ref().map(|dialogue| dialogue.id.clone());
 
         ActorParams {
             id: self.id.clone(),
             class_id: self.class_id.clone(),
             is_essential: self.is_essential,
-            behavior: self.behavior.clone().into(),
+            behavior: self.behavior.clone(),
             position: Some(self.body.position),
             name: self.name.clone(),
             strength: self.stats.strength,
@@ -338,7 +334,7 @@ impl Actor {
         };
 
         let behavior_set_id = &character.actor.behavior.behavior_set_id;
-        let behavior_constructor = get_behavior_set(&behavior_set_id);
+        let behavior_constructor = get_behavior_set(behavior_set_id);
 
         let stats = character.actor.clone().into();
 
@@ -422,7 +418,7 @@ impl Actor {
         amount: f32,
     ) {
         self.behavior.attackers.insert(actor_id.to_string(), actor);
-        if self.is_essential == false {
+        if !self.is_essential {
             self.stats.current_health -= amount;
         }
     }
@@ -448,7 +444,7 @@ impl Actor {
                     self.take_damage(actor_id, actor, damage_type, amount);
                     return true;
                 }
-                return false;
+                false
             }
         }
     }
@@ -474,7 +470,7 @@ impl Actor {
 
     pub fn find_by_id(id: &str) -> Option<RefMut<Actor>> {
         for actor in scene::find_nodes_by_type::<Actor>() {
-            if actor.id == id.to_string() {
+            if actor.id == *id {
                 return Some(actor);
             }
         }
@@ -483,19 +479,15 @@ impl Actor {
 
     pub fn is_local_player(&self) -> bool {
         use ActorControllerKind::*;
-        match &self.controller.kind {
-            LocalPlayer { player_id: _ } => true,
-            _ => false,
-        }
+        matches!(&self.controller.kind, LocalPlayer { player_id: _ })
     }
 
     pub fn is_player(&self) -> bool {
         use ActorControllerKind::*;
-        match &self.controller.kind {
-            LocalPlayer { player_id: _ } => true,
-            RemotePlayer { player_id: _ } => true,
-            _ => false,
-        }
+        matches!(
+            &self.controller.kind,
+            LocalPlayer { player_id: _ } | RemotePlayer { player_id: _ }
+        )
     }
 
     pub fn set_animation(&mut self, direction: Vec2, is_stationary: bool) {
@@ -555,7 +547,7 @@ impl Actor {
         let mut active_missions = self.active_missions.clone();
         for i in 0..active_missions.len() {
             let mission = active_missions.get_mut(i).unwrap();
-            if mission.no_autocompletion == false {
+            if !mission.no_autocompletion {
                 for objective in &mut mission.objectives {
                     match &objective.0 {
                         MissionObjective::Kill { actor_id } => {
@@ -583,12 +575,12 @@ impl Actor {
         let mut completed_missions: Vec<Mission> = active_missions
             .drain_filter(|mission| {
                 for (_, is_completed) in mission.objectives.clone() {
-                    if is_completed == false {
+                    if !is_completed {
                         return false;
                     }
                 }
 
-                if mission.no_autocompletion == false {
+                if !mission.no_autocompletion {
                     mission.is_completed = true;
                 }
 
@@ -722,13 +714,13 @@ impl Actor {
 
     pub fn unequip_item(&mut self, item_id: &str) {
         if let Some(found_id) = self.equipped_items.main_hand.clone() {
-            if found_id == item_id.to_string() {
+            if found_id == *item_id {
                 self.equipped_items.main_hand = None;
                 self.weapon_ability.main_hand = None;
             }
         }
         if let Some(found_id) = self.equipped_items.off_hand.clone() {
-            if found_id == item_id.to_string() {
+            if found_id == *item_id {
                 self.equipped_items.off_hand = None;
                 self.weapon_ability.offhand = None;
             }
@@ -737,7 +729,7 @@ impl Actor {
             .inventory
             .items
             .iter_mut()
-            .find(|entry| entry.params.id == item_id.to_string())
+            .find(|entry| entry.params.id == *item_id)
         {
             entry.equipped_to = EquipmentSlot::None;
         }
@@ -761,7 +753,7 @@ impl BufferedDraw for Actor {
 
         self.animation_player.draw(position, rotation);
 
-        if self.is_local_player() == false && self.stats.current_health < self.stats.max_health {
+        if !self.is_local_player() && self.stats.current_health < self.stats.max_health {
             draw_progress_bar(
                 self.stats.current_health,
                 self.stats.max_health,
@@ -771,7 +763,7 @@ impl BufferedDraw for Actor {
                 color::RED,
                 color::GRAY,
                 border,
-                alignment.clone(),
+                alignment,
                 None, // Some(&format!("{}/{}", self.stats.current_health.round(), self.stats.max_health.round())),
                 None,
             );
@@ -869,7 +861,7 @@ impl Node for Actor {
         if node.stats.current_health <= 0.0 || node.controller.should_respawn {
             let mut game_state = scene::get_node(node.game_state);
             let position = node.body.position;
-            if node.is_player() == false {
+            if !node.is_player() {
                 node.inventory.drop_all(position, true);
                 game_state.dead_actors.push(node.id.clone());
             }
@@ -931,21 +923,19 @@ impl Node for Actor {
                 let params = node.behavior.clone();
                 let factions = node.factions.clone();
                 let stats = node.stats.clone();
-                let position = node.body.position.clone();
+                let position = node.body.position;
                 let mut controller = node.controller.clone();
                 let weapon_range = if let Some(ability) = &node.weapon_ability.main_hand {
                     Some(ability.range)
-                } else if let Some(ability) = &node.weapon_ability.offhand {
-                    Some(ability.range)
                 } else {
-                    None
+                    node.weapon_ability
+                        .offhand
+                        .as_ref()
+                        .map(|ability| ability.range)
                 };
 
-                let selected_ability_range = if let Some(ability) = &node.selected_ability {
-                    Some(ability.range)
-                } else {
-                    None
-                };
+                let selected_ability_range =
+                    node.selected_ability.as_ref().map(|ability| ability.range);
 
                 let inventory = node.inventory.clone();
                 let equipped_items = node.equipped_items.clone();
@@ -968,7 +958,7 @@ impl Node for Actor {
             ActorControllerKind::None => {}
         }
 
-        if node.controller.is_attacking() == false {
+        if !node.controller.is_attacking() {
             node.controller.aim_direction = node.controller.move_direction;
         }
 
@@ -990,7 +980,7 @@ impl Node for Actor {
                     if let Some(other_collider) = actor.body.get_offset_collider() {
                         if collider.overlaps(other_collider) {
                             if let ActorControllerKind::Computer = actor.controller.kind {
-                                if actor.controller.is_attacking() == false {
+                                if !actor.controller.is_attacking() {
                                     node.current_dialogue = actor.dialogue.clone();
                                     node.controller.should_start_interaction = false; // stop this form firing twice
                                     break;

@@ -26,6 +26,7 @@ pub struct ActorStats {
 impl ActorStats {
     const VITALS_CAN_OVERFLOW: bool = false;
 
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         strength: u32,
         dexterity: u32,

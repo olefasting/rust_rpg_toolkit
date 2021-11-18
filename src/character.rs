@@ -67,12 +67,10 @@ pub fn character_name_to_path(name: &str) -> PathBuf {
 pub fn get_available_characters<P: AsRef<Path>>(path: P) -> Result<Vec<Character>> {
     let regex = Regex::new(r".json$")?;
     let mut res = Vec::new();
-    for entry in fs::read_dir(path)? {
-        if let Ok(entry) = entry {
-            if regex.is_match(&entry.path().to_string_lossy()) {
-                let character = load_character(entry.path())?;
-                res.push(character);
-            }
+    for entry in (fs::read_dir(path)?).flatten() {
+        if regex.is_match(&entry.path().to_string_lossy().to_string()) {
+            let character = load_character(entry.path())?;
+            res.push(character);
         }
     }
 

@@ -102,11 +102,11 @@ pub(crate) async fn show_settings() {
                 should_cancel = cancel_btn;
             });
 
-        if resolution_regex.is_match(&resolution_x_str) == false {
+        if !resolution_regex.is_match(&resolution_x_str) {
             resolution_x_str = config.resolution.x.to_string();
         }
 
-        if resolution_regex.is_match(&resolution_y_str) == false {
+        if !resolution_regex.is_match(&resolution_y_str) {
             resolution_y_str = config.resolution.y.to_string();
         }
 

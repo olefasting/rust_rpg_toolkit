@@ -48,8 +48,7 @@ async fn is_name_in_use(name: &str) -> bool {
     get_available_characters(&game_params.characters_path)
         .unwrap()
         .into_iter()
-        .find(|character| character.actor.name == name)
-        .is_some()
+        .any(|character| character.actor.name == name)
 }
 
 #[cfg(target_family = "wasm")]
@@ -315,9 +314,9 @@ async fn is_name_valid(name: &str) -> bool {
 }
 
 async fn get_name_warning(name: &str) -> Option<String> {
-    if is_name_in_use(&name).await {
+    if is_name_in_use(name).await {
         Some("Name is already in use!".to_string())
-    } else if is_name_valid(&name).await == false {
+    } else if !is_name_valid(name).await {
         Some("Invalid name!".to_string())
     } else {
         None

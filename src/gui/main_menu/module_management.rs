@@ -121,7 +121,7 @@ pub(crate) async fn show_module_management() {
                             if let Some(module) = available_modules.get(name) {
                                 let value = module_state.get_mut(name).unwrap();
 
-                                match draw_module_entry(ui, i, &name, &module, value, is_dragging) {
+                                match draw_module_entry(ui, i, name, module, value, is_dragging) {
                                     Drag::Dropped(_, Some(id)) => {
                                         is_dragging = false;
 
@@ -146,9 +146,9 @@ pub(crate) async fn show_module_management() {
                         }
 
                         for (name, module) in &available_modules {
-                            if active_modules.contains(name) == false {
+                            if !active_modules.contains(name) {
                                 let value = module_state.get_mut(name).unwrap();
-                                draw_module_entry(ui, i, &name, &module, value, false);
+                                draw_module_entry(ui, i, name, module, value, false);
 
                                 i += 1;
                             }
@@ -200,10 +200,10 @@ pub(crate) async fn show_module_management() {
 
         load_order_change = None;
 
-        active_modules.retain(|module| *module_state.get(module).unwrap_or(&false));
+        active_modules.retain(|module| module_state.get(module).copied().unwrap_or_default());
 
         for (name, state) in &module_state {
-            if *state && active_modules.contains(name) == false {
+            if *state && !active_modules.contains(name) {
                 active_modules.push(name.clone());
                 will_require_restart = true;
             }

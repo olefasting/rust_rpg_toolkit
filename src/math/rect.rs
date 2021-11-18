@@ -130,13 +130,13 @@ impl From<(UVec2, UVec2)> for URect {
     }
 }
 
-impl Into<Rect> for URect {
-    fn into(self) -> Rect {
+impl From<URect> for Rect {
+    fn from(urect: URect) -> Rect {
         Rect {
-            x: self.x as f32,
-            y: self.y as f32,
-            w: self.w as f32,
-            h: self.h as f32,
+            x: urect.x as f32,
+            y: urect.y as f32,
+            w: urect.w as f32,
+            h: urect.h as f32,
         }
     }
 }

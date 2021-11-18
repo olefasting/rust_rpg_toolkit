@@ -46,7 +46,8 @@ impl Config {
     #[cfg(any(target_family = "unix", target_family = "windows"))]
     pub fn load(path: &str) -> Self {
         let mut config: Config = if let Ok(json) = fs::read_to_string(path) {
-            serde_json::from_str(&json).expect(&format!("Unable to parse config file '{}'!", path))
+            serde_json::from_str(&json)
+                .unwrap_or_else(|_| panic!("Unable to parse config file '{}'!", path))
         } else {
             Default::default()
         };
@@ -82,7 +83,7 @@ impl Config {
 
     #[cfg(any(target_family = "unix", target_family = "windows"))]
     pub fn save(&self) {
-        assert_eq!(self.path.is_empty(), false, "Config path is not set!");
+        assert!(!self.path.is_empty(), "Config path is not set!");
         let json = serde_json::to_string_pretty(self).expect("Error parsing config!");
         fs::write(&self.path, &json).expect("Error saving config to file!");
     }

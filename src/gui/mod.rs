@@ -32,7 +32,7 @@ mod menu_builder;
 mod theme;
 mod window_builder;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct GuiState {
     pub should_draw_character_window: bool,
     pub should_draw_inventory_window: bool,
@@ -41,11 +41,7 @@ pub struct GuiState {
 
 impl GuiState {
     pub fn new() -> Self {
-        GuiState {
-            should_draw_character_window: false,
-            should_draw_inventory_window: false,
-            should_draw_game_menu: false,
-        }
+        GuiState::default()
     }
 }
 

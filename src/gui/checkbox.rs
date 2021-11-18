@@ -58,7 +58,7 @@ impl<'a> Checkbox<'a> {
         let mut group = widgets::Group::new(self.id, total_size);
 
         if let Some(position) = &self.position {
-            group = group.position(position.clone());
+            group = group.position(*position);
         }
 
         group.ui(ui, |ui| {

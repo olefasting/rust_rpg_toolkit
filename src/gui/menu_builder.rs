@@ -59,7 +59,7 @@ pub enum MenuPosition {
     Centered,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct MenuOption {
     #[serde(default)]
     pub index: Option<usize>,
@@ -71,18 +71,6 @@ pub struct MenuOption {
     pub style_override: Option<MenuButtonStyle>,
     #[serde(default, skip_serializing_if = "helpers::is_false")]
     pub is_cancel: bool,
-}
-
-impl Default for MenuOption {
-    fn default() -> Self {
-        MenuOption {
-            index: None,
-            title: None,
-            is_pushed_down: false,
-            style_override: None,
-            is_cancel: false,
-        }
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -186,17 +174,16 @@ impl MenuBuilder {
             let mut indices = Vec::new();
             for opt in &mut opts {
                 if let Some(i) = opt.index {
-                    assert_eq!(
-                        indices.contains(&i),
-                        false,
+                    assert!(
+                        !indices.contains(&i),
                         "Duplicate opt indices '{}' in menu '{}'",
                         i,
                         self.params.id
                     );
                     indices.push(i);
                 } else if opt.is_cancel {
-                    assert_eq!(
-                        has_cancel, false,
+                    assert!(
+                        !has_cancel,
                         "Multiple cancel options in menu '{}'!",
                         self.params.id
                     );
@@ -215,7 +202,7 @@ impl MenuBuilder {
                 let style = opt
                     .style_override
                     .clone()
-                    .unwrap_or(self.params.button_style.clone());
+                    .unwrap_or_else(|| self.params.button_style.clone());
                 let mut builder = if let MenuButtonStyle::Custom { builder_id } = &style {
                     get_button_builder(builder_id)
                 } else {

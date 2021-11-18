@@ -29,10 +29,7 @@ pub enum CollisionKind {
 
 impl CollisionKind {
     pub fn is_none(&self) -> bool {
-        match self {
-            Self::None => true,
-            _ => false,
-        }
+        matches!(self, Self::None)
     }
 }
 

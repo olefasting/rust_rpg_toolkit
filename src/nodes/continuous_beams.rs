@@ -40,6 +40,7 @@ impl ContinuousBeams {
         scene::add_node(Self::new())
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn spawn(
         &mut self,
         actor_id: &str,

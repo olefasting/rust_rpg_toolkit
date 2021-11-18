@@ -6,7 +6,7 @@ const EVENT_QUEUE_SIZE: usize = 512;
 pub enum Event {
     OpenMainMenu,
     StartGame {
-        character: Character,
+        character: Box<Character>,
     },
     ChangeMap {
         chapter_index: usize,
@@ -68,7 +68,7 @@ pub async fn handle_event(event: Event) -> Result<Event> {
             gui::show_main_menu().await?;
         }
         Event::StartGame { character } => {
-            load_scene(character)?;
+            load_scene(*character)?;
         }
         Event::ChangeMap {
             chapter_index,

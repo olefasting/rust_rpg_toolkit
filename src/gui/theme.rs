@@ -269,7 +269,7 @@ impl GuiSkins {
         let default = {
             let window_style = root_ui()
                 .style_builder()
-                .background(window_bg.clone())
+                .background(window_bg)
                 .background_margin(theme.window_bg.margins)
                 .margin(sub_offsets(theme.window_margins, theme.window_bg.margins))
                 .build();

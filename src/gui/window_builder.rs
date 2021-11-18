@@ -51,7 +51,7 @@ impl WindowBuilder {
             return window.ui(ui, |ui| {
                 let gui_skins = storage::get::<GuiSkins>();
                 ui.push_skin(&gui_skins.window_title);
-                ui.label(None, &title);
+                ui.label(None, title);
                 ui.pop_skin();
 
                 f(ui);

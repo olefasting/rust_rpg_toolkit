@@ -12,7 +12,7 @@ pub fn draw_dialogue_window() {
             WindowBuilder::new(hash!(), size)
                 .with_centered_pos(true)
                 .build(&mut *root_ui(), |ui| {
-                    if dialogue.body.len() > 0 {
+                    if !dialogue.body.is_empty() {
                         ui.label(None, &format!("{}:", player.name));
                     }
 
@@ -22,7 +22,7 @@ pub fn draw_dialogue_window() {
 
                     ui.separator();
 
-                    if dialogue.response.len() > 0 {
+                    if !dialogue.response.is_empty() {
                         ui.label(None, &format!("{}:", dialogue.actor_name));
                     }
 
@@ -33,7 +33,7 @@ pub fn draw_dialogue_window() {
                     ui.separator();
 
                     let options = dialogue.get_options(&player);
-                    if options.len() == 0 {
+                    if options.is_empty() {
                         if ui.button(None, "Continue") {
                             player.current_dialogue = None;
                         }

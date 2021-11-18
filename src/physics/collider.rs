@@ -125,9 +125,9 @@ impl Collider {
     }
 }
 
-impl Into<Rect> for Collider {
-    fn into(self) -> Rect {
-        match self {
+impl From<Collider> for Rect {
+    fn from(collider: Collider) -> Rect {
+        match collider {
             Collider::Rectangle { x, y, w, h } => Rect::new(x, y, w, h),
             Collider::Circle { x, y, r } => Rect::new(x - r, y - r, r * 2.0, r * 2.0),
         }

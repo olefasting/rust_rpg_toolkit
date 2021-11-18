@@ -63,19 +63,10 @@ pub(crate) struct ModuleMaterials {
     pub files: Vec<MaterialAssetParams>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub(crate) struct ModuleTextures {
     pub integration: ModuleIntegration,
     pub files: Vec<TextureAssetParams>,
-}
-
-impl Default for ModuleTextures {
-    fn default() -> Self {
-        ModuleTextures {
-            integration: Default::default(),
-            files: Vec::new(),
-        }
-    }
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
@@ -90,19 +81,10 @@ pub(crate) struct ModuleFonts {
     pub files: Vec<FontAssetParams>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub(crate) struct ModuleSounds {
     pub integration: ModuleIntegration,
     pub files: Vec<SoundAssetParams>,
-}
-
-impl Default for ModuleSounds {
-    fn default() -> Self {
-        ModuleSounds {
-            integration: Default::default(),
-            files: Vec::new(),
-        }
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -172,7 +154,7 @@ pub(crate) async fn load_modules(
         let module_path = modules_path.join(&module_name);
         let module_file_path = module_path.join(MODULE_FILE_NAME);
 
-        if module_path.exists() == false || module_file_path.exists() == false {
+        if !module_path.exists() || !module_file_path.exists() {
             println!("WARNING: Module '{}' could not be found, even though it is listed in the active modules file!", &module_name);
             continue 'module;
         }
@@ -181,7 +163,7 @@ pub(crate) async fn load_modules(
         let module_params: ModuleParams = serde_json::from_slice(&bytes)?;
 
         if let Some(required_game_version) = &module_params.required_game_version {
-            if check_version(required_game_version, &game_params.version) == false {
+            if !check_version(required_game_version, &game_params.version) {
                 println!("WARNING: Module '{}' was not loaded as its game version requirement '{}' was unmet (game version is '{}')!", &module_name, &required_game_version, &game_params.version);
                 continue 'module;
             }
@@ -189,24 +171,19 @@ pub(crate) async fn load_modules(
 
         let toolkit_version = get_toolkit_version();
         if let Some(required_toolkit_version) = &module_params.required_toolkit_version {
-            if check_version(required_toolkit_version, &toolkit_version) == false {
+            if !check_version(required_toolkit_version, &toolkit_version) {
                 println!("WARNING: Module '{}' was not loaded as its toolkit version requirement '{}' was unmet (toolkit version is '{}')!", &module_name, &required_toolkit_version, get_toolkit_version());
                 continue 'module;
             }
         }
 
         for dependency in module_params.dependencies {
-            if loaded_modules
-                .iter()
-                .find(|(name, version)| {
-                    if let Some(required_version) = &dependency.version {
-                        return *name == dependency.name
-                            && check_version(required_version, version);
-                    }
-                    *name == dependency.name
-                })
-                .is_none()
-            {
+            if !loaded_modules.iter().any(|(name, version)| {
+                if let Some(required_version) = &dependency.version {
+                    return *name == dependency.name && check_version(required_version, version);
+                }
+                *name == dependency.name
+            }) {
                 println!(
                     "WARNING: Module '{}' was not loaded as its dependency on '{}' was unmet!",
                     &module_name, &dependency.name
@@ -365,13 +342,13 @@ pub(crate) async fn load_modules(
                 let mut textures = HashMap::new();
                 for params in module_assets.textures.files {
                     let path = module_path.join(&params.path);
-                    let texture = load_texture(&path.to_string_lossy()).await?;
+                    let texture = load_texture(path.to_string_lossy().as_ref()).await?;
                     texture.set_filter(params.filter_mode);
 
                     let mut height_map = None;
                     if let Some(path) = &params.height_map_path {
                         let path = module_path.join(path);
-                        let res = load_texture(&path.to_string_lossy()).await?;
+                        let res = load_texture(path.to_string_lossy().as_ref()).await?;
                         res.set_filter(params.filter_mode);
                         height_map = Some(res);
                     }
@@ -379,7 +356,7 @@ pub(crate) async fn load_modules(
                     let mut normal_map = None;
                     if let Some(path) = &params.normal_map_path {
                         let path = module_path.join(path);
-                        let res = load_texture(&path.to_string_lossy()).await?;
+                        let res = load_texture(path.to_string_lossy().as_ref()).await?;
                         res.set_filter(params.filter_mode);
                         normal_map = Some(res);
                     }
@@ -487,18 +464,16 @@ pub(crate) fn get_available_modules() -> Result<HashMap<String, ModuleParams>> {
     let game_params = storage::get::<GameParams>();
     let path = Path::new(&game_params.modules_path);
     let mut res = HashMap::new();
-    for entry in fs::read_dir(path)? {
-        if let Ok(entry) = entry {
-            let path = entry.path();
-            if path.is_dir() {
-                let name = path.file_name().unwrap().to_string_lossy();
+    for entry in (fs::read_dir(path)?).flatten() {
+        let path = entry.path();
+        if path.is_dir() {
+            let name = path.file_name().unwrap().to_string_lossy();
 
-                let file_path = path.join("module.json");
-                if file_path.exists() {
-                    let bytes = fs::read(file_path)?;
-                    let module = serde_json::from_slice(&bytes)?;
-                    res.insert(name.to_string(), module);
-                }
+            let file_path = path.join("module.json");
+            if file_path.exists() {
+                let bytes = fs::read(file_path)?;
+                let module = serde_json::from_slice(&bytes)?;
+                res.insert(name.to_string(), module);
             }
         }
     }

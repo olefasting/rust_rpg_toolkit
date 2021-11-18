@@ -17,11 +17,11 @@ pub fn raycast(
         while current.distance(end) > COLLISION_RESOLUTION {
             let collider = collider.with_offset(current);
             for (_, kind) in map.get_collisions(collider) {
-                if ignore_barriers == false || kind == CollisionKind::Solid {
+                if !ignore_barriers || kind == CollisionKind::Solid {
                     return Some(current);
                 }
             }
-            if ignore_actors == false {
+            if !ignore_actors {
                 for actor in scene::find_nodes_by_type::<Actor>() {
                     if let Some(other_collider) = actor.body.get_offset_collider() {
                         if other_collider.contains(current) {

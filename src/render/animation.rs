@@ -56,13 +56,13 @@ impl SpriteAnimationPlayer {
         );
 
         SpriteAnimationPlayer {
-            offset: Vec2::from(params.offset),
+            offset: params.offset,
             rotation: 0.0,
             flip_x: false,
             flip_y: false,
             texture_id: params.texture_id,
             normal_map_id: params.normal_map_id,
-            tile_size: Vec2::from(params.tile_size),
+            tile_size: params.tile_size,
             animations: params.animations,
             animated_sprite,
         }
@@ -120,15 +120,15 @@ impl SpriteAnimationPlayer {
     }
 }
 
-impl Into<SpriteAnimationParams> for SpriteAnimationPlayer {
-    fn into(self) -> SpriteAnimationParams {
+impl From<SpriteAnimationPlayer> for SpriteAnimationParams {
+    fn from(player: SpriteAnimationPlayer) -> SpriteAnimationParams {
         SpriteAnimationParams {
-            offset: self.offset,
-            texture_id: self.texture_id,
-            normal_map_id: self.normal_map_id,
-            tile_size: self.tile_size,
-            animations: self.animations,
-            should_play: self.animated_sprite.playing,
+            offset: player.offset,
+            texture_id: player.texture_id,
+            normal_map_id: player.normal_map_id,
+            tile_size: player.tile_size,
+            animations: player.animations,
+            should_play: player.animated_sprite.playing,
         }
     }
 }

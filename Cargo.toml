@@ -6,8 +6,8 @@ authors = ["Ole A. Sjo Fasting <oasf@polygo.no>"]
 description = "An engine for creating action RPGs with Rust and/or JSON"
 documentation = "https://github.com/olefasting/rust_rpg_toolkit/tree/master/docs"
 readme = "./README.md"
-keywords = ["gamedev", "engine", "sdk"]
-categories = ["game-development", "game-engines"]
+keywords = ["gamedev", "macroquad", "serde"]
+categories = ["game-development"]
 license = "MIT"
 repository = "https://github.com/olefasting/rust_rpg_toolkit"
 
@@ -33,7 +33,7 @@ crate-type = ["bin"]
 
 [dependencies]
 ff-particles = { version = "0.1", features = ["serde"] }
-fishsticks = { git = "https://github.com/PotatoTech/fishsticks", features = ["bundled-sdl2"] }
+#fishsticks = { git = "https://github.com/PotatoTech/fishsticks", features = ["bundled-sdl2"] }
 
 # lazy_static = "1.4"
 chrono = "0.4"

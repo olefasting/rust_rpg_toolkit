@@ -96,7 +96,7 @@ pub mod vec_animation {
     use super::{Animation, AnimationDef};
     use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-    pub fn serialize<S>(value: &Vec<Animation>, serializer: S) -> Result<S::Ok, S::Error>
+    pub fn serialize<S>(value: &[Animation], serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
@@ -104,7 +104,7 @@ pub mod vec_animation {
         struct Helper<'a>(#[serde(with = "AnimationDef")] &'a Animation);
 
         value
-            .into_iter()
+            .iter()
             .map(Helper)
             .collect::<Vec<Helper>>()
             .serialize(serializer)

@@ -52,6 +52,8 @@ impl Default for ActorBehaviorParams {
     }
 }
 
+// FIXME: Thia ia ugly as hell
+#[allow(clippy::too_many_arguments)]
 pub trait ActorBehavior: Mode<Family = ActorBehaviorFamily> {
     fn update(
         self: Box<Self>,

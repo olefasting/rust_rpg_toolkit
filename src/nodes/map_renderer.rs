@@ -1,10 +1,11 @@
 use crate::prelude::*;
 
+#[derive(Default)]
 pub struct MapRenderer;
 
 impl MapRenderer {
     pub fn new() -> Self {
-        MapRenderer {}
+        Default::default()
     }
 
     pub fn add_node() -> Handle<Self> {

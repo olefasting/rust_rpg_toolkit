@@ -16,7 +16,9 @@ fn get_directory() -> &'static mut HashMap<String, ActorBehaviorConstructor> {
             DIRECTORY
                 .as_mut()
                 .unwrap()
-                .insert(DEFAULT_BEHAVIOR_SET_ID.to_string(), IdleMode::new);
+                .insert(DEFAULT_BEHAVIOR_SET_ID.to_string(), || {
+                    Box::new(IdleMode::new())
+                });
         }
 
         DIRECTORY.as_mut().unwrap()

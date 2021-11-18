@@ -28,13 +28,13 @@ impl MapDef {
     }
 }
 
-impl Into<MapDef> for Map {
-    fn into(self) -> MapDef {
-        let layers = self
+impl From<Map> for MapDef {
+    fn from(map: Map) -> MapDef {
+        let layers = map
             .draw_order
             .iter()
             .filter_map(|layer_id| {
-                if let Some(layer) = self.layers.get(layer_id) {
+                if let Some(layer) = map.layers.get(layer_id) {
                     let (tiles, objects) = match &layer.kind {
                         MapLayerKind::TileLayer => {
                             let tiles = layer
@@ -42,11 +42,15 @@ impl Into<MapDef> for Map {
                                 .iter()
                                 .map(|opt| match opt {
                                     Some(tile) => {
-                                        let tileset =
-                                            self.tilesets.get(&tile.tileset_id).expect(&format!(
-                                                "Unable to find tileset with id '{}'!",
-                                                tile.tileset_id
-                                            ));
+                                        let tileset = map
+                                            .tilesets
+                                            .get(&tile.tileset_id)
+                                            .unwrap_or_else(|| {
+                                                panic!(
+                                                    "Unable to find tileset with id '{}'!",
+                                                    tile.tileset_id
+                                                )
+                                            });
                                         tile.tile_id + tileset.first_tile_id
                                     }
                                     _ => 0,
@@ -78,20 +82,20 @@ impl Into<MapDef> for Map {
             })
             .collect();
 
-        let tilesets = self
+        let tilesets = map
             .tilesets
             .into_iter()
             .map(|(_, tileset)| tileset)
             .collect();
 
         MapDef {
-            background_color: self.background_color,
-            world_offset: self.world_offset,
-            grid_size: self.grid_size,
-            tile_size: self.tile_size,
+            background_color: map.background_color,
+            world_offset: map.world_offset,
+            grid_size: map.grid_size,
+            tile_size: map.tile_size,
             layers,
             tilesets,
-            properties: self.properties,
+            properties: map.properties,
         }
     }
 }
@@ -153,7 +157,7 @@ impl From<MapDef> for Map {
                 })
                 .collect();
 
-            let objects = layer.objects.clone().unwrap_or(Vec::new());
+            let objects = layer.objects.clone().unwrap_or_default();
 
             if player_spawn_point.is_none() {
                 if let MapLayerKind::ObjectLayer(kind) = layer.kind.clone() {

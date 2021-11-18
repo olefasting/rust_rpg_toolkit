@@ -1,10 +1,11 @@
 use crate::prelude::*;
 
+#[derive(Default)]
 pub struct Hud;
 
 impl Hud {
     pub fn new() -> Self {
-        Hud {}
+        Default::default()
     }
 
     pub fn add_node() -> Handle<Self> {
@@ -90,7 +91,7 @@ impl Node for Hud {
                 }
 
                 for (objective, is_completed) in mission.objectives.clone() {
-                    if is_completed == false {
+                    if !is_completed {
                         if let Some(position) = objective.get_marker_position() {
                             if frustum.contains(position) {
                                 let position = viewport.to_screen_space(position);
@@ -193,7 +194,7 @@ impl Node for Hud {
                 color::RED,
                 color::GRAY,
                 border,
-                alignment.clone(),
+                alignment,
                 None, // Some(&format!("{}/{}", self.stats.current_health.round(), self.stats.max_health.round())),
                 None,
             );
@@ -206,7 +207,7 @@ impl Node for Hud {
                 color::YELLOW,
                 color::GRAY,
                 border,
-                alignment.clone(),
+                alignment,
                 None, // Some(&format!("{}/{}", self.stats.current_stamina.round(), self.stats.max_stamina.round())),
                 None,
             );

@@ -10,7 +10,7 @@ pub fn beam_collision_check(
     let va = origin - end;
     let vb = point - end;
     let area = va.x * vb.y - va.y * vb.x;
-    return area.abs() < width * tolerance;
+    area.abs() < width * tolerance
 }
 
 pub fn get_beam_end(origin: Vec2, end: Vec2, width: f32, tolerance: f32) -> Vec2 {

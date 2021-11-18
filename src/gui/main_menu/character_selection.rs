@@ -3,7 +3,7 @@ use std::ops::Deref;
 use crate::gui::*;
 
 pub(crate) enum CharacterSelectionResult {
-    SelectCharacter(Character),
+    SelectCharacter(Box<Character>),
     CreateCharacter,
     Cancel,
 }
@@ -59,7 +59,7 @@ pub(crate) async fn draw_character_selection() -> CharacterSelectionResult {
 
 fn draw_character_list(
     selected_i: &mut Option<usize>,
-    characters: &Vec<Character>,
+    characters: &[Character],
 ) -> Option<CharacterSelectionResult> {
     const WINDOW_WIDTH: f32 = 300.0;
     const WINDOW_HEIGHT: f32 = 250.0;
@@ -183,7 +183,9 @@ fn draw_character_details(
                 .ui(ui);
 
             if start_btn {
-                result = Some(CharacterSelectionResult::SelectCharacter(character.clone()));
+                result = Some(CharacterSelectionResult::SelectCharacter(Box::new(
+                    character.clone(),
+                )));
             }
 
             let back_btn = widgets::Button::new("Back")

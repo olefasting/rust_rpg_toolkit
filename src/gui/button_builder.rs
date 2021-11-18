@@ -98,7 +98,7 @@ pub fn get_button_builder(id: &str) -> ButtonBuilder {
     try_get_button_builder(id).unwrap()
 }
 
-#[derive(Clone)]
+#[derive(Default, Clone)]
 pub struct ButtonBuilder {
     position: Option<Vec2>,
     label: Option<String>,
@@ -182,7 +182,7 @@ impl ButtonBuilder {
 
             res
         } else {
-            let label = self.label.clone().unwrap_or("".to_string());
+            let label = self.label.clone().unwrap_or_default();
 
             let mut btn = widgets::Button::new(label.deref());
 

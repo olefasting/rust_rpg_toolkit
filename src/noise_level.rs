@@ -1,5 +1,3 @@
-use std::cmp::Ordering;
-
 use crate::prelude::*;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Serialize, Deserialize)]
@@ -46,35 +44,5 @@ impl ToString for NoiseLevel {
             Self::Extreme => "Extreme",
         };
         res.to_string()
-    }
-}
-
-impl Ord for NoiseLevel {
-    fn cmp(&self, other: &Self) -> Ordering {
-        match self {
-            Self::None => match other {
-                Self::None => Ordering::Equal,
-                _ => Ordering::Less,
-            },
-            Self::Silent => match other {
-                Self::None => Ordering::Greater,
-                Self::Silent => Ordering::Equal,
-                _ => Ordering::Less,
-            },
-            Self::Moderate => match other {
-                Self::None | Self::Silent => Ordering::Greater,
-                Self::Moderate => Ordering::Equal,
-                _ => Ordering::Less,
-            },
-            Self::Loud => match other {
-                Self::None | Self::Silent | Self::Moderate => Ordering::Greater,
-                Self::Loud => Ordering::Equal,
-                _ => Ordering::Less,
-            },
-            Self::Extreme => match other {
-                Self::None | Self::Silent | Self::Moderate | Self::Loud => Ordering::Greater,
-                Self::Extreme => Ordering::Equal,
-            },
-        }
     }
 }

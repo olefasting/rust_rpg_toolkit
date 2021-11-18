@@ -72,11 +72,8 @@ impl PhysicsBody {
     }
 
     pub fn get_offset_collider(&self) -> Option<Collider> {
-        if let Some(collider) = self.collider {
-            Some(collider.with_offset(self.position))
-        } else {
-            None
-        }
+        self.collider
+            .map(|collider| collider.with_offset(self.position))
     }
 
     pub fn integrate(&mut self) {
@@ -133,7 +130,7 @@ impl PhysicsBody {
                     let mut map_collisions = check_map_collision(modified_collider);
                     x_collisions.append(&mut map_collisions);
 
-                    if x_collisions.len() > 0 {
+                    if !x_collisions.is_empty() {
                         break;
                     }
 
@@ -163,7 +160,7 @@ impl PhysicsBody {
                     let mut map_collisions = check_map_collision(modified_collider);
                     y_collisions.append(&mut map_collisions);
 
-                    if y_collisions.len() > 0 {
+                    if !y_collisions.is_empty() {
                         break;
                     }
 

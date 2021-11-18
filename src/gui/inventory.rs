@@ -19,7 +19,7 @@ fn draw_entry(ui: &mut Ui, player: &mut RefMut<Actor>, entry: &InventoryEntry) {
             ui.pop_skin();
         }
 
-        if entry.params.is_quest_item == false {
+        if !entry.params.is_quest_item {
             ui.push_skin(&gui_skins.condensed_button_inactive);
             if ui.button(vec2(210.0, 0.0), "Drop") {
                 player.unequip_item(&entry.params.id);
@@ -59,7 +59,7 @@ pub fn draw_inventory_window() {
                                 ItemKind::OneHandedWeapon,
                                 ItemKind::TwoHandedWeapon,
                             ]);
-                            if items.len() > 0 {
+                            if !items.is_empty() {
                                 for item in &items {
                                     draw_entry(ui, &mut player, item);
                                 }
@@ -67,7 +67,7 @@ pub fn draw_inventory_window() {
                         }
                         {
                             let items = player.inventory.get_all_of_kind(&[ItemKind::Misc]);
-                            if items.len() > 0 {
+                            if !items.is_empty() {
                                 for item in &items {
                                     draw_entry(ui, &mut player, item)
                                 }

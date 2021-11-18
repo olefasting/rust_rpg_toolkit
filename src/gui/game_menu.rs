@@ -19,8 +19,8 @@ pub fn draw_game_menu() {
 
             root_ui().push_skin(&gui_skins.default);
 
-            match builder.build(&mut *root_ui()) {
-                MenuResult::Index(i) => match i {
+            if let MenuResult::Index(i) = builder.build(&mut *root_ui()) {
+                match i {
                     GAME_MENU_OPT_RESUME => {
                         game_state.gui_state.should_draw_game_menu = false;
                     }
@@ -35,8 +35,7 @@ pub fn draw_game_menu() {
                         dispatch_event(Event::Quit);
                     }
                     _ => {}
-                },
-                _ => {}
+                }
             }
 
             root_ui().pop_skin();

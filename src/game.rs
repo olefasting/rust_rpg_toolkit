@@ -45,7 +45,7 @@ async fn load_resources(game_params: &GameParams) {
         })
     };
 
-    while coroutine.is_done() == false {
+    while !coroutine.is_done() {
         clear_background(color::BLACK);
         draw_text(
             "Loading game resources...",

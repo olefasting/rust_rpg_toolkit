@@ -31,8 +31,8 @@ pub async fn show_main_menu() -> Result<()> {
                     dispatch_event(Event::StartGame { character });
                     break 'menu;
                 }
-                CharacterSelectionResult::CreateCharacter => match draw_class_selection().await {
-                    Some(class_id) => {
+                CharacterSelectionResult::CreateCharacter => {
+                    if let Some(class_id) = draw_class_selection().await {
                         let game_params = storage::get::<GameParams>();
                         if game_params.skip_character_creation {
                             if let Some(name) = draw_set_character_name().await {
@@ -47,18 +47,21 @@ pub async fn show_main_menu() -> Result<()> {
 
                                 character.save()?;
 
-                                dispatch_event(Event::StartGame { character });
+                                dispatch_event(Event::StartGame {
+                                    character: Box::new(character),
+                                });
                                 break 'menu;
                             }
                         } else if let Some(character) = draw_character_creation(&class_id).await {
                             character.save()?;
 
-                            dispatch_event(Event::StartGame { character });
+                            dispatch_event(Event::StartGame {
+                                character: Box::new(character),
+                            });
                             break 'menu;
                         }
                     }
-                    None => {}
-                },
+                }
                 CharacterSelectionResult::Cancel => {}
             },
             MainMenuResult::Settings => {

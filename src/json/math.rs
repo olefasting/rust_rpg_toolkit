@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 pub use crate::math::{Circle, URect};
 
-#[derive(Copy, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Copy, Clone, Serialize, Deserialize)]
 pub struct Vec2Def {
     pub x: f32,
     pub y: f32,
@@ -13,12 +13,6 @@ pub struct Vec2Def {
 impl Vec2Def {
     pub fn new(x: f32, y: f32) -> Self {
         Vec2Def { x, y }
-    }
-}
-
-impl Default for Vec2Def {
-    fn default() -> Self {
-        Vec2Def { x: 0.0, y: 0.0 }
     }
 }
 
@@ -37,7 +31,7 @@ impl From<Vec2Def> for Vec2 {
     }
 }
 
-#[derive(Copy, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Copy, Clone, Serialize, Deserialize)]
 pub struct UVec2Def {
     pub x: u32,
     pub y: u32,
@@ -46,12 +40,6 @@ pub struct UVec2Def {
 impl UVec2Def {
     pub fn new(x: u32, y: u32) -> Self {
         UVec2Def { x, y }
-    }
-}
-
-impl Default for UVec2Def {
-    fn default() -> Self {
-        UVec2Def { x: 0, y: 0 }
     }
 }
 
@@ -154,7 +142,7 @@ pub mod vec_vec2 {
     use super::Vec2;
     use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-    pub fn serialize<S>(value: &Vec<Vec2>, serializer: S) -> Result<S::Ok, S::Error>
+    pub fn serialize<S>(value: &[Vec2], serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {

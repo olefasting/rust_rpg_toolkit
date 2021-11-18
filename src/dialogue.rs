@@ -60,8 +60,7 @@ impl Dialogue {
                         if actor
                             .active_missions
                             .iter()
-                            .find(|mission| mission.id == mission_id.clone())
-                            .is_none()
+                            .any(|mission| mission.id == *mission_id)
                         {
                             continue 'option;
                         }
@@ -70,14 +69,13 @@ impl Dialogue {
                         if actor
                             .completed_missions
                             .iter()
-                            .find(|mission| mission.id == mission_id.clone())
-                            .is_none()
+                            .any(|mission| mission.id == *mission_id)
                         {
                             continue 'option;
                         }
                     }
                     DialogueRequirement::IsInFaction { faction_id } => {
-                        if actor.factions.contains(&faction_id) == false {
+                        if !actor.factions.contains(faction_id) {
                             continue 'option;
                         }
                     }
@@ -86,27 +84,25 @@ impl Dialogue {
             for exclusion in &option.exclusions {
                 match exclusion {
                     DialogueRequirement::ActiveMission { mission_id } => {
-                        if actor
+                        if !actor
                             .active_missions
                             .iter()
-                            .find(|mission| mission.id == mission_id.clone())
-                            .is_some()
+                            .any(|mission| mission.id == *mission_id)
                         {
                             continue 'option;
                         }
                     }
                     DialogueRequirement::CompletedMission { mission_id } => {
-                        if actor
+                        if !actor
                             .completed_missions
                             .iter()
-                            .find(|mission| mission.id == mission_id.clone())
-                            .is_some()
+                            .any(|mission| mission.id == *mission_id)
                         {
                             continue 'option;
                         }
                     }
                     DialogueRequirement::IsInFaction { faction_id } => {
-                        if actor.factions.contains(&faction_id) {
+                        if actor.factions.contains(faction_id) {
                             continue 'option;
                         }
                     }

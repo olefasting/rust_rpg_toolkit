@@ -28,8 +28,8 @@ pub trait BufferedDraw: Node {
         match self.get_bounds() {
             Bounds::Point(vec) => frustum.contains(vec),
             Bounds::Rectangle(rect) => frustum.overlaps(&rect),
-            Bounds::Circle(circle) => circle.overlaps_rect(&frustum),
-            Bounds::Collider(collider) => collider.overlaps_rect(&frustum),
+            Bounds::Circle(circle) => circle.overlaps_rect(frustum),
+            Bounds::Collider(collider) => collider.overlaps_rect(frustum),
         }
     }
 }
@@ -40,9 +40,7 @@ pub struct DrawBuffer<T: 'static + BufferedDraw> {
 
 impl<T: 'static + BufferedDraw> DrawBuffer<T> {
     pub fn new() -> Self {
-        DrawBuffer {
-            buffered: Vec::new(),
-        }
+        Default::default()
     }
 
     pub fn add_node() -> Handle<Self> {
@@ -72,5 +70,13 @@ impl<T: 'static + BufferedDraw> Node for DrawBuffer<T> {
             }
             true
         });
+    }
+}
+
+impl<T: 'static + BufferedDraw> Default for DrawBuffer<T> {
+    fn default() -> Self {
+        DrawBuffer {
+            buffered: Vec::new(),
+        }
     }
 }

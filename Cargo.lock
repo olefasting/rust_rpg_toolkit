@@ -213,15 +213,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cmake"
-version = "0.1.46"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b7b858541263efe664aead4a5209a4ae5c5d2811167d4ed4ee0944503f8d2089"
-dependencies = [
- "cc",
-]
-
-[[package]]
 name = "color_quant"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -363,15 +354,6 @@ checksum = "a099eee8a45930a4a21516cf5a036df4bdff699641780eb5616192cba2afb12d"
 dependencies = [
  "macroquad",
  "serde",
-]
-
-[[package]]
-name = "fishsticks"
-version = "0.1.1"
-source = "git+https://github.com/PotatoTech/fishsticks#f588e3fa03ca65fcb5a51f9009c8e73f70b8312f"
-dependencies = [
- "cfg-if",
- "sdl2",
 ]
 
 [[package]]
@@ -919,7 +901,6 @@ dependencies = [
  "bracket-pathfinding",
  "chrono",
  "ff-particles",
- "fishsticks",
  "macroquad",
  "macroquad-profiler",
  "mode",
@@ -930,8 +911,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "rust-rpg-toolset-cli"
-version = "0.1.0"
+name = "rust-rpg-toolkit-cli"
+version = "0.0.1"
 dependencies = [
  "quicli",
  "rust-rpg-toolkit",
@@ -1040,30 +1021,6 @@ name = "scopeguard"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
-
-[[package]]
-name = "sdl2"
-version = "0.35.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f035f8e87735fa3a8437292be49fe6056450f7cbb13c230b4bcd1bdd7279421f"
-dependencies = [
- "bitflags",
- "lazy_static",
- "libc",
- "sdl2-sys",
-]
-
-[[package]]
-name = "sdl2-sys"
-version = "0.35.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "94cb479353c0603785c834e2307440d83d196bf255f204f7f6741358de8d6a2f"
-dependencies = [
- "cfg-if",
- "cmake",
- "libc",
- "version-compare",
-]
 
 [[package]]
 name = "serde"
@@ -1279,12 +1236,6 @@ name = "vec_map"
 version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f1bddf1187be692e79c5ffeab891132dfb0f236ed36a43c7ed39f1165ee20191"
-
-[[package]]
-name = "version-compare"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fe88247b92c1df6b6de80ddc290f3976dbdf2f5f5d3fd049a9fb598c6dd5ca73"
 
 [[package]]
 name = "version_check"
