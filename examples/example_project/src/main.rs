@@ -1,16 +1,16 @@
 use rust_rpg_toolkit::prelude::*;
 
-const GAME_NAME: &'static str = "example-project";
-const GAME_VERSION: &'static str = "0.1.0";
+const GAME_NAME: &str = "example-project";
+const GAME_VERSION: &str = "0.1.0";
 
 // Paths must be set for examples, as they are not using their own directory as working directory.
 // This is not necessary in a normal project....
-const CONFIG_PATH: &'static str = "examples/example_project/config.json";
-const DATA_PATH: &'static str = "examples/example_project/data";
-const MODULES_PATH: &'static str = "examples/example_project/modules";
-const CHARACTERS_PATH: &'static str = "examples/example_project/characters";
+const CONFIG_PATH: &str = "examples/example_project/config.json";
+const DATA_PATH: &str = "examples/example_project/data";
+const MODULES_PATH: &str = "examples/example_project/modules";
+const CHARACTERS_PATH: &str = "examples/example_project/characters";
 
-const ASSETS_PATH: &'static str = "examples/shared_resources/assets";
+const ASSETS_PATH: &str = "examples/shared_resources/assets";
 
 pub fn window_conf() -> WindowConf {
     let config = Config::load(CONFIG_PATH);

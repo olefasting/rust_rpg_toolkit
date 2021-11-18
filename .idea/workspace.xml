@@ -11,7 +11,8 @@
   <component name="ChangeListManager">
     <list default="true" id="22a0162b-a946-4d48-a00b-4c6245a2b392" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/building_scenes/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/building_scenes/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/example_project/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/example_project/src/main.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -66,12 +67,7 @@
       <recent name="$PROJECT_DIR$/examples/example_project" />
     </key>
   </component>
-  <component name="RunManager" selected="Cargo.Run Building Scenes Example">
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
+  <component name="RunManager" selected="Cargo.Run Example Project">
     <configuration name="Build CLI" type="CargoCommandRunConfiguration" factoryName="Cargo Command" singleton="false">
       <option name="command" value="build" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$/cli" />
@@ -210,7 +206,8 @@
       <workItem from="1636811516095" duration="599000" />
       <workItem from="1636856419591" duration="614000" />
       <workItem from="1637101104458" duration="73000" />
-      <workItem from="1637231574055" duration="15170000" />
+      <workItem from="1637231574055" duration="15388000" />
+      <workItem from="1637254310543" duration="69000" />
     </task>
     <servers />
   </component>
