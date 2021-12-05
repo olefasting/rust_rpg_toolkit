@@ -173,4 +173,10 @@ impl From<regex::Error> for Error {
     }
 }
 
+impl From<crate::json::Error> for Error {
+    fn from(err: crate::json::Error) -> Self {
+        Error::new(ErrorKind::Parse, err)
+    }
+}
+
 pub type Result<T> = result::Result<T, Error>;

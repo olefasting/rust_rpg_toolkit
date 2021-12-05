@@ -10,9 +10,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="22a0162b-a946-4d48-a00b-4c6245a2b392" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/json/error.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/building_scenes/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/building_scenes/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/example_project/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/example_project/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/error.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/error.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/file_io.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/file_io.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/helpers.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/helpers.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/json/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/json/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/resources.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/resources.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -164,6 +168,11 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
+    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
     <list>
       <item itemvalue="Cargo.Build" />
       <item itemvalue="Cargo.Clippy" />
@@ -207,7 +216,8 @@
       <workItem from="1636856419591" duration="614000" />
       <workItem from="1637101104458" duration="73000" />
       <workItem from="1637231574055" duration="15388000" />
-      <workItem from="1637254310543" duration="69000" />
+      <workItem from="1637254310543" duration="817000" />
+      <workItem from="1638688591386" duration="830000" />
     </task>
     <servers />
   </component>

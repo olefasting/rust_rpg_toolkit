@@ -1,6 +1,8 @@
+use crate::file_io::deserialize_file;
 use crate::prelude::*;
 
 use crate::macroquad::texture::{load_texture, Texture2D};
+use crate::helpers::ToStringHelper;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CharacterClass {
@@ -131,8 +133,7 @@ impl Resources {
         #[cfg(debug_assertions)]
         println!("Resources: Loading character classes");
         let character_classes_path = data_path.join(Self::CLASSES_FILE_NAME);
-        let bytes = load_file(&character_classes_path).await?;
-        let character_classes_data: Vec<CharacterClass> = serde_json::from_slice(&bytes)?;
+        let character_classes_data: Vec<CharacterClass> = deserialize_file(&character_classes_path).await?;
         let character_classes = HashMap::from_iter(
             character_classes_data
                 .into_iter()
@@ -142,8 +143,7 @@ impl Resources {
         #[cfg(debug_assertions)]
         println!("Resources: Loading actors");
         let actors_file_path = data_path.join(Self::ACTORS_FILE_NAME);
-        let bytes = load_file(&actors_file_path).await?;
-        let actor_data: Vec<ActorParams> = serde_json::from_slice(&bytes)?;
+        let actor_data: Vec<ActorParams> = deserialize_file(&actors_file_path).await?;
         let actors = HashMap::from_iter(
             actor_data
                 .into_iter()
@@ -153,8 +153,7 @@ impl Resources {
         #[cfg(debug_assertions)]
         println!("Resources: Loading items");
         let items_file_path = data_path.join(Self::ITEMS_FILE_NAME);
-        let bytes = load_file(&items_file_path).await?;
-        let items_data: Vec<ItemParams> = serde_json::from_slice(&bytes)?;
+        let items_data: Vec<ItemParams> = deserialize_file(&items_file_path).await?;
         let items = HashMap::from_iter(
             items_data
                 .into_iter()
@@ -164,8 +163,7 @@ impl Resources {
         #[cfg(debug_assertions)]
         println!("Resources: Loading missions");
         let missions_file_path = data_path.join(Self::MISSIONS_FILE_NAME);
-        let bytes = load_file(&missions_file_path).await?;
-        let missions_data: Vec<MissionParams> = serde_json::from_slice(&bytes)?;
+        let missions_data: Vec<MissionParams> = deserialize_file(&missions_file_path).await?;
         let missions = HashMap::from_iter(
             missions_data
                 .into_iter()
@@ -175,8 +173,7 @@ impl Resources {
         #[cfg(debug_assertions)]
         println!("Resources: Loading dialogue");
         let dialogue_file_path = data_path.join(Self::DIALOGUE_FILE_NAME);
-        let bytes = load_file(&dialogue_file_path).await?;
-        let dialogue_data: Vec<Dialogue> = serde_json::from_slice(&bytes)?;
+        let dialogue_data: Vec<Dialogue> = deserialize_file(&dialogue_file_path).await?;
         let dialogue = HashMap::from_iter(
             dialogue_data
                 .into_iter()
@@ -186,8 +183,7 @@ impl Resources {
         #[cfg(debug_assertions)]
         println!("Resources: Loading abilities");
         let abilities_file_path = data_path.join(Self::ABILITIES_FILE_NAME);
-        let bytes = load_file(&abilities_file_path).await?;
-        let ability_data: Vec<AbilityParams> = serde_json::from_slice(&bytes)?;
+        let ability_data: Vec<AbilityParams> = deserialize_file(&abilities_file_path).await?;
         let abilities = HashMap::from_iter(
             ability_data
                 .into_iter()
@@ -206,8 +202,7 @@ impl Resources {
         }
 
         let materials_file_path = assets_path.join(Self::MATERIALS_FILE_NAME);
-        let bytes = load_file(&materials_file_path).await?;
-        let material_assets: Vec<MaterialAssetParams> = serde_json::from_slice(&bytes)?;
+        let material_assets: Vec<MaterialAssetParams> = deserialize_file(&materials_file_path).await?;
 
         #[cfg(debug_assertions)]
         println!("Resources: Loading materials");
@@ -221,8 +216,7 @@ impl Resources {
         }
 
         let textures_file_path = assets_path.join(Self::TEXTURES_FILE_NAME);
-        let bytes = load_file(&textures_file_path).await?;
-        let texture_assets: Vec<TextureAssetParams> = serde_json::from_slice(&bytes)?;
+        let texture_assets: Vec<TextureAssetParams> = deserialize_file(&textures_file_path).await?;
 
         #[cfg(debug_assertions)]
         println!("Resources: Loading textures");
@@ -236,13 +230,13 @@ impl Resources {
 
         for params in texture_assets {
             let path = assets_path.join(&params.path);
-            let texture = load_texture(&path.to_string_lossy()).await?;
+            let texture = load_texture(&path.to_string_helper()).await?;
             texture.set_filter(params.filter_mode);
 
             let mut height_map = None;
             if let Some(path) = &params.height_map_path {
                 let path = assets_path.join(path);
-                let res = load_texture(&path.to_string_lossy()).await?;
+                let res = load_texture(&path.to_string_helper()).await?;
                 res.set_filter(params.filter_mode);
                 height_map = Some(res);
             }
@@ -250,7 +244,7 @@ impl Resources {
             let mut normal_map = None;
             if let Some(path) = &params.normal_map_path {
                 let path = assets_path.join(path);
-                let res = load_texture(&path.to_string_lossy()).await?;
+                let res = load_texture(&path.to_string_helper()).await?;
                 res.set_filter(params.filter_mode);
                 normal_map = Some(res);
             }
@@ -260,8 +254,7 @@ impl Resources {
         }
 
         let images_file_path = assets_path.join(Self::IMAGES_FILE_NAME);
-        let bytes = load_file(&images_file_path).await?;
-        let image_assets: Vec<ImageAssetParams> = serde_json::from_slice(&bytes)?;
+        let image_assets: Vec<ImageAssetParams> = deserialize_file(&images_file_path).await?;
 
         #[cfg(debug_assertions)]
         println!("Resources: Loading images");
@@ -279,8 +272,7 @@ impl Resources {
         }
 
         let fonts_file_path = assets_path.join(Self::FONTS_FILE_NAME);
-        let bytes = load_file(&fonts_file_path).await?;
-        let font_assets: Vec<FontAssetParams> = serde_json::from_slice(&bytes)?;
+        let font_assets: Vec<FontAssetParams> = deserialize_file(&fonts_file_path).await?;
 
         #[cfg(debug_assertions)]
         println!("Resources: Loading fonts");
@@ -292,8 +284,7 @@ impl Resources {
         }
 
         let sound_effects_file_path = assets_path.join(Self::SOUND_EFFECTS_FILE_NAME);
-        let bytes = load_file(&sound_effects_file_path).await?;
-        let sound_effect_assets: Vec<SoundAssetParams> = serde_json::from_slice(&bytes)?;
+        let sound_effect_assets: Vec<SoundAssetParams> = deserialize_file(&sound_effects_file_path).await?;
 
         #[cfg(debug_assertions)]
         println!("Resources: Loading sound effects");
@@ -305,8 +296,7 @@ impl Resources {
         }
 
         let music_file_path = assets_path.join(Self::MUSIC_FILE_NAME);
-        let bytes = load_file(&music_file_path).await?;
-        let music_assets: Vec<SoundAssetParams> = serde_json::from_slice(&bytes)?;
+        let music_assets: Vec<SoundAssetParams> = deserialize_file(&music_file_path).await?;
 
         #[cfg(debug_assertions)]
         println!("Resources: Loading music");
