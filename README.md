@@ -1,7 +1,12 @@
 # Rust RPG Toolkit
 
-**PLEASE NOTE: this is in early development. API is subject to constant change, as it has newly transitioned
-from being a game project to a library**
+**PLEASE NOTE:**
+
+**This is on hiatus until summer as I am devoting most of my time to the [FishFight](https://github.com/fishfight/FishFight)
+1.0 release that is planned to go down then. The project is definitely not dead, though, and as this shares a lot of code
+and design philosophy with the FishFight project, I am planning a major release some time after the FishFight 1.0, containing all the
+improvements made to code that was originally imported from this project, as well as migrating the FishFight editor to this
+framework.**
 
 This crate allows you to create tile-based, 2D action RPGs, using Rust amd JSON. It started out as a game project but was
 separated into its own project, as it grew in scope. It uses JSON files for most of its game data and resources specification,
