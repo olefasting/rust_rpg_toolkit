@@ -2,11 +2,9 @@
 
 **PLEASE NOTE:**
 
-**This is on hiatus until summer as I am devoting most of my time to the [FishFight](https://github.com/fishfight/FishFight)
-1.0 release that is planned to go down then. The project is definitely not dead, though, and as this shares a lot of code
-and design philosophy with the FishFight project, I am planning a major release some time after the FishFight 1.0, containing all the
-improvements made to code that was originally imported from this project, as well as migrating the FishFight editor to this
-framework.**
+**This project is discontinued, as most of it has been included in the internal engine we use for the Fish Fight project. As we near 1.0 for Fish Fight,
+this summer, we will, in stead, release an engine core library (yet to be named) based on this. It follows the same principles as this project but will
+be much more agnostic, in terms of game genre. It will also have support for multiple rendering backends**
 
 This crate allows you to create tile-based, 2D action RPGs, using Rust amd JSON. It started out as a game project but was
 separated into its own project, as it grew in scope. It uses JSON files for most of its game data and resources specification,

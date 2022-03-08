@@ -1,6 +1,6 @@
 [package]
 name = "rust-rpg-toolkit"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2018"
 authors = ["Ole A. Sjo Fasting <oasf@polygo.no>"]
 description = "An engine for creating action RPGs with Rust and/or JSON"
